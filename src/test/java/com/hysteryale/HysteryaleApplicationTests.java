@@ -1,10 +1,10 @@
-package net.phoenixsoftware.PhoenixProject;
+package com.hysteryale;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PhoenixProjectApplicationTests {
+class HysteryaleApplicationTests {
 
 	@Test
 	void contextLoads() {
