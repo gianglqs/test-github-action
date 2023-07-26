@@ -21,6 +21,11 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
     @Autowired
     private TokenStore tokenStore;
 
+    /**
+     * Configuration of Basic Authentication
+     * @param clients : simple client instance with basic authentication
+     * @throws Exception
+     */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
@@ -32,18 +37,29 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
                 .secret(passwordEncoder().encode("password"));
     }
 
+    /**
+     * Encrypting password with BCrypt
+     * @return PasswordEncoder instance
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Configuration for authenticating and generating token
+     * @param endpoints: end destination url path
+     */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
-        endpoints
-                .authenticationManager(authenticationManager)
+        endpoints.authenticationManager(authenticationManager)
                 .tokenStore(tokenStore);
     }
 
+    /**
+     * Creating token
+     * @return Token Storing
+     */
     @Bean
     public TokenStore tokenStore() {
         return new InMemoryTokenStore();
