@@ -2,11 +2,13 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.Account;
 import com.hysteryale.repository.AccountRepository;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,8 +17,13 @@ public class AccountService {
     @Autowired
     public AccountRepository accountRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    public AccountService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
     /**
      * Retrieving all the accounts
@@ -27,16 +34,31 @@ public class AccountService {
     }
 
     /**
+     * Getting an account by the given Id
+     * @param accountId: given Id
+     * @return an Account
+     * @throws NotFoundException if there is not any account existed with given Id
+     */
+
+    public Optional<Account> getAccountById(Integer accountId) throws NotFoundException {
+        Optional<Account> account = accountRepository.findById(accountId);
+        if(account.isEmpty())
+            throw new NotFoundException("No account with id: " + accountId);
+
+        return account;
+    }
+
+    /**
      * Adding new account with the encrypted password if the registered email is not existed
      * @param account : new registered Account
-     * @throws Exception if the Email has been taken before
+     * @throws Exception if the Email has already been taken
      */
     public void addAccount(Account account) throws Exception{
 
         if(!accountRepository.isEmailExisted(account.getEmail()))
         {
             // encrypt password
-            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            account.setPassword(passwordEncoder().encode(account.getPassword()));
             accountRepository.save(account);
         }
         else
@@ -50,5 +72,10 @@ public class AccountService {
      */
     public Optional<Account> getAccountByEmail(String email) {
         return accountRepository.getAccountByEmail(email);
+    }
+
+    @Transactional
+    public void changeDefaultLocale(Account account, String locale) {
+        account.setDefaultLocale(locale);
     }
 }

@@ -13,15 +13,21 @@ import java.util.Locale;
 
 //TODO: add default locale for each Account
 public class Internationalization extends WebMvcConfigurerAdapter {
+
+    @Bean
+    public SessionLocaleResolver sessionLocaleResolver() {
+        return new SessionLocaleResolver();
+    }
+
     /**
      * Setting default locale as US
      * @return SessionLocaleResolver
      */
     @Bean
     public LocaleResolver localeResolve() {
-        SessionLocaleResolver sessionLocaleResolver = new SessionLocaleResolver();
-        sessionLocaleResolver.setDefaultLocale(Locale.US);
-        return sessionLocaleResolver;
+        SessionLocaleResolver resolver = sessionLocaleResolver();
+        resolver.setDefaultLocale(Locale.US);
+        return resolver;
     }
     @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {

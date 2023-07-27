@@ -11,14 +11,18 @@ import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @EnableResourceServer
 public class AccountController {
-
     @Autowired
     public AccountService accountService;
 
-
+    /**
+     * Getting all accounts existed and filter to hide password
+     * @return list of accounts
+     */
     @GetMapping(path = "/accounts")
     public MappingJacksonValue getAllAccounts(){
 
@@ -33,8 +37,13 @@ public class AccountController {
         return mapping;
     }
 
+    /**
+     * Adding new account
+     * @param account mapping from JSON format
+     * @throws Exception if Account is not in valid format / constraints
+     */
     @PostMapping(path = "/accounts", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void addAccount(@RequestBody Account account) throws Exception{
+    public void addAccount(@Valid @RequestBody Account account) throws Exception{
         accountService.addAccount(account);
     }
 }
