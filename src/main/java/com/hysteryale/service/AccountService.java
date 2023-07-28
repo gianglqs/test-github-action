@@ -15,7 +15,7 @@ import java.util.Optional;
 @Service
 public class AccountService {
     @Autowired
-    public AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
