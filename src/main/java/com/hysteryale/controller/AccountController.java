@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @EnableResourceServer
@@ -24,17 +25,8 @@ public class AccountController {
      * @return list of accounts
      */
     @GetMapping(path = "/accounts")
-    public MappingJacksonValue getAllAccounts(){
-
-        // Filter to hide the password before return to JSON format
-        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("userName", "email", "role");
-        FilterProvider filterProvider = new SimpleFilterProvider().addFilter("PasswordFilter", filter);
-
-        //Mapping the Object through the Filters
-        MappingJacksonValue mapping = new MappingJacksonValue(accountService.getAllAccounts());
-        mapping.setFilters(filterProvider);
-
-        return mapping;
+    public List<Account> getAllAccounts(){
+        return accountService.getAllAccounts();
     }
 
     /**

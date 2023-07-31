@@ -5,6 +5,18 @@ The following was discovered as part of building this project:
 
 # Getting Started
 
+### Configure the PostgreSQL database connection
+You need to configure following script in "resources/application.properties" before running the project
+
+* spring.datasource.url=jdbc:postgresql://localhost:5432/{your-db-connection}
+* spring.datasource.username={your-db-authentication-username}
+* spring.datasource.password={your-db-authentication-password}
+
+For examples:
+* spring.datasource.url=jdbc:postgresql://localhost:5432/hysteryale
+* spring.datasource.username=postgres
+* spring.datasource.password=password
+
 ### Reference Documentation
 For further reference, please consider the following sections:
 

@@ -17,7 +17,7 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
-class UnitFlagsServiceTest {
+public class UnitFlagsServiceTest {
     @Mock
     private UnitFlagsRepository unitFlagsRepository;
     private UnitFlagsService underTest;

@@ -6,31 +6,33 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.sql.Date;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AUDPrice {
+public class Price {
     @Id
-    @SequenceGenerator(name = "audSequence", initialValue = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "audSequence")
+    @SequenceGenerator(name = "priceSequence", initialValue = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "priceSequence")
     private Integer id;
+
     private String updateAction;
     private String partNumber;
     private String customerType;
     private String brand;
     private String series;
     private String modelTruck;
-    private String currency;
-    private String price;
-    private String soldAlonePrice;
-    private String startDate;
-    private String endDate;
+    private String currency;                // USD Price or AUD Price
+    private Double price;
+    private Double soldAlonePrice;
+    private Date startDate;
+    private Date endDate;
     private String standard;
 
-    public AUDPrice(String updateAction, String partNumber, String customerType, String brand, String series, String modelTruck, String currency, String price, String soldAlonePrice, String startDate, String endDate, String standard) {
+    public Price(String updateAction, String partNumber, String customerType, String brand, String series, String modelTruck, String currency, Double price, Double soldAlonePrice, Date startDate, Date endDate, String standard) {
         this.updateAction = updateAction;
         this.partNumber = partNumber;
         this.customerType = customerType;

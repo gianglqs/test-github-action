@@ -3,21 +3,23 @@ package com.hysteryale.service;
 import com.hysteryale.model.Account;
 import com.hysteryale.repository.AccountRepository;
 import javassist.NotFoundException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
+
+import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-
-class AccountServiceTest {
+public class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
     private AccountService underTest;
@@ -42,28 +44,25 @@ class AccountServiceTest {
         // THEN
         verify(accountRepository).findAll();
     }
-
-    @Test
-    @Disabled
-    void canGetAccountById() throws NotFoundException {
-        //GIVEN
-        Integer accountId = 14;
-
-        //WHEN
-        given(underTest.getAccountById(accountId)).willReturn(any());
-
-        //THEN
-        verify(accountRepository).findById(accountId);
-    }
     @Test
     void throwNotFoundIfIdIsNotExisted() {
         //GIVEN
         Integer accountId = 0;
 
         //THEN
-        assertThatThrownBy(()-> underTest.getAccountById(accountId))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("No account with id: " + accountId);
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, ()->{
+            underTest.getAccountById(accountId);
+        });
+
+        // expected
+        String expectedMessage = "No account with id: " + accountId;
+        HttpStatus expectedStatus = HttpStatus.NOT_FOUND;
+        //return
+        String returnMessage = responseStatusException.getMessage();
+        HttpStatus returnStatus = responseStatusException.getStatus();
+
+        Assertions.assertTrue(returnMessage.contains(expectedMessage));
+        Assertions.assertEquals(expectedStatus, returnStatus);
     }
 
     @Test
@@ -79,7 +78,7 @@ class AccountServiceTest {
         verify(accountRepository).save(accountArgumentCaptor.capture());
         Account capturedAccount = accountArgumentCaptor.getValue();
 
-        assertThat(capturedAccount).isEqualTo(givenAccount);
+        assertEquals(capturedAccount, givenAccount);
     }
     @Test
     void throwExceptionIfEmailIsTaken() {
@@ -89,11 +88,18 @@ class AccountServiceTest {
         given(accountRepository.isEmailExisted(givenAccount.getEmail())).willReturn(true);
 
         //THEN
-        assertThatThrownBy(() -> underTest.addAccount(givenAccount))
-                .isInstanceOf(Exception.class)
-                .hasMessage("Email has been already taken");
-        verify(accountRepository, never()).save(any());
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
+                    underTest.addAccount(givenAccount);
+        });
 
+        String expectedMessage = "Email has been already taken";
+        String returnMessage = responseStatusException.getMessage();
+
+        HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus returnStatus = responseStatusException.getStatus();
+
+        Assertions.assertTrue(returnMessage.contains(expectedMessage));
+        Assertions.assertEquals(returnStatus, expectedStatus);
     }
 
     @Test
@@ -122,6 +128,6 @@ class AccountServiceTest {
         verify(accountRepository).getAccountByEmail(emailArgumentCaptor.capture());
         String capturedEmail = emailArgumentCaptor.getValue();
 
-        assertThat(capturedEmail).isEqualTo(email);
+        Assertions.assertEquals(capturedEmail, email);
     }
 }

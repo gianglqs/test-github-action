@@ -4,9 +4,11 @@ import com.hysteryale.model.Account;
 import com.hysteryale.repository.AccountRepository;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -43,8 +45,7 @@ public class AccountService {
     public Optional<Account> getAccountById(Integer accountId) throws NotFoundException {
         Optional<Account> account = accountRepository.findById(accountId);
         if(account.isEmpty())
-            throw new NotFoundException("No account with id: " + accountId);
-
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No account with id: " + accountId);
         return account;
     }
 
@@ -62,7 +63,7 @@ public class AccountService {
             accountRepository.save(account);
         }
         else
-            throw new Exception("Email has been already taken");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email has been already taken");
     }
 
     /**

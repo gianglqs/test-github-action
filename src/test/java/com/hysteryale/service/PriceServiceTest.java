@@ -1,29 +1,29 @@
 package com.hysteryale.service;
 
-import com.hysteryale.model.USDPrice;
-import com.hysteryale.repository.USDPriceRepository;
+import com.hysteryale.model.Price;
+import com.hysteryale.repository.PriceRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
-class USDPriceServiceTest {
+public class PriceServiceTest {
     @Mock
-    private USDPriceRepository usdPriceRepository;
-    private USDPriceService underTest;
+    private PriceRepository priceRepository;
+    private PriceService underTest;
     private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        underTest = new USDPriceService(usdPriceRepository);
+        underTest = new PriceService(priceRepository);
     }
     @AfterEach
     void tearDown() throws Exception {
@@ -33,17 +33,17 @@ class USDPriceServiceTest {
     @Test
     void canGetAllUSDPrices() {
         // WHEN
-        underTest.getAllUSDPrices();
+        underTest.getAllPrices();
         //THEN
-        verify(usdPriceRepository).findAll();
+        verify(priceRepository).findAll();
     }
 
     @Test
-    void canAddListOfUSDPrices() {
+    void canAddListOfPriceBook() {
         // GIVEN
-        List<USDPrice> usdPriceList = new ArrayList<>();
+        List<Price> priceList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            USDPrice tempUSDPrice = new USDPrice(
+            Price tempPrice = new Price(
                     "updateAction" + i,
                     "partNumber" + i,
                     "customerType" + i,
@@ -51,18 +51,30 @@ class USDPriceServiceTest {
                     "series" + i,
                     "modelTruck" + i,
                     "currency" + i,
-                    "price" + i,
-                    "soldAlonePrice" + i,
-                    "startDate" + i,
-                    "endDate" + i,
+                    Double.longBitsToDouble(i),
+                    Double.longBitsToDouble(i),
+                    new Date(2023, 7, 31),
+                    new Date(2023, 7, 31),
                     "standard" + i
             );
-            usdPriceList.add(tempUSDPrice);
+            priceList.add(tempPrice);
         }
         // WHEN
-        underTest.addListOfUSDPrices(usdPriceList);
+        underTest.addListOfPrices(priceList);
 
         //THEN
-        verify(usdPriceRepository).saveAll(usdPriceList);
+        verify(priceRepository).saveAll(priceList);
+    }
+
+    @Test
+    void canGetListOfPricesBySeries() {
+        // GIVEN
+        String seriesNum = "C287";
+
+        //WHEN
+        underTest.getPricesBySeries(seriesNum);
+
+        //THEN
+        verify(priceRepository).getPricesListBySeries(seriesNum);
     }
 }
