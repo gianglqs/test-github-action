@@ -11,10 +11,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class UnitFlagsServiceTest {
@@ -36,7 +38,7 @@ public class UnitFlagsServiceTest {
     @Test
     void canAddFlags() {
         //GIVEN
-        Date date = new Date();
+        Timestamp timestamp = new Timestamp(2023, 8, 1, 0, 0, 0,0);
         UnitFlags givenUnitFlags = new UnitFlags(
                 "abc",
                 "abc",
@@ -45,7 +47,7 @@ public class UnitFlagsServiceTest {
                 "abc",
                 "abc",
                 "abc",
-                new SimpleDateFormat("MM/dd/YYYY hh:mm:s a").format(date),
+                timestamp,
                 "abc"
                 );
         //WHEN

@@ -2,7 +2,12 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.UnitFlags;
 import com.hysteryale.repository.UnitFlagsRepository;
+import com.monitorjbl.xlsx.StreamingReader;
 import javassist.NotFoundException;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -16,10 +21,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -29,75 +35,101 @@ public class UnitFlagsService {
 
     /** Initial the number of Excel file's rows can be saveAll() at one time*/
     private static final Integer NUM_OF_ROWS = 100;
+    private HashMap<String, Integer> columns = new HashMap<>();
 
     public UnitFlagsService(UnitFlagsRepository unitFlagsRepository) {
         this.unitFlagsRepository = unitFlagsRepository;
     }
 
     /**
-     * Create new Unit Flags according to Excel file
+     * Mapping columns' name in Unit Flags to HashMap with KEY : "column_name" and VALUE : "column index"
+     * @param row
+     */
+    void getUnitFlagsColumnsIndex(Row row){
+        for(int i = 0; i < 9; i++) {
+            String columnName = row.getCell(i).getStringCellValue();
+            columns.put(columnName, i);
+        }
+    }
+
+
+    /**
+     * Create new Unit Flags according to Excel file using HashMap to indicate cell index
      * @param row a data row in Excel file
      * @return new Unit Flags object
      */
-    public UnitFlags mapExcelRowToUnitFlags(XSSFRow row) {
+    public UnitFlags mapExcelRowToUnitFlags(Row row) throws ParseException {
+        // Format the value in startDate and endDate in Excel file
+        DataFormatter df = new DataFormatter();
+        String strCreatedDate = df.formatCellValue(row.getCell(columns.get("Created Date"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK));
+
+        // convert into sql.Date type
+        Timestamp createdDate = null;
+        if(strCreatedDate != ""){
+            createdDate = new Timestamp(new SimpleDateFormat("MM/dd/yyyy hh:mm:s a").parse(strCreatedDate).getTime());
+        }
+
         return new UnitFlags(
-                row.getCell(0).getStringCellValue(),        //Unit
-                row.getCell(1).getStringCellValue(),        //Description
-                row.getCell(2).getStringCellValue(),        //Class
-                row.getCell(3).getStringCellValue(),        //Ready for Distribution
-                row.getCell(4).getStringCellValue(),        //Enable GL Readiness
-                row.getCell(5).getStringCellValue(),        //Fully Attributed
-                row.getCell(6).getStringCellValue(),        //Ready for Parts Costing
-                new SimpleDateFormat("MM/dd/YYYY hh:mm:s a").format(row.getCell(7).getDateCellValue()), //Created Date
-                row.getCell(8).getStringCellValue()         //Cancelled
+                row.getCell(columns.get("Unit")).getStringCellValue(),                          //Unit
+                row.getCell(columns.get("Description")).getStringCellValue(),                   //Description
+                row.getCell(columns.get("Class")).getStringCellValue(),                         //Class
+                row.getCell(columns.get("Ready for Distribution")).getStringCellValue(),        //Ready for Distribution
+                row.getCell(columns.get("Enable GL Readiness")).getStringCellValue(),           //Enable GL Readiness
+                row.getCell(columns.get("Fully Attributed")).getStringCellValue(),              //Fully Attributed
+                row.getCell(columns.get("Ready for Parts Costing")).getStringCellValue(),       //Ready for Parts Costing
+                createdDate,                                                                    //Created Date
+                row.getCell(columns.get("Cancelled")).getStringCellValue()                      //Cancelled
         );
     }
 
     /**
      * Import all rows in the Excel files
-     * Notes: not checking same value
      * @throws IOException
      */
-    public void mapDataExcelToDB() throws IOException {
-        //Mock data files with local Excel file
-        File file = new File("importdata/masterdata/UnitFlags.xlsx");
-        InputStream inputStream = new FileInputStream(file);
+    public void mapDataExcelToDB() throws IOException, ParseException {
+        InputStream is = new FileInputStream(new File("importdata/masterdata/UnitFlags.xlsx"));
+        Workbook workbook = StreamingReader
+                .builder()              //setting Buffer
+                .rowCacheSize(100)
+                .bufferSize(4096)
+                .open(is);
 
-        //TODO: should import Excel data file from outside
-        //MultipartFile excelDataFile = new MockMultipartFile("ExcelData", inputStream);
-
-        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
-        XSSFSheet workSheet = workbook.getSheetAt(0);
-
-        // init start iterator
-        int i = 2;
         List<UnitFlags> unitFlagsList = new ArrayList<>();
+        Sheet sheet = workbook.getSheetAt(0); // Unit Flags
 
-        while (workSheet.getRow(i) != null){
-            XSSFRow row = workSheet.getRow(i);
-            UnitFlags tempUnitFlags = mapExcelRowToUnitFlags(row);
-            unitFlagsList.add(tempUnitFlags);
-
-            if(unitFlagsList.size() > NUM_OF_ROWS){
-                addListOfUnitFlags(unitFlagsList);
-                unitFlagsList.clear();
+        for(Row row : sheet) {
+            if(row.getRowNum() == 1){
+                getUnitFlagsColumnsIndex(row);
             }
-            i++;
+            if(row.getRowNum() > 1 &&
+                    !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().equals("")) {
+                UnitFlags unitFlags = mapExcelRowToUnitFlags(row);
+                unitFlagsList.add(unitFlags);
+
+                if(unitFlagsList.size() > NUM_OF_ROWS) {
+                    addListOfUnitFlags(unitFlagsList);
+                    unitFlagsList.clear();
+                }
+            }
         }
         addListOfUnitFlags(unitFlagsList);
     }
 
-    public void saveUnitFlagsChanges() throws IOException {
-        //Mock data files with local excel file
+    public void saveUnitFlagsChanges() throws IOException, ParseException {
+        // Mock data files with local excel file
         File file = new File("importdata/masterdata/MockUnitFlags.xlsx");
         InputStream inputStream = new FileInputStream(file);
 
         //TODO: should import Excel data file from outside
-        //MultipartFile excelDataFile = new MockMultipartFile("ExcelData", inputStream);
+        // MultipartFile excelDataFile = new MockMultipartFile("ExcelData", inputStream);
 
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
         XSSFSheet workSheet = workbook.getSheetAt(0);
 
+        // get Excel file columns
+        // Row 1 : columns' name
+        getUnitFlagsColumnsIndex(workSheet.getRow(1));
+        System.out.println(Arrays.asList(columns));
         // init iterator
         int i = 2;
         List<UnitFlags> unitFlagsList = new ArrayList<>();
@@ -125,7 +157,7 @@ public class UnitFlagsService {
                     unitFlagsList.clear();
                 }
             }
-            //increase iterator
+            // increase iterator
             i++;
         }
         System.out.println(unitFlagsList.size());
@@ -155,5 +187,8 @@ public class UnitFlagsService {
         dbUnitFlags.setReadyForPartsCosting(tempUnitFlags.getReadyForPartsCosting());
         dbUnitFlags.setCreatedDate(tempUnitFlags.getCreatedDate());
         dbUnitFlags.setCancelled(tempUnitFlags.getCancelled());
+    }
+    public List<UnitFlags> getUnitFlagsByReadyState(String readyState) {
+        return unitFlagsRepository.getUnitFlagsByReadyState(readyState);
     }
 }

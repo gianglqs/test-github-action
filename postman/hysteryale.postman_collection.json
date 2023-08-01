@@ -1,0 +1,134 @@
+{
+	"info": {
+		"_postman_id": "2d46d11f-0377-4c9b-a272-851592136d68",
+		"name": "hysteryale",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "28736460"
+	},
+	"item": [
+		{
+			"name": "get authorization token",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"password": "password",
+						"username": "client"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "admin@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						}
+					]
+				},
+				"url": "http://localhost:8080/oauth/token"
+			},
+			"response": []
+		},
+		{
+			"name": "get Price List by series",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearerb519885b-7fd9-4c5b-b8b9-f361d0727305",
+						"description": "Bearer + {token}",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/price/series/C287"
+			},
+			"response": []
+		},
+		{
+			"name": "get all Price",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearerb519885b-7fd9-4c5b-b8b9-f361d0727305",
+						"description": "Bearer + {token}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "http://localhost:8080/price",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"price"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all UnitFlags",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearerb519885b-7fd9-4c5b-b8b9-f361d0727305",
+						"description": "Bearer + {token}",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/unitFlags"
+			},
+			"response": []
+		},
+		{
+			"name": "get Unit Flags by ReadyForDistribution",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearerb519885b-7fd9-4c5b-b8b9-f361d0727305",
+						"description": "Bearer + {token}",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/unitFlags/readyForDistribution/y"
+			},
+			"response": []
+		}
+	]
+}

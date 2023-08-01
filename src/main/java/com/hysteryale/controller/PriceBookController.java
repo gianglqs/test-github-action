@@ -27,7 +27,7 @@ public class PriceBookController {
     @GetMapping(path = "/price/series/{strSeries}")
     public List<Price> getPricesBySeries(@PathVariable String strSeries) {
         List<Price> priceList = priceService.getPricesBySeries(strSeries);
-        if(priceList.size() > 0)
+        if(!priceList.isEmpty())
             return priceList;
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Price found with series: " + strSeries);

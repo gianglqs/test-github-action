@@ -35,7 +35,6 @@ public class CustomTokenEnhancer implements TokenEnhancer {
         additionalInfo.put("accountId", account.getId());
         additionalInfo.put("defaultLocale", account.getDefaultLocale());
 
-        oAuth2AccessToken = (DefaultOAuth2AccessToken) oAuth2AccessToken;
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInfo);
         return oAuth2AccessToken;
     }
