@@ -129,6 +129,22 @@
 				"url": "http://localhost:8080/unitFlags/readyForDistribution/y"
 			},
 			"response": []
+		},
+		{
+			"name": "get all account",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer618e4e73-fe29-4455-9157-aef865681d1b",
+						"description": "Bearer+{token}",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/accounts"
+			},
+			"response": []
 		}
 	]
 }
