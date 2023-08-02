@@ -31,6 +31,7 @@ class PriceBookControllerTest {
     AccountRepository accountRepository;
     @Mock
     PriceRepository priceRepository;
+    @Autowired
     PriceService priceService;
     AutoCloseable autoCloseable;
     @InjectMocks
@@ -42,7 +43,7 @@ class PriceBookControllerTest {
     @BeforeEach
     void setUp(){
         autoCloseable = MockitoAnnotations.openMocks(this);
-        priceService = new PriceService(priceRepository);
+//        priceService = new PriceService(priceRepository);
         priceBookController = new PriceBookController(priceService);
         testRestTemplate = new RestTemplate();
     }
@@ -79,6 +80,7 @@ class PriceBookControllerTest {
         messageConverters.add(converter);
         return messageConverters;
     }
+    //TODO test through functions
     @Test
     void canGetAllPrices() {
         // GIVEN

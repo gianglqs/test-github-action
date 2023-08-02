@@ -23,6 +23,7 @@ public class UnitFlags {
     private String enableGLReadiness;
     private String fullyAttributed;
     private String readyForPartsCosting;
+    //TODO gregorianCalendar
     private Timestamp createdDate;
     private String cancelled;
 

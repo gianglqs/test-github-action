@@ -26,7 +26,7 @@ public class AccountServiceTest {
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        underTest = new AccountService(accountRepository);
+//        underTest = new AccountService(accountRepository);
     }
 
     @AfterEach
@@ -42,6 +42,7 @@ public class AccountServiceTest {
         // THEN
         verify(accountRepository).findAll();
     }
+    //TODO consider exception
     @Test
     void throwNotFoundIfIdIsNotExisted() {
         //GIVEN

@@ -23,7 +23,7 @@ public class AccountService {
         return new BCryptPasswordEncoder();
     }
 
-    public AccountService(AccountRepository accountRepository) {
+    private AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
@@ -42,7 +42,7 @@ public class AccountService {
      * @throws NotFoundException if there is not any account existed with given Id
      */
 
-    public Optional<Account> getAccountById(Integer accountId) throws NotFoundException {
+    public Optional<Account> getAccountById(Integer accountId) {
         Optional<Account> account = accountRepository.findById(accountId);
         if(account.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No account with id: " + accountId);

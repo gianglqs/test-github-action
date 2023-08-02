@@ -29,11 +29,13 @@ import static org.mockito.Mockito.when;
 public class AccountControllerTest {
     @Autowired
     private RestTemplate testRestTemplate;
-    @Mock
-    private AccountService accountService;
+
     @Mock
     private AccountRepository accountRepository;
     private AutoCloseable autoCloseable;
+
+    @Autowired @Mock
+    AccountService accountService;
 
     private static String ACCESS_TOKEN = "Bearer";
 
@@ -41,14 +43,13 @@ public class AccountControllerTest {
     void setUp(){
         testRestTemplate = new RestTemplate();
         autoCloseable = MockitoAnnotations.openMocks(this);
-        accountService = new AccountService(accountRepository);
     }
     @AfterEach
     void tearDown() throws Exception {
         autoCloseable.close();
     }
     @Test
-    void canGetAccessToken()
+    void testGetAccessToken()
     {
         Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm","admin2","us");
         accountRepository.save(given1);
@@ -95,7 +96,7 @@ public class AccountControllerTest {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
         // GET ACCESS TOKEN
-        canGetAccessToken();
+//        canGetAccessToken();
 
         // setting Header and MessageConverter
         List<HttpMessageConverter<?>> messageConverters = getConverter();

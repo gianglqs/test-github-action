@@ -102,14 +102,17 @@ public class PriceService {
                 //get the columns name to HashMap
                 if(row.getRowNum() == 1){
                     getPriceBookColumnsIndex(row);
-                    System.out.println(Arrays.asList(columns));
+                    // TODO replace println -> log.info
                 }
                 else if(row.getRowNum() > 4 &&
                         !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().equals("")) {
 
                     // map to Price object and store in *priceList
+
                     Price price = mapExcelDataToPrice(row);
                     priceList.add(price);
+
+                    //TODO: need to be considered, rollback if error
                     // if *priceList stores 1000 objects -> saveAll()
                     if(priceList.size() > NUM_OF_ROWS) {
                         addListOfPrices(priceList);
