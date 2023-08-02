@@ -20,6 +20,10 @@ public class AccountController {
     @Autowired
     public AccountService accountService;
 
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
     /**
      * Getting all accounts existed and filter to hide password
      * @return list of accounts

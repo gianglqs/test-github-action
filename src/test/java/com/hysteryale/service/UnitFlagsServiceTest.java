@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
@@ -62,5 +64,41 @@ public class UnitFlagsServiceTest {
         underTest.getAllUnitFlags();
         //THEN
         verify(unitFlagsRepository).findAll();
+    }
+
+    @Test
+    void canAddListOfUnitFlags() {
+        // GIVEN
+        List<UnitFlags> saveList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Timestamp timestamp = new Timestamp(2023, 8, 1, 0, 0, 0,0);
+            UnitFlags givenUnitFlags = new UnitFlags(
+                    "abc",
+                    "abc",
+                    "abc",
+                    "abc",
+                    "abc",
+                    "abc",
+                    "abc",
+                    timestamp,
+                    "abc"
+            );
+            saveList.add(givenUnitFlags);
+        }
+
+        // WHEN
+        underTest.addListOfUnitFlags(saveList);
+
+        // THEN
+        verify(unitFlagsRepository).saveAll(saveList);
+    }
+
+    @Test
+    void canGetUnitFlagsByReadyState() {
+        // WHEN
+        underTest.getUnitFlagsByReadyState("y");
+
+        // THEN
+        verify(unitFlagsRepository).getUnitFlagsByReadyState("y");
     }
 }

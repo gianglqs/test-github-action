@@ -115,53 +115,71 @@ public class UnitFlagsService {
         addListOfUnitFlags(unitFlagsList);
     }
 
-    public void saveUnitFlagsChanges() throws IOException, ParseException {
+    /**
+     * Save UnitFlags if there is any changes and add new UnitFlags if it is not existed
+     * @throws IOException
+     * @throws ParseException
+     */
+    public void importUnitFlagsChanges() throws IOException, ParseException {
+        // Tracking parameter
+        int numOfRowsChanged = 0;
+
         // Mock data files with local excel file
-        File file = new File("importdata/masterdata/MockUnitFlags.xlsx");
-        InputStream inputStream = new FileInputStream(file);
+        InputStream is = new FileInputStream(new File("importdata/masterdata/MockUnitFlags.xlsx"));
+        Workbook workbook = StreamingReader
+                .builder()              //setting Buffer
+                .rowCacheSize(100)
+                .bufferSize(4096)
+                .open(is);
 
-        //TODO: should import Excel data file from outside
-        // MultipartFile excelDataFile = new MockMultipartFile("ExcelData", inputStream);
+        List<UnitFlags> saveList = new ArrayList<>();
+        Sheet sheet = workbook.getSheetAt(0); // Unit Flags
 
-        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
-        XSSFSheet workSheet = workbook.getSheetAt(0);
+        for(Row row : sheet) {
+            // get column name into HashMap
+            if(row.getRowNum() == 1)
+                getUnitFlagsColumnsIndex(row);
+            if(row.getRowNum() > 1 &&
+                    !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().equals("")) {
+                UnitFlags excelUnitFlags = mapExcelRowToUnitFlags(row);
+                Optional<UnitFlags> optionalUnitFlags = getUnitFlagsByUnit(excelUnitFlags.getUnit());
 
-        // get Excel file columns
-        // Row 1 : columns' name
-        getUnitFlagsColumnsIndex(workSheet.getRow(1));
-        System.out.println(Arrays.asList(columns));
-        // init iterator
-        int i = 2;
-        List<UnitFlags> unitFlagsList = new ArrayList<>();
-
-        while (workSheet.getRow(i) != null) {
-            XSSFRow row = workSheet.getRow(i);
-
-            UnitFlags tempUnitFlags = mapExcelRowToUnitFlags(row);
-
-            /* Get Unit Flags with the unit in Excel:
-              if present() -> check if there is any change -> changed -> save these changes to DB
-              if empty() -> add new to DB
-             */
-            Optional<UnitFlags> optionalUnitFlags = getUnitFlagsByUnit(tempUnitFlags.getUnit());
-            if(optionalUnitFlags.isPresent()){
-                if(!optionalUnitFlags.get().equals(tempUnitFlags)){
-                    saveUnitFlagsChanges(optionalUnitFlags.get(), tempUnitFlags);
+                /*
+                    If dbUnitFlags is presented -> check 2 UnitFlags are whether equal or not -> save changes
+                    else add new UnitFlags to DB
+                 */
+                if(optionalUnitFlags.isPresent()) {
+                    UnitFlags dbUnitFlags = optionalUnitFlags.get();
+                    if(!isUnitFlagsEqual(dbUnitFlags, excelUnitFlags))
+                    {
+                        saveUnitFlagsChanges(dbUnitFlags, excelUnitFlags);
+                        numOfRowsChanged++;
+                    }
+                }
+                else {
+                    // Add new UnitFlags to List
+                    saveList.add(excelUnitFlags);
+                    if(saveList.size() > NUM_OF_ROWS) {
+                        // saveAll() the List if size() > NUM_OF_ROWS -> clear() the list
+                        addListOfUnitFlags(saveList);
+                        saveList.clear();
+                    }
                 }
             }
-            else {
-                unitFlagsList.add(tempUnitFlags);
-                System.out.println(unitFlagsList.size());
-                if(unitFlagsList.size() > NUM_OF_ROWS){
-                    addListOfUnitFlags(unitFlagsList);
-                    unitFlagsList.clear();
-                }
-            }
-            // increase iterator
-            i++;
         }
-        System.out.println(unitFlagsList.size());
-        addListOfUnitFlags(unitFlagsList);
+        addListOfUnitFlags(saveList);
+        System.out.println(numOfRowsChanged);
+    }
+    boolean isUnitFlagsEqual(UnitFlags a, UnitFlags b) {
+        return a.getUnit().equals(b.getUnit()) &&
+                a.getDescription().equals(b.getDescription()) &&
+                a.getUClass().equals(b.getUClass()) &&
+                a.getReadyForDistribution().equals(b.getReadyForDistribution()) &&
+                a.getEnableGLReadiness().equals(b.getEnableGLReadiness()) &&
+                a.getFullyAttributed().equals(b.getFullyAttributed()) &&
+                a.getReadyForPartsCosting().equals(b.getReadyForPartsCosting()) &&
+                a.getCreatedDate().equals(b.getCreatedDate()) &&
+                a.getCancelled().equals(b.getCancelled());
     }
 
     public void addUnitFlags(UnitFlags unitFlags) {
@@ -176,17 +194,17 @@ public class UnitFlagsService {
     public Optional<UnitFlags> getUnitFlagsByUnit(String unit) {
         return unitFlagsRepository.findById(unit);
     }
-    public void saveUnitFlagsChanges(UnitFlags dbUnitFlags, UnitFlags tempUnitFlags) {
+    public void saveUnitFlagsChanges(UnitFlags dbUnitFlags, UnitFlags excelUnitFlags) {
         //setting all changes
-        dbUnitFlags.setUnit(tempUnitFlags.getUnit());
-        dbUnitFlags.setDescription(tempUnitFlags.getDescription());
-        dbUnitFlags.setUClass(tempUnitFlags.getUClass());
-        dbUnitFlags.setReadyForDistribution(tempUnitFlags.getReadyForDistribution());
-        dbUnitFlags.setEnableGLReadiness(tempUnitFlags.getEnableGLReadiness());
-        dbUnitFlags.setFullyAttributed(tempUnitFlags.getFullyAttributed());
-        dbUnitFlags.setReadyForPartsCosting(tempUnitFlags.getReadyForPartsCosting());
-        dbUnitFlags.setCreatedDate(tempUnitFlags.getCreatedDate());
-        dbUnitFlags.setCancelled(tempUnitFlags.getCancelled());
+        dbUnitFlags.setUnit(excelUnitFlags.getUnit());
+        dbUnitFlags.setDescription(excelUnitFlags.getDescription());
+        dbUnitFlags.setUClass(excelUnitFlags.getUClass());
+        dbUnitFlags.setReadyForDistribution(excelUnitFlags.getReadyForDistribution());
+        dbUnitFlags.setEnableGLReadiness(excelUnitFlags.getEnableGLReadiness());
+        dbUnitFlags.setFullyAttributed(excelUnitFlags.getFullyAttributed());
+        dbUnitFlags.setReadyForPartsCosting(excelUnitFlags.getReadyForPartsCosting());
+        dbUnitFlags.setCreatedDate(excelUnitFlags.getCreatedDate());
+        dbUnitFlags.setCancelled(excelUnitFlags.getCancelled());
     }
     public List<UnitFlags> getUnitFlagsByReadyState(String readyState) {
         return unitFlagsRepository.getUnitFlagsByReadyState(readyState);

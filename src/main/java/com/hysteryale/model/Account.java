@@ -15,7 +15,6 @@ import javax.validation.constraints.Size;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonFilter("PasswordFilter")
 public class Account {
     @Id
     @GeneratedValue

@@ -26,5 +26,4 @@ public class UnitFlags {
     private Timestamp createdDate;
     private String cancelled;
 
-
 }

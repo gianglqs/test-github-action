@@ -11,17 +11,12 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.transaction.Transactional;
+import java.io.*;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class PriceService {
@@ -124,7 +119,72 @@ public class PriceService {
             }
             // save the remaining Price in the List
             addListOfPrices(priceList);
+            priceList.clear();
         }
+    }
+//    public void importPriceChanges() throws ParseException, FileNotFoundException {
+//        // Tracking parameter
+//        int numOfRowsChanged = 0;
+//
+//        InputStream is = new FileInputStream(new File("importdata/masterdata/MockPriceBook.xlsx"));
+//        Workbook workbook = StreamingReader.builder().rowCacheSize(100).bufferSize(4096).open(is);
+//
+//        List<Price> saveList = new ArrayList<>();
+//
+//        for(int i = 0; i < 2; i++) {
+//            Sheet sheet = workbook.getSheetAt(i); // sheet 0: USD Price, sheet 1 AUD Price
+//            for(Row row : sheet) {
+//                // get the columns' name into HashMap
+//                if(row.getRowNum() == 1) {
+//                    getPriceBookColumnsIndex(row);
+//                    System.out.println(Arrays.asList(columns));
+//                }
+//                if(row.getRowNum() > 4 && !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().equals("")) {
+//                    Price excelPrice = mapExcelDataToPrice(row);
+//                    Optional<Price> optionalPrice = getSinglePrice(excelPrice.getCurrency(), excelPrice.getPartNumber(), excelPrice.getSeries());
+//
+//                    if(optionalPrice.isPresent()) {
+//                        Price dbPrice = optionalPrice.get();
+//                        if(!isPriceEqual(dbPrice, excelPrice)){
+//                            setChanges(dbPrice, excelPrice);
+//                            numOfRowsChanged++;
+//                        }
+//                    }
+//                    else {
+//                        saveList.add(excelPrice);
+//                        if(saveList.size() > NUM_OF_ROWS) {
+//                            addListOfPrices(saveList);
+//                            saveList.clear();
+//                        }
+//                    }
+//                }
+//            }
+//            // save the remaining in the list
+//            addListOfPrices(saveList);
+//            saveList.clear();
+//        }
+//        System.out.println(numOfRowsChanged);
+//    }
+
+    /**
+     * Checking two Price objects field by field are whether equal or not
+     * @param a
+     * @param b
+     * @return
+     */
+    public boolean isPriceEqual(Price a, Price b){
+        return a.getUpdateAction().equals(b.getUpdateAction()) &&
+                a.getCustomerType().equals(b.getCustomerType()) &&
+                a.getPartNumber().equals(b.getCustomerType()) &&
+                a.getBrand().equals(b.getBrand()) &&
+                a.getPrice().equals(b.getPrice()) &&
+                a.getModelTruck().equals(b.getModelTruck()) &&
+                a.getCurrency().equals(b.getCurrency()) &&
+                a.getSeries().equals(b.getSeries()) &&
+                a.getSoldAlonePrice().equals(b.getSoldAlonePrice()) &&
+                a.getStartDate().equals(b.getStartDate()) &&
+                a.getEndDate().equals(b.getEndDate()) &&
+                a.getStandard().equals(b.getStandard());
     }
 
     public List<Price> getAllPrices(){
@@ -137,5 +197,20 @@ public class PriceService {
 
     public List<Price> getPricesBySeries(String seriesNum){
         return priceRepository.getPricesListBySeries(seriesNum);
+    }
+    @Transactional
+    public void setChanges(Price dbPrice, Price excelPrice) {
+        dbPrice.setUpdateAction(excelPrice.getUpdateAction());
+        dbPrice.setCustomerType(excelPrice.getCustomerType());
+        dbPrice.setPartNumber(excelPrice.getPartNumber());
+        dbPrice.setBrand(excelPrice.getBrand());
+        dbPrice.setPrice(excelPrice.getPrice());
+        dbPrice.setModelTruck(excelPrice.getModelTruck());
+        dbPrice.setCurrency(excelPrice.getCurrency());
+        dbPrice.setSeries(excelPrice.getSeries());
+        dbPrice.setSoldAlonePrice(excelPrice.getSoldAlonePrice());
+        dbPrice.setStartDate(excelPrice.getStartDate());
+        dbPrice.setEndDate(excelPrice.getEndDate());
+        dbPrice.setStandard(excelPrice.getStandard());
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -18,6 +19,10 @@ import java.util.List;
 public class PriceBookController {
     @Autowired
     private PriceService priceService;
+
+    public PriceBookController(PriceService priceService) {
+        this.priceService = priceService;
+    }
 
     @GetMapping(path = "/price")
     public List<Price> getAllPrices() {
