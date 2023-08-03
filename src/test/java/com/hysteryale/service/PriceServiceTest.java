@@ -5,8 +5,10 @@ import com.hysteryale.repository.PriceRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -15,15 +17,15 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 
 public class PriceServiceTest {
-    @Mock
+    @Autowired @Mock
     private PriceRepository priceRepository;
+    @Autowired @InjectMocks
     private PriceService underTest;
     private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        underTest = new PriceService(priceRepository);
     }
     @AfterEach
     void tearDown() throws Exception {
@@ -31,7 +33,7 @@ public class PriceServiceTest {
     }
 
     @Test
-    void canGetAllUSDPrices() {
+    void testGetAllPrices() {
         // WHEN
         underTest.getAllPrices();
         //THEN
@@ -39,7 +41,7 @@ public class PriceServiceTest {
     }
 
     @Test
-    void canAddListOfPriceBook() {
+    void testAddListOfPriceBook() {
         // GIVEN
         List<Price> priceList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -67,7 +69,7 @@ public class PriceServiceTest {
     }
 
     @Test
-    void canGetListOfPricesBySeries() {
+    void testGetListOfPricesBySeries() {
         // GIVEN
         String seriesNum = "C287";
 

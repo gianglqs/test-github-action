@@ -10,19 +10,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
 @RestController
-public class PriceBookController {
+public class PriceController {
     @Autowired
     private PriceService priceService;
 
-    public PriceBookController(PriceService priceService) {
-        this.priceService = priceService;
-    }
 
     @GetMapping(path = "/price")
     public List<Price> getAllPrices() {
@@ -36,5 +32,9 @@ public class PriceBookController {
             return priceList;
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Price found with series: " + strSeries);
+    }
+    @PostMapping(path = "/price/import")
+    public void priceImport() throws IOException, ParseException {
+        priceService.importPriceBook();
     }
 }

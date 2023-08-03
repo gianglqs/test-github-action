@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface UnitFlagsRepository extends JpaRepository<UnitFlags, String> {
     @Query("SELECT u FROM UnitFlags u WHERE u.readyForDistribution = ?1")
-    public List<UnitFlags> getUnitFlagsByReadyState(String readyState);
+    List<UnitFlags> getUnitFlagsByReadyState(String readyState);
 }

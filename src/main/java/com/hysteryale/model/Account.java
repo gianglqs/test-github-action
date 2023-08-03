@@ -1,6 +1,5 @@
 package com.hysteryale.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,14 +32,4 @@ public class Account {
         this.password = password;
         this.role = role;
     }
-
-    public Account(Account account) {
-        this.id = account.id;
-        this.userName = account.userName;
-        this.email = account.email;
-        this.password = account.password;
-        this.role = account.role;
-    }
-
-
 }

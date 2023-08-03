@@ -3,43 +3,31 @@ package com.hysteryale.service;
 import com.hysteryale.model.UnitFlags;
 import com.hysteryale.repository.UnitFlagsRepository;
 import com.monitorjbl.xlsx.StreamingReader;
-import javassist.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.transaction.Transactional;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Slf4j
 @Transactional
 public class UnitFlagsService {
     @Autowired
-    private UnitFlagsRepository unitFlagsRepository;
+    UnitFlagsRepository unitFlagsRepository;
 
     /** Initial the number of Excel file's rows can be saveAll() at one time*/
-    private static final Integer NUM_OF_ROWS = 100;
-    private HashMap<String, Integer> columns = new HashMap<>();
-
-    public UnitFlagsService(UnitFlagsRepository unitFlagsRepository) {
-        this.unitFlagsRepository = unitFlagsRepository;
-    }
+    private final HashMap<String, Integer> columns = new HashMap<>();
 
     /**
      * Mapping columns' name in Unit Flags to HashMap with KEY : "column_name" and VALUE : "column index"
@@ -50,6 +38,7 @@ public class UnitFlagsService {
             String columnName = row.getCell(i).getStringCellValue();
             columns.put(columnName, i);
         }
+        log.info( "Columns HasMap: " + columns);
     }
 
 
@@ -63,10 +52,10 @@ public class UnitFlagsService {
         DataFormatter df = new DataFormatter();
         String strCreatedDate = df.formatCellValue(row.getCell(columns.get("Created Date"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK));
 
-        // convert into sql.Date type
-        Timestamp createdDate = null;
-        if(strCreatedDate != ""){
-            createdDate = new Timestamp(new SimpleDateFormat("MM/dd/yyyy hh:mm:s a").parse(strCreatedDate).getTime());
+        // Parsing String into GregorianCalendar
+        GregorianCalendar createdDate = new GregorianCalendar();
+        if(!strCreatedDate.isEmpty()){
+            createdDate.setTime(new SimpleDateFormat("MM/dd/yyyy hh:mm:s a").parse(strCreatedDate));
         }
 
         return new UnitFlags(
@@ -87,32 +76,32 @@ public class UnitFlagsService {
      * @throws IOException
      */
     public void mapDataExcelToDB() throws IOException, ParseException {
-        InputStream is = new FileInputStream(new File("importdata/masterdata/UnitFlags.xlsx"));
+        InputStream is = new FileInputStream("importdata/masterdata/UnitFlags.xlsx");
         Workbook workbook = StreamingReader
                 .builder()              //setting Buffer
                 .rowCacheSize(100)
                 .bufferSize(4096)
                 .open(is);
 
-        List<UnitFlags> unitFlagsList = new ArrayList<>();
-        Sheet sheet = workbook.getSheetAt(0); // Unit Flags
+        List<UnitFlags> saveList = new ArrayList<>();
+        // Get sheet of UnitFlags
+        Sheet sheet = workbook.getSheetAt(0);
 
         for(Row row : sheet) {
+            // Get the index according to Excel columns' name
             if(row.getRowNum() == 1){
                 getUnitFlagsColumnsIndex(row);
             }
+            // Map the rows' value into UnitFlags object -> add the saveList for saveAll()
             if(row.getRowNum() > 1 &&
-                    !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().equals("")) {
+                    !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
                 UnitFlags unitFlags = mapExcelRowToUnitFlags(row);
-                unitFlagsList.add(unitFlags);
-
-                if(unitFlagsList.size() > NUM_OF_ROWS) {
-                    addListOfUnitFlags(unitFlagsList);
-                    unitFlagsList.clear();
-                }
+                saveList.add(unitFlags);
             }
         }
-        addListOfUnitFlags(unitFlagsList);
+        // Save all UnitFlags in the List
+        addListOfUnitFlags(saveList);
+        log.info("New UnitFlags added: " + saveList.size());
     }
 
     /**
@@ -124,8 +113,8 @@ public class UnitFlagsService {
         // Tracking parameter
         int numOfRowsChanged = 0;
 
-        // Mock data files with local excel file
-        InputStream is = new FileInputStream(new File("importdata/masterdata/MockUnitFlags.xlsx"));
+        // Mock data files with local Excel file
+        InputStream is = new FileInputStream("importdata/masterdata/MockUnitFlags.xlsx");
         Workbook workbook = StreamingReader
                 .builder()              //setting Buffer
                 .rowCacheSize(100)
@@ -136,11 +125,11 @@ public class UnitFlagsService {
         Sheet sheet = workbook.getSheetAt(0); // Unit Flags
 
         for(Row row : sheet) {
-            // get column name into HashMap
+            // Get the index according to Excel columns' name
             if(row.getRowNum() == 1)
                 getUnitFlagsColumnsIndex(row);
             if(row.getRowNum() > 1 &&
-                    !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().equals("")) {
+                    !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
                 UnitFlags excelUnitFlags = mapExcelRowToUnitFlags(row);
                 Optional<UnitFlags> optionalUnitFlags = getUnitFlagsByUnit(excelUnitFlags.getUnit());
 
@@ -159,16 +148,12 @@ public class UnitFlagsService {
                 else {
                     // Add new UnitFlags to List
                     saveList.add(excelUnitFlags);
-                    if(saveList.size() > NUM_OF_ROWS) {
-                        // saveAll() the List if size() > NUM_OF_ROWS -> clear() the list
-                        addListOfUnitFlags(saveList);
-                        saveList.clear();
-                    }
                 }
             }
         }
         addListOfUnitFlags(saveList);
-        System.out.println(numOfRowsChanged);
+        log.info("New UnitFlags added: " + saveList.size());
+        log.info("Number of UnitFlags changed: " + numOfRowsChanged);
     }
     boolean isUnitFlagsEqual(UnitFlags a, UnitFlags b) {
         return a.getUnit().equals(b.getUnit()) &&

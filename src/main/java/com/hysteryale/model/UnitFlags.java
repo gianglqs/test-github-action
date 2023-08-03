@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.sql.Timestamp;
+import java.util.GregorianCalendar;
 
 @Entity
 @Getter
@@ -23,8 +23,7 @@ public class UnitFlags {
     private String enableGLReadiness;
     private String fullyAttributed;
     private String readyForPartsCosting;
-    //TODO gregorianCalendar
-    private Timestamp createdDate;
+    private GregorianCalendar createdDate;
     private String cancelled;
 
 }

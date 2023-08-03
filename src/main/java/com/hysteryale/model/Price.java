@@ -15,7 +15,7 @@ import java.sql.Date;
 @AllArgsConstructor
 public class Price {
     @Id
-    @SequenceGenerator(name = "priceSequence", initialValue = 1)
+    @SequenceGenerator(name = "priceSequence")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "priceSequence")
     private Integer id;
 

@@ -3,31 +3,33 @@ package com.hysteryale.service;
 import com.hysteryale.model.Price;
 import com.hysteryale.repository.PriceRepository;
 import com.monitorjbl.xlsx.StreamingReader;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
+@Slf4j
 public class PriceService {
     @Autowired
-    private PriceRepository priceRepository;
+    PriceRepository priceRepository;
     /** Define number of Excel file's rows can be saved at one time */
-    private static final Integer NUM_OF_ROWS = 1000;
-    private HashMap<String, Integer> columns = new HashMap<>();
-    public PriceService(PriceRepository priceRepository) {
-        this.priceRepository = priceRepository;
-    }
+    private final HashMap<String, Integer> columns = new HashMap<>();
 
     /**
      * Mapping columns' name in Price Book file into HashMap with KEY: "column_name" and VALUE: "column index"
@@ -38,6 +40,7 @@ public class PriceService {
             String columnName = row.getCell(i).getStringCellValue();
             columns.put(columnName, i);
         }
+        log.info("Price HashMap: " + columns);
     }
 
     /**
@@ -55,7 +58,8 @@ public class PriceService {
         Date startDate = null;
         Date endDate = null;
 
-        if(strStartDate != "" && strEndDate != ""){
+        //TODO: need to consider to change this parse Date
+        if(!strStartDate.isEmpty() && !strEndDate.isEmpty()){
             startDate = new Date(new SimpleDateFormat("MM/dd/yy").parse(strStartDate).getTime());
             endDate = new Date(new SimpleDateFormat("MM/dd/yy").parse(strEndDate).getTime());
 
@@ -87,7 +91,7 @@ public class PriceService {
 
     public void importPriceBook() throws IOException, ParseException {
 
-        InputStream is = new FileInputStream(new File("importdata/masterdata/MockPriceBook.xlsx"));
+        InputStream is = new FileInputStream("importdata/masterdata/PriceBook.xlsx");
         Workbook workbook = StreamingReader
                 .builder()              //setting Buffer
                 .rowCacheSize(100)
@@ -102,28 +106,19 @@ public class PriceService {
                 //get the columns name to HashMap
                 if(row.getRowNum() == 1){
                     getPriceBookColumnsIndex(row);
-                    // TODO replace println -> log.info
                 }
                 else if(row.getRowNum() > 4 &&
-                        !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().equals("")) {
+                        !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
 
-                    // map to Price object and store in *priceList
-
+                    // Map to Price object and store in *priceList for saveAll()
                     Price price = mapExcelDataToPrice(row);
                     priceList.add(price);
-
-                    //TODO: need to be considered, rollback if error
-                    // if *priceList stores 1000 objects -> saveAll()
-                    if(priceList.size() > NUM_OF_ROWS) {
-                        addListOfPrices(priceList);
-                        priceList.clear();  // clear the List
-                    }
                 }
             }
-            // save the remaining Price in the List
-            addListOfPrices(priceList);
-            priceList.clear();
         }
+        // save all Price (s) in the List
+        addListOfPrices(priceList);
+        log.info("New Price added: " + String.valueOf(priceList.size()));
     }
 //    public void importPriceChanges() throws ParseException, FileNotFoundException {
 //        // Tracking parameter

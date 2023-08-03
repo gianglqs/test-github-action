@@ -2,35 +2,30 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.UnitFlags;
 import com.hysteryale.repository.UnitFlagsRepository;
-import lombok.ToString;
-import org.junit.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class UnitFlagsServiceTest {
-    @Mock
+    @Mock @Autowired
     private UnitFlagsRepository unitFlagsRepository;
+    @InjectMocks @Autowired
     private UnitFlagsService underTest;
     private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-        underTest = new UnitFlagsService(unitFlagsRepository);
     }
     @AfterEach
     void tearDown() throws Exception {
@@ -40,7 +35,7 @@ public class UnitFlagsServiceTest {
     @Test
     void canAddFlags() {
         //GIVEN
-        Timestamp timestamp = new Timestamp(2023, 8, 1, 0, 0, 0,0);
+        GregorianCalendar createdDate = new GregorianCalendar();
         UnitFlags givenUnitFlags = new UnitFlags(
                 "abc",
                 "abc",
@@ -49,7 +44,7 @@ public class UnitFlagsServiceTest {
                 "abc",
                 "abc",
                 "abc",
-                timestamp,
+                createdDate,
                 "abc"
                 );
         //WHEN
@@ -71,7 +66,7 @@ public class UnitFlagsServiceTest {
         // GIVEN
         List<UnitFlags> saveList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            Timestamp timestamp = new Timestamp(2023, 8, 1, 0, 0, 0,0);
+            GregorianCalendar createdDate = new GregorianCalendar();
             UnitFlags givenUnitFlags = new UnitFlags(
                     "abc",
                     "abc",
@@ -80,7 +75,7 @@ public class UnitFlagsServiceTest {
                     "abc",
                     "abc",
                     "abc",
-                    timestamp,
+                    createdDate,
                     "abc"
             );
             saveList.add(givenUnitFlags);

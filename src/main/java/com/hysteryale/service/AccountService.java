@@ -2,7 +2,6 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.Account;
 import com.hysteryale.repository.AccountRepository;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,14 +16,10 @@ import java.util.Optional;
 @Service
 public class AccountService {
     @Autowired
-    private AccountRepository accountRepository;
+    AccountRepository accountRepository;
 
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    private AccountService(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
     }
 
     /**
@@ -39,7 +34,6 @@ public class AccountService {
      * Getting an account by the given Id
      * @param accountId: given Id
      * @return an Account
-     * @throws NotFoundException if there is not any account existed with given Id
      */
 
     public Optional<Account> getAccountById(Integer accountId) {
@@ -52,9 +46,8 @@ public class AccountService {
     /**
      * Adding new account with the encrypted password if the registered email is not existed
      * @param account : new registered Account
-     * @throws Exception if the Email has already been taken
      */
-    public void addAccount(Account account) throws Exception{
+    public void addAccount(Account account){
 
         if(!accountRepository.isEmailExisted(account.getEmail()))
         {

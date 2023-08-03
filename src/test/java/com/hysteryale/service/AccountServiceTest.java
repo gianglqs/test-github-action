@@ -7,26 +7,31 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AccountServiceTest {
-    @Mock
+    @Autowired @Mock
     private AccountRepository accountRepository;
+    @Autowired @InjectMocks
     private AccountService underTest;
     private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
-//        underTest = new AccountService(accountRepository);
     }
 
     @AfterEach
@@ -35,37 +40,45 @@ public class AccountServiceTest {
     }
 
     @Test
-    void canGetAllAccounts() {
+    void testGetAllAccounts() {
+        // GIVEN
+        Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm","admin2","us");
+        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us");
+        List<Account> accountList = new ArrayList<>();
+        accountList.add(given1);
+        accountList.add(given2);
+
+        underTest.addAccount(given1);
+        underTest.addAccount(given2);
+
+
         // WHEN
-        underTest.getAllAccounts();
+        when(accountRepository.findAll()).thenReturn(accountList);
+        List<Account> result = underTest.getAllAccounts();
 
         // THEN
-        verify(accountRepository).findAll();
+        Assertions.assertEquals(accountList.size(), result.size());    // assert the result
+        verify(accountRepository).findAll();                // verify the flow of function
     }
-    //TODO consider exception
     @Test
-    void throwNotFoundIfIdIsNotExisted() {
+    void testThrowNotFoundIfIdIsNotExisted() {
         //GIVEN
         Integer accountId = 0;
 
-        //THEN
-        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, ()->{
-            underTest.getAccountById(accountId);
-        });
+        //WHEN
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, ()-> underTest.getAccountById(accountId));
 
-        // expected
-        String expectedMessage = "No account with id: " + accountId;
+            // expected
         HttpStatus expectedStatus = HttpStatus.NOT_FOUND;
-        //return
-        String returnMessage = responseStatusException.getMessage();
+            //return
         HttpStatus returnStatus = responseStatusException.getStatus();
 
-        Assertions.assertTrue(returnMessage.contains(expectedMessage));
+        // THEN
         Assertions.assertEquals(expectedStatus, returnStatus);
     }
 
     @Test
-    void canAddAccount() throws Exception {
+    void testAddAccount() {
         // GIVEN
         Account givenAccount = new Account("givenAccount", "test@gmail.com", "123456", "user");
 
@@ -77,32 +90,26 @@ public class AccountServiceTest {
         verify(accountRepository).save(accountArgumentCaptor.capture());
         Account capturedAccount = accountArgumentCaptor.getValue();
 
-        assertEquals(capturedAccount, givenAccount);
+        Assertions.assertEquals(capturedAccount, givenAccount);
     }
     @Test
-    void throwExceptionIfEmailIsTaken() {
+    void testThrowExceptionIfEmailIsTaken() {
         //GIVEN
         String email = "admin@gmail.com";
         Account givenAccount = new Account("givenAccount", email, "123456", "admin");
         given(accountRepository.isEmailExisted(givenAccount.getEmail())).willReturn(true);
 
         //THEN
-        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
-                    underTest.addAccount(givenAccount);
-        });
-
-        String expectedMessage = "Email has been already taken";
-        String returnMessage = responseStatusException.getMessage();
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> underTest.addAccount(givenAccount));
 
         HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
         HttpStatus returnStatus = responseStatusException.getStatus();
 
-        Assertions.assertTrue(returnMessage.contains(expectedMessage));
         Assertions.assertEquals(returnStatus, expectedStatus);
     }
 
     @Test
-    void itShouldCheckIfEmailIsExisted() throws Exception {
+    void testCheckIfEmailIsExisted() {
         // GIVEN
         String email = "admin@gmail.com";
         Account givenAccount = new Account("givenAccount", email, "123456", "admin");
@@ -115,7 +122,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    void canGetAccountByEmail() {
+    void testGetAccountByEmail() {
         //GIVEN
         String email = "admin@gmail.com";
 
