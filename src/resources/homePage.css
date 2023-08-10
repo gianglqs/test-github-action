@@ -1,0 +1,49 @@
+.container {
+    /* display: grid;
+    grid-template-columns: 5% 95%;
+    grid-gap: 0px; */
+
+    display: block;
+    height: auto;
+}
+
+.sideBar {
+    display: inline-block;
+    width: 50%;
+    height: fit-content;
+}
+
+.category {
+    display: inline-block;
+    margin-top: 10px;
+    height: 100%;
+    width: fit-content;
+    background-color: #E7A800;
+    font-size: 20px;
+}
+.category:hover, .category-pointed:hover{
+    background-color: antiquewhite;
+}
+.category-pointed {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: aliceblue;
+    height: 100%;
+    width: fit-content;
+    font-size: 20px;
+
+}
+img {
+    position: sticky;
+    top: 0;
+    text-align: left;
+    width: 100%;
+    height: 100px;
+}
+.contentTable {
+    display: block;
+    position: relative;
+    margin-top: 5%;
+}
+
+
