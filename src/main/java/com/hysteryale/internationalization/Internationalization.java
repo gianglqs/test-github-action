@@ -11,7 +11,6 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.util.Locale;
 
-//TODO: add default locale for each Account
 public class Internationalization extends WebMvcConfigurerAdapter {
 
     @Bean

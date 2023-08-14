@@ -35,7 +35,6 @@ public class AccountService {
      * @param accountId: given Id
      * @return an Account
      */
-
     public Optional<Account> getAccountById(Integer accountId) {
         Optional<Account> account = accountRepository.findById(accountId);
         if(account.isEmpty())
@@ -68,8 +67,40 @@ public class AccountService {
         return accountRepository.getAccountByEmail(email);
     }
 
+    /**
+     * Getting an account which is still active by email
+     */
+    public Optional<Account> getActiveAccountByEmail(String email) {return accountRepository.getActiveAccountByEmail(email); }
+
     @Transactional
     public void changeDefaultLocale(Account account, String locale) {
         account.setDefaultLocale(locale);
+    }
+
+    /**
+     * Set account's isActive state (isActive: true or false)
+     */
+    @Transactional
+    public void setAccountActiveState(Account account, boolean isActive) {
+        account.setActive(isActive);
+    }
+
+    /**
+     * Update account's information: userName ,role, defaultLocale
+     * @param dbAccount account get from Database
+     * @param updateAccount account contained changed information
+     */
+    @Transactional
+    public void updateAccountInformation(Account dbAccount, Account updateAccount) {
+        dbAccount.setUserName(updateAccount.getUserName());
+        dbAccount.setRole(updateAccount.getRole());
+        dbAccount.setDefaultLocale(updateAccount.getDefaultLocale());
+    }
+    @Transactional
+    public void changeAccountPassword(Account account, String password) {
+        account.setPassword(passwordEncoder().encode(password));
+    }
+    public List<Account> searchAccountByUserName(String userName) {
+        return accountRepository.searchAccountByUserName(userName);
     }
 }

@@ -31,7 +31,6 @@ public class UnitFlagsService {
 
     /**
      * Mapping columns' name in Unit Flags to HashMap with KEY : "column_name" and VALUE : "column index"
-     * @param row
      */
     void getUnitFlagsColumnsIndex(Row row){
         for(int i = 0; i < 9; i++) {
@@ -73,7 +72,6 @@ public class UnitFlagsService {
 
     /**
      * Import all rows in the Excel files
-     * @throws IOException
      */
     public void mapDataExcelToDB() throws IOException, ParseException {
         InputStream is = new FileInputStream("importdata/masterdata/UnitFlags.xlsx");
@@ -106,8 +104,6 @@ public class UnitFlagsService {
 
     /**
      * Save UnitFlags if there is any changes and add new UnitFlags if it is not existed
-     * @throws IOException
-     * @throws ParseException
      */
     public void importUnitFlagsChanges() throws IOException, ParseException {
         // Tracking parameter

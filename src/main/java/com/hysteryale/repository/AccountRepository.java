@@ -3,6 +3,8 @@ package com.hysteryale.repository;
 import com.hysteryale.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
@@ -10,5 +12,9 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     public Optional<Account> getAccountByEmail(String email);
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END FROM Account a WHERE a.email = ?1")
     public boolean isEmailExisted(String email);
+    @Query("SELECT a FROM Account a WHERE a.email = ?1 AND a.isActive = true")
+    public Optional<Account> getActiveAccountByEmail(String email);
+    @Query("SELECT a FROM Account a WHERE a.userName LIKE CONCAT('%', ?1, '%')")
+    public List<Account> searchAccountByUserName(String userName);
 
 }

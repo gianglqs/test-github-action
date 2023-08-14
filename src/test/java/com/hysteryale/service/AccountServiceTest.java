@@ -6,10 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,8 +39,8 @@ public class AccountServiceTest {
     @Test
     void testGetAllAccounts() {
         // GIVEN
-        Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm","admin2","us");
-        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us");
+        Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm","admin2","us", true);
+        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us", true);
         List<Account> accountList = new ArrayList<>();
         accountList.add(given1);
         accountList.add(given2);
@@ -57,8 +54,8 @@ public class AccountServiceTest {
         List<Account> result = underTest.getAllAccounts();
 
         // THEN
-        Assertions.assertEquals(accountList.size(), result.size());    // assert the result
-        verify(accountRepository).findAll();                // verify the flow of function
+        Assertions.assertEquals(accountList.size(), result.size());     // assert the result
+        verify(accountRepository).findAll();                            // verify the flow of function
     }
     @Test
     void testThrowNotFoundIfIdIsNotExisted() {
@@ -135,5 +132,35 @@ public class AccountServiceTest {
         String capturedEmail = emailArgumentCaptor.getValue();
 
         Assertions.assertEquals(capturedEmail, email);
+    }
+    @Test
+    void testGetActiveAccountByEmail() {
+        // GIVEN
+        String email = "user1@gmail.com";
+
+        // WHEN
+        underTest.getActiveAccountByEmail(email);
+
+        // THEN
+        Mockito.verify(accountRepository).getActiveAccountByEmail(email);
+    }
+    @Test
+    void testSearchAccountByUserName() {
+        // GIVEN
+        Account given1 = new Account(1, "given1", "given1@gmail.com", "given", "user", "us", true);
+        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us", true);
+        List<Account> accountList = new ArrayList<>();
+        accountList.add(given1);
+        accountList.add(given2);
+
+        String userName = "given";
+
+        // WHEN
+        when(accountRepository.searchAccountByUserName(userName)).thenReturn(accountList);
+        List<Account> result = underTest.searchAccountByUserName(userName);
+
+        // THEN
+        Mockito.verify(accountRepository).searchAccountByUserName(userName);
+        Assertions.assertEquals(accountList.size(), result.size());
     }
 }

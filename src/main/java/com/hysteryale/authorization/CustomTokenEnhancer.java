@@ -8,11 +8,13 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@CrossOrigin
 public class CustomTokenEnhancer implements TokenEnhancer {
 
     @Autowired
@@ -20,8 +22,6 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 
     /**
      * Enhance what is included in the Token, adding "accountId" and "defaultLocale" into Token
-     * @param oAuth2AccessToken
-     * @param oAuth2Authentication
      * @return access Token for authenticated account
      */
     @Override
