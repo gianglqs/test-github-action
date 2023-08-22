@@ -8,6 +8,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,14 +25,27 @@ public class Account {
     @NotBlank(message = "Email must not be blank")
     private String email;
     private String password;
-    private String role;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Role role;
     private String defaultLocale;
     private boolean isActive;
+    private Date lastLogin;
 
-    public Account(String userName, String email, String password, String role) {
+
+    public Account(String userName, String email, String password, Role role) {
         this.userName = userName;
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public Account(Integer id, String userName, String email, String password, Role role, String defaultLocale, boolean isActive) {
+        this.id = id;
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.defaultLocale = defaultLocale;
+        this.isActive = isActive;
     }
 }

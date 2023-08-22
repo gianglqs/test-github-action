@@ -1,6 +1,7 @@
 package com.hysteryale.service;
 
 import com.hysteryale.model.Account;
+import com.hysteryale.model.Role;
 import com.hysteryale.repository.AccountRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -39,8 +40,9 @@ public class AccountServiceTest {
     @Test
     void testGetAllAccounts() {
         // GIVEN
-        Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm","admin2","us", true);
-        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm",role,"us", true);
+        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", role, "us", true);
         List<Account> accountList = new ArrayList<>();
         accountList.add(given1);
         accountList.add(given2);
@@ -77,7 +79,8 @@ public class AccountServiceTest {
     @Test
     void testAddAccount() {
         // GIVEN
-        Account givenAccount = new Account("givenAccount", "test@gmail.com", "123456", "user");
+        Role role = new Role(1, "admin", null);
+        Account givenAccount = new Account("givenAccount", "test@gmail.com", "123456", role);
 
         // WHEN
         underTest.addAccount(givenAccount);
@@ -92,8 +95,9 @@ public class AccountServiceTest {
     @Test
     void testThrowExceptionIfEmailIsTaken() {
         //GIVEN
+        Role role = new Role(1, "admin", null);
         String email = "admin@gmail.com";
-        Account givenAccount = new Account("givenAccount", email, "123456", "admin");
+        Account givenAccount = new Account("givenAccount", email, "123456", role);
         given(accountRepository.isEmailExisted(givenAccount.getEmail())).willReturn(true);
 
         //THEN
@@ -108,8 +112,9 @@ public class AccountServiceTest {
     @Test
     void testCheckIfEmailIsExisted() {
         // GIVEN
+        Role role = new Role(1, "admin", null);
         String email = "admin@gmail.com";
-        Account givenAccount = new Account("givenAccount", email, "123456", "admin");
+        Account givenAccount = new Account("givenAccount", email, "123456", role);
 
         //WHEN
         underTest.addAccount(givenAccount);
@@ -147,8 +152,9 @@ public class AccountServiceTest {
     @Test
     void testSearchAccountByUserName() {
         // GIVEN
-        Account given1 = new Account(1, "given1", "given1@gmail.com", "given", "user", "us", true);
-        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account given1 = new Account(1, "given1", "given1@gmail.com", "given", role, "us", true);
+        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", role, "us", true);
         List<Account> accountList = new ArrayList<>();
         accountList.add(given1);
         accountList.add(given2);

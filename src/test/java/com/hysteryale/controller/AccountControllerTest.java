@@ -1,6 +1,7 @@
 package com.hysteryale.controller;
 
 import com.hysteryale.model.Account;
+import com.hysteryale.model.Role;
 import com.hysteryale.repository.AccountRepository;
 import com.hysteryale.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +43,9 @@ public class AccountControllerTest {
     @Test
     void testGetAllAccounts() {
         // GIVEN
-        Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm","admin2","us", true);
-        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account given1 = new Account(1,"user","admin2@gmail.com","$2a$10$oTxck2rZyU6y6LbUrUM3Zey/CBjNRonGAQ3cM5.QjzkRVIw5.hOhm",role,"us", true);
+        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", role, "us", true);
 
         List<Account> givenList = new ArrayList<>();
         givenList.add(given1);
@@ -59,7 +61,8 @@ public class AccountControllerTest {
     @Test
     void testAddAccount() {
         // GIVEN
-        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", "123456", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", role, "us", true);
 
         // WHEN
         accountController.addAccount(givenAccount);
@@ -70,7 +73,8 @@ public class AccountControllerTest {
     @Test
     void testDeactivateAccount() {
         // GIVEN
-        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", "123456", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", role, "us", true);
 
         // WHEN
         when(accountService.getAccountById(givenAccount.getId())).thenReturn(Optional.of(givenAccount));
@@ -83,7 +87,8 @@ public class AccountControllerTest {
     @Test
     void testActivateAccount() {
         // GIVEN
-        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", "123456", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", role, "us", true);
 
         // WHEN
         when(accountService.getAccountById(givenAccount.getId())).thenReturn(Optional.of(givenAccount));
@@ -95,7 +100,8 @@ public class AccountControllerTest {
     @Test
     void testGetAccountById() {
         // GIVEN
-        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", "123456", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account givenAccount = new Account(1, "given1", "given2@gmail.com", "user", role, "us", true);
 
         // WHEN
         when(accountService.getAccountById(givenAccount.getId())).thenReturn(Optional.of(givenAccount));
@@ -109,8 +115,9 @@ public class AccountControllerTest {
     @Test
     void testSearchAccountByUserName() {
         // GIVEN
-        Account given1 = new Account(1, "given1", "given1@gmail.com", "given", "user", "us", true);
-        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", "user", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account given1 = new Account(1, "given1", "given1@gmail.com", "given", role, "us", true);
+        Account given2 = new Account(2, "given2", "given2@gmail.com", "given", role, "us", true);
         List<Account> accountList = new ArrayList<>();
         accountList.add(given1);
         accountList.add(given2);
@@ -128,7 +135,8 @@ public class AccountControllerTest {
     @Test
     void testUpdateAccountInformation() {
         // GIVEN
-        Account given1 = new Account(1, "given1", "given1@gmail.com", "given", "user", "us", true);
+        Role role = new Role(1, "admin", null);
+        Account given1 = new Account(1, "given1", "given1@gmail.com", "given", role, "us", true);
 
         // WHEN
         when(accountService.getAccountByEmail(given1.getEmail())).thenReturn(Optional.of(given1));

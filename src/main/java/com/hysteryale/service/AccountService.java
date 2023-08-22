@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,6 +100,10 @@ public class AccountService {
     @Transactional
     public void changeAccountPassword(Account account, String password) {
         account.setPassword(passwordEncoder().encode(password));
+    }
+    @Transactional
+    public void setNewLastLogin(Account account) {
+        account.setLastLogin(new Date());
     }
     public List<Account> searchAccountByUserName(String userName) {
         return accountRepository.searchAccountByUserName(userName);

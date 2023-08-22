@@ -2,22 +2,21 @@ package com.hysteryale.authorization;
 
 import com.hysteryale.model.Account;
 import com.hysteryale.service.AccountService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -26,14 +25,17 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @EnableWebSecurity
 @CrossOrigin
+@Slf4j
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true,
+        securedEnabled = true,
+        jsr250Enabled = true
+)
 public class AuthWebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
     @Autowired
     AccountService accountService;
 
@@ -69,26 +71,19 @@ public class AuthWebSecurityConfig extends WebSecurityConfigurerAdapter {
                     throw new UsernameNotFoundException("No user founded with: " + userEmail);
 
                 Account account = optionalAccount.get();
-                UserDetails userDetails;
-                if (account.getRole().equals("admin"))
-                    userDetails = User
-                            .builder()
-                            .username(account.getEmail())
-                            .password(account.getPassword())
-                            .roles("ADMIN")
-                            .build();
-                else
-                    userDetails = User
-                            .builder()
-                            .username(account.getEmail())
-                            .password(account.getPassword())
-                            .roles("USER")
-                            .build();
-                return userDetails;
+                return User.builder()
+                        .username(account.getEmail())
+                        .password(account.getPassword())
+                        .roles(account.getRole().getRoleName())
+                        .build();
             }
         };
     }
 
+    /**
+     * Configure CORS for calling API from different port (as calling from localhost:3000 to localhost:8080)
+     * @return CORS configuration
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

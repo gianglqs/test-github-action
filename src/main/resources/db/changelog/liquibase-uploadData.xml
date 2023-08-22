@@ -1,0 +1,57 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="hoangnhan" id="loadData" context="!prod">
+        <loadUpdateData
+                encoding="UTF-8"
+                file="file:database/_role_.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="role">
+        </loadUpdateData>
+
+        <loadUpdateData
+                encoding="UTF-8"
+                file="file:database/_permission_.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="permission">
+        </loadUpdateData>
+
+        <loadUpdateData
+                encoding="UTF-8"
+                file="file:database/role_permission_list.csv"
+                onlyUpdate="false"
+                primaryKey="permission_list_id"
+                quotchar="'"
+                separator=","
+                tableName="role_permission_list">
+        </loadUpdateData>
+
+        <loadUpdateData
+                encoding="UTF-8"
+                file="file:database/account.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="account">
+        </loadUpdateData>
+
+        <loadUpdateData
+                encoding="UTF-8"
+                file="file:database/booking_order.csv"
+                onlyUpdate="false"
+                primaryKey="order_number"
+                quotchar="'"
+                separator=","
+                tableName="booking_order">
+        </loadUpdateData>
+
+    </changeSet>
+</databaseChangeLog>
