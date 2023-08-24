@@ -1,0 +1,3 @@
+'id','default_locale','email','is_active','password','user_name','role_id'
+1,us,admin@gmail.com,true,$2a$10$3nMFovtB1fDWgPLHO/HtweaYnrEmGIswJXx.yNjr19Px0j935CMhK,admin,1
+9,us,user1@gmail.com,true,$2a$10$S6bP/0svT6DwgM1kVId5BOT6M4zj9eMMEvR5zqVJfcC4hFd541lUC,user1,2
