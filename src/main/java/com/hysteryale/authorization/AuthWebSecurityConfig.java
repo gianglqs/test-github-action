@@ -1,7 +1,7 @@
 package com.hysteryale.authorization;
 
-import com.hysteryale.model.Account;
-import com.hysteryale.service.AccountService;
+import com.hysteryale.model.User;
+import com.hysteryale.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -12,11 +12,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -37,7 +35,7 @@ import java.util.Optional;
 )
 public class AuthWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    AccountService accountService;
+    UserService userService;
 
     @Override
     @Bean
@@ -56,8 +54,8 @@ public class AuthWebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * Override the UserDetailsService: loadUserByUsername() to get Account's information from DB
-     * @return an Account under UserDetails
+     * Override the UserDetailsService: loadUserByUsername() to get User's information from DB
+     * @return an User under UserDetails
      */
     @Bean
     @Override
@@ -65,16 +63,16 @@ public class AuthWebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
-                Optional<Account> optionalAccount = accountService.getActiveAccountByEmail(userEmail);
+                Optional<User> optionalUser = userService.getActiveUserByEmail(userEmail);
 
-                if(optionalAccount.isEmpty())
+                if(optionalUser.isEmpty())
                     throw new UsernameNotFoundException("No user founded with: " + userEmail);
 
-                Account account = optionalAccount.get();
-                return User.builder()
-                        .username(account.getEmail())
-                        .password(account.getPassword())
-                        .roles(account.getRole().getRoleName())
+                User user = optionalUser.get();
+                return org.springframework.security.core.userdetails.User.builder()
+                        .username(user.getEmail())
+                        .password(user.getPassword())
+                        .roles(user.getRole().getRoleName())
                         .build();
             }
         };

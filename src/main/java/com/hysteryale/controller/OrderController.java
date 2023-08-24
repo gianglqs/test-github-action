@@ -16,7 +16,7 @@ public class OrderController {
     BookingOrderService bookingOrderService;
 
     @PostMapping(path = "/order/import")
-    public void importOrder() throws FileNotFoundException {
+    public void importOrder() throws FileNotFoundException, IllegalAccessException {
         bookingOrderService.importOrder();
     }
     @GetMapping(path = "/order/getAll")

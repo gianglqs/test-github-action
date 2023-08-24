@@ -1,10 +1,9 @@
 package com.hysteryale.authorization;
 
-import com.hysteryale.model.Account;
-import com.hysteryale.service.AccountService;
+import com.hysteryale.model.User;
+import com.hysteryale.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -20,27 +19,27 @@ import java.util.Map;
 public class CustomTokenEnhancer implements TokenEnhancer {
 
     @Autowired
-    AccountService accountService;
+    UserService userService;
 
     /**
-     * Enhance what is included in the Token, adding "accountId", "defaultLocale" and "role" into Token
-     * @return access Token for authenticated account
+     * Enhance what is included in the Token, adding "userId", "defaultLocale" and "role" into Token
+     * @return access Token for authenticated user
      */
     @Override
     @Transactional
     public OAuth2AccessToken enhance(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {
-        User user = (User) oAuth2Authentication.getPrincipal();
+        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) oAuth2Authentication.getPrincipal();
 
-        Account account = accountService.getAccountByEmail(user.getUsername()).get();
-        accountService.setNewLastLogin(account);
+        User dbUser = userService.getUserByEmail(user.getUsername()).get();
+        userService.setNewLastLogin(dbUser);
 
         final Map<String, Object> additionalInfo = new HashMap<>();
 
-        additionalInfo.put("accountId", account.getId());
-        additionalInfo.put("userName", account.getUserName());
-        additionalInfo.put("email", account.getEmail());
-        additionalInfo.put("defaultLocale", account.getDefaultLocale());
-        additionalInfo.put("role", account.getRole());
+        additionalInfo.put("userId", dbUser.getId());
+        additionalInfo.put("userName", dbUser.getUserName());
+        additionalInfo.put("email", dbUser.getEmail());
+        additionalInfo.put("defaultLocale", dbUser.getDefaultLocale());
+        additionalInfo.put("role", dbUser.getRole());
 
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInfo);
         return oAuth2AccessToken;

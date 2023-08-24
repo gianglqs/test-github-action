@@ -9,14 +9,14 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account {
+@Table(name="\"user\"")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -32,14 +32,14 @@ public class Account {
     private Date lastLogin;
 
 
-    public Account(String userName, String email, String password, Role role) {
+    public User(String userName, String email, String password, Role role) {
         this.userName = userName;
         this.email = email;
         this.password = password;
         this.role = role;
     }
 
-    public Account(Integer id, String userName, String email, String password, Role role, String defaultLocale, boolean isActive) {
+    public User(Integer id, String userName, String email, String password, Role role, String defaultLocale, boolean isActive) {
         this.id = id;
         this.userName = userName;
         this.email = email;

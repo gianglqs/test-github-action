@@ -16,15 +16,15 @@ import java.util.GregorianCalendar;
 @NoArgsConstructor
 public class BookingOrder {
     @Id
-    private String orderNumber;
-    private GregorianCalendar orderDate;
+    private String orderNo;
+    private GregorianCalendar date;
     private String currency;
     private String orderType;
     private String region;
-    private int mktGroup;
+    private int mktGrp;
     private int billTo;
     private String dealerName;
-    private String countryCode;
+    private String ctryCode;
     private String dealerPO;
     private String series;
     private String model;

@@ -1,7 +1,7 @@
 package com.hysteryale.controller;
 
-import com.hysteryale.model.Account;
-import com.hysteryale.service.AccountService;
+import com.hysteryale.model.User;
+import com.hysteryale.service.UserService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -20,7 +20,7 @@ public class LocaleController {
     @Autowired
     MessageSource messageSource;
     @Autowired
-    AccountService accountService;
+    UserService userService;
     @Autowired
     AuthorizationServerTokenServices tokenServices;
 
@@ -38,8 +38,8 @@ public class LocaleController {
         Map<String, Object> additionalInfo = tokenServices.getAccessToken(authentication).getAdditionalInformation();
         String accountId = additionalInfo.get("accountId").toString();
 
-        Account account = accountService.getAccountById(Integer.valueOf(accountId)).get();
-        accountService.changeDefaultLocale(account, Locale.forLanguageTag(localeTag).toString());
+        User user = userService.getUserById(Integer.valueOf(accountId)).get();
+        userService.changeDefaultLocale(user, Locale.forLanguageTag(localeTag).toString());
 
         return ResponseEntity.ok("Default locale changed into: " + Locale.forLanguageTag(localeTag).toString());
     }

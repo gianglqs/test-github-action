@@ -35,23 +35,23 @@
 
         <loadUpdateData
                 encoding="UTF-8"
-                file="file:database/account.csv"
+                file="file:database/user.csv"
                 onlyUpdate="false"
                 primaryKey="id"
                 quotchar="'"
                 separator=","
-                tableName="account">
+                tableName="user">
         </loadUpdateData>
 
-        <loadUpdateData
-                encoding="UTF-8"
-                file="file:database/booking_order.csv"
-                onlyUpdate="false"
-                primaryKey="order_number"
-                quotchar="'"
-                separator=","
-                tableName="booking_order">
-        </loadUpdateData>
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="file:database/booking_order.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="order_number"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="booking_order">-->
+<!--        </loadUpdateData>-->
 
     </changeSet>
 </databaseChangeLog>
