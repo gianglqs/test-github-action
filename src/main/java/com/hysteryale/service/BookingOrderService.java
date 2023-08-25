@@ -3,6 +3,7 @@ package com.hysteryale.service;
 import com.hysteryale.model.BookingOrder;
 import com.hysteryale.repository.BookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
+import com.sun.xml.bind.v2.TODO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -79,12 +80,11 @@ public class BookingOrderService {
                         year = Integer.parseInt(matcher.group(1)) + 2000;
                         month = Integer.parseInt(matcher.group(2));
                         day = Integer.parseInt(matcher.group(3));
-                        log.info(year + " " + month + " " + day);
 
                         GregorianCalendar orderDate = new GregorianCalendar();
 
                         // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
-                        orderDate.set(year, month - 1, day, 0, 0, 0);
+                        orderDate.set(year, month - 1, day);
                         field.set(bookingOrder, orderDate);
                     }
                     break;
@@ -92,8 +92,19 @@ public class BookingOrderService {
         }
         return bookingOrder;
     }
+
+    /**
+     * Read booking data in excel files then import to the database
+     *
+     * @throws FileNotFoundException
+     * @throws IllegalAccessException
+     */
     public void importOrder() throws FileNotFoundException, IllegalAccessException {
-        InputStream is = new FileInputStream("importdata/masterdata/01. Bookings Register - Apr -2023 (Jason).xlsx");
+
+        //TODO: Need to list all file in a folder then import one by one
+        //TODO: Please put the folder location in a configuration file so we can change later
+
+        InputStream is = new FileInputStream("import_files/booking/01. Bookings Register - Apr -2023 (Jason).xlsx");
         Workbook workbook = StreamingReader
                 .builder()              //setting Buffer
                 .rowCacheSize(100)
@@ -113,7 +124,6 @@ public class BookingOrderService {
             }
         }
         bookingOrderRepository.saveAll(bookingOrderList);
-        log.info("New Orders saved: " + bookingOrderList.size());
     }
     public List<BookingOrder> getAllOrders() {
         return bookingOrderRepository.findAll();

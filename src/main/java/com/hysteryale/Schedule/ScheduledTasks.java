@@ -13,18 +13,35 @@ import java.util.Date;
 
 @Component
 public class ScheduledTasks {
-    @Autowired
-    BookingOrderService bookingOrderService;
+
+    final BookingOrderService bookingOrderService;
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
+    public ScheduledTasks(BookingOrderService bookingOrderService) {
+        this.bookingOrderService = bookingOrderService;
+    }
+
     /**
-     * Auto-implemented function for importing BookingOrder
+     * To import booking order from Excel files at midnight everyday
      */
-    @Scheduled(fixedRate = 15000)
-    public void autoUpdateBookingOrder() throws FileNotFoundException, IllegalAccessException {
-        log.info("The time is now {}", dateFormat.format(new Date()));
-        bookingOrderService.importOrder();
+
+    //This is for testing only
+    @Scheduled(fixedDelay = 1000)
+
+   // @Scheduled(cron = "0 0 0 * * *")
+    public void autoUpdateBookingOrder() {
+        log.info("Start import booking orders at {}", dateFormat.format(new Date()));
+        try {
+            bookingOrderService.importOrder();
+        } catch (FileNotFoundException e) {
+            log.error(e.getMessage());
+        } catch (IllegalAccessException e) {
+            log.error(e.getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        log.info("Import booking orders finished at {}", dateFormat.format(new Date()));
     }
 }
