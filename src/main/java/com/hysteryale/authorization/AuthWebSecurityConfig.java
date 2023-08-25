@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -34,7 +35,7 @@ import java.util.Optional;
         jsr250Enabled = true
 )
 public class AuthWebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
+    @Resource
     UserService userService;
 
     @Override

@@ -18,13 +18,15 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.*
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import javax.annotation.Resource;
+
 @Configuration
 @EnableAuthorizationServer
 @CrossOrigin
 public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter {
-    @Autowired
+    @Resource
     private AuthenticationManager authenticationManager;
-    @Autowired
+    @Resource
     private TokenStore tokenStore;
 
     /**

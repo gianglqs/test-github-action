@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
 public class OrderController {
-    final
+  
+    @Resource
     BookingOrderService bookingOrderService;
 
     public OrderController(BookingOrderService bookingOrderService) {

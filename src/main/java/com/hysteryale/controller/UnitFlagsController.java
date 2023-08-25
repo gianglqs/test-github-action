@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @CrossOrigin
 public class UnitFlagsController {
-    @Autowired
+    @Resource
     UnitFlagsService unitFlagsService;
 
 

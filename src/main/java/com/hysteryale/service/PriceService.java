@@ -8,11 +8,10 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,11 +26,8 @@ import java.util.List;
 @Slf4j
 public class PriceService {
 
-    private PriceRepository priceRepository;
-    @Autowired
-    public void setPriceRepository(PriceRepository priceRepository) {
-        this.priceRepository = priceRepository;
-    }
+    @Resource
+    PriceRepository priceRepository;
 
     /** Define number of Excel file's rows can be saved at one time */
     private final HashMap<String, Integer> columns = new HashMap<>();

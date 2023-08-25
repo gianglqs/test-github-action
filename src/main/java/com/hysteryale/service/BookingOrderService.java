@@ -3,26 +3,32 @@ package com.hysteryale.service;
 import com.hysteryale.model.BookingOrder;
 import com.hysteryale.repository.BookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
-import com.sun.xml.bind.v2.TODO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 @Slf4j
 public class BookingOrderService {
-    @Autowired
+    @Resource
     BookingOrderRepository bookingOrderRepository;
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
@@ -36,6 +42,32 @@ public class BookingOrderService {
             ORDER_COLUMNS_NAME.put(columnName, i);
         }
         log.info("Order Columns: " + ORDER_COLUMNS_NAME);
+    }
+
+    /**
+     * Get all files having name starting with {01. Bookings Register} and ending with {.xlsx}
+     * @param folderPath path to folder contains Booking Order
+     * @return list of files' name
+     */
+    public List<String> getAllFilesInFolder(String folderPath) {
+        Pattern pattern = Pattern.compile("^(01. Bookings Register).*(.xlsx)$");
+
+        List<String> fileList = new ArrayList<>();
+        Matcher matcher;
+        try {
+            DirectoryStream<Path> folder = Files.newDirectoryStream(Paths.get(folderPath));
+            for(Path path : folder) {
+                matcher = pattern.matcher(path.getFileName().toString());
+                if(matcher.matches())
+                    fileList.add(path.getFileName().toString());
+                else
+                    log.error("Wrong formatted file's name: " + path.getFileName().toString());
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        }
+        log.info("File list: " + fileList);
+        return fileList;
     }
 
     /**
@@ -67,7 +99,7 @@ public class BookingOrderService {
                 case "int":
                     field.set(bookingOrder, (int) row.getCell(ORDER_COLUMNS_NAME.get(hashMapKey)).getNumericCellValue());
                     break;
-                case "java.util.GregorianCalendar":
+                case "java.util.Calendar":
                     String strDate = row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getStringCellValue();
 
                     // Cast into GregorianCalendar
@@ -94,8 +126,7 @@ public class BookingOrderService {
     }
 
     /**
-     * Read booking data in excel files then import to the database
-     *
+     * Read booking data in Excel files then import to the database
      * @throws FileNotFoundException
      * @throws IllegalAccessException
      */
@@ -104,26 +135,36 @@ public class BookingOrderService {
         //TODO: Need to list all file in a folder then import one by one
         //TODO: Please put the folder location in a configuration file so we can change later
 
-        InputStream is = new FileInputStream("import_files/booking/01. Bookings Register - Apr -2023 (Jason).xlsx");
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+        // Folder contains Excel file of Booking Order
+        String folderPath = "import_files/booking";
+        // Get files in Folder Path
+        List<String> fileList = getAllFilesInFolder(folderPath);
 
-        List<BookingOrder> bookingOrderList = new ArrayList<>();
+        for(String fileName : fileList) {
+            log.info("{ Start importing file: '" + fileName + "'");
+            InputStream is = new FileInputStream(folderPath + "/" + fileName);
+            Workbook workbook = StreamingReader
+                    .builder()              //setting Buffer
+                    .rowCacheSize(100)
+                    .bufferSize(4096)
+                    .open(is);
 
-        Sheet orderSheet = workbook.getSheet("Input - Bookings");
-        for (Row row : orderSheet) {
-            if(row.getRowNum() == 1)
-                getOrderColumnsName(row);
-            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
+            List<BookingOrder> bookingOrderList = new ArrayList<>();
+
+            Sheet orderSheet = workbook.getSheet("Input - Bookings");
+            for (Row row : orderSheet) {
+                if(row.getRowNum() == 1)
+                    getOrderColumnsName(row);
+                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
                         && row.getRowNum() > 1) {
-                BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
-                bookingOrderList.add(newBookingOrder);
+                    BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
+                    bookingOrderList.add(newBookingOrder);
+                }
             }
+            bookingOrderRepository.saveAll(bookingOrderList);
+            log.info("End importing file: '" + fileName + "'");
+            log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
         }
-        bookingOrderRepository.saveAll(bookingOrderList);
     }
     public List<BookingOrder> getAllOrders() {
         return bookingOrderRepository.findAll();
