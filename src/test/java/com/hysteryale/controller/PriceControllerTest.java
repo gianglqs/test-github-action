@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.Resource;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,11 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 
 class PriceControllerTest {
-    @Autowired @Mock
+    @Resource
+    @Mock
     PriceService priceService;
     AutoCloseable autoCloseable;
-    @Autowired @InjectMocks
+    @Resource @InjectMocks
     PriceController priceController;
 
     @BeforeEach

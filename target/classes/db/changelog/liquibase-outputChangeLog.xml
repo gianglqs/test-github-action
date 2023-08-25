@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <changeSet author="hoangnhan (generated)" id="1692842960277-1">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-1">
         <createTable tableName="booking_order">
             <column name="order_no" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="booking_order_pkey"/>
@@ -11,7 +11,7 @@
             <column name="comment" type="VARCHAR(255)"/>
             <column name="ctry_code" type="VARCHAR(255)"/>
             <column name="currency" type="VARCHAR(255)"/>
-            <column name="date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="date" type="date"/>
             <column name="dealer_name" type="VARCHAR(255)"/>
             <column name="dealerpo" type="VARCHAR(255)"/>
             <column name="mkt_grp" type="INTEGER">
@@ -26,7 +26,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-2">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-2">
         <createTable tableName="permission">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="permission_pkey"/>
@@ -34,7 +34,7 @@
             <column name="permission_name" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-3">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-3">
         <createTable tableName="role">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="role_pkey"/>
@@ -42,7 +42,7 @@
             <column name="role_name" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-4">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-4">
         <createTable tableName="unit_flags">
             <column name="unit" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="unit_flags_pkey"/>
@@ -57,7 +57,7 @@
             <column name="u_class" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-5">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-5">
         <createTable tableName="price">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="price_pkey"/>
@@ -76,7 +76,7 @@
             <column name="update_action" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-6">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-6">
         <createTable tableName="user">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="user_pkey"/>
@@ -92,7 +92,7 @@
             <column name="role_id" type="INTEGER"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-7">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-7">
         <createTable tableName="role_permission_list">
             <column name="role_id" type="INTEGER">
                 <constraints nullable="false"/>
@@ -102,22 +102,22 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-8">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-8">
         <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user" constraintName="fkdl9dqp078pc03g6kdnxmnlqpc" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-9">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-9">
         <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_permission_list" constraintName="fkjuoog800x0k4fjyguyv04s2ab" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-10">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-10">
         <addForeignKeyConstraint baseColumnNames="permission_list_id" baseTableName="role_permission_list" constraintName="fkqrjk648ubvovhf4g6sxnsbdov" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="permission" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-11">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-11">
         <addUniqueConstraint columnNames="permission_list_id" constraintName="uk_15tn49006qeotwau03mryjtqc" tableName="role_permission_list"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-12">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-12">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807" minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1692842960277-13">
+    <changeSet author="hoangnhan (generated)" id="1692950121084-13">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="price_sequence" startValue="1"/>
     </changeSet>
 </databaseChangeLog>

@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 
 public class UnitFlagsServiceTest {
-    @Mock @Autowired
+    @Mock @Resource
     private UnitFlagsRepository unitFlagsRepository;
-    @InjectMocks @Autowired
+    @InjectMocks @Resource
     private UnitFlagsService underTest;
     private AutoCloseable autoCloseable;
 

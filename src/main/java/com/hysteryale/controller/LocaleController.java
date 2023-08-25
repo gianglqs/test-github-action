@@ -12,16 +12,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.Locale;
 import java.util.Map;
 @RestController
 public class LocaleController {
-    @Autowired
+    @Resource
     MessageSource messageSource;
-    @Autowired
+    @Resource
     UserService userService;
-    @Autowired
+    @Resource
     AuthorizationServerTokenServices tokenServices;
 
     @GetMapping(path = "/welcome")

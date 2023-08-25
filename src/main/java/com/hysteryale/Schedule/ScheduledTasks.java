@@ -28,9 +28,9 @@ public class ScheduledTasks {
      */
 
     //This is for testing only
-    @Scheduled(fixedDelay = 1000)
+    //@Scheduled(fixedDelay = 1000)
 
-   // @Scheduled(cron = "0 0 0 * * *")
+    //@Scheduled(cron = "0 0 0 * * *")
     public void autoUpdateBookingOrder() {
         log.info("Start import booking orders at {}", dateFormat.format(new Date()));
         try {

@@ -1,7 +1,7 @@
 package com.hysteryale.controller;
 
-import com.hysteryale.model.User;
 import com.hysteryale.model.Role;
+import com.hysteryale.model.User;
 import com.hysteryale.repository.UserRepository;
 import com.hysteryale.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +24,14 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 public class UserControllerTest {
-    @Autowired @Mock
+    @Resource
+    @Mock
     private UserRepository userRepository;
     private AutoCloseable autoCloseable;
-    @Autowired @Mock
+    @Resource
+    @Mock
     UserService userService;
-    @Autowired @InjectMocks
+    @Resource @InjectMocks
     UserController userController;
 
     @BeforeEach

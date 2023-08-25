@@ -1,17 +1,18 @@
 package com.hysteryale.service;
 
-import com.hysteryale.model.User;
 import com.hysteryale.model.Role;
+import com.hysteryale.model.User;
 import com.hysteryale.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +21,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 public class UserServiceTest {
-    @Autowired @Mock
+    @Resource
+    @Mock
     private UserRepository userRepository;
-    @Autowired @InjectMocks
+    @Resource @InjectMocks
     private UserService underTest;
     private AutoCloseable autoCloseable;
 
@@ -49,7 +52,6 @@ public class UserServiceTest {
 
         underTest.addUser(given1);
         underTest.addUser(given2);
-
 
         // WHEN
         when(userRepository.findAll()).thenReturn(userList);

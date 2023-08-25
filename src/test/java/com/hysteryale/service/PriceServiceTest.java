@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +17,10 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 
 public class PriceServiceTest {
-    @Autowired @Mock
+    @Resource
+    @Mock
     private PriceRepository priceRepository;
-    @Autowired @InjectMocks
+    @Resource @InjectMocks
     private PriceService underTest;
     private AutoCloseable autoCloseable;
 

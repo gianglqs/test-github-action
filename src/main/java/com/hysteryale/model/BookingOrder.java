@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 @Entity
@@ -17,7 +20,8 @@ import java.util.GregorianCalendar;
 public class BookingOrder {
     @Id
     private String orderNo;
-    private GregorianCalendar date;
+    @Temporal(TemporalType.DATE)
+    private Calendar date;
     private String currency;
     private String orderType;
     private String region;
