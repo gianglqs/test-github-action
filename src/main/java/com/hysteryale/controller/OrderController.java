@@ -12,8 +12,12 @@ import java.util.List;
 
 @RestController
 public class OrderController {
-    @Autowired
+    final
     BookingOrderService bookingOrderService;
+
+    public OrderController(BookingOrderService bookingOrderService) {
+        this.bookingOrderService = bookingOrderService;
+    }
 
     @PostMapping(path = "/order/import")
     public void importOrder() throws FileNotFoundException, IllegalAccessException {

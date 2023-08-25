@@ -26,8 +26,13 @@ import java.util.List;
 @Service
 @Slf4j
 public class PriceService {
+
+    private PriceRepository priceRepository;
     @Autowired
-    PriceRepository priceRepository;
+    public void setPriceRepository(PriceRepository priceRepository) {
+        this.priceRepository = priceRepository;
+    }
+
     /** Define number of Excel file's rows can be saved at one time */
     private final HashMap<String, Integer> columns = new HashMap<>();
 
