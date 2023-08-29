@@ -1,0 +1,68 @@
+/*******************************************************
+Copyright (C) - DREVER International
+
+This file is part of Malis 3 project.
+
+Malis 3 source code can not be copied and/or distributed without the express permission of DREVER International
+*******************************************************/
+
+import useStyles from './styles'
+
+import { Paper, IconButton, InputBase } from '@mui/material'
+
+import SearchIcon from '@mui/icons-material/Search'
+import { useState } from 'react'
+
+
+
+export type AppSearchBarProps = {
+  placeholder?: string
+  width?: number
+  // onSearch(event, query): void
+  filterable?: boolean
+  disabled?: boolean
+}
+
+const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
+  const { placeholder, width, disabled } = props
+  const classes = useStyles()
+
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleInputQuery = (event) => {
+    setSearchQuery(event.target.value)
+  }
+
+  return (
+    <div className={classes.searchBar__container} data-testid="app-searchbar">
+      <Paper
+        component="form"
+        elevation={0}
+        className={classes.searchBar__form}
+        style={{ width }}
+        // onSubmit={handleSubmitSearch}
+      >
+        <IconButton type="submit" className={classes.searchBar__searchIcon} aria-label="search" disabled={disabled}>
+          <SearchIcon />
+        </IconButton>
+        <InputBase
+          autoFocus
+          disabled={disabled}
+          className={classes.searchBar__input}
+          placeholder={placeholder}
+          value={searchQuery}
+          onChange={handleInputQuery}
+        />
+      </Paper>
+    </div>
+  )
+}
+
+AppSearchBar.defaultProps = {
+  filterable: true,
+  width: 300,
+  placeholder: 'Search...',
+  disabled: false
+}
+
+export { AppSearchBar }
