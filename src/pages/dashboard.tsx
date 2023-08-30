@@ -36,6 +36,8 @@ import {
     AppSearchBar,
     DataTable
   } from '@/components'
+import { Cookies } from 'react-cookie';
+import axios from 'axios';
   
 // import Chart from './Chart';
 // import Deposits from './Deposits';
@@ -109,9 +111,36 @@ const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
+  const [USERLIST, setUSERLIST] = React.useState([]);
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  const getUsers = () => {
+    // End destination for Authorization
+    const BASE_URL = "http://192.168.1.154:8080";
+    const endUrl = `${BASE_URL}/users`;
+
+    const cookie = new Cookies();
+    const accessToken = cookie.get("accessToken");
+    const headers = { headers: {"Authorization": `Bearer${accessToken}`} };
+
+
+    axios.get(endUrl, headers)
+    .then(response => {
+        console.log(response.data);
+        setUSERLIST(response.data);
+    }).catch(error => {
+        console.log("Something went wrong");
+        console.log(error);
+    });
+  };
+
+  React.useEffect(() => {
+    getUsers();
+  }, []);
+
 
   const columns  = [
     // {
@@ -257,7 +286,7 @@ export default function Dashboard() {
                     checkboxSelection
                     tableHeight={720}
                     rowHeight={100}
-                    rows={[]}
+                    rows={USERLIST}
                     columns={columns}
                     // selectionModel={selectedSpecList}
                     // onSelectionModelChange={handleSelectSpecification}
