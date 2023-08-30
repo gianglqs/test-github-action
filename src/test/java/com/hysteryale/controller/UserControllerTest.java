@@ -4,6 +4,9 @@ import com.hysteryale.model.Role;
 import com.hysteryale.model.User;
 import com.hysteryale.repository.UserRepository;
 import com.hysteryale.service.UserService;
+import com.hysteryale.service.impl.EmailServiceImpl;
+import com.mailjet.client.errors.MailjetException;
+import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -15,24 +18,26 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Slf4j
 public class UserControllerTest {
-    @Resource
-    @Mock
-    private UserRepository userRepository;
     private AutoCloseable autoCloseable;
+    @Resource @InjectMocks
+    UserController userController;
     @Resource
     @Mock
     UserService userService;
-    @Resource @InjectMocks
-    UserController userController;
+    @Resource
+    @Mock
+    private UserRepository userRepository;
+    @Resource
+    @Mock
+    private EmailServiceImpl emailService;
+
 
     @BeforeEach
     void setUp(){
@@ -55,13 +60,13 @@ public class UserControllerTest {
         userRepository.saveAll(givenList);
         // WHEN
         when(userService.getAllUsers()).thenReturn(givenList);
-        List<User> result = userController.getAllUsers();
+        Map<String, List<User>> result = userController.getAllUsers();
 
         // THEN
-        Assertions.assertEquals(givenList.size(), result.size());
+        Assertions.assertEquals(givenList.size(), result.get("userList").size());
     }
     @Test
-    void testAddUser() {
+    void testAddUser() throws MailjetSocketTimeoutException, MailjetException {
         // GIVEN
         Role role = new Role(1, "admin", null);
         User givenUser = new User(1, "given1", "given2@gmail.com", "user", role, "us", true);
@@ -71,6 +76,7 @@ public class UserControllerTest {
 
         // THEN
         Mockito.verify(userService).addUser(givenUser);
+        Mockito.verify(emailService).sendRegistrationEmail(givenUser.getUserName(), givenUser.getPassword(), givenUser.getEmail());
     }
     @Test
     void testDeactivateUser() {
@@ -80,7 +86,7 @@ public class UserControllerTest {
 
         // WHEN
         when(userService.getUserById(givenUser.getId())).thenReturn(Optional.of(givenUser));
-        userController.deactivateUser(givenUser.getId());
+        userController.activateUser(givenUser.getId());
 
         // THEN
         verify(userService).setUserActiveState(givenUser, false);
@@ -90,7 +96,7 @@ public class UserControllerTest {
     void testActivateUser() {
         // GIVEN
         Role role = new Role(1, "admin", null);
-        User givenUser = new User(1, "given1", "given2@gmail.com", "user", role, "us", true);
+        User givenUser = new User(1, "given1", "given2@gmail.com", "user", role, "us", false);
 
         // WHEN
         when(userService.getUserById(givenUser.getId())).thenReturn(Optional.of(givenUser));
@@ -128,11 +134,11 @@ public class UserControllerTest {
 
         // WHEN
         when(userService.searchUserByUserName(userName)).thenReturn(userList);
-        List<User> result = userController.searchUserByUserName(userName);
+        Map<String, List<User>> result = userController.searchUserByUserName(userName);
 
         // THEN
         Mockito.verify(userService).searchUserByUserName(userName);
-        Assertions.assertEquals(userList.size(), result.size());
+        Assertions.assertEquals(userList.size(), result.get("searchedUserList").size());
     }
     @Test
     void testUpdateUserInformation() {

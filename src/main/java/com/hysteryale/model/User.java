@@ -29,6 +29,8 @@ public class User {
     private Role role;
     private String defaultLocale;
     private boolean isActive;
+    //TODO temporal date
+    @Temporal(TemporalType.DATE)
     private Date lastLogin;
 
 

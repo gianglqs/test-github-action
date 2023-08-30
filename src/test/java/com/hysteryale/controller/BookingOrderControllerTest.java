@@ -1,9 +1,8 @@
-package com.hysteryale.service;
+package com.hysteryale.controller;
 
 import com.hysteryale.model.BookingOrder;
-import com.hysteryale.repository.BookingOrderRepository;
+import com.hysteryale.service.BookingOrderService;
 import com.monitorjbl.xlsx.StreamingReader;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -22,17 +21,17 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-
-@Slf4j
-public class BookingOrderServiceTest {
-    @Resource
-    @InjectMocks
-    BookingOrderService bookingOrderService;
+public class BookingOrderControllerTest {
+    AutoCloseable autoCloseable;
     @Resource
     @Mock
-    BookingOrderRepository bookingOrderRepository;
-    private AutoCloseable autoCloseable;
+    BookingOrderService bookingOrderService;
+    @Resource
+    @InjectMocks
+    BookingOrderController bookingOrderController;
+
     List<BookingOrder> bookingOrderList = new ArrayList<>();
 
     @BeforeEach
@@ -40,12 +39,10 @@ public class BookingOrderServiceTest {
         autoCloseable = MockitoAnnotations.openMocks(this);
         createMockedBookingOrderList();
     }
-
     @AfterEach
-    void tearDown() throws Exception{
+    void tearDown() throws Exception {
         autoCloseable.close();
     }
-
     void createMockedBookingOrderList() throws IllegalAccessException, FileNotFoundException {
         InputStream is = new FileInputStream("import_files/booking/01. Bookings Register - Apr -2023 (Jason).xlsx");
         Workbook workbook = StreamingReader
@@ -67,26 +64,14 @@ public class BookingOrderServiceTest {
     }
 
     @Test
-    void testGetAllFilesInFolder() {
-        // GIVEN
-        String folderPath = "import_files/booking";
-        int expectedListSize = 12;
-
+    void testGetAllBookingOrder() {
         // WHEN
-        List<String> fileList = bookingOrderService.getAllFilesInFolder(folderPath);
+        Mockito.when(bookingOrderService.getAllBookingOrders()).thenReturn(bookingOrderList);
+        Map<String, List<BookingOrder>> bookingOrders =  bookingOrderController.getAllOrder();
 
         // THEN
-        Assertions.assertEquals(expectedListSize, fileList.size());
+        Mockito.verify(bookingOrderService).getAllBookingOrders();
+        Assertions.assertFalse(bookingOrders.get("bookingOrderList").isEmpty());
     }
-    @Test
-    void testGetAllBookingOrders() {
 
-        // WHEN
-        Mockito.when(bookingOrderRepository.findAll()).thenReturn(bookingOrderList);
-        List<BookingOrder> result = bookingOrderService.getAllBookingOrders();
-
-        // THEN
-        Mockito.verify(bookingOrderRepository).findAll();
-        Assertions.assertFalse(result.isEmpty());
-    }
 }

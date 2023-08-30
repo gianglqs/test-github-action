@@ -41,6 +41,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
         additionalInfo.put("email", dbUser.getEmail());
         additionalInfo.put("defaultLocale", dbUser.getDefaultLocale());
         additionalInfo.put("role", dbUser.getRole());
+        additionalInfo.put("redirect_to", "/dashboard");
 
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInfo);
         return oAuth2AccessToken;
