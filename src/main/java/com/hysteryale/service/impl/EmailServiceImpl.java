@@ -1,56 +1,65 @@
 package com.hysteryale.service.impl;
 
 import com.hysteryale.service.EmailService;
-import com.mailjet.client.errors.MailjetException;
-import com.mailjet.client.errors.MailjetSocketTimeoutException;
+import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
 import com.mailjet.client.MailjetResponse;
-import com.mailjet.client.ClientOptions;
+import com.mailjet.client.errors.MailjetException;
+import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import com.mailjet.client.resource.Emailv31;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Service;
 
+@Service
+@Slf4j
 public class EmailServiceImpl implements EmailService {
-
     //for testing only, should put into the configuration
-    private String emailFrom = "bao.khuu@edge-works.net";
+    private final String emailFrom = "bao.khuu@edge-works.net";
 
     @Override
-    public void sendRegistrationEmail(String emailTo) throws MailjetSocketTimeoutException, MailjetException {
+    public void sendRegistrationEmail(String userName, String password, String emailTo) throws MailjetSocketTimeoutException, MailjetException {
 
-        String subject = "Hello";
-        String textPart = "Hello!";
-        String htmlPart = "<html> Hello </html>";
-        String customID = "Hello!!!";
+        String subject = "Welcome to Hyster-Yale";
+        String textPart = "Your account is ready to use";
+        String htmlPart = "<h1> Welcome " +  userName + ",</h1>";
+        htmlPart += "<h3> Your account is ready to use, please log-in with your email and password: " + password + ".</h3>";
 
         //create email body
-        MailjetRequest request = createEmailRequest(emailTo, subject, textPart, htmlPart,customID);
+        MailjetRequest request = createEmailRequest(emailTo, subject, textPart, htmlPart);
         sendEmail(request);
     }
 
-    private MailjetRequest createEmailRequest(String emailTo, String subject, String textPart, String htmlPart, String customID){
+    private MailjetRequest createEmailRequest(String emailTo, String subject, String textPart, String htmlPart){
         return new MailjetRequest(Emailv31.resource)
                 .property(Emailv31.MESSAGES, new JSONArray()
                         .put(new JSONObject()
                                 .put(Emailv31.Message.FROM, new JSONObject()
                                         .put("Email", emailFrom)
-                                        .put(Emailv31.Message.TO, new JSONArray()
-                                                .put(new JSONObject()
-                                                        .put("Email", emailTo)))
-                                        .put(Emailv31.Message.SUBJECT, subject)
-                                        .put(Emailv31.Message.TEXTPART, textPart)
-                                        .put(Emailv31.Message.HTMLPART, htmlPart)
-                                        .put(Emailv31.Message.CUSTOMID, customID))));
+                                )
+                                .put(Emailv31.Message.TO, new JSONArray()
+                                        .put(new JSONObject()
+                                                .put("Email", emailTo)
+                                        )
+                                )
+                                .put(Emailv31.Message.SUBJECT, subject)
+                                .put(Emailv31.Message.TEXTPART, textPart)
+                                .put(Emailv31.Message.HTMLPART, htmlPart)
+                        )
+                );
     }
 
     private void sendEmail(MailjetRequest request) throws MailjetSocketTimeoutException, MailjetException {
-        MailjetClient client;
         MailjetResponse response;
 
-        client = new MailjetClient("7d6bd9c34e16e6f8e63bd37cf4d64005",
-                "c1f828eb13eee6f7c438775820ee92a5", new ClientOptions("v3.1"));
+        log.info(System.getenv("MJ_apiKey") + " " + System.getenv("MJ_apiSecret"));
+
+        MailjetClient client = new MailjetClient(System.getenv("MJ_apiKey"),
+                System.getenv("MJ_apiSecret"), new ClientOptions("v3.1"));
 
         response = client.post(request);
+        log.info(response.getStatus() + " " + response.getData());
     }
 }

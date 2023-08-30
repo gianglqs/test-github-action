@@ -75,7 +75,7 @@ public class BookingOrderService {
      * @param row which is the row contains data
      * @return new Order object
      */
-    private BookingOrder mapExcelDataIntoOrderObject(Row row) throws IllegalAccessException {
+    public BookingOrder mapExcelDataIntoOrderObject(Row row) throws IllegalAccessException {
         BookingOrder bookingOrder = new BookingOrder();
         Class<? extends BookingOrder> bookingOrderClass = bookingOrder.getClass();
         Field[] fields = bookingOrderClass.getDeclaredFields();
@@ -132,9 +132,6 @@ public class BookingOrderService {
      */
     public void importOrder() throws FileNotFoundException, IllegalAccessException {
 
-        //TODO: Need to list all file in a folder then import one by one
-        //TODO: Please put the folder location in a configuration file so we can change later
-
         // Folder contains Excel file of Booking Order
         String folderPath = "import_files/booking";
         // Get files in Folder Path
@@ -166,7 +163,7 @@ public class BookingOrderService {
             log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
         }
     }
-    public List<BookingOrder> getAllOrders() {
+    public List<BookingOrder> getAllBookingOrders() {
         return bookingOrderRepository.findAll();
     }
 }

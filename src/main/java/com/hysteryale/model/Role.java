@@ -20,4 +20,9 @@ public class Role {
     private String roleName;
     @OneToMany(fetch = FetchType.EAGER)
     private List<Permission> permissionList;
+
+    public Role(String roleName, List<Permission> permissionList) {
+        this.roleName = roleName;
+        this.permissionList = permissionList;
+    }
 }

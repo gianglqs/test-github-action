@@ -11,5 +11,5 @@ public interface EmailService {
      * To send confirmation email to users when admin creates a new account
      * Email contains password
      */
-    public void sendRegistrationEmail(String emailTo) throws MailjetSocketTimeoutException, MailjetException;
+    public void sendRegistrationEmail(String userName, String password, String emailTo) throws MailjetSocketTimeoutException, MailjetException;
 }
