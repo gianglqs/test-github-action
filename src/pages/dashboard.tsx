@@ -38,7 +38,15 @@ import {
   } from '@/components'
 import { Cookies } from 'react-cookie';
 import axios from 'axios';
-import { GridColumns } from '@mui/x-data-grid-pro'
+import dashboardApi from '@/api/dashboard.api';
+
+import nookies from 'nookies'
+import { useDispatch,useSelector } from 'react-redux'
+import dashboardSlice from '@/store/reducers/dashboard.reducer';
+import { dashboardStore } from '@/store/reducers';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { getData } from '@/store/reducers/dashboard.reducer';
+import { parse } from 'path';
   
 // import Chart from './Chart';
 // import Deposits from './Deposits';
@@ -112,44 +120,30 @@ const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
-  const [USERLIST, setUSERLIST] = React.useState([]);
+
+  const dispatch = useDispatch()
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  const getUsers = () => {
-    // End destination for Authorization
-    const BASE_URL = "http://192.168.1.154:8080";
-    const endUrl = `${BASE_URL}/users`;
+  
 
-    const cookie = new Cookies();
-    const accessToken = cookie.get("accessToken");
-    const headers = { headers: {"Authorization": `Bearer${accessToken}`} };
-
-
-    axios.get(endUrl, headers)
-    .then(response => {
-        setUSERLIST(response.data);
-    }).catch(error => {
-    });
-  };
-
-  React.useEffect(() => {
-    getUsers();
-  }, []);
+  // React.useEffect(async () => {
+  //   // const cookies = nookies.get()
+  //   // const headers = { headers: {"Authorization": `Bearer${cookies.token}`} };
+  //   // axios.get("http://192.168.1.154:8080/users", headers)
+  //   // .then(response => {
+  //   //   dispatch(dashboardSlice.actions.setUserList(response.data.userList))
+  //   // }).catch(error => {
+  //   // });
+  //   // dashboardApi.getUser()
+  //   // console.log(dashboardApi.getUser());
+    
+  // }, []);
 
 
-  const columns: GridColumns  = [
-    // {
-    //     field: 'id',
-    //     resizable: false,
-    //     flex: 0.1,
-    //     headerName: 'Edit',
-    //     renderCell() {
-    //         return <span></span>
-    //       }
-    // },
+  const columns = [
     {
         field: 'email',
         flex: 1,
@@ -164,17 +158,17 @@ export default function Dashboard() {
         }
     },
     {
-        field: 'name',
+        field: 'userName',
         flex: 1,
         headerName: 'Name'
     },
     {
-        field: 'status',
+        field: 'active',
         flex: 1,
         headerName: 'Status'
     },
     {
-        field: 'last_login',
+        field: 'lastLogin',
         flex: 2,
         headerName: 'Last Login'
     },
@@ -266,7 +260,7 @@ export default function Dashboard() {
           }}
         >
           <Toolbar />
-            <Grid container justifyContent='flex-end' sx={{ padding: 2 }}>
+            <Grid container justifyContent='flex-end' sx={{ padding: 1 }}>
                 <IconButton color="default">
                     <ReloadIcon />
                     Reload
@@ -276,18 +270,18 @@ export default function Dashboard() {
                     Create
                 </IconButton>
             </Grid>
-            <Grid container sx={{ padding:2 }}>
+            <Grid container sx={{ padding:1 }}>
                 <AppSearchBar></AppSearchBar>
             </Grid>
 
-            <Grid container sx={{ padding:2 }}>
+            <Grid container sx={{ padding:1 }}>
                 <DataTable
                     hideFooter
                     disableColumnMenu
                     checkboxSelection
-                    tableHeight={720}
+                    tableHeight={760}
                     rowHeight={100}
-                    rows={USERLIST}
+                    rows={[]}
                     columns={columns}
                     // selectionModel={selectedSpecList}
                     // onSelectionModelChange={handleSelectSpecification}
