@@ -1,15 +1,14 @@
-import { CssBaseline, styled,Paper,TextField } from '@mui/material';
+import {  styled,Paper } from '@mui/material';
 
-import {  AppTextField } from '@/components'
 import NextHead from 'next/head'
-import Image from 'next/image'
+// import Image from 'next/image'
 import { LoadingButton } from '@mui/lab';
-import Link from "next/link";
-import { useCookies } from 'react-cookie';
-import axios from 'axios';
+import authApi from '@/api/auth.api';
+import { useRouter } from 'next/router';
+import nookies, { setCookie } from 'nookies'
+import { useForm } from 'react-hook-form'
+import FormControlledTextField from '@/components/FormController/TextField';
 
-
-// import logo from '../public/hyster-yale-logo.gif'
 
 
 const StyledContainer = styled('div')(() => ({
@@ -24,49 +23,40 @@ const StyledFormContainer = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(3)
   }))
 
-const queryString = require('querystring-es3');
 
 export default function LoginPage() {
 
-  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+  const router = useRouter()
 
-  const getAccessToken = () => {
-    // End destination for Authorization
-    const BASE_URL = "http://192.168.1.154:8080";
-    const endUrl = `${BASE_URL  }/oauth/token`;
-    let accessToken;
+  const loginForm = useForm<any>({
+    // resolver: yupResolver(validationSchema),
+    shouldUnregister: false
+    // defaultValues: { user_id: '', password: '', remember: true }
+  })
 
-    // Configure body for Authorization and get Access Token
-    const data = queryString.stringify({
+  const handleSubmitLogin = loginForm.handleSubmit(async (formData) => {
+    try {
+      const transformData = {
         "grant_type": "password",
-        "username": document.getElementById('inputEmail').value,
-        "password": document.getElementById('inputPassword').value
-    })
-
-
-    // Configure headers and Basic Authentication
-    const options = {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/x-www-form-urlencoded',  
-        },
-        auth: {
-            username: 'client',
-            password: 'password'
-        }
+        "username": formData?.email,
+        "password": formData?.password
+      }
+      
+      const { data } = await authApi.login(transformData)
+  
+      const { redirect_to } = data
+      const { back_url } = router.query
+      setCookie(null, 'token', data.access_token, { maxAge: 2147483647 })
+      nookies.destroy(null, 'is_expire_time_token')
+      if (back_url) {
+        router.push(decodeURIComponent(back_url as string))
+      } else {
+        router.push(redirect_to)
+      }
+    } catch(error){
+      alert('error')
     }
-    
-    axios.post(endUrl, data, options)
-    .then(response => {
-        console.log(response);
-        accessToken = response.data.access_token;
-        setCookie('accessToken', accessToken);
-        setCookie('authInformation', response.data)
-    }).catch(error => {
-        console.log("Something went wrong");
-        console.log(error);
-    });
-  }
+  })
 
   return (
     <>
@@ -79,24 +69,24 @@ export default function LoginPage() {
         <div id="logo" role="logo">
             Hyster-Yale{/* <Image src={logo as any} alt="The logo" width={160} height={40} /> */}
         </div>
-        <AppTextField
-          id='inputEmail'
-          sx={{ mt: 2}}
-          label="Email"
-          name="drawing_id"
-        />
-        <AppTextField
-          id='inputPassword'
-          sx={{ mt: 2 }}
-          label="Password"
-          name="drawing_id"
-          required
-        />
+        <form onSubmit={handleSubmitLogin}>
+          <FormControlledTextField
+            control={loginForm.control}
+            sx={{ mt: 2}}
+            label="Email"
+            name='email'
+          />
+          <FormControlledTextField
+            control={loginForm.control}
+            sx={{ mt: 2 }}
+            label="Password"
+            required
+            name='password'
+          />
 
-        {/* <Link href={`/dashboard`}>
-          Sign in
-        </Link> */}
-        <Link href={`/dashboard`}>
+          {/* <Link href={`/dashboard`}>
+            Sign in
+          </Link> */}
           <LoadingButton
             sx={{ mt: 2 }}
             loadingPosition="start"
@@ -104,13 +94,14 @@ export default function LoginPage() {
             fullWidth
             variant="contained"
             color="primary"
-            onClick={getAccessToken}
+            // onClick={getAccessToken}
             // loading={loading}
             // disabled={loadingSSO || loading}
           >
             Sign in
           </LoadingButton>
-        </Link>
+
+        </form>
       </StyledFormContainer>
       </StyledContainer>
     </>

@@ -38,6 +38,7 @@ import {
   } from '@/components'
 import { Cookies } from 'react-cookie';
 import axios from 'axios';
+import { GridColumns } from '@mui/x-data-grid-pro'
   
 // import Chart from './Chart';
 // import Deposits from './Deposits';
@@ -129,11 +130,8 @@ export default function Dashboard() {
 
     axios.get(endUrl, headers)
     .then(response => {
-        console.log(response.data);
         setUSERLIST(response.data);
     }).catch(error => {
-        console.log("Something went wrong");
-        console.log(error);
     });
   };
 
@@ -142,7 +140,7 @@ export default function Dashboard() {
   }, []);
 
 
-  const columns  = [
+  const columns: GridColumns  = [
     // {
     //     field: 'id',
     //     resizable: false,
@@ -160,7 +158,10 @@ export default function Dashboard() {
     {
         field: 'role',
         flex: 1,
-        headerName: 'Role'
+        headerName: 'Role',
+        renderCell(params) {
+          return <span>{params.row.role.roleName}</span>
+        }
     },
     {
         field: 'name',
