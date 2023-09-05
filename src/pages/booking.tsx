@@ -26,7 +26,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import LayersIcon from '@mui/icons-material/Layers';
 import { ReplayOutlined as ReloadIcon } from '@mui/icons-material'
-import { Button } from '@mui/material';
+import { Autocomplete, Button, TextField } from '@mui/material';
 // import SearchIcon from '@mui/icons-material/Search'
 // import {
 //     DataGridPro
@@ -44,6 +44,7 @@ import nookies from 'nookies'
 import { useDispatch,useSelector } from 'react-redux'
 import dashboardSlice from '@/store/reducers/dashboard.reducer';
 import { dashboardStore } from '@/store/reducers';
+import { DateTimePicker } from '@mui/lab';
 // import { createAsyncThunk } from '@reduxjs/toolkit';
 // import { getData } from '@/store/reducers/dashboard.reducer';
 // import { parse } from 'path';
@@ -117,7 +118,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function Dashboard() {
+export default function Booking() {
   const [open, setOpen] = React.useState(true);
 
   const dispatch = useDispatch()
@@ -127,14 +128,19 @@ export default function Dashboard() {
   };
 
   const listUser = useSelector(dashboardStore.selectUserList)
+
+  const [booking,setBooking] = React.useState([])
+
+  console.log(booking);
+  
   
 
   React.useEffect(() => {
     const cookies = nookies.get()
     const headers = { headers: {"Authorization": `Bearer${cookies.token}`} };
-    axios.get("http://192.168.1.154:8080/users", headers)
+    axios.get("http://192.168.1.154:8080/bookingOrder/getAll", headers)
     .then(response => {
-      dispatch(dashboardSlice.actions.setUserList(response.data.userList))
+      setBooking(response.data.bookingOrderList)
     }).catch(error => {
     });
     
@@ -143,77 +149,109 @@ export default function Dashboard() {
 
   const columns = [
     {
-        field: 'email',
-        flex: 1,
-        headerName: 'Email'
+        field: 'orderNo',
+        flex: 0.8,
+        headerName: 'Order #'
     },
     {
-        field: 'role',
-        flex: 1,
-        headerName: 'Role',
-        renderCell(params) {
-          return <span>{params.row.role.roleName}</span>
-        }
+      field: 'region',
+      flex: 0.8,
+      headerName: 'Region'
     },
     {
-        field: 'userName',
-        flex: 1,
-        headerName: 'Name'
+      field: 'ctryCode',
+      flex: 0.8,
+      headerName: 'Country'
     },
     {
-        field: 'active',
-        flex: 0.5,
-        headerName: 'Status',
-        renderCell(params) {
-          return <Button variant="outlined" color={`${params.row.active ? "primary": "error"}`}>Active</Button>
-        }
+      field: 'dealerName',
+      flex: 0.8,
+      headerName: 'Deale Name'
     },
     {
-        field: 'lastLogin',
-        flex: 1.5,
-        headerName: 'Last Login'
+      field: 'Plant',
+      flex: 0.8,
+      headerName: 'Plant'
+    }, 
+    {
+      field: 'truckClass',
+      flex: 0.8,
+      headerName: 'Class'
     },
+    {
+      field: 'series',
+      flex: 0.8,
+      headerName: 'Series'
+    },
+    {
+      field: 'model',
+      flex: 0.8,
+      headerName: 'Models'
+    },
+    {
+      field: 'qty',
+      flex: 0.8,
+      headerName: 'Qty'
+    },
+    {
+      field: 'Total Cost',
+      flex: 0.8,
+      headerName: 'Total Cost'
+    },
+    {
+      field: 'DN',
+      flex: 0.8,
+      headerName: 'DN'
+    },
+    {
+      field: 'DN After Surcharge',
+      flex: 0.8,
+      headerName: 'DN After Surcharge'
+    },
+    {
+      field: 'Margin $ After Surcharge',
+      flex: 1,
+      headerName: 'Margin $ After Surcharge'
+    },
+    {
+      field: 'Margin % After Surcharge',
+      flex: 1,
+      headerName: 'Margin % After Surcharge'
+    }
+
+    // {
+    //     field: 'role',
+    //     flex: 1,
+    //     headerName: 'Role',
+    //     renderCell(params) {
+    //       return <span>{params.row.role.roleName}</span>
+    //     }
+    // },
+    // {
+    //     field: 'userName',
+    //     flex: 1,
+    //     headerName: 'Name'
+    // },
+    // {
+    //     field: 'active',
+    //     flex: 0.5,
+    //     headerName: 'Status',
+    //     renderCell(params) {
+    //       return <Button variant="outlined" color={`${params.row.active ? "primary": "error"}`}>Active</Button>
+    //     }
+    // },
+    // {
+    //     field: 'lastLogin',
+    //     flex: 1.5,
+    //     headerName: 'Last Login'
+    // },
   ];
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar position="absolute" open={open}>
-          <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-            }}
-          >
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              {/* Dashboard */}
-            </Typography>
-            <IconButton color="inherit">
-              <Badge color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
+      <Box sx={{ display: 'flex',marginTop: -8 }}>
+        {/* <CssBaseline /> */}
+        {/* <Drawer variant="permanent" open={open}>
           <Toolbar
             sx={{
               display: 'flex',
@@ -240,16 +278,14 @@ export default function Dashboard() {
                 </ListItemIcon>
                 <ListItemText primary="Users" />
             </ListItemButton>
-            <Link href={`/booking`}>
-              <ListItemButton>
-                  <ListItemIcon>
-                      <LayersIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Financial Bookings" />
-              </ListItemButton>
-            </Link>
+            <ListItemButton>
+                <ListItemIcon>
+                    <LayersIcon />
+                </ListItemIcon>
+                <ListItemText primary="System Settings" />
+            </ListItemButton>
           </List> 
-        </Drawer>
+        </Drawer> */}
         <Box
           component="main"
           sx={{
@@ -263,7 +299,8 @@ export default function Dashboard() {
           }}
         >
           <Toolbar />
-            <Grid container justifyContent='flex-end' sx={{ padding: 1 }}>
+            <Grid container sx={{ padding: 1 }}><Link href={`/dashboard`}>Financial Bookings</Link></Grid>
+            {/* <Grid container justifyContent='flex-end' sx={{ padding: 1 }}>
                 <IconButton color="default">
                     <ReloadIcon />
                     Reload
@@ -272,23 +309,105 @@ export default function Dashboard() {
                     <CreateIcon />
                     Create
                 </IconButton>
-            </Grid>
+                sdf
+            </Grid> */}
             <Grid container sx={{ padding:1 }}>
-                <AppSearchBar></AppSearchBar>
-            </Grid>
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150 }}
+                renderInput={(params) => <TextField {...params} label="Order #" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="Plant" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="Metaseries" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="Class" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="Model" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="Segment" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="AOP Margin %" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="Margin %" />}
+              />
+            </Grid> 
+            <Grid container sx={{ padding:1 }}>
+              <Autocomplete
+                  disablePortal
+                  id="combo-box-demo"
+                  options={[]}
+                  size='small'
+                  sx={{ width: 150 }}
+                  renderInput={(params) => <TextField {...params} label="Region" />}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={[]}
+                size='small'
+                sx={{ width: 150, marginLeft: 2 }}
+                renderInput={(params) => <TextField {...params} label="Dealer" />}
+              />
+            </Grid> 
 
             <Grid container sx={{ padding:1 }}>
                 <DataTable
                     hideFooter
                     disableColumnMenu
                     checkboxSelection
-                    tableHeight={760}
+                    tableHeight={890}
                     rowHeight={100}
-                    rows={listUser}
+                    rows={booking}
                     columns={columns}
                     // selectionModel={selectedSpecList}
                     // onSelectionModelChange={handleSelectSpecification}
-                    // getRowId={(params) => params.spec_id_raw}
+                    getRowId={(params) => params.orderNo}
                 />
             </Grid>
 

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, ResponseType } from 'axios'
 import nookies, { parseCookies } from 'nookies'
-import { plural, singular } from 'pluralize'
+import { plural } from 'pluralize'
 import type { GetServerSidePropsContext } from 'next'
 import Router from 'next/router'
 
@@ -14,13 +14,6 @@ class HttpService {
         axios.defaults.withCredentials = true
         this.instance = axios.create({
         baseURL: "http://192.168.1.154:8080/",
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',  
-        },
-        auth: {
-          username: 'client',
-          password: 'password'
-        } 
         })
         this.instance.interceptors.response.use(this.handleSuccessRes, this.handleErrorRes)
     }
@@ -69,10 +62,35 @@ class HttpService {
       }
   
       const token = cookies['token']
+      
       // Set token if had
       if (token) {
-        this.instance.defaults.headers.common.Authorization = `Bearer ${token}`
+        this.instance.defaults.headers.common.Authorization = `Bearer${token}`
       }
+      else {
+        delete this.instance.defaults.headers.Authorization
+      }
+    }
+
+    get = <T = any>(
+      endpoint: string,
+      params = {} as Record<string, any>,
+      context: GetServerSidePropsContext = null,
+      responseType = 'default' as ResponseType
+    ) => {
+      this.saveToken(context)
+      return this.instance.get<T>(endpoint, { params, responseType: responseType })
+    }
+
+    getList = (params = {} as Record<string, any>, context: GetServerSidePropsContext = null) =>
+      this.get<any>(this.entity, params, context)
+
+    getListUser = <T = any>(
+      endpoint: string,
+      context: GetServerSidePropsContext = null,
+    ) => {
+      this.saveToken(context)
+      return this.instance.get<T>(endpoint)
     }
 
     post = <T = any>(endpoint: string, data = {} as Record<string, any>,context: GetServerSidePropsContext = null as any) => {

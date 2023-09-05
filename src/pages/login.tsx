@@ -8,8 +8,7 @@ import { useRouter } from 'next/router';
 import nookies, { setCookie } from 'nookies'
 import { useForm } from 'react-hook-form'
 import FormControlledTextField from '@/components/FormController/TextField';
-
-
+import axios from 'axios';
 
 const StyledContainer = styled('div')(() => ({
     height: `calc(100vh - ${25}px)`
@@ -23,15 +22,12 @@ const StyledFormContainer = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(3)
   }))
 
-
 export default function LoginPage() {
-
   const router = useRouter()
-
   const loginForm = useForm<any>({
     // resolver: yupResolver(validationSchema),
-    shouldUnregister: false
-    // defaultValues: { user_id: '', password: '', remember: true }
+    shouldUnregister: false,
+    defaultValues: { user_id: '', password: '', grant_type: '' }
   })
 
   const handleSubmitLogin = loginForm.handleSubmit(async (formData) => {
@@ -41,18 +37,25 @@ export default function LoginPage() {
         "username": formData?.email,
         "password": formData?.password
       }
-      
-      const { data } = await authApi.login(transformData)
-  
-      const { redirect_to } = data
-      const { back_url } = router.query
-      setCookie(null, 'token', data.access_token, { maxAge: 2147483647 })
-      nookies.destroy(null, 'is_expire_time_token')
-      if (back_url) {
-        router.push(decodeURIComponent(back_url as string))
-      } else {
+
+      const options = {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded',  
+        },
+        auth: {
+            username: 'client',
+            password: 'password'
+        }
+    }
+      axios.post("http://192.168.1.154:8080/oauth/token",transformData, options)
+      .then(response => {
+        const { redirect_to, access_token } = response.data
+        setCookie(null, 'token', access_token, { maxAge: 2147483647 })
+        setCookie(null, 'redirect_to', redirect_to, { maxAge: 2147483647 })
         router.push(redirect_to)
-      }
+      }).catch(error => {
+      });
     } catch(error){
       alert('error')
     }
@@ -82,6 +85,8 @@ export default function LoginPage() {
             label="Password"
             required
             name='password'
+            autoComplete="current-password"
+            type="password"
           />
 
           {/* <Link href={`/dashboard`}>
