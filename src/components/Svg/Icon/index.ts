@@ -1,1 +1,1 @@
-export { default as GenerateCodeIcon } from '@mui/icons-material/PlayArrowRounded'
+export { default as GenerateCodeIcon } from "@mui/icons-material/PlayArrowRounded";

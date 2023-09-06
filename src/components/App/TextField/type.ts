@@ -1,11 +1,9 @@
-
-
-import type { StandardTextFieldProps } from '@mui/material'
+import type { StandardTextFieldProps } from "@mui/material";
 
 export interface AppTextFieldProps extends StandardTextFieldProps {
-  generateCode?: boolean
-  tooltip?: string
-  loading?: boolean
-  onGenerateCode?: (event) => void
-  isFocus?: boolean
+  generateCode?: boolean;
+  tooltip?: string;
+  loading?: boolean;
+  onGenerateCode?: (event) => void;
+  isFocus?: boolean;
 }

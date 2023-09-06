@@ -1,18 +1,16 @@
+import { createTheme } from "@mui/material/styles";
 
-
-import { createTheme } from '@mui/material/styles'
-
-import typography from './typography'
-import components from './components'
-import palette from './palette'
+import typography from "./typography";
+import components from "./components";
+import palette from "./palette";
 
 const theme = createTheme({
   typography,
   components,
   shape: {
-    borderRadius: 2
+    borderRadius: 2,
   },
-  palette
-})
+  palette,
+});
 
-export default theme
+export default theme;

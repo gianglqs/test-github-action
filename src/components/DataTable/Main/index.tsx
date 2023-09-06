@@ -1,26 +1,26 @@
 import {
-    DataGridPro,
-    DataGridProProps,
-    GridRowId,
-    GridToolbarColumnsButton,
-    GridToolbarContainer,
-    GridToolbarDensitySelector,
-} from '@mui/x-data-grid-pro'
+  DataGridPro,
+  DataGridProProps,
+  GridRowId,
+  GridToolbarColumnsButton,
+  GridToolbarContainer,
+  GridToolbarDensitySelector,
+} from "@mui/x-data-grid-pro";
 
 export interface DataTableProps extends DataGridProProps {
-tableHeight?: number | string
-hideFooter?: boolean
-page?: number
-perPage?: number
-totalItems?: number
-showToolbar?: boolean
-entity?: string
-onChangePage?(page: number): void
-onChangePerPage?(perPage: number): void
+  tableHeight?: number | string;
+  hideFooter?: boolean;
+  page?: number;
+  perPage?: number;
+  totalItems?: number;
+  showToolbar?: boolean;
+  entity?: string;
+  onChangePage?(page: number): void;
+  onChangePerPage?(perPage: number): void;
 }
 
 const DataTable: React.FC<any> = (props) => {
-const {
+  const {
     tableHeight,
     hideFooter,
     entity,
@@ -34,43 +34,34 @@ const {
     onChangePage,
     onChangePerPage,
     ...rest
-} = props
-return (
+  } = props;
+  return (
     <>
-    <div style={{ height: autoHeight ? 'auto' : tableHeight, width: '100%' }} role="table">
+      <div
+        style={{ height: autoHeight ? "auto" : tableHeight, width: "100%" }}
+        role="table"
+      >
         <DataGridPro
-        autoHeight={autoHeight}
-        selectionModel={selectionModel}
-        hideFooter
-        // density={handleSetDentity(valueDensity)}
-        // getRowHeight={getRowHeight}
-        rowBuffer={35}
-        rowThreshold={25}
-        {...rest}
+          autoHeight={autoHeight}
+          selectionModel={selectionModel}
+          hideFooter
+          // density={handleSetDentity(valueDensity)}
+          // getRowHeight={getRowHeight}
+          rowBuffer={35}
+          rowThreshold={25}
+          {...rest}
         />
-    </div>
-
-    {/* <Unless condition={hideFooter}>
-        <DataTablePagination
-        countSelectedItems={(selectionModel as GridRowId[])?.length || 0}
-        page={page}
-        perPage={perPage}
-        totalItems={totalItems}
-        onChangePage={onChangePage}
-        onChangePerPage={onChangePerPage}
-        />
-    </Unless> */}
+      </div>
     </>
-)
-}
+  );
+};
 
 DataTable.defaultProps = {
-headerHeight: 30,
-rowHeight: 30,
-hideFooter: false,
-density: 'compact',
-showToolbar: false
-}
+  headerHeight: 30,
+  rowHeight: 30,
+  hideFooter: false,
+  density: "compact",
+  showToolbar: false,
+};
 
-export default DataTable
-  
+export default DataTable;

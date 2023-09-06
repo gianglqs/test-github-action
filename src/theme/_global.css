@@ -1,9 +1,8 @@
-
 /* @import 'codemirror/theme/material.css'; */
-@import '/node_modules/codemirror/theme/material.css';
+/* @import '/node_modules/codemirror/theme/material.css'; */
 
 .center-element {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

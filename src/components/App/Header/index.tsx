@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-
 const AppHeader = () => {
   return (
     <div className="header">

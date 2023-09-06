@@ -1,14 +1,9 @@
-
-
 // import useStyles from '@/styles/page/layout'
 
-import LoginPage from "./login"
+import LoginPage from "./login";
 
 function IndexPage() {
-  return (
-    <LoginPage />
-  )
+  return <LoginPage />;
 }
 
-
-export default IndexPage
+export default IndexPage;

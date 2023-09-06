@@ -4,7 +4,7 @@ import { plural } from 'pluralize'
 import type { GetServerSidePropsContext } from 'next'
 import Router from 'next/router'
 
-class HttpService {
+class HttpService<GetList = any>{
     private instance: AxiosInstance
 
     protected entity: string
@@ -13,7 +13,7 @@ class HttpService {
         this.entity = plural(entity)
         axios.defaults.withCredentials = true
         this.instance = axios.create({
-        baseURL: "http://192.168.1.154:8080/",
+        baseURL: "http://192.168.1.155:8080/",
         })
         this.instance.interceptors.response.use(this.handleSuccessRes, this.handleErrorRes)
     }
@@ -79,11 +79,11 @@ class HttpService {
       responseType = 'default' as ResponseType
     ) => {
       this.saveToken(context)
-      return this.instance.get<T>(endpoint, { params, responseType: responseType })
+      return this.instance.get<T>(endpoint, { params, responseType })
     }
 
     getList = (params = {} as Record<string, any>, context: GetServerSidePropsContext = null) =>
-      this.get<any>(this.entity, params, context)
+      this.get<GetList>(this.entity, params, context)
 
     getListUser = <T = any>(
       endpoint: string,
