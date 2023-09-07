@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "next/link"
 
 const AppHeader = () => {
   return (
@@ -11,7 +11,7 @@ const AppHeader = () => {
         <Link href="/search">Search</Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AppHeader;
+export default AppHeader

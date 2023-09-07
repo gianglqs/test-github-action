@@ -1,49 +1,49 @@
-import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import Link from "@mui/material/Link";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import CreateIcon from "@mui/icons-material/AddCircle";
+import * as React from "react"
+import { styled, createTheme, ThemeProvider } from "@mui/material/styles"
+import CssBaseline from "@mui/material/CssBaseline"
+import MuiDrawer from "@mui/material/Drawer"
+import Box from "@mui/material/Box"
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
+import Toolbar from "@mui/material/Toolbar"
+import List from "@mui/material/List"
+import Typography from "@mui/material/Typography"
+import Divider from "@mui/material/Divider"
+import IconButton from "@mui/material/IconButton"
+import Badge from "@mui/material/Badge"
+import Container from "@mui/material/Container"
+import Grid from "@mui/material/Grid"
+import Paper from "@mui/material/Paper"
+import Link from "@mui/material/Link"
+import MenuIcon from "@mui/icons-material/Menu"
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
+import NotificationsIcon from "@mui/icons-material/Notifications"
+import CreateIcon from "@mui/icons-material/AddCircle"
 // import { mainListItems, secondaryListItems } from './listItems';
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import LayersIcon from "@mui/icons-material/Layers";
-import { ReplayOutlined as ReloadIcon } from "@mui/icons-material";
-import { Button, Menu } from "@mui/material";
+import ListItemButton from "@mui/material/ListItemButton"
+import ListItemIcon from "@mui/material/ListItemIcon"
+import ListItemText from "@mui/material/ListItemText"
+import DashboardIcon from "@mui/icons-material/Dashboard"
+import PeopleIcon from "@mui/icons-material/People"
+import LayersIcon from "@mui/icons-material/Layers"
+import { ReplayOutlined as ReloadIcon } from "@mui/icons-material"
+import { Button, Menu } from "@mui/material"
 // import SearchIcon from '@mui/icons-material/Search'
 // import {
 //     DataGridPro
 //   } from '@mui/x-data-grid-pro'
 
-import { AppSearchBar, DataTable } from "@/components";
+import { AppSearchBar, DataTable } from "@/components"
 // import { Cookies } from 'react-cookie';
-import axios from "axios";
+import axios from "axios"
 // import dashboardApi from '@/api/dashboard.api';
 
-import nookies from "nookies";
-import { useDispatch, useSelector } from "react-redux";
-import dashboardSlice from "@/store/reducers/dashboard.reducer";
-import { dashboardStore } from "@/store/reducers";
-import { createAction } from "@reduxjs/toolkit";
-import { useRouter } from "next/router";
-import { DialogCreateUser } from "@/components/Dialog/Module/Dashboard/CreateDialog";
+import nookies from "nookies"
+import { useDispatch, useSelector } from "react-redux"
+import dashboardSlice from "@/store/reducers/dashboard.reducer"
+import { dashboardStore } from "@/store/reducers"
+import { createAction } from "@reduxjs/toolkit"
+import { useRouter } from "next/router"
+import { DialogCreateUser } from "@/components/Dialog/Module/Dashboard/CreateDialog"
 
 function Copyright(props: any) {
   return (
@@ -59,13 +59,13 @@ function Copyright(props: any) {
       </Link>{' '} */}
       {/* {new Date().getFullYear()} */}
     </Typography>
-  );
+  )
 }
 
-const drawerWidth: number = 240;
+const drawerWidth: number = 240
 
 interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
+  open?: boolean
 }
 
 const AppBar = styled(MuiAppBar, {
@@ -84,7 +84,7 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-}));
+}))
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -110,64 +110,64 @@ const Drawer = styled(MuiDrawer, {
       },
     }),
   },
-}));
+}))
 
 export default function Dashboard() {
-  const [open, setOpen] = React.useState(true);
-  createAction(`dashboard/GET_LIST`);
-  const entityApp = "dashboard";
+  const [open, setOpen] = React.useState(true)
+  createAction(`dashboard/GET_LIST`)
+  const entityApp = "dashboard"
   const getListAction = React.useMemo(
     () => createAction(`${entityApp}/GET_LIST`),
     [entityApp]
-  );
+  )
   const resetStateAction = React.useMemo(
     () => createAction(`${entityApp}/RESET_STATE`),
     [entityApp]
-  );
-  const router = useRouter();
+  )
+  const router = useRouter()
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
   React.useEffect(() => {
-    dispatch(getListAction());
-  }, [getListAction, router.query]);
+    dispatch(getListAction())
+  }, [getListAction, router.query])
 
   React.useEffect(() => {
     return () => {
-      dispatch(resetStateAction());
-    };
-  }, [router.pathname]);
+      dispatch(resetStateAction())
+    }
+  }, [router.pathname])
 
   const toggleDrawer = () => {
-    setOpen(!open);
-  };
+    setOpen(!open)
+  }
 
-  const listUser = useSelector(dashboardStore.selectUserList);
+  const listUser = useSelector(dashboardStore.selectUserList)
 
   const defaultValue = {
     userName: "",
     password: "",
     email: "",
-  };
+  }
 
   const [dialogCreateUser, setDialogCreateUser] = React.useState({
     open: false,
     detail: defaultValue as any,
-  });
+  })
 
   const handleOpenCreateDialog = () => {
     setDialogCreateUser({
       open: true,
       detail: defaultValue,
-    });
-  };
+    })
+  }
 
   const handleCloseCreateDialog = () => {
     setDialogCreateUser({
       open: false,
       detail: defaultValue,
-    });
-  };
+    })
+  }
 
   const columns = [
     {
@@ -180,7 +180,7 @@ export default function Dashboard() {
       flex: 1,
       headerName: "Role",
       renderCell(params) {
-        return <span>{params.row.role.roleName}</span>;
+        return <span>{params.row.role.roleName}</span>
       },
     },
     {
@@ -200,7 +200,7 @@ export default function Dashboard() {
           >
             Active
           </Button>
-        );
+        )
       },
     },
     {
@@ -208,7 +208,7 @@ export default function Dashboard() {
       flex: 1.5,
       headerName: "Last Login",
     },
-  ];
+  ]
 
   return (
     <>
@@ -344,5 +344,5 @@ export default function Dashboard() {
         onClose={handleCloseCreateDialog}
       />
     </>
-  );
+  )
 }

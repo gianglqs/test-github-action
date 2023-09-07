@@ -1,11 +1,11 @@
-import { darken, Palette } from "@mui/material";
+import { darken, Palette } from "@mui/material"
 
 export const secondaryColor = {
   main: "#F4F7FC",
   light: "#DAE1EC",
   dark: "#7D90B2",
   contrastText: "#2E3B52",
-};
+}
 
 const palette = {
   secondary: secondaryColor,
@@ -23,6 +23,6 @@ const palette = {
       dark: darken("#fad7a0", 0.2),
     },
   },
-} as Palette;
+} as Palette
 
-export default palette;
+export default palette

@@ -5,12 +5,12 @@ import {
   DialogContent,
   DialogTitle,
   Paper,
-} from "@mui/material";
-import useStyles from "./styles";
-import clsx from "clsx";
+} from "@mui/material"
+import useStyles from "./styles"
+import clsx from "clsx"
 
-import { Unless, When } from "react-if";
-import Draggable from "react-draggable";
+import { Unless, When } from "react-if"
+import Draggable from "react-draggable"
 
 function PaperComponent({ draggable, ...props }) {
   return (
@@ -28,7 +28,7 @@ function PaperComponent({ draggable, ...props }) {
         <Paper {...props} style={{ margin: 0 }} />
       </Unless>
     </>
-  );
+  )
 }
 
 const AppDialog: React.FC<any> = (props) => {
@@ -41,8 +41,8 @@ const AppDialog: React.FC<any> = (props) => {
     okButtonProps,
     loading,
     ...dialogProps
-  } = props;
-  const classes = useStyles(props);
+  } = props
+  const classes = useStyles(props)
   return (
     <Dialog
       className={clsx(classes.appDialog__container)}
@@ -76,7 +76,7 @@ const AppDialog: React.FC<any> = (props) => {
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export { AppDialog };
+export { AppDialog }

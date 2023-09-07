@@ -1,12 +1,12 @@
-import { useMemo, useState, memo, useCallback, useEffect, useRef } from "react";
-import useStyles from "./styles";
+import { useMemo, useState, memo, useCallback, useEffect, useRef } from "react"
+import useStyles from "./styles"
 
-import { TextField, Tooltip, InputAdornment } from "@mui/material";
-import { FormControllerErrorMessage, GenerateCodeIcon } from "@/components";
+import { TextField, Tooltip, InputAdornment } from "@mui/material"
+import { FormControllerErrorMessage, GenerateCodeIcon } from "@/components"
 
-import clsx from "clsx";
+import clsx from "clsx"
 
-import type { AppTextFieldProps } from "./type";
+import type { AppTextFieldProps } from "./type"
 
 const AppTextField: React.FC<AppTextFieldProps> = (props) => {
   const {
@@ -20,7 +20,7 @@ const AppTextField: React.FC<AppTextFieldProps> = (props) => {
     onGenerateCode,
     isFocus,
     ...textFieldProps
-  } = props;
+  } = props
 
   // const classes = useStyles()
   // const focusRef = useRef(null)
@@ -77,13 +77,13 @@ const AppTextField: React.FC<AppTextFieldProps> = (props) => {
       }}
       {...textFieldProps}
     />
-  );
-};
+  )
+}
 
 AppTextField.defaultProps = {
   generateCode: false,
   tooltip: "Generate code",
   loading: false,
-};
+}
 
-export default memo(AppTextField);
+export default memo(AppTextField)

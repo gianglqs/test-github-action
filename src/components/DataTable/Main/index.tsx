@@ -5,18 +5,18 @@ import {
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarDensitySelector,
-} from "@mui/x-data-grid-pro";
+} from "@mui/x-data-grid-pro"
 
 export interface DataTableProps extends DataGridProProps {
-  tableHeight?: number | string;
-  hideFooter?: boolean;
-  page?: number;
-  perPage?: number;
-  totalItems?: number;
-  showToolbar?: boolean;
-  entity?: string;
-  onChangePage?(page: number): void;
-  onChangePerPage?(perPage: number): void;
+  tableHeight?: number | string
+  hideFooter?: boolean
+  page?: number
+  perPage?: number
+  totalItems?: number
+  showToolbar?: boolean
+  entity?: string
+  onChangePage?(page: number): void
+  onChangePerPage?(perPage: number): void
 }
 
 const DataTable: React.FC<any> = (props) => {
@@ -34,7 +34,7 @@ const DataTable: React.FC<any> = (props) => {
     onChangePage,
     onChangePerPage,
     ...rest
-  } = props;
+  } = props
   return (
     <>
       <div
@@ -53,8 +53,8 @@ const DataTable: React.FC<any> = (props) => {
         />
       </div>
     </>
-  );
-};
+  )
+}
 
 DataTable.defaultProps = {
   headerHeight: 30,
@@ -62,6 +62,6 @@ DataTable.defaultProps = {
   hideFooter: false,
   density: "compact",
   showToolbar: false,
-};
+}
 
-export default DataTable;
+export default DataTable

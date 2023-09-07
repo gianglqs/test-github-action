@@ -1,48 +1,48 @@
-import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import Link from "@mui/material/Link";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import CreateIcon from "@mui/icons-material/AddCircle";
+import * as React from "react"
+import { styled, createTheme, ThemeProvider } from "@mui/material/styles"
+import CssBaseline from "@mui/material/CssBaseline"
+import MuiDrawer from "@mui/material/Drawer"
+import Box from "@mui/material/Box"
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
+import Toolbar from "@mui/material/Toolbar"
+import List from "@mui/material/List"
+import Typography from "@mui/material/Typography"
+import Divider from "@mui/material/Divider"
+import IconButton from "@mui/material/IconButton"
+import Badge from "@mui/material/Badge"
+import Container from "@mui/material/Container"
+import Grid from "@mui/material/Grid"
+import Paper from "@mui/material/Paper"
+import Link from "@mui/material/Link"
+import MenuIcon from "@mui/icons-material/Menu"
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
+import NotificationsIcon from "@mui/icons-material/Notifications"
+import CreateIcon from "@mui/icons-material/AddCircle"
 // import { mainListItems, secondaryListItems } from './listItems';
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import LayersIcon from "@mui/icons-material/Layers";
-import { ReplayOutlined as ReloadIcon } from "@mui/icons-material";
-import { Autocomplete, Button, TextField } from "@mui/material";
+import ListItemButton from "@mui/material/ListItemButton"
+import ListItemIcon from "@mui/material/ListItemIcon"
+import ListItemText from "@mui/material/ListItemText"
+import DashboardIcon from "@mui/icons-material/Dashboard"
+import PeopleIcon from "@mui/icons-material/People"
+import LayersIcon from "@mui/icons-material/Layers"
+import { ReplayOutlined as ReloadIcon } from "@mui/icons-material"
+import { Autocomplete, Button, TextField } from "@mui/material"
 // import SearchIcon from '@mui/icons-material/Search'
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from "@mui/styles"
 // import {
 //     DataGridPro
 //   } from '@mui/x-data-grid-pro'
 
-import { AppSearchBar, DataTable } from "@/components";
+import { AppSearchBar, DataTable } from "@/components"
 // import { Cookies } from 'react-cookie';
-import axios from "axios";
+import axios from "axios"
 // import dashboardApi from '@/api/dashboard.api';
 
-import nookies from "nookies";
-import { useDispatch, useSelector } from "react-redux";
-import dashboardSlice from "@/store/reducers/dashboard.reducer";
-import { dashboardStore } from "@/store/reducers";
-import { DateTimePicker } from "@mui/lab";
+import nookies from "nookies"
+import { useDispatch, useSelector } from "react-redux"
+import dashboardSlice from "@/store/reducers/dashboard.reducer"
+import { dashboardStore } from "@/store/reducers"
+import { DateTimePicker } from "@mui/lab"
 // import { createAsyncThunk } from '@reduxjs/toolkit';
 // import { getData } from '@/store/reducers/dashboard.reducer';
 // import { parse } from 'path';
@@ -65,7 +65,7 @@ function Copyright(props: any) {
       </Link>{' '} */}
       {/* {new Date().getFullYear()} */}
     </Typography>
-  );
+  )
 }
 
 // const useStyles = makeStyles((theme) => {
@@ -89,20 +89,20 @@ export default function Booking() {
 
   // const listUser = useSelector(dashboardStore.selectUserList);
 
-  const [booking, setBooking] = React.useState([]);
+  const [booking, setBooking] = React.useState([])
 
-  console.log(booking);
+  console.log(booking)
 
   React.useEffect(() => {
-    const cookies = nookies.get();
-    const headers = { headers: { Authorization: `Bearer${cookies.token}` } };
+    const cookies = nookies.get()
+    const headers = { headers: { Authorization: `Bearer${cookies.token}` } }
     axios
       .get("http://192.168.1.155:8080/bookingOrder/getAll", headers)
       .then((response) => {
-        setBooking(response.data.bookingOrderList);
+        setBooking(response.data.bookingOrderList)
       })
-      .catch((error) => {});
-  }, []);
+      .catch((error) => {})
+  }, [])
 
   const columns = [
     {
@@ -125,7 +125,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Deale Name",
       renderCell(params) {
-        return <span>{params.row.billTo?.dealerDivison}</span>;
+        return <span>{params.row.billTo?.dealerDivison}</span>
       },
     },
     {
@@ -133,7 +133,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Plant",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.plant}</span>;
+        return <span>{params.row.apacSerial?.plant}</span>
       },
     },
     {
@@ -141,7 +141,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Class",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.metaSeries?.clazz}</span>;
+        return <span>{params.row.apacSerial?.metaSeries?.clazz}</span>
       },
     },
     {
@@ -149,7 +149,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Series",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.metaSeries?.series}</span>;
+        return <span>{params.row.apacSerial?.metaSeries?.series}</span>
       },
     },
     {
@@ -157,7 +157,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Models",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.model}</span>;
+        return <span>{params.row.apacSerial?.model}</span>
       },
     },
     {
@@ -217,7 +217,7 @@ export default function Booking() {
     //     flex: 1.5,
     //     headerName: 'Last Login'
     // },
-  ];
+  ]
 
   return (
     <div>
@@ -312,5 +312,5 @@ export default function Booking() {
       </Paper>
       <Copyright sx={{ padding: 1.5 }} />
     </div>
-  );
+  )
 }

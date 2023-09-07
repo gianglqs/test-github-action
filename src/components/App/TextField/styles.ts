@@ -1,5 +1,5 @@
-import { makeStyles } from "@mui/styles";
-import { grey } from "@mui/material/colors";
+import { makeStyles } from "@mui/styles"
+import { grey } from "@mui/material/colors"
 
 export default makeStyles((theme) => ({
   appTextField__generateIcon: {
@@ -14,4 +14,4 @@ export default makeStyles((theme) => ({
   appTextField__generateIcon__disabled: {
     opacity: 0.3,
   },
-}));
+}))

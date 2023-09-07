@@ -1,5 +1,5 @@
-import { makeStyles } from "@mui/styles";
-import { red } from "@mui/material/colors";
+import { makeStyles } from "@mui/styles"
+import { red } from "@mui/material/colors"
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -12,6 +12,6 @@ const useStyles = makeStyles((theme) => ({
   arrow: {
     color: red[200],
   },
-}));
+}))
 
-export default useStyles;
+export default useStyles

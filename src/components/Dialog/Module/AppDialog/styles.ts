@@ -1,4 +1,4 @@
-import { makeStyles, DefaultTheme } from "@mui/styles";
+import { makeStyles, DefaultTheme } from "@mui/styles"
 // import { AppDialogProps } from './type'
 
 export default makeStyles<DefaultTheme, any>((theme) => {
@@ -50,5 +50,5 @@ export default makeStyles<DefaultTheme, any>((theme) => {
     appDialog__iconButton: {
       marginRight: "2px",
     },
-  };
-});
+  }
+})

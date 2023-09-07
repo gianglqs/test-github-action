@@ -1,9 +1,9 @@
-import { red } from "@mui/material/colors";
-import { secondaryColor } from "./palette";
+import { red } from "@mui/material/colors"
+import { secondaryColor } from "./palette"
 
-import type { Components } from "@mui/material";
-import type {} from "@mui/x-data-grid-pro/themeAugmentation";
-import type {} from "@mui/lab/themeAugmentation";
+import type { Components } from "@mui/material"
+import type {} from "@mui/x-data-grid-pro/themeAugmentation"
+import type {} from "@mui/lab/themeAugmentation"
 
 const components: Components = {
   MuiButton: {
@@ -247,6 +247,6 @@ const components: Components = {
       },
     },
   },
-};
+}
 
-export default components;
+export default components

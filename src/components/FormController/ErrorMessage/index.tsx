@@ -1,9 +1,9 @@
-import { Tooltip, Typography, TooltipProps } from "@mui/material";
+import { Tooltip, Typography, TooltipProps } from "@mui/material"
 
-import useStyles from "./styles";
+import useStyles from "./styles"
 
 function ErrorMessage({ title, children, ...props }: TooltipProps) {
-  const classes = useStyles();
+  const classes = useStyles()
   return (
     <Tooltip
       {...props}
@@ -12,7 +12,7 @@ function ErrorMessage({ title, children, ...props }: TooltipProps) {
     >
       {children}
     </Tooltip>
-  );
+  )
 }
 
-export default ErrorMessage;
+export default ErrorMessage

@@ -1,9 +1,9 @@
-import "@/theme/_global.css";
-import { wrapper } from "@/store/config";
-import type { AppProps } from "next/app";
-import appTheme from "@/theme/appTheme";
-import { ThemeProvider } from "@mui/material/styles";
-import { CssBaseline } from "@mui/material";
+import "@/theme/_global.css"
+import { wrapper } from "@/store/config"
+import type { AppProps } from "next/app"
+import appTheme from "@/theme/appTheme"
+import { ThemeProvider } from "@mui/material/styles"
+import { CssBaseline } from "@mui/material"
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -21,7 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               </ProviderSSEDialog>
             </ErrorBoundary> */
     // </RollbarProvider>
-  );
+  )
 }
 
-export default wrapper.withRedux(MyApp);
+export default wrapper.withRedux(MyApp)

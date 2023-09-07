@@ -1,19 +1,19 @@
-import { forwardRef } from "react";
-import { useController } from "react-hook-form";
+import { forwardRef } from "react"
+import { useController } from "react-hook-form"
 
-import _ from "lodash";
-import { makeStyles } from "@mui/styles";
+import _ from "lodash"
+import { makeStyles } from "@mui/styles"
 
-import { AppAutocomplete } from "@/components/App/Autocomplete";
+import { AppAutocomplete } from "@/components/App/Autocomplete"
 
 const useStyles = makeStyles(() => ({
   popper: {
     zIndex: 9999999,
   },
-}));
+}))
 
 const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
-  const classes = useStyles();
+  const classes = useStyles()
   const {
     control,
     defaultValue,
@@ -23,7 +23,7 @@ const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
     onChange: onChangeProps,
     textFieldProps,
     ...autocompleteProps
-  } = props;
+  } = props
 
   const {
     field: { onChange, ...inputProps },
@@ -33,19 +33,19 @@ const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
     rules,
     defaultValue,
     control,
-  });
+  })
 
   const onChangeValue = (event, value) => {
     if (_.isNil(value)) {
-      onChange(null);
-      return;
+      onChange(null)
+      return
     }
-    onChange(value[primaryKeyOption]);
+    onChange(value[primaryKeyOption])
 
     if (_.isFunction(onChangeProps)) {
-      onChangeProps(value);
+      onChangeProps(value)
     }
-  };
+  }
 
   return (
     <AppAutocomplete
@@ -59,11 +59,11 @@ const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
       textFieldProps={{ name: name, ...textFieldProps }}
       primaryKeyOption={primaryKeyOption}
     />
-  );
-});
+  )
+})
 
 FormControllerAutocomplete.defaultProps = {
   primaryKeyOption: "id",
-};
+}
 
-export default FormControllerAutocomplete;
+export default FormControllerAutocomplete

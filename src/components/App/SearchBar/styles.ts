@@ -1,4 +1,4 @@
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from "@mui/styles"
 
 export default makeStyles((theme) => ({
   searchBar__container: {
@@ -57,4 +57,4 @@ export default makeStyles((theme) => ({
   searchBar__disabled: {
     color: theme.palette.action.disabled,
   },
-}));
+}))

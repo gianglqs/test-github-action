@@ -1,24 +1,24 @@
-import { Grid } from "@mui/material";
+import { Grid } from "@mui/material"
 
-import { AppDialog } from "../AppDialog/AppDialog";
-import FormControlledTextField from "@/components/FormController/TextField";
-import { useForm } from "react-hook-form";
-import { useEffect, useMemo, useState } from "react";
-import FormControllerAutocomplete from "@/components/FormController/Autocomplete";
-import dashboardApi from "@/api/dashboard.api";
-import { useDispatch } from "react-redux";
-import { dashboardStore } from "@/store/reducers";
+import { AppDialog } from "../AppDialog/AppDialog"
+import FormControlledTextField from "@/components/FormController/TextField"
+import { useForm } from "react-hook-form"
+import { useEffect, useMemo, useState } from "react"
+import FormControllerAutocomplete from "@/components/FormController/Autocomplete"
+import dashboardApi from "@/api/dashboard.api"
+import { useDispatch } from "react-redux"
+import { dashboardStore } from "@/store/reducers"
 
 const DialogCreateUser: React.FC<any> = (props) => {
-  const { open, onClose, detail } = props;
+  const { open, onClose, detail } = props
 
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch()
+  const [loading, setLoading] = useState(false)
 
   const createForm = useForm<any>({
     shouldUnregister: false,
     defaultValues: detail,
-  });
+  })
 
   const handleSubmitForm = createForm.handleSubmit(async (data: any) => {
     const transformData = {
@@ -29,19 +29,19 @@ const DialogCreateUser: React.FC<any> = (props) => {
         id: data.role,
       },
       defaultLocale: data.defaultLocale,
-    };
-    try {
-      setLoading(true);
-      await dashboardApi.createUser(transformData);
-      const { data } = await dashboardApi.getUser();
-      dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList));
-      onClose();
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
     }
-  });
+    try {
+      setLoading(true)
+      await dashboardApi.createUser(transformData)
+      const { data } = await dashboardApi.getUser()
+      dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
+      onClose()
+    } catch (error) {
+      alert(error.message)
+    } finally {
+      setLoading(false)
+    }
+  })
 
   const roleOptions = useMemo(
     () => [
@@ -49,7 +49,7 @@ const DialogCreateUser: React.FC<any> = (props) => {
       { id: 2, description: "User" },
     ],
     []
-  );
+  )
 
   const languageOptions = useMemo(
     () => [
@@ -57,11 +57,11 @@ const DialogCreateUser: React.FC<any> = (props) => {
       { id: "cn", description: "Chinese" },
     ],
     []
-  );
+  )
 
   useEffect(() => {
-    createForm.reset(detail);
-  }, [detail]);
+    createForm.reset(detail)
+  }, [detail])
 
   return (
     <AppDialog
@@ -117,7 +117,7 @@ const DialogCreateUser: React.FC<any> = (props) => {
         </Grid>
       </Grid>
     </AppDialog>
-  );
-};
+  )
+}
 
-export { DialogCreateUser };
+export { DialogCreateUser }
