@@ -3,27 +3,26 @@ import { Grid } from "@mui/material";
 import { AppDialog } from "../AppDialog/AppDialog";
 import FormControlledTextField from "@/components/FormController/TextField";
 import { useForm } from "react-hook-form";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FormControllerAutocomplete from "@/components/FormController/Autocomplete";
 import dashboardApi from "@/api/dashboard.api";
 import { useDispatch } from "react-redux";
 import { dashboardStore } from "@/store/reducers";
 
 const DialogCreateUser: React.FC<any> = (props) => {
-  const { open, onClose } = props;
+  const { open, onClose, detail } = props;
 
   const dispatch = useDispatch();
-
   const [loading, setLoading] = useState(false);
 
   const createForm = useForm<any>({
     shouldUnregister: false,
-    defaultValues: {},
+    defaultValues: detail,
   });
 
   const handleSubmitForm = createForm.handleSubmit(async (data: any) => {
-    const tranformData = {
-      userName: data.userName,
+    const transformData = {
+      userName: data.name,
       email: data.email,
       password: data.password,
       role: {
@@ -33,9 +32,9 @@ const DialogCreateUser: React.FC<any> = (props) => {
     };
     try {
       setLoading(true);
-      await dashboardApi.createUser(tranformData);
+      await dashboardApi.createUser(transformData);
       const { data } = await dashboardApi.getUser();
-      dispatch(dashboardStore.actions.setUserList(JSON.parse(data)));
+      dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList));
       onClose();
     } catch (error) {
       alert(error.message);
@@ -60,6 +59,10 @@ const DialogCreateUser: React.FC<any> = (props) => {
     []
   );
 
+  useEffect(() => {
+    createForm.reset(detail);
+  }, [detail]);
+
   return (
     <AppDialog
       open={open}
@@ -67,12 +70,13 @@ const DialogCreateUser: React.FC<any> = (props) => {
       onOk={handleSubmitForm}
       onClose={onClose}
     >
-      <Grid container spacing={2}>
+      <Grid container sx={{ paddingTop: 0.8, paddingBottom: 0.8 }} spacing={2}>
         <Grid item xs={12}>
           <FormControlledTextField
             control={createForm.control}
-            name="userName"
+            name="name"
             label="Name"
+            required
           />
         </Grid>
         <Grid item xs={12}>
@@ -80,14 +84,17 @@ const DialogCreateUser: React.FC<any> = (props) => {
             control={createForm.control}
             name="email"
             label="Email"
+            required
           />
         </Grid>
         <Grid item xs={12}>
           <FormControlledTextField
             control={createForm.control}
+            type="password"
             name="password"
             label="Password"
-            type="password"
+            autoComplete="new-password"
+            required
           />
         </Grid>
         <Grid item xs={6}>
@@ -95,6 +102,7 @@ const DialogCreateUser: React.FC<any> = (props) => {
             control={createForm.control}
             name="role"
             label="User Role"
+            required
             options={roleOptions}
           />
         </Grid>
@@ -103,6 +111,7 @@ const DialogCreateUser: React.FC<any> = (props) => {
             control={createForm.control}
             name="defaultLocale"
             label="Language"
+            required
             options={languageOptions}
           />
         </Grid>

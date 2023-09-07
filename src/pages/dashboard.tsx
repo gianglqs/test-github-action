@@ -144,20 +144,28 @@ export default function Dashboard() {
 
   const listUser = useSelector(dashboardStore.selectUserList);
 
+  const defaultValue = {
+    userName: "",
+    password: "",
+    email: "",
+  };
+
   const [dialogCreateUser, setDialogCreateUser] = React.useState({
     open: false,
-    // detail: [] as any
+    detail: defaultValue as any,
   });
 
   const handleOpenCreateDialog = () => {
     setDialogCreateUser({
       open: true,
+      detail: defaultValue,
     });
   };
 
-  const handleCloseLogisticsComment = () => {
+  const handleCloseCreateDialog = () => {
     setDialogCreateUser({
       open: false,
+      detail: defaultValue,
     });
   };
 
@@ -317,7 +325,7 @@ export default function Dashboard() {
                 hideFooter
                 disableColumnMenu
                 checkboxSelection
-                tableHeight={775}
+                tableHeight={770}
                 rowHeight={70}
                 rows={listUser}
                 columns={columns}
@@ -333,7 +341,7 @@ export default function Dashboard() {
 
       <DialogCreateUser
         {...dialogCreateUser}
-        onClose={handleCloseLogisticsComment}
+        onClose={handleCloseCreateDialog}
       />
     </>
   );

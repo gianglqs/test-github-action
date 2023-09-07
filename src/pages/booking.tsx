@@ -91,7 +91,7 @@ export default function Booking() {
 
   const [booking, setBooking] = React.useState([]);
 
-  console.log(booking)
+  console.log(booking);
 
   React.useEffect(() => {
     const cookies = nookies.get();
@@ -124,26 +124,41 @@ export default function Booking() {
       field: "dealerName",
       flex: 0.8,
       headerName: "Deale Name",
+      renderCell(params) {
+        return <span>{params.row.billTo?.dealerDivison}</span>;
+      },
     },
     {
       field: "Plant",
       flex: 0.8,
       headerName: "Plant",
+      renderCell(params) {
+        return <span>{params.row.apacSerial?.plant}</span>;
+      },
     },
     {
       field: "truckClass",
       flex: 0.8,
       headerName: "Class",
+      renderCell(params) {
+        return <span>{params.row.apacSerial?.metaSeries?.clazz}</span>;
+      },
     },
     {
       field: "series",
       flex: 0.8,
       headerName: "Series",
+      renderCell(params) {
+        return <span>{params.row.apacSerial?.metaSeries?.series}</span>;
+      },
     },
     {
       field: "model",
       flex: 0.8,
       headerName: "Models",
+      renderCell(params) {
+        return <span>{params.row.apacSerial?.model}</span>;
+      },
     },
     {
       field: "qty",

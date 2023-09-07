@@ -9,7 +9,7 @@ import nookies from "nookies";
 function* fetchUserList() {
   try {
     const { data } = yield* call(dashboardApi.getUser);
-    yield put(dashboardStore.actions.setUserList(JSON.parse(data)));
+    yield put(dashboardStore.actions.setUserList(JSON.parse(data)?.userList));
   } catch (error) {
     console.log("error");
   }
