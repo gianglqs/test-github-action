@@ -1,14 +1,12 @@
+import { useMemo, useState, memo, useCallback, useEffect, useRef } from "react"
+import useStyles from "./styles"
 
+import { TextField, Tooltip, InputAdornment } from "@mui/material"
+import { FormControllerErrorMessage, GenerateCodeIcon } from "@/components"
 
-import { useMemo, useState, memo, useCallback, useEffect, useRef } from 'react'
-import useStyles from './styles'
+import clsx from "clsx"
 
-import { TextField, Tooltip, InputAdornment } from '@mui/material'
-import { FormControllerErrorMessage, GenerateCodeIcon } from '@/components'
-
-import clsx from 'clsx'
-
-import type { AppTextFieldProps } from './type'
+import type { AppTextFieldProps } from "./type"
 
 const AppTextField: React.FC<AppTextFieldProps> = (props) => {
   const {
@@ -73,9 +71,9 @@ const AppTextField: React.FC<AppTextFieldProps> = (props) => {
       // inputRef={isFocus && focusRef}
       InputProps={{
         readOnly: disabled,
-        className: clsx({ 'Mui-disabled': disabled }),
+        className: clsx({ "Mui-disabled": disabled }),
         // endAdornment: renderGenerateIcon(),
-        ...InputProps
+        ...InputProps,
       }}
       {...textFieldProps}
     />
@@ -84,8 +82,8 @@ const AppTextField: React.FC<AppTextFieldProps> = (props) => {
 
 AppTextField.defaultProps = {
   generateCode: false,
-  tooltip: 'Generate code',
-  loading: false
+  tooltip: "Generate code",
+  loading: false,
 }
 
 export default memo(AppTextField)

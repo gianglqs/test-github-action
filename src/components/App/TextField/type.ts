@@ -1,6 +1,4 @@
-
-
-import type { StandardTextFieldProps } from '@mui/material'
+import type { StandardTextFieldProps } from "@mui/material"
 
 export interface AppTextFieldProps extends StandardTextFieldProps {
   generateCode?: boolean

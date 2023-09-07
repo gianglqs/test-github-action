@@ -1,11 +1,9 @@
-import useStyles from './styles'
+import useStyles from "./styles"
 
-import { Paper, IconButton, InputBase } from '@mui/material'
+import { Paper, IconButton, InputBase } from "@mui/material"
 
-import SearchIcon from '@mui/icons-material/Search'
-import { useState } from 'react'
-
-
+import SearchIcon from "@mui/icons-material/Search"
+import { useState } from "react"
 
 export type AppSearchBarProps = {
   placeholder?: string
@@ -19,7 +17,7 @@ const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
   const { placeholder, width, disabled } = props
   const classes = useStyles()
 
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("")
 
   const handleInputQuery = (event) => {
     setSearchQuery(event.target.value)
@@ -34,7 +32,12 @@ const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
         style={{ width }}
         // onSubmit={handleSubmitSearch}
       >
-        <IconButton type="submit" className={classes.searchBar__searchIcon} aria-label="search" disabled={disabled}>
+        <IconButton
+          type="submit"
+          className={classes.searchBar__searchIcon}
+          aria-label="search"
+          disabled={disabled}
+        >
           <SearchIcon />
         </IconButton>
         <InputBase
@@ -53,8 +56,8 @@ const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
 AppSearchBar.defaultProps = {
   filterable: true,
   width: 300,
-  placeholder: 'Search...',
-  disabled: false
+  placeholder: "Search...",
+  disabled: false,
 }
 
 export { AppSearchBar }

@@ -1,1 +1,1 @@
-export * as dashboardStore from './dashboard.reducer'
+export * as dashboardStore from "./dashboard.reducer"
