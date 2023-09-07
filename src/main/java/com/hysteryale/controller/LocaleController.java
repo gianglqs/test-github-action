@@ -39,7 +39,7 @@ public class LocaleController {
         Map<String, Object> additionalInfo = tokenServices.getAccessToken(authentication).getAdditionalInformation();
         String accountId = additionalInfo.get("accountId").toString();
 
-        User user = userService.getUserById(Integer.valueOf(accountId)).get();
+        User user = userService.getUserById(Integer.valueOf(accountId));
         userService.changeDefaultLocale(user, Locale.forLanguageTag(localeTag).toString());
 
         return ResponseEntity.ok("Default locale changed into: " + Locale.forLanguageTag(localeTag).toString());

@@ -35,13 +35,44 @@
 
         <loadUpdateData
                 encoding="UTF-8"
-                file="file:database/user.csv"
+                file="file:database/_user_.csv"
                 onlyUpdate="false"
                 primaryKey="id"
                 quotchar="'"
                 separator=","
                 tableName="user">
         </loadUpdateData>
+
+        <loadUpdateData
+                encoding="UTF-8"
+                file="file:database/meta_series.csv"
+                onlyUpdate="false"
+                primaryKey="series"
+                quotchar="'"
+                separator=","
+                tableName="meta_series">
+        </loadUpdateData>
+
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="file:database/apacserial.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="model"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="apacserial">-->
+<!--        </loadUpdateData>-->
+
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="file:database/apicdealer.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="billtoCode"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="apicdealer">-->
+<!--        </loadUpdateData>-->
+
 
 <!--        <loadUpdateData-->
 <!--                encoding="UTF-8"-->

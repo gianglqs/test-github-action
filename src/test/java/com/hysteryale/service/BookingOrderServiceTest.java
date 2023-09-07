@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -88,5 +89,29 @@ public class BookingOrderServiceTest {
         // THEN
         Mockito.verify(bookingOrderRepository).findAll();
         Assertions.assertFalse(result.isEmpty());
+    }
+    @Test
+    void testGetAPACColumnsName() throws FileNotFoundException {
+        InputStream is = new FileInputStream("import_files/APAC/APAC Serial in NOVO master file.xlsx");
+        Workbook workbook = StreamingReader
+                .builder()              //setting Buffer
+                .rowCacheSize(100)
+                .bufferSize(4096)
+                .open(is);
+
+        Sheet orderSheet = workbook.getSheet("Master Summary");
+        HashMap<String, Integer> APAC_COLUMNS = new HashMap<>();
+        for (Row row : orderSheet) {
+            if (row.getRowNum() == 0)
+            {
+                for(int i = 0; i < 11; i++) {
+                    String columnName = row.getCell(i).getStringCellValue();
+                    if(APAC_COLUMNS.get(columnName) != null)
+                        columnName += "_Yale";
+                    APAC_COLUMNS.put(columnName, i);
+                }
+                log.info("APAC Columns: " + APAC_COLUMNS);
+            }
+        }
     }
 }

@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -25,13 +22,12 @@ public class BookingOrder {
     private String currency;
     private String orderType;
     private String region;
-    private int mktGrp;
-    private int billTo;
-    private String dealerName;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private APICDealer billTo;
     private String ctryCode;
     private String dealerPO;
-    private String series;
-    private String model;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private APACSerial apacSerial;
     private String comment;
     private int truckClass;
 }

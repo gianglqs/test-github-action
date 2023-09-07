@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.User;
 import com.hysteryale.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class UserService {
     @Resource
     UserRepository userRepository;
@@ -36,11 +38,13 @@ public class UserService {
      * @param userId: given Id
      * @return an User
      */
-    public Optional<User> getUserById(Integer userId) {
+    public User getUserById(Integer userId) {
         Optional<User> user = userRepository.findById(userId);
-        if(user.isEmpty())
+        if(user.isEmpty()){
+            log.error("NOT_FOUND: userId " + userId );
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user with id: " + userId);
-        return user;
+        }
+        return user.get();
     }
 
     /**
@@ -48,7 +52,6 @@ public class UserService {
      * @param user : new registered User
      */
     public void addUser(User user){
-
         if(!userRepository.isEmailExisted(user.getEmail()))
         {
             // encrypt password
