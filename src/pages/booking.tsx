@@ -68,52 +68,30 @@ function Copyright(props: any) {
   );
 }
 
-const drawerWidth: number = 240;
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const useStyles = makeStyles((theme) => {
-  return {
-    appLayout__container: {
-      margin: theme.spacing(0, 1.5),
-    },
-  };
-});
+// const useStyles = makeStyles((theme) => {
+//   return {
+//     appLayout__container: {
+//       margin: theme.spacing(0, 1.5),
+//     },
+//   };
+// });
 
 export default function Booking() {
-  const [open, setOpen] = React.useState(true);
+  // const [open, setOpen] = React.useState(true);
 
-  const classes = useStyles();
+  // const classes = useStyles();
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
+  // const toggleDrawer = () => {
+  //   setOpen(!open);
+  // };
 
-  const listUser = useSelector(dashboardStore.selectUserList);
+  // const listUser = useSelector(dashboardStore.selectUserList);
 
   const [booking, setBooking] = React.useState([]);
+
+  console.log(booking)
 
   React.useEffect(() => {
     const cookies = nookies.get();
@@ -299,13 +277,13 @@ export default function Booking() {
           renderInput={(params) => <TextField {...params} label="Margin %" />}
         />
       </Grid>
-      <Paper elevation={1} className={classes.appLayout__container}>
+      <Paper elevation={1} sx={{ marginLeft: 1.5, marginRight: 1.5 }}>
         <Grid container>
           <DataTable
             hideFooter
             disableColumnMenu
             checkboxSelection
-            tableHeight={880}
+            tableHeight={860}
             rowHeight={50}
             rows={booking}
             rowBuffer={35}
@@ -317,6 +295,7 @@ export default function Booking() {
           />
         </Grid>
       </Paper>
+      <Copyright sx={{ padding: 1.5 }} />
     </div>
   );
 }

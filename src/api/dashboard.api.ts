@@ -8,6 +8,10 @@ class DashboardApi extends HttpService<any> {
   ) => {
     return this.get<any>("users", params, context);
   };
+
+  createUser = (data: any) => {
+    return this.post<any>(`users`, { ...data })
+  }
 }
 
 const dashboardApi = new DashboardApi("dashboard");

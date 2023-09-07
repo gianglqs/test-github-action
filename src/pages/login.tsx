@@ -30,7 +30,7 @@ export default function LoginPage() {
     defaultValues: { user_id: "", password: "", grant_type: "" },
   });
 
-  const handleSubmitLogin = loginForm.handleSubmit(async (formData) => {
+  const handleSubmitLogin = loginForm.handleSubmit(async (formData: any) => {
     try {
       const transformData = {
         grant_type: "password",
