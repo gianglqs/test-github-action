@@ -6,19 +6,22 @@ import com.hysteryale.service.impl.EmailServiceImpl;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @EnableResourceServer
@@ -34,9 +37,8 @@ public class UserController {
      * Getting all users existed
      * @return Map contains list of users
      */
-    @GetMapping(path = "/users")
+    @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured("ROLE_ADMIN")
-    @ResponseBody
     public Map<String, List<User>> getAllUsers(){
         Map<String, List<User>> userListMap = new HashMap<>();
         List<User> userList = userService.getAllUsers();
@@ -48,7 +50,7 @@ public class UserController {
      * Get an user by userId
      */
     @GetMapping(path = "/users/{userId}")
-    public Optional<User> getUserById(@PathVariable int userId) {
+    public User getUserById(@PathVariable int userId) {
         return userService.getUserById(userId);
     }
 
@@ -58,8 +60,8 @@ public class UserController {
     @GetMapping(path = "users/{userId}/activate")
     @Secured("ROLE_ADMIN")
     public void activateUser(@PathVariable int userId) {
-        Optional<User> user = userService.getUserById(userId);
-        user.ifPresent(value -> userService.setUserActiveState(value, !value.isActive()));
+        User user = userService.getUserById(userId);
+        userService.setUserActiveState(user, !user.isActive());
     }
 
     /**
@@ -89,12 +91,29 @@ public class UserController {
         Optional<User> dbUser = userService.getUserByEmail(updateUser.getEmail());
         dbUser.ifPresent(user -> userService.updateUserInformation(user, updateUser));
     }
-    @GetMapping(path = "/users/search/{userName}")
+    @GetMapping(path = "/users/search/userName=?{userName}")
     @Secured("ROLE_ADMIN")
-    public Map<String, List<User>> searchUserByUserName(@PathVariable String userName) {
+    public Map<String, List<User>> searchUserByUserName(@PathVariable(name = "userName") String userName) {
         Map<String, List<User>> userListMap = new HashMap<>();
         userListMap.put("searchedUserList", userService.searchUserByUserName(userName));
 
         return userListMap;
+    }
+
+    /**
+     * Change user's password, {userId, password} passed from JSON format
+     * @param changedPasswordUser contains {userId, password}
+     */
+    @PostMapping(path = "/users/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody User changedPasswordUser) {
+        User dbUser = userService.getUserById(changedPasswordUser.getId());
+
+        if(changedPasswordUser.getPassword().length() < 6)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters");
+        else
+        {
+            userService.changeUserPassword(dbUser, changedPasswordUser.getPassword());
+            return ResponseEntity.ok("Password has been changed successfully");
+        }
     }
 }

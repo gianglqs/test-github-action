@@ -85,7 +85,7 @@ public class UserControllerTest {
         User givenUser = new User(1, "given1", "given2@gmail.com", "user", role, "us", true);
 
         // WHEN
-        when(userService.getUserById(givenUser.getId())).thenReturn(Optional.of(givenUser));
+        when(userService.getUserById(givenUser.getId())).thenReturn(givenUser);
         userController.activateUser(givenUser.getId());
 
         // THEN
@@ -99,7 +99,7 @@ public class UserControllerTest {
         User givenUser = new User(1, "given1", "given2@gmail.com", "user", role, "us", false);
 
         // WHEN
-        when(userService.getUserById(givenUser.getId())).thenReturn(Optional.of(givenUser));
+        when(userService.getUserById(givenUser.getId())).thenReturn(givenUser);
         userController.activateUser(givenUser.getId());
 
         // THEN
@@ -112,12 +112,12 @@ public class UserControllerTest {
         User givenUser = new User(1, "given1", "given2@gmail.com", "user", role, "us", true);
 
         // WHEN
-        when(userService.getUserById(givenUser.getId())).thenReturn(Optional.of(givenUser));
-        Optional<User> result = userController.getUserById(givenUser.getId());
+        when(userService.getUserById(givenUser.getId())).thenReturn(givenUser);
+        User result = userController.getUserById(givenUser.getId());
 
         // THEN
         Mockito.verify(userService).getUserById(givenUser.getId());
-        Assertions.assertEquals(givenUser, result.get());
+        Assertions.assertEquals(givenUser, result);
     }
 
     @Test

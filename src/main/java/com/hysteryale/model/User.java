@@ -24,6 +24,7 @@ public class User {
     private String userName;
     @NotBlank(message = "Email must not be blank")
     private String email;
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
@@ -49,5 +50,9 @@ public class User {
         this.role = role;
         this.defaultLocale = defaultLocale;
         this.isActive = isActive;
+    }
+    public User(Integer id, String password) {
+        this.id = id;
+        this.password = password;
     }
 }

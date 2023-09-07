@@ -1,5 +1,7 @@
 package com.hysteryale.service;
 
+import com.hysteryale.model.APACSerial;
+import com.hysteryale.model.APICDealer;
 import com.hysteryale.model.BookingOrder;
 import com.hysteryale.repository.BookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -30,6 +32,10 @@ import java.util.regex.Pattern;
 public class BookingOrderService {
     @Resource
     BookingOrderRepository bookingOrderRepository;
+    @Resource
+    APACSerialService apacSerialService;
+    @Resource
+    APICDealerService apicDealerService;
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
     /**
@@ -92,34 +98,56 @@ public class BookingOrderService {
 
             // allow assigning value for object's fields
             field.setAccessible(true);
-            switch (fieldType) {
-                case "java.lang.String":
-                    field.set(bookingOrder, row.getCell(ORDER_COLUMNS_NAME.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                    break;
-                case "int":
-                    field.set(bookingOrder, (int) row.getCell(ORDER_COLUMNS_NAME.get(hashMapKey)).getNumericCellValue());
-                    break;
-                case "java.util.Calendar":
-                    String strDate = row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getStringCellValue();
+            if(field.getName().equals("apacSerial")) {
+                try {
+                    field.setAccessible(true);
+                    APACSerial apacSerial =
+                            apacSerialService.getAPACSerialByModel(row.getCell(ORDER_COLUMNS_NAME.get("MODEL"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+                    field.set(bookingOrder, apacSerial);
+                } catch (Exception e) {
+                    log.error(e.toString());
+                }
+            }
+            else if(field.getName().equals("billTo")) {
+                try {
+                    field.setAccessible(true);
+                    APICDealer apicDealer =
+                            apicDealerService.getAPICDealerByBillToCode((int) row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue());
+                    field.set(bookingOrder, apicDealer);
+                } catch (Exception e) {
+                    log.error(e.toString());
+                }
+            }
+            else {
+                switch (fieldType) {
+                    case "java.lang.String":
+                        field.set(bookingOrder, row.getCell(ORDER_COLUMNS_NAME.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+                        break;
+                    case "int":
+                        field.set(bookingOrder, (int) row.getCell(ORDER_COLUMNS_NAME.get(hashMapKey)).getNumericCellValue());
+                        break;
+                    case "java.util.Calendar":
+                        String strDate = row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getStringCellValue();
 
-                    // Cast into GregorianCalendar
+                        // Cast into GregorianCalendar
                         // Create matcher with pattern {(1)_year(2)_month(2)_day(2)} as 1230404
-                    Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
-                    Matcher matcher = pattern.matcher(strDate);
-                    int year, month, day;
+                        Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
+                        Matcher matcher = pattern.matcher(strDate);
+                        int year, month, day;
 
-                    if (matcher.find()) {
-                        year = Integer.parseInt(matcher.group(1)) + 2000;
-                        month = Integer.parseInt(matcher.group(2));
-                        day = Integer.parseInt(matcher.group(3));
+                        if (matcher.find()) {
+                            year = Integer.parseInt(matcher.group(1)) + 2000;
+                            month = Integer.parseInt(matcher.group(2));
+                            day = Integer.parseInt(matcher.group(3));
 
-                        GregorianCalendar orderDate = new GregorianCalendar();
+                            GregorianCalendar orderDate = new GregorianCalendar();
 
-                        // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
-                        orderDate.set(year, month - 1, day);
-                        field.set(bookingOrder, orderDate);
-                    }
-                    break;
+                            // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
+                            orderDate.set(year, month - 1, day);
+                            field.set(bookingOrder, orderDate);
+                        }
+                        break;
+                }
             }
         }
         return bookingOrder;
@@ -159,6 +187,7 @@ public class BookingOrderService {
                 }
             }
             bookingOrderRepository.saveAll(bookingOrderList);
+            bookingOrderList.clear();
             log.info("End importing file: '" + fileName + "'");
             log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
         }
