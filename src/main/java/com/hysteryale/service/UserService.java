@@ -2,6 +2,9 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.User;
 import com.hysteryale.repository.UserRepository;
+import com.hysteryale.service.impl.EmailServiceImpl;
+import com.mailjet.client.errors.MailjetException;
+import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,12 +17,15 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @Slf4j
 public class UserService {
     @Resource
     UserRepository userRepository;
+    @Resource
+    EmailServiceImpl emailService;
 
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -63,12 +69,16 @@ public class UserService {
     }
 
     /**
-     * Getting an user by the email
+     * Getting a user by the email
      * @param email: given email
      * @return an User
      */
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.getUserByEmail(email);
+    public User getUserByEmail(String email) {
+        Optional<User> optionalUser = userRepository.getUserByEmail(email);
+        if(optionalUser.isPresent())
+            return optionalUser.get();
+        else
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No email found with " + email);
     }
 
     /**
@@ -108,7 +118,21 @@ public class UserService {
     public void setNewLastLogin(User user) {
         user.setLastLogin(new Date());
     }
-    public List<User> searchUserByUserName(String userName) {
-        return userRepository.searchUserByUserName(userName);
+    @Transactional
+    public void resetUserPassword(String email) throws MailjetSocketTimeoutException, MailjetException {
+        User user = getUserByEmail(email);
+        StringBuilder newPassword = new StringBuilder();
+
+        Random random = new Random();
+        for(int i = 0; i < 8; i ++) {
+            char c = (char) ('a' + random.nextInt(26));
+            newPassword.append(String.valueOf(c));
+        }
+        emailService.sendResetPasswordEmail(user.getUserName(), newPassword.toString(), user.getEmail());
+        user.setPassword(passwordEncoder().encode(newPassword.toString()));
     }
+    public List<User> searchUser(String searchString) {
+        return userRepository.searchUser(searchString);
+    }
+
 }

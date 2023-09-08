@@ -31,7 +31,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
     public OAuth2AccessToken enhance(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {
         org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) oAuth2Authentication.getPrincipal();
 
-        User dbUser = userService.getUserByEmail(user.getUsername()).get();
+        User dbUser = userService.getUserByEmail(user.getUsername());
         userService.setNewLastLogin(dbUser);
 
         final Map<String, Object> additionalInfo = new HashMap<>();
