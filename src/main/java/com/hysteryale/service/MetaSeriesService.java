@@ -125,4 +125,25 @@ public class MetaSeriesService {
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No MetaSeries found with " + series);
     }
+
+    /**
+     * Get List of Series for selecting filter
+     */
+    public List<String> getAllMetaSeries() {
+        return metaSeriesRepository.getSeries();
+    }
+
+    /**
+     * Get List of distinct MetaSeries' classes for selecting filter
+     */
+    public List<String> getMetaSeriesClasses() {
+        return metaSeriesRepository.getClasses();
+    }
+
+    /**
+     * Get List of distinct MetaSeries's segment for selecting filter
+     */
+    public List<String> getMetaSeriesSegments() {
+        return metaSeriesRepository.getMetaSeriesSegments();
+    }
 }

@@ -92,4 +92,11 @@ public class APICDealerService {
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found APIC Dealer with " + billToCode);
     }
+
+    /**
+     * Get List of DealerName for selecting filter
+     */
+    public List<String> getAllAPICDealers() {
+        return apicDealerRepository.getDealerNames();
+    }
 }

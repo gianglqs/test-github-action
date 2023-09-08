@@ -14,7 +14,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     public boolean isEmailExisted(String email);
     @Query("SELECT a FROM User a WHERE a.email = ?1 AND a.isActive = true")
     public Optional<User> getActiveUserByEmail(String email);
-    @Query("SELECT a FROM User a WHERE a.userName LIKE CONCAT('%', ?1, '%')")
-    public List<User> searchUserByUserName(String userName);
-
+    @Query("SELECT a FROM User a WHERE CONCAT(a.userName, a.email) LIKE %?1%")
+    public List<User> searchUser(String searchString);
 }

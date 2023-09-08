@@ -6,22 +6,23 @@ import com.hysteryale.service.impl.EmailServiceImpl;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @EnableResourceServer
@@ -32,27 +33,6 @@ public class UserController {
     public UserService userService;
     @Resource
     EmailServiceImpl emailService;
-
-    /**
-     * Getting all users existed
-     * @return Map contains list of users
-     */
-    @GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("ROLE_ADMIN")
-    public Map<String, List<User>> getAllUsers(){
-        Map<String, List<User>> userListMap = new HashMap<>();
-        List<User> userList = userService.getAllUsers();
-        userListMap.put("userList", userList);
-        return userListMap;
-    }
-
-    /**
-     * Get an user by userId
-     */
-    @GetMapping(path = "/users/{userId}")
-    public User getUserById(@PathVariable int userId) {
-        return userService.getUserById(userId);
-    }
 
     /**
      * Reverse user's active state into true or false
@@ -88,14 +68,18 @@ public class UserController {
      */
     @PostMapping(path = "/users/updateInformation", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateUserInformation(@Valid @RequestBody User updateUser) {
-        Optional<User> dbUser = userService.getUserByEmail(updateUser.getEmail());
-        dbUser.ifPresent(user -> userService.updateUserInformation(user, updateUser));
+        User dbUser = userService.getUserByEmail(updateUser.getEmail());
+        userService.updateUserInformation(dbUser, updateUser);
     }
-    @GetMapping(path = "/users/search/userName=?{userName}")
+
+    /**
+     * Get list of users based on searchString if searchString is null then get all users
+     */
+    @GetMapping(path = "/users/search=?{searchString}")
     @Secured("ROLE_ADMIN")
-    public Map<String, List<User>> searchUserByUserName(@PathVariable(name = "userName") String userName) {
+    public Map<String, List<User>> searchUser(@PathVariable(name = "searchString") String searchString) {
         Map<String, List<User>> userListMap = new HashMap<>();
-        userListMap.put("searchedUserList", userService.searchUserByUserName(userName));
+        userListMap.put("userList", userService.searchUser(searchString));
 
         return userListMap;
     }
@@ -114,6 +98,25 @@ public class UserController {
         {
             userService.changeUserPassword(dbUser, changedPasswordUser.getPassword());
             return ResponseEntity.ok("Password has been changed successfully");
+        }
+    }
+
+    /**
+     * Reset user's password specified by email (if email is existed), then send informing email for user.
+     * @param email get from front-end
+     */
+    @PostMapping(path = "/users/resetPassword")
+    public void resetPassword(@RequestBody String email){
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject jsonObject = (JSONObject) parser.parse(email);
+            try {
+                userService.resetUserPassword((String) jsonObject.get("email"));
+            } catch (MailjetSocketTimeoutException | MailjetException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
     }
 }

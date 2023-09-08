@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 
-//TODO need to re-implement to fit with new APACSerial's properties
 @Service
 @Slf4j
 public class APACSerialService {
@@ -130,5 +129,19 @@ public class APACSerialService {
             return optionalAPACSerial.get();
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "APAC Serial not found with " + model);
+    }
+
+    /**
+     * Get List of APAC Serial's Model for selecting filter
+     */
+    public List<String> getAllAPACSerialModels(){
+        return apacSerialRepository.getModels();
+    }
+
+    /**
+     * Get list of distinct Plants
+     */
+    public List<String> getAllPlants() {
+        return apacSerialRepository.getPlants();
     }
 }

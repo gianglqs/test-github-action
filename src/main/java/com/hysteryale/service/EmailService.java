@@ -12,4 +12,5 @@ public interface EmailService {
      * Email contains password
      */
     public void sendRegistrationEmail(String userName, String password, String emailTo) throws MailjetSocketTimeoutException, MailjetException;
+    public void sendResetPasswordEmail(String userName, String newPassword, String emailTo) throws MailjetSocketTimeoutException, MailjetException;
 }

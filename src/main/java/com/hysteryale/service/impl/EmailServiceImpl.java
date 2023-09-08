@@ -32,6 +32,19 @@ public class EmailServiceImpl implements EmailService {
         sendEmail(request);
     }
 
+    @Override
+    public void sendResetPasswordEmail(String userName, String newPassword, String emailTo) throws MailjetSocketTimeoutException, MailjetException {
+
+        String subject = "Welcome to Hyster-Yale";
+        String textPart = "Your account's password has been updated";
+        String htmlPart = "<h1> Hello " +  userName + ",</h1>";
+        htmlPart += "<h3> Your account's password has been updated, please log-in with your new password: " + newPassword + ".</h3>";
+
+        //create email body
+        MailjetRequest request = createEmailRequest(emailTo, subject, textPart, htmlPart);
+        sendEmail(request);
+    }
+
     private MailjetRequest createEmailRequest(String emailTo, String subject, String textPart, String htmlPart){
         return new MailjetRequest(Emailv31.resource)
                 .property(Emailv31.MESSAGES, new JSONArray()
