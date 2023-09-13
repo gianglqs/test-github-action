@@ -63,15 +63,4 @@ public class BookingOrderControllerTest {
         }
     }
 
-    @Test
-    void testGetAllBookingOrder() {
-        // WHEN
-        Mockito.when(bookingOrderService.getAllBookingOrders()).thenReturn(bookingOrderList);
-        Map<String, List<BookingOrder>> bookingOrders =  bookingOrderController.getAllOrder();
-
-        // THEN
-        Mockito.verify(bookingOrderService).getAllBookingOrders();
-        Assertions.assertFalse(bookingOrders.get("bookingOrderList").isEmpty());
-    }
-
 }

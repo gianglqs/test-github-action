@@ -66,9 +66,10 @@ public class UserController {
      * Update user's information
      */
     @PutMapping(path = "/users/updateUser/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void updateUserInformation(@RequestBody User updateUser, @PathVariable int userId) {
+    public ResponseEntity<?> updateUserInformation(@RequestBody User updateUser, @PathVariable int userId) {
         User dbUser = userService.getUserById(userId);
         userService.updateUserInformation(dbUser, updateUser);
+        return ResponseEntity.ok("Update user's information successfully");
     }
 
     /**

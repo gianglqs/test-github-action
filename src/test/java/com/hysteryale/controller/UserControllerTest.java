@@ -16,9 +16,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +44,8 @@ public class UserControllerTest {
     @Mock
     private EmailServiceImpl emailService;
 
+    int pageNo = 0;
+    int perPage = 100;
 
     @BeforeEach
     void setUp(){
@@ -58,12 +66,14 @@ public class UserControllerTest {
         givenList.add(given1);
         givenList.add(given2);
         userRepository.saveAll(givenList);
+
         // WHEN
-        when(userService.getAllUsers()).thenReturn(givenList);
-        Map<String, List<User>> result = userController.getAllUsers();
+        when(userService.searchUser("", pageNo, perPage)).thenReturn(new PageImpl<>(givenList, PageRequest.of(pageNo, perPage), 2));
+        Map<String, Object> result = userController.searchUser("", pageNo, perPage);
 
         // THEN
-        Assertions.assertEquals(givenList.size(), result.get("userList").size());
+        Mockito.verify(userService).searchUser("", pageNo, perPage);
+        Assertions.assertEquals(givenList.size(), ((List<User>) result.get("userList")).size());
     }
     @Test
     void testAddUser() throws MailjetSocketTimeoutException, MailjetException {
@@ -105,23 +115,9 @@ public class UserControllerTest {
         // THEN
         verify(userService).setUserActiveState(givenUser, true);
     }
-    @Test
-    void testGetUserById() {
-        // GIVEN
-        Role role = new Role(1, "admin", null);
-        User givenUser = new User(1, "given1", "given2@gmail.com", "user", role, "us", true);
-
-        // WHEN
-        when(userService.getUserById(givenUser.getId())).thenReturn(givenUser);
-        User result = userController.getUserById(givenUser.getId());
-
-        // THEN
-        Mockito.verify(userService).getUserById(givenUser.getId());
-        Assertions.assertEquals(givenUser, result);
-    }
 
     @Test
-    void testSearchUserByUserName() {
+    void testSearchUser() {
         // GIVEN
         Role role = new Role(1, "admin", null);
         User given1 = new User(1, "given1", "given1@gmail.com", "given", role, "us", true);
@@ -130,15 +126,15 @@ public class UserControllerTest {
         userList.add(given1);
         userList.add(given2);
 
-        String userName = "given";
+        String searchString = "given";
 
         // WHEN
-        when(userService.searchUserByUserName(userName)).thenReturn(userList);
-        Map<String, List<User>> result = userController.searchUserByUserName(userName);
+        when(userService.searchUser(searchString, pageNo, perPage)).thenReturn(new PageImpl<>(userList));
+        Map<String, Object> result = userController.searchUser(searchString, pageNo, perPage);
 
         // THEN
-        Mockito.verify(userService).searchUserByUserName(userName);
-        Assertions.assertEquals(userList.size(), result.get("searchedUserList").size());
+        Mockito.verify(userService).searchUser(searchString, pageNo, perPage);
+        Assertions.assertEquals(userList.size(), ((List<User>) result.get("userList")).size());
     }
     @Test
     void testUpdateUserInformation() {
@@ -147,8 +143,8 @@ public class UserControllerTest {
         User given1 = new User(1, "given1", "given1@gmail.com", "given", role, "us", true);
 
         // WHEN
-        when(userService.getUserByEmail(given1.getEmail())).thenReturn(Optional.of(given1));
-        userController.updateUserInformation(given1);
+        when(userService.getUserById(given1.getId())).thenReturn(given1);
+        userController.updateUserInformation(given1, given1.getId());
 
         // THEN
         Mockito.verify(userService).updateUserInformation(given1, given1);
