@@ -1,14 +1,22 @@
 package com.hysteryale.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.APACSerial;
 import com.hysteryale.model.APICDealer;
 import com.hysteryale.model.BookingOrder;
-import com.hysteryale.repository.BookingOrderRepository;
+import com.hysteryale.repository.bookingorder.BookingOrderRepository;
+import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,10 +28,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +41,11 @@ public class BookingOrderService {
     APACSerialService apacSerialService;
     @Resource
     APICDealerService apicDealerService;
+    @Resource
+    MetaSeriesService metaSeriesService;
+    @Resource
+    CustomBookingOrderRepository customBookingOrderRepository;
+
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
     /**
@@ -194,5 +204,48 @@ public class BookingOrderService {
     }
     public List<BookingOrder> getAllBookingOrders() {
         return bookingOrderRepository.findAll();
+    }
+
+    /**
+     * Get BookingOrder based to filters
+     * @param rawJsonFilters json as String
+     */
+    public Map<String, Object> getBookingOrdersByFilters(String rawJsonFilters, int pageNo, int perPage) throws ParseException, JsonProcessingException {
+
+        //Parse rawJsonFilters from String to JSONObject
+        JSONParser parser = new JSONParser();
+        JSONObject filters = (JSONObject) parser.parse(rawJsonFilters);
+
+        // Use ObjectMapper to Map JSONObject value into List<String
+        ObjectMapper mapper = new ObjectMapper();
+        String orderNo = filters.get("orderNo").toString();
+
+
+        // Parse all filters into ArrayList<String>
+        List<String> regions = Arrays.asList(mapper.readValue(filters.get("regions").toString(), String[].class));
+        List<String> dealers = Arrays.asList(mapper.readValue(filters.get("dealers").toString(), String[].class));
+        List<String> plants = Arrays.asList(mapper.readValue(filters.get("plants").toString(), String[].class));
+        List<String> metaSeries = Arrays.asList(mapper.readValue(filters.get("metaSeries").toString(), String[].class));
+        List<String> classes = Arrays.asList(mapper.readValue(filters.get("classes").toString(), String[].class));
+        List<String> models = Arrays.asList(mapper.readValue(filters.get("models").toString(), String[].class));
+        List<String> segments = Arrays.asList(mapper.readValue(filters.get("segments").toString(), String[].class));
+
+        // offSet for pagination
+        int offSet = pageNo * perPage;
+
+        // Create Map of BookingOrders based on filters and pagination
+        // And totalItems without paging
+        Map<String, Object> bookingOrdersPage = new HashMap<>();
+        bookingOrdersPage.put("bookingOrdersList", customBookingOrderRepository.getBookingOrdersByFiltersByPage(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, perPage, offSet));
+        bookingOrdersPage.put("totalItems", getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments));
+
+        return bookingOrdersPage;
+    }
+
+    /**
+     * Get number of BookingOrders returned by filters
+     */
+    public long getNumberOfBookingOrderByFilters(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments) {
+        return customBookingOrderRepository.getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments);
     }
 }

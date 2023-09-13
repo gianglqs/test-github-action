@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,9 +34,9 @@ public class UserController {
     EmailServiceImpl emailService;
 
     /**
-     * Reverse user's active state into true or false
+     * Reverse user's active state into true or false based on whether user is active or not
      */
-    @GetMapping(path = "users/{userId}/activate")
+    @PutMapping(path = "users/activate/{userId}")
     @Secured("ROLE_ADMIN")
     public void activateUser(@PathVariable int userId) {
         User user = userService.getUserById(userId);
@@ -66,31 +65,41 @@ public class UserController {
     /**
      * Update user's information
      */
-    @PostMapping(path = "/users/updateInformation", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void updateUserInformation(@Valid @RequestBody User updateUser) {
-        User dbUser = userService.getUserByEmail(updateUser.getEmail());
+    @PutMapping(path = "/users/updateUser/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void updateUserInformation(@RequestBody User updateUser, @PathVariable int userId) {
+        User dbUser = userService.getUserById(userId);
         userService.updateUserInformation(dbUser, updateUser);
     }
 
     /**
-     * Get list of users based on searchString if searchString is null then get all users
+     * Get list of users based on searchString (if searchString is null then get all users)
      */
-    @GetMapping(path = "/users/search=?{searchString}")
+    @GetMapping(path = "/users")
     @Secured("ROLE_ADMIN")
-    public Map<String, List<User>> searchUser(@PathVariable(name = "searchString") String searchString) {
-        Map<String, List<User>> userListMap = new HashMap<>();
-        userListMap.put("userList", userService.searchUser(searchString));
+    public Map<String, Object> searchUser(@RequestParam(required = false) String search,
+                                          @RequestParam(defaultValue = "100") int perPage,
+                                          @RequestParam(defaultValue = "1") int pageNo) {
 
-        return userListMap;
+        Page<User> userPage = userService.searchUser(search, pageNo, perPage);
+
+        Map<String, Object> userPageMap = new HashMap<>();
+
+        userPageMap.put("perPage", perPage);
+        userPageMap.put("userList", userPage.getContent());
+        userPageMap.put("page", userPage.getNumber());
+        userPageMap.put("totalPages", userPage.getTotalPages());
+        userPageMap.put("totalItems", userPage.getTotalElements());
+
+        return userPageMap;
     }
 
     /**
      * Change user's password, {userId, password} passed from JSON format
      * @param changedPasswordUser contains {userId, password}
      */
-    @PostMapping(path = "/users/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody User changedPasswordUser) {
-        User dbUser = userService.getUserById(changedPasswordUser.getId());
+    @PostMapping(path = "/users/changePassword/{userId}")
+    public ResponseEntity<?> changePassword(@RequestBody User changedPasswordUser, @PathVariable int userId) {
+        User dbUser = userService.getUserById(userId);
 
         if(changedPasswordUser.getPassword().length() < 6)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters");

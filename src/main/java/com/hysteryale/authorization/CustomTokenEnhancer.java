@@ -3,7 +3,6 @@ package com.hysteryale.authorization;
 import com.hysteryale.model.User;
 import com.hysteryale.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -34,16 +33,30 @@ public class CustomTokenEnhancer implements TokenEnhancer {
         User dbUser = userService.getUserByEmail(user.getUsername());
         userService.setNewLastLogin(dbUser);
 
-        final Map<String, Object> additionalInfo = new HashMap<>();
-
-        additionalInfo.put("userId", dbUser.getId());
-        additionalInfo.put("userName", dbUser.getUserName());
-        additionalInfo.put("email", dbUser.getEmail());
-        additionalInfo.put("defaultLocale", dbUser.getDefaultLocale());
-        additionalInfo.put("role", dbUser.getRole());
-        additionalInfo.put("redirect_to", "/dashboard");
+        final Map<String, Object> additionalInfo = assignAdditionalInformation(dbUser);
 
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInfo);
         return oAuth2AccessToken;
+    }
+
+    private static Map<String, Object> assignAdditionalInformation(User dbUser) {
+        final Map<String, Object> additionalInfo = new HashMap<>();
+
+        Map<String, Object> userInformation = new HashMap<>();
+
+        userInformation.put("userId", dbUser.getId());
+        userInformation.put("userName", dbUser.getUserName());
+        userInformation.put("email", dbUser.getEmail());
+        userInformation.put("defaultLocale", dbUser.getDefaultLocale());
+        userInformation.put("role", dbUser.getRole().getRoleName());
+
+        additionalInfo.put("user", userInformation);
+
+        //define redirect URL after Log in
+        if(dbUser.getRole().getRoleName().equals("ADMIN"))
+            additionalInfo.put("redirect_to", "/dashboard");
+        else
+            additionalInfo.put("redirect_to", "/bookingOrder");
+        return additionalInfo;
     }
 }

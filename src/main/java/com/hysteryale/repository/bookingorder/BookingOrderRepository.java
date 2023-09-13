@@ -1,4 +1,4 @@
-package com.hysteryale.repository;
+package com.hysteryale.repository.bookingorder;
 
 import com.hysteryale.model.BookingOrder;
 import org.springframework.data.jpa.repository.JpaRepository;

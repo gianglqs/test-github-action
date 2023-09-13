@@ -6,6 +6,9 @@ import com.hysteryale.service.impl.EmailServiceImpl;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +40,7 @@ public class UserService {
      * @return List of existed user
      */
     public List<User> getAllUsers(){
-        return userRepository.findAll();
+        return (List<User>) userRepository.findAll();
     }
 
     /**
@@ -126,13 +130,14 @@ public class UserService {
         Random random = new Random();
         for(int i = 0; i < 8; i ++) {
             char c = (char) ('a' + random.nextInt(26));
-            newPassword.append(String.valueOf(c));
+            newPassword.append(c);
         }
         emailService.sendResetPasswordEmail(user.getUserName(), newPassword.toString(), user.getEmail());
         user.setPassword(passwordEncoder().encode(newPassword.toString()));
     }
-    public List<User> searchUser(String searchString) {
-        return userRepository.searchUser(searchString);
+    public Page<User> searchUser(String searchString, int pageNo, int perPage) {
+        Pageable pageable = PageRequest.of(pageNo - 1, perPage);
+        return userRepository.searchUser(searchString, pageable);
     }
 
 }
