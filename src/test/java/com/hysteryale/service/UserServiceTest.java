@@ -15,6 +15,7 @@ import org.mockito.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -41,6 +42,7 @@ public class UserServiceTest {
     private AutoCloseable autoCloseable;
     int pageNo = 0;
     int perPage = 100;
+    String sortType = "ascending";
 
     @BeforeEach
     void setUp() {
@@ -179,11 +181,11 @@ public class UserServiceTest {
         String userName = "given";
 
         // WHEN
-        when(userRepository.searchUser(userName, PageRequest.of(pageNo, perPage))).thenReturn(new PageImpl<>(userList));
-        Page<User> result = underTest.searchUser(userName, pageNo, perPage);
+        when(userRepository.searchUser(userName, PageRequest.of(pageNo, perPage, Sort.by("userName").ascending()))).thenReturn(new PageImpl<>(userList));
+        Page<User> result = underTest.searchUser(userName, pageNo, perPage, sortType);
 
         // THEN
-        Mockito.verify(userRepository).searchUser(userName, PageRequest.of(pageNo, perPage));
+        Mockito.verify(userRepository).searchUser(userName, PageRequest.of(pageNo, perPage, Sort.by("userName").ascending()));
         Assertions.assertEquals(userList.size(), result.getContent().size());
     }
 

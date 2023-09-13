@@ -46,6 +46,7 @@ public class UserControllerTest {
 
     int pageNo = 0;
     int perPage = 100;
+    String sortType = "ascending";
 
     @BeforeEach
     void setUp(){
@@ -68,11 +69,11 @@ public class UserControllerTest {
         userRepository.saveAll(givenList);
 
         // WHEN
-        when(userService.searchUser("", pageNo, perPage)).thenReturn(new PageImpl<>(givenList, PageRequest.of(pageNo, perPage), 2));
-        Map<String, Object> result = userController.searchUser("", pageNo, perPage);
+        when(userService.searchUser("", pageNo, perPage, sortType)).thenReturn(new PageImpl<>(givenList, PageRequest.of(pageNo, perPage), 2));
+        Map<String, Object> result = userController.searchUser("", pageNo, perPage, sortType);
 
         // THEN
-        Mockito.verify(userService).searchUser("", pageNo, perPage);
+        Mockito.verify(userService).searchUser("", pageNo, perPage, sortType);
         Assertions.assertEquals(givenList.size(), ((List<User>) result.get("userList")).size());
     }
     @Test
@@ -129,11 +130,11 @@ public class UserControllerTest {
         String searchString = "given";
 
         // WHEN
-        when(userService.searchUser(searchString, pageNo, perPage)).thenReturn(new PageImpl<>(userList));
-        Map<String, Object> result = userController.searchUser(searchString, pageNo, perPage);
+        when(userService.searchUser(searchString, pageNo, perPage, sortType)).thenReturn(new PageImpl<>(userList));
+        Map<String, Object> result = userController.searchUser(searchString, pageNo, perPage, sortType);
 
         // THEN
-        Mockito.verify(userService).searchUser(searchString, pageNo, perPage);
+        Mockito.verify(userService).searchUser(searchString, pageNo, perPage, sortType);
         Assertions.assertEquals(userList.size(), ((List<User>) result.get("userList")).size());
     }
     @Test
