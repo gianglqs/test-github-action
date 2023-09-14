@@ -23,25 +23,25 @@ const AppTextField: React.FC<AppTextFieldProps> = (props) => {
   } = props
 
   // const classes = useStyles()
-  // const focusRef = useRef(null)
+  const focusRef = useRef(null)
 
-  // const [isFocusing, setIsFocusing] = useState(false)
+  const [isFocusing, setIsFocusing] = useState(false)
 
-  // const openTooltip = useMemo(() => isFocusing && error, [error, isFocusing])
+  const openTooltip = useMemo(() => isFocusing && error, [error, isFocusing])
 
-  // useEffect(() => {
-  //   if (focusRef.current) {
-  //     focusRef.current.focus()
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (focusRef.current) {
+      focusRef.current.focus()
+    }
+  }, [])
 
-  // const onHoverField = () => {
-  //   setIsFocusing(true)
-  // }
+  const onHoverField = () => {
+    setIsFocusing(true)
+  }
 
-  // const onLeavingField = () => {
-  //   setIsFocusing(false)
-  // }
+  const onLeavingField = () => {
+    setIsFocusing(false)
+  }
 
   // const renderGenerateIcon = useCallback(() => {
   //   if (generateCode) {
@@ -63,20 +63,22 @@ const AppTextField: React.FC<AppTextFieldProps> = (props) => {
   // }, [disabled, loading, generateCode, tooltip, onGenerateCode])
 
   return (
-    <TextField
-      disabled={disabled}
-      error={error}
-      // onMouseOver={onHoverField}
-      // onMouseLeave={onLeavingField}
-      // inputRef={isFocus && focusRef}
-      InputProps={{
-        readOnly: disabled,
-        className: clsx({ "Mui-disabled": disabled }),
-        // endAdornment: renderGenerateIcon(),
-        ...InputProps,
-      }}
-      {...textFieldProps}
-    />
+    <FormControllerErrorMessage title={helperText} open={openTooltip}>
+      <TextField
+        disabled={disabled}
+        error={error}
+        onMouseOver={onHoverField}
+        onMouseLeave={onLeavingField}
+        inputRef={isFocus && focusRef}
+        InputProps={{
+          readOnly: disabled,
+          className: clsx({ "Mui-disabled": disabled }),
+          // endAdornment: renderGenerateIcon(),
+          ...InputProps,
+        }}
+        {...textFieldProps}
+      />
+    </FormControllerErrorMessage>
   )
 }
 

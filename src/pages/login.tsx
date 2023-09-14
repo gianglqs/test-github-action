@@ -1,14 +1,19 @@
-import { styled, Paper } from "@mui/material"
+import { styled, Paper, Grid } from "@mui/material"
 
 import NextHead from "next/head"
-// import Image from 'next/image'
 import { LoadingButton } from "@mui/lab"
-import authApi from "@/api/auth.api"
 import { useRouter } from "next/router"
-import nookies, { setCookie } from "nookies"
+import { setCookie } from "nookies"
 import { useForm } from "react-hook-form"
 import FormControlledTextField from "@/components/FormController/TextField"
 import axios from "axios"
+import { useDispatch } from "react-redux"
+import { commonStore } from "@/store/reducers"
+import * as yup from "yup"
+import { yupResolver } from "@hookform/resolvers/yup"
+import { LoginFormValues } from "@/types/auth"
+import { AppFooter } from "@/components/App/Footer"
+import Link from "next/link"
 
 const StyledContainer = styled("div")(() => ({
   height: `calc(100vh - ${25}px)`,
@@ -24,14 +29,21 @@ const StyledFormContainer = styled(Paper)(({ theme }) => ({
 
 export default function LoginPage() {
   const router = useRouter()
-  const loginForm = useForm<any>({
-    // resolver: yupResolver(validationSchema),
-    shouldUnregister: false,
-    defaultValues: { user_id: "", password: "", grant_type: "" },
+
+  const validationSchema = yup.object({
+    email: yup.string().required("Email is required"),
+    password: yup.string().required("Password is required"),
   })
 
-  const handleSubmitLogin = loginForm.handleSubmit(async (formData: any) => {
-    try {
+  const loginForm = useForm({
+    resolver: yupResolver(validationSchema),
+    shouldUnregister: false,
+  })
+
+  const dispatch = useDispatch()
+
+  const handleSubmitLogin = loginForm.handleSubmit(
+    (formData: LoginFormValues) => {
       const transformData = {
         grant_type: "password",
         username: formData?.email,
@@ -56,11 +68,15 @@ export default function LoginPage() {
           setCookie(null, "redirect_to", redirect_to, { maxAge: 2147483647 })
           router.push(redirect_to)
         })
-        .catch((error) => {})
-    } catch (error) {
-      alert("error")
+        .catch((error) => {
+          dispatch(
+            commonStore.actions.setErrorMessage(
+              "The username or password you entered is incorrect"
+            )
+          )
+        })
     }
-  })
+  )
 
   return (
     <>
@@ -108,8 +124,14 @@ export default function LoginPage() {
               Sign in
             </LoadingButton>
           </form>
+          <Grid sx={{ marginTop: 1 }}>
+            <Link color="primary" href={`/resetPassword`}>
+              Forgot Password
+            </Link>
+          </Grid>
         </StyledFormContainer>
       </StyledContainer>
+      <AppFooter />
     </>
   )
 }

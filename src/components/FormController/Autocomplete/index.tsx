@@ -27,7 +27,7 @@ const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
 
   const {
     field: { onChange, ...inputProps },
-    fieldState: { invalid },
+    fieldState: { invalid, error },
   } = useController({
     name,
     rules,
@@ -53,7 +53,7 @@ const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
       {...inputProps}
       ref={ref}
       classes={{ ...classes }}
-      helperText={(invalid as any)?.message}
+      helperText={error?.message}
       error={Boolean(invalid)}
       onChange={onChangeValue}
       textFieldProps={{ name: name, ...textFieldProps }}

@@ -12,20 +12,20 @@ import { CreateUserFormValues } from "@/types/user"
 import getValidationSchema from "./validationSchema"
 import { yupResolver } from "@hookform/resolvers/yup"
 
-const DialogCreateUser: React.FC<any> = (props) => {
+const DialogUpdateUser: React.FC<any> = (props) => {
   const { open, onClose, detail } = props
 
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
 
   const validationSchema = useMemo(() => getValidationSchema(), [])
-  const createForm = useForm({
+  const updateUserForm = useForm({
     resolver: yupResolver(validationSchema),
     shouldUnregister: false,
     defaultValues: detail,
   })
 
-  const handleSubmitForm = createForm.handleSubmit(
+  const handleSubmitForm = updateUserForm.handleSubmit(
     async (data: CreateUserFormValues) => {
       const transformData = {
         userName: data.userName,
@@ -55,8 +55,8 @@ const DialogCreateUser: React.FC<any> = (props) => {
 
   const roleOptions = useMemo(
     () => [
-      { id: 1, description: "Admin" },
-      { id: 2, description: "User" },
+      { id: 1, roleName: "Admin" },
+      { id: 2, roleName: "User" },
     ],
     []
   )
@@ -70,14 +70,14 @@ const DialogCreateUser: React.FC<any> = (props) => {
   )
 
   useEffect(() => {
-    createForm.reset(detail)
+    updateUserForm.reset(detail)
   }, [detail])
 
   return (
     <AppDialog
       open={open}
       loading={loading}
-      onOk={handleSubmitForm}
+      //   onOk={handleSubmitForm}
       onClose={onClose}
       title="Create User"
       okText="Save"
@@ -85,7 +85,7 @@ const DialogCreateUser: React.FC<any> = (props) => {
       <Grid container sx={{ paddingTop: 0.8, paddingBottom: 0.8 }} spacing={2}>
         <Grid item xs={12}>
           <FormControlledTextField
-            control={createForm.control}
+            control={updateUserForm.control}
             name="userName"
             label="Name"
             required
@@ -93,7 +93,7 @@ const DialogCreateUser: React.FC<any> = (props) => {
         </Grid>
         <Grid item xs={12}>
           <FormControlledTextField
-            control={createForm.control}
+            control={updateUserForm.control}
             name="email"
             label="Email"
             required
@@ -101,7 +101,7 @@ const DialogCreateUser: React.FC<any> = (props) => {
         </Grid>
         <Grid item xs={12}>
           <FormControlledTextField
-            control={createForm.control}
+            control={updateUserForm.control}
             type="password"
             name="password"
             label="Password"
@@ -111,16 +111,18 @@ const DialogCreateUser: React.FC<any> = (props) => {
         </Grid>
         <Grid item xs={6}>
           <FormControllerAutocomplete
-            control={createForm.control}
+            control={updateUserForm.control}
             name="role"
             label="User Role"
+            renderOption={(prop, option) => `${option?.roleName}`}
+            getOptionLabel={(option) => `${option?.roleName}`}
             required
             options={roleOptions}
           />
         </Grid>
         <Grid item xs={6}>
           <FormControllerAutocomplete
-            control={createForm.control}
+            control={updateUserForm.control}
             name="defaultLocale"
             label="Language"
             required
@@ -132,4 +134,4 @@ const DialogCreateUser: React.FC<any> = (props) => {
   )
 }
 
-export { DialogCreateUser }
+export { DialogUpdateUser }

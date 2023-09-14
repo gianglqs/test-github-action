@@ -105,6 +105,25 @@ class HttpService<GetList = any> {
     this.saveToken(context)
     return this.instance.post<T>(endpoint, data)
   }
+
+  getListBookingOrder = <T = any>(
+    data = {} as Record<string, any>,
+    params = {} as Record<string, any>,
+    context: GetServerSidePropsContext = null as any,
+    responseType = "default" as ResponseType
+  ) => {
+    this.saveToken(context)
+    return this.instance.post<T>(this.entity, data, { params, responseType })
+  }
+
+  put = <T = any>(
+    endpoint: string,
+    data = {} as Record<string, any>,
+    context: GetServerSidePropsContext = null
+  ) => {
+    this.saveToken(context)
+    return this.instance.put<T>(endpoint, data)
+  }
 }
 
 export default HttpService

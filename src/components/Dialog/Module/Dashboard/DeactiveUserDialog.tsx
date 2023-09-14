@@ -1,0 +1,53 @@
+import { Grid } from "@mui/material"
+
+import { AppDialog } from "../AppDialog/AppDialog"
+import { useState } from "react"
+import { useDispatch } from "react-redux"
+import dashboardApi from "@/api/dashboard.api"
+import { commonStore, dashboardStore } from "@/store/reducers"
+import { useForm } from "react-hook-form"
+
+const DeactiveUserDialog: React.FC<any> = (props) => {
+  const { open, onClose, detail } = props
+  const [loading, setLoading] = useState(false)
+
+  const dispatch = useDispatch()
+  const deactivateUserForm = useForm({
+    defaultValues: detail,
+  })
+
+  const handleDeactivateUser = deactivateUserForm.handleSubmit(async () => {
+    try {
+      setLoading(true)
+      await dashboardApi.deactivateUser(detail.id)
+      const { data } = await dashboardApi.getUser({ search: "" })
+      dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
+      dispatch(
+        commonStore.actions.setSuccessMessage("Deactivate User Successfully")
+      )
+      onClose()
+    } catch (error) {
+      dispatch(commonStore.actions.setErrorMessage(error?.message))
+    } finally {
+      setLoading(false)
+    }
+  })
+
+  return (
+    <AppDialog
+      open={open}
+      loading={loading}
+      onOk={handleDeactivateUser}
+      onClose={onClose}
+      title="Deactivate User"
+      okText="Accept"
+      closeText="Cancel"
+    >
+      <Grid container>
+        Are you sure you want to deactivate user {detail?.userName}?
+      </Grid>
+    </AppDialog>
+  )
+}
+
+export { DeactiveUserDialog }
