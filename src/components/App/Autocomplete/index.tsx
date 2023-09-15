@@ -93,6 +93,7 @@ const AppAutocomplete: React.FC<AppAutocompleteProps<any>> = (props) => {
 
   const renderOptionMultiple = (prop, option, state) => {
     const { selected } = state
+
     const desc = renderOption(prop, option, state, null)
     if (isValidElement(desc)) {
       return (

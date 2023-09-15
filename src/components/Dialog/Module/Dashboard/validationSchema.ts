@@ -4,7 +4,10 @@ import _ from "lodash"
 function getValidationSchema() {
   const schema = yup.object().shape({
     userName: yup.string().required("Name is required"),
-    email: yup.string().required("Email is required"),
+    email: yup
+      .string()
+      .required("Email is required")
+      .email("Email format is not correct! Please check again."),
     password: yup.string().required("Password is required"),
     // role: yup.string().required("Role is required"),
     // defaultLocale: yup.string().required("Language is required"),

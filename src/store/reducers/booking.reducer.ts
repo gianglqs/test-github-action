@@ -12,7 +12,7 @@ export const resetState = createAction(`${name}/RESET_STATE`)
 
 export const initialState = {
   bookingOrdersList: [] as any[],
-  initDataFilter: [] as any[],
+  initDataFilter: {} as any,
 }
 
 const bookingSlice = createSlice({

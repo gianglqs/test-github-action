@@ -4,17 +4,19 @@ import { Autocomplete, Button, TextField } from "@mui/material"
 
 import { DataTable } from "@/components"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AppLayout } from "@/components/App/Layout"
 import { useSelector } from "react-redux"
 import { bookingStore } from "@/store/reducers"
 import FormControlledTextField from "@/components/FormController/TextField"
 import { useForm } from "react-hook-form"
 import FormControllerAutocomplete from "@/components/FormController/Autocomplete"
+import { AppAutocomplete } from "@/components/App/Autocomplete"
+import _ from "lodash"
 
 export default function Booking() {
   const listBookingOrder = useSelector(bookingStore.selectBookingList)
-  // const initDataFilter = useSelector(bookingStore.selectInitDataFilter)
+  const initDataFilter = useSelector(bookingStore.selectInitDataFilter)
 
   const bookingOrderForm = useForm({})
 
@@ -106,6 +108,12 @@ export default function Booking() {
     },
   ]
 
+  const arrTmp = [
+    { value: "dealer" },
+    { value: "delser2" },
+    { value: "dealer3" },
+    { value: "delser4" },
+  ]
   return (
     <AppLayout entity="booking">
       <Grid container spacing={1}>
@@ -125,23 +133,43 @@ export default function Booking() {
             control={bookingOrderForm.control}
             name="region"
             label="Region"
-            options={[]}
+            // options={initDataFilter.region}
+            renderOption={(prop, option) => `${option}`}
+            getOptionLabel={(option) => `${option}`}
           />
         </Grid>
         <Grid item xs={1}>
-          <FormControllerAutocomplete
+          <AppAutocomplete
+            options={arrTmp}
+            label="Dealer"
+            // onChange={handleChangeMatStandards}
+            // value={selectedMatStandards}
+            limitTags={2}
+            primaryKeyOption="value"
+            multiple
+            disableCloseOnSelect
+            renderOption={(prop, option) => `${option.value}`}
+            getOptionLabel={(option) => `${option.value}`}
+          />
+          {/* <FormControllerAutocomplete
             control={bookingOrderForm.control}
             name="dealer"
-            label="Dealer"
-            options={[]}
-          />
+            multiple
+            limitTags={3}
+            // label="Dealer"
+            options={initDataFilter.dealers}
+            renderOption={(prop, option) => `${option}`}
+            getOptionLabel={(option) => `${option}`}
+          /> */}
         </Grid>
         <Grid item xs={1}>
           <FormControllerAutocomplete
             control={bookingOrderForm.control}
             name="plant"
             label="Plant"
-            options={[]}
+            options={initDataFilter.plants}
+            renderOption={(prop, option) => `${option}`}
+            getOptionLabel={(option) => `${option}`}
           />
         </Grid>
         <Grid item xs={1}>
@@ -149,7 +177,9 @@ export default function Booking() {
             control={bookingOrderForm.control}
             name="metaseries"
             label="Metaseries"
-            options={[]}
+            options={initDataFilter.metaSeries}
+            renderOption={(prop, option) => `${option}`}
+            getOptionLabel={(option) => `${option}`}
           />
         </Grid>
         <Grid item xs={1}>
@@ -157,7 +187,9 @@ export default function Booking() {
             control={bookingOrderForm.control}
             name="class"
             label="Class"
-            options={[]}
+            options={initDataFilter.classes}
+            renderOption={(prop, option) => `${option}`}
+            getOptionLabel={(option) => `${option}`}
           />
         </Grid>
         <Grid item xs={1}>
@@ -165,7 +197,9 @@ export default function Booking() {
             control={bookingOrderForm.control}
             name="model"
             label="Model"
-            options={[]}
+            options={initDataFilter.models}
+            renderOption={(prop, option) => `${option}`}
+            getOptionLabel={(option) => `${option}`}
           />
         </Grid>
         <Grid item xs={1}>
@@ -173,7 +207,9 @@ export default function Booking() {
             control={bookingOrderForm.control}
             name="segment"
             label="Segment"
-            options={[]}
+            options={initDataFilter.segments}
+            renderOption={(prop, option) => `${option}`}
+            getOptionLabel={(option) => `${option}`}
           />
         </Grid>
         <Grid item xs={1}>
@@ -200,7 +236,9 @@ export default function Booking() {
             options={[]}
             size="small"
             sx={{ width: 310 }}
-            renderInput={(params) => <TextField {...params} label="Order #" />}
+            renderInput={(params) => (
+              <TextField {...params} label="From Date" />
+            )}
           />
         </Grid>
         <Grid item xs={2}>
@@ -210,7 +248,7 @@ export default function Booking() {
             options={[]}
             size="small"
             sx={{ width: 310 }}
-            renderInput={(params) => <TextField {...params} label="Order #" />}
+            renderInput={(params) => <TextField {...params} label="To Date" />}
           />
         </Grid>
         <Grid item xs={2}>

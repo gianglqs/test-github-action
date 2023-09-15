@@ -23,7 +23,11 @@ const DeactiveUserDialog: React.FC<any> = (props) => {
       const { data } = await dashboardApi.getUser({ search: "" })
       dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
       dispatch(
-        commonStore.actions.setSuccessMessage("Deactivate User Successfully")
+        commonStore.actions.setSuccessMessage(
+          detail?.isActive
+            ? "Deactivate user successfully"
+            : "Activate user successfully"
+        )
       )
       onClose()
     } catch (error) {
@@ -39,12 +43,13 @@ const DeactiveUserDialog: React.FC<any> = (props) => {
       loading={loading}
       onOk={handleDeactivateUser}
       onClose={onClose}
-      title="Deactivate User"
+      title={detail?.isActive ? "Deactivate User" : "Active User"}
       okText="Accept"
       closeText="Cancel"
     >
       <Grid container>
-        Are you sure you want to deactivate user {detail?.userName}?
+        Are you sure you want to {!detail?.isActive ? "activate" : "deactivate"}{" "}
+        user {detail?.userName}?
       </Grid>
     </AppDialog>
   )

@@ -8,7 +8,6 @@ import FormControllerAutocomplete from "@/components/FormController/Autocomplete
 import dashboardApi from "@/api/dashboard.api"
 import { useDispatch } from "react-redux"
 import { commonStore, dashboardStore } from "@/store/reducers"
-import { CreateUserFormValues } from "@/types/user"
 import getValidationSchema from "./validationSchema"
 import { yupResolver } from "@hookform/resolvers/yup"
 
@@ -25,46 +24,44 @@ const DialogUpdateUser: React.FC<any> = (props) => {
     defaultValues: detail,
   })
 
-  const handleSubmitForm = updateUserForm.handleSubmit(
-    async (data: CreateUserFormValues) => {
-      const transformData = {
-        userName: data.userName,
-        email: data.email,
-        password: data.password,
-        role: {
-          id: data.role,
-        },
-        defaultLocale: data.defaultLocale,
-      }
-      try {
-        setLoading(true)
-        await dashboardApi.createUser(transformData)
-        const { data } = await dashboardApi.getUser({ search: "" })
-        dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
-        dispatch(
-          commonStore.actions.setSuccessMessage("Create User Successfully")
-        )
-        onClose()
-      } catch (error) {
-        dispatch(commonStore.actions.setErrorMessage(error?.message))
-      } finally {
-        setLoading(false)
-      }
+  const handleSubmitForm = updateUserForm.handleSubmit(async (data: any) => {
+    const transformData = {
+      userName: data.userName,
+      role: {
+        id: data.role,
+      },
+      defaultLocale: data.defaultLocale,
     }
-  )
+
+    try {
+      setLoading(true)
+      const { data } = await dashboardApi.updateUser(detail?.id, transformData)
+
+      const userList = await dashboardApi.getUser({ search: "" })
+      dispatch(
+        dashboardStore.actions.setUserList(JSON.parse(userList?.data)?.userList)
+      )
+      dispatch(commonStore.actions.setSuccessMessage(data))
+      onClose()
+    } catch (error) {
+      dispatch(commonStore.actions.setErrorMessage(error?.message))
+    } finally {
+      setLoading(false)
+    }
+  })
 
   const roleOptions = useMemo(
     () => [
-      { id: 1, roleName: "Admin" },
-      { id: 2, roleName: "User" },
+      { id: 1, roleName: "ADMIN" },
+      { id: 2, roleName: "USER" },
     ],
     []
   )
 
   const languageOptions = useMemo(
     () => [
-      { id: "us", description: "English" },
-      { id: "cn", description: "Chinese" },
+      { id: "us", description: "ENGLISH" },
+      { id: "cn", description: "CHINESE" },
     ],
     []
   )
@@ -77,9 +74,9 @@ const DialogUpdateUser: React.FC<any> = (props) => {
     <AppDialog
       open={open}
       loading={loading}
-      //   onOk={handleSubmitForm}
+      onOk={handleSubmitForm}
       onClose={onClose}
-      title="Create User"
+      title="User Details"
       okText="Save"
     >
       <Grid container sx={{ paddingTop: 0.8, paddingBottom: 0.8 }} spacing={2}>
@@ -91,24 +88,7 @@ const DialogUpdateUser: React.FC<any> = (props) => {
             required
           />
         </Grid>
-        <Grid item xs={12}>
-          <FormControlledTextField
-            control={updateUserForm.control}
-            name="email"
-            label="Email"
-            required
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <FormControlledTextField
-            control={updateUserForm.control}
-            type="password"
-            name="password"
-            label="Password"
-            autoComplete="new-password"
-            required
-          />
-        </Grid>
+
         <Grid item xs={6}>
           <FormControllerAutocomplete
             control={updateUserForm.control}

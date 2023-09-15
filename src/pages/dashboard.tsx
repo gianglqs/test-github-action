@@ -166,7 +166,7 @@ export default function Dashboard() {
   const handleOpenDeactivateUser = (row) => {
     setDeactivateUserState({
       open: true,
-      detail: { userName: row?.userName, id: row?.id },
+      detail: { userName: row?.userName, id: row?.id, isActive: row?.active },
     })
   }
 
@@ -175,10 +175,11 @@ export default function Dashboard() {
     dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
   }
 
-  const handleOpenUpdateUserDialog = async () => {
+  const handleOpenUpdateUserDialog = async (userId) => {
     try {
       // Get init data
-      const { data } = await dashboardApi.getDetailUser()
+
+      const { data } = await dashboardApi.getDetailUser(userId)
 
       // Open form
       setUpdateUserState({
@@ -233,7 +234,7 @@ export default function Dashboard() {
             color={`${params.row.active ? "primary" : "error"}`}
             onClick={() => handleOpenDeactivateUser(params.row)}
           >
-            Active
+            {params.row.active ? "Active" : "Locked"}
           </Button>
         )
       },
@@ -244,7 +245,9 @@ export default function Dashboard() {
       headerName: "Edit",
       flex: 0.2,
       renderCell(params) {
-        return <EditIcon onClick={handleOpenUpdateUserDialog} />
+        return (
+          <EditIcon onClick={() => handleOpenUpdateUserDialog(params.row.id)} />
+        )
       },
     },
   ]
@@ -355,7 +358,7 @@ export default function Dashboard() {
               New User
             </Button>
           </Grid>
-          <Grid container sx={{ padding: 1.5 }}>
+          <Grid container sx={{ padding: 1 }}>
             <AppSearchBar onSearch={handleSearch}></AppSearchBar>
           </Grid>
           <Paper elevation={1} sx={{ marginLeft: 1.5, marginRight: 1.5 }}>
