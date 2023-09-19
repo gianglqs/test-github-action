@@ -3,18 +3,25 @@ package com.hysteryale.service;
 import com.hysteryale.model.Role;
 import com.hysteryale.model.User;
 import com.hysteryale.repository.UserRepository;
+import com.hysteryale.service.impl.EmailServiceImpl;
+import com.mailjet.client.errors.MailjetException;
+import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.BDDMockito.given;
@@ -28,7 +35,12 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @Resource @InjectMocks
     private UserService underTest;
+    @Resource
+    @Mock
+    EmailServiceImpl emailService;
     private AutoCloseable autoCloseable;
+    int pageNo = 0;
+    int perPage = 100;
 
     @BeforeEach
     void setUp() {
@@ -128,9 +140,12 @@ public class UserServiceTest {
     @Test
     void testGetUserByEmail() {
         //GIVEN
+        Role role = new Role(1, "admin", null);
+        User given1 = new User(1, "given1", "admin@gmail.com", "given", role, "us", true);
         String email = "admin@gmail.com";
 
         //WHEN
+        when(userRepository.getUserByEmail(email)).thenReturn(Optional.of(given1));
         underTest.getUserByEmail(email);
 
         //THEN
@@ -164,11 +179,29 @@ public class UserServiceTest {
         String userName = "given";
 
         // WHEN
-        when(userRepository.searchUserByUserName(userName)).thenReturn(userList);
-        List<User> result = underTest.searchUserByUserName(userName);
+        when(userRepository.searchUser(userName, PageRequest.of(pageNo, perPage))).thenReturn(new PageImpl<>(userList));
+        Page<User> result = underTest.searchUser(userName, pageNo, perPage);
 
         // THEN
-        Mockito.verify(userRepository).searchUserByUserName(userName);
-        Assertions.assertEquals(userList.size(), result.size());
+        Mockito.verify(userRepository).searchUser(userName, PageRequest.of(pageNo, perPage));
+        Assertions.assertEquals(userList.size(), result.getContent().size());
+    }
+
+    @Test
+    void testResetPassword() throws MailjetSocketTimeoutException, MailjetException {
+
+        // GIVEN
+        Role role = new Role(1, "admin", null);
+        User given1 = new User(1, "given1", "given1@gmail.com", "given", role, "us", true);
+
+        String email = "given1@gmail.com";
+        String oldPassword = given1.getPassword();
+
+        // WHEN
+        when(userRepository.getUserByEmail(email)).thenReturn(Optional.of(given1));
+        underTest.resetUserPassword(email);
+
+        // THEN
+        Assertions.assertNotEquals(oldPassword, given1.getPassword());
     }
 }

@@ -1,7 +1,7 @@
 package com.hysteryale.service;
 
 import com.hysteryale.model.BookingOrder;
-import com.hysteryale.repository.BookingOrderRepository;
+import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
