@@ -3,6 +3,7 @@ package com.hysteryale.controller;
 import com.hysteryale.model.User;
 import com.hysteryale.service.UserService;
 import com.hysteryale.service.impl.EmailServiceImpl;
+import com.hysteryale.utils.StringUtils;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -113,8 +114,13 @@ public class UserController {
     public ResponseEntity<?> changePassword(@RequestBody User changedPasswordUser, @PathVariable int userId) {
         User dbUser = userService.getUserById(userId);
 
-        if(changedPasswordUser.getPassword().length() < 6)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters");
+        if(StringUtils.checkPasswordStreng(changedPasswordUser.getPassword()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must consist of at least 12 characters and has at least\n" +
+                    "\n" +
+                    "    one Uppercase character,\n" +
+                    "    one Lowercase character,\n" +
+                    "    a Digit and\n" +
+                    "    a Special character or Symbol.");
         else
         {
             userService.changeUserPassword(dbUser, changedPasswordUser.getPassword());
