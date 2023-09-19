@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -135,8 +136,18 @@ public class UserService {
         emailService.sendResetPasswordEmail(user.getUserName(), newPassword.toString(), user.getEmail());
         user.setPassword(passwordEncoder().encode(newPassword.toString()));
     }
-    public Page<User> searchUser(String searchString, int pageNo, int perPage) {
-        Pageable pageable = PageRequest.of(pageNo - 1, perPage);
+
+    /**
+     * Get Users based on searchString (search by userName and email)
+     * @param searchString for searching userName or email
+     * @param pageNo current page number
+     * @param perPage items per page
+     * @param sortType type of sort (ascending or descending)
+     */
+    public Page<User> searchUser(String searchString, int pageNo, int perPage, String sortType) {
+        Pageable pageable = PageRequest.of(pageNo - 1, perPage, Sort.by("userName").ascending());
+        if(sortType.equals("descending"))
+            pageable = PageRequest.of(pageNo - 1, perPage, Sort.by("userName").descending());
         return userRepository.searchUser(searchString, pageable);
     }
 

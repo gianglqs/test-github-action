@@ -57,13 +57,18 @@ public class BookingOrderController {
     @GetMapping(path = "/bookingOrder", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getBookingOrders(@RequestBody String filters,
                                                             @RequestParam(defaultValue = "1") int pageNo,
-                                                            @RequestParam(defaultValue = "100") int perPage) throws ParseException, JsonProcessingException {
+                                                            @RequestParam(defaultValue = "100") int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {
 
         // Get BookingOrder
         Map<String, Object> bookingOrderPage = bookingOrderService.getBookingOrdersByFilters(filters, pageNo - 1, perPage);
 
         // totalPages for all BookingOrders based on totalItems and perPage
-        long totalPages = ((long)bookingOrderPage.get("totalItems") / perPage) + 1;
+        long totalPages = (long)bookingOrderPage.get("totalItems") / perPage;
+
+        // if (totalPages % perPage) != 0 then need one more page to show data
+        if( (long)bookingOrderPage.get("totalItems") % perPage != 0)
+            totalPages = ((long)bookingOrderPage.get("totalItems") / perPage) + 1;
+
         bookingOrderPage.put("totalPages", totalPages);
 
         // assign number of items per page and currentPage number

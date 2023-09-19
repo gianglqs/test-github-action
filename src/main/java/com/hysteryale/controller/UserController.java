@@ -34,6 +34,16 @@ public class UserController {
     EmailServiceImpl emailService;
 
     /**
+     * Get user's details by userId
+     */
+    @GetMapping(path = "users/getDetails/{userId}")
+    public Map<String, User> getUserDetailsById(@PathVariable int userId) {
+        Map<String, User> userMap = new HashMap<>();
+        userMap.put("userDetails", userService.getUserById(userId));
+        return userMap;
+    }
+
+    /**
      * Reverse user's active state into true or false based on whether user is active or not
      */
     @PutMapping(path = "users/activate/{userId}")
@@ -79,9 +89,10 @@ public class UserController {
     @Secured("ROLE_ADMIN")
     public Map<String, Object> searchUser(@RequestParam(required = false) String search,
                                           @RequestParam(defaultValue = "100") int perPage,
-                                          @RequestParam(defaultValue = "1") int pageNo) {
+                                          @RequestParam(defaultValue = "1") int pageNo,
+                                          @RequestParam(defaultValue = "ascending") String sortType) {
 
-        Page<User> userPage = userService.searchUser(search, pageNo, perPage);
+        Page<User> userPage = userService.searchUser(search, pageNo, perPage, sortType);
 
         Map<String, Object> userPageMap = new HashMap<>();
 
