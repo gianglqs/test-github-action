@@ -35,8 +35,8 @@ public class BookingOrderController {
      * Get filters' value as: dealers, plants, metaSeries, classes, segments, models for BookingOrders' filtering
      */
     @GetMapping(path = "/filters")
-    public Map<String, List<String>> getFilters() {
-        Map<String, List<String>> filters = new HashMap<>();
+    public Map<String, Object> getFilters() {
+        Map<String, Object> filters = new HashMap<>();
 
         filters.put("dealers", apicDealerService.getAllAPICDealers());
         filters.put("plants", apacSerialService.getAllPlants());
@@ -54,7 +54,7 @@ public class BookingOrderController {
      * @param pageNo current page
      * @param perPage number of items per page
      */
-    @GetMapping(path = "/bookingOrder", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/bookingOrders", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getBookingOrders(@RequestBody String filters,
                                                             @RequestParam(defaultValue = "1") int pageNo,
                                                             @RequestParam(defaultValue = "100") int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {

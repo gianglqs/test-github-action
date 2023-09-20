@@ -123,7 +123,7 @@ public class BookingOrderService {
                 try {
                     field.setAccessible(true);
                     APICDealer apicDealer =
-                            apicDealerService.getAPICDealerByBillToCode((int) row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue());
+                            apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
                     field.set(bookingOrder, apicDealer);
                 } catch (Exception e) {
                     log.error(e.toString());
@@ -198,9 +198,9 @@ public class BookingOrderService {
                 }
             }
             bookingOrderRepository.saveAll(bookingOrderList);
-            bookingOrderList.clear();
             log.info("End importing file: '" + fileName + "'");
             log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
+            bookingOrderList.clear();
         }
     }
     public List<BookingOrder> getAllBookingOrders() {

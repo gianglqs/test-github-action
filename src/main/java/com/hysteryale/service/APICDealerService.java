@@ -17,10 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -49,12 +46,7 @@ public class APICDealerService {
 
             field.setAccessible(true);
 
-            if(fieldName.equals("billtoCode")) {
-                int billToCode = (int) row.getCell(APIC_DEALER_COLUMNS.get(hashMapKey)).getNumericCellValue();
-                field.set(apicDealer, billToCode);
-            }
-            else
-                field.set(apicDealer, row.getCell(APIC_DEALER_COLUMNS.get(hashMapKey)).getStringCellValue());
+            field.set(apicDealer, row.getCell(APIC_DEALER_COLUMNS.get(hashMapKey)).getStringCellValue());
 
         }
         return apicDealer;
@@ -85,7 +77,7 @@ public class APICDealerService {
 
         apicDealerList.clear();
     }
-    public APICDealer getAPICDealerByBillToCode(int billToCode) {
+    public APICDealer getAPICDealerByBillToCode(String billToCode) {
         Optional<APICDealer> optionalAPICDealer = apicDealerRepository.findById(billToCode);
         if(optionalAPICDealer.isPresent())
             return optionalAPICDealer.get();
@@ -96,7 +88,16 @@ public class APICDealerService {
     /**
      * Get List of DealerName for selecting filter
      */
-    public List<String> getAllAPICDealers() {
-        return apicDealerRepository.getDealerNames();
+    public List<Map<String, String>> getAllAPICDealers() {
+        List<Map<String, String>> dealerListMap = new ArrayList<>();
+        List<String> dealersName = apicDealerRepository.getDealerNames();
+
+        for(String name : dealersName) {
+            Map<String, String> nameMap = new HashMap<>();
+            nameMap.put("value", name);
+
+            dealerListMap.add(nameMap);
+        }
+        return dealerListMap;
     }
 }

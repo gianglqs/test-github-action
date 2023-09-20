@@ -17,10 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -134,14 +131,34 @@ public class APACSerialService {
     /**
      * Get List of APAC Serial's Model for selecting filter
      */
-    public List<String> getAllAPACSerialModels(){
-        return apacSerialRepository.getModels();
+    public List<Map<String, String>> getAllAPACSerialModels(){
+        List<Map<String, String>> modelsMap = new ArrayList<>();
+        List<String> models = apacSerialRepository.getModels();
+
+        for(String m : models) {
+            Map<String, String> mMap = new HashMap<>();
+            mMap.put("value", m);
+
+            modelsMap.add(mMap);
+        }
+
+        return modelsMap;
     }
 
     /**
      * Get list of distinct Plants
      */
-    public List<String> getAllPlants() {
-        return apacSerialRepository.getPlants();
+    public List<Map<String, String>> getAllPlants() {
+        List<Map<String, String>> plantListMap = new ArrayList<>();
+        List<String> plants =apacSerialRepository.getPlants();
+
+        for(String p : plants) {
+            Map<String, String> pMap = new HashMap<>();
+            pMap.put("value", p);
+
+            plantListMap.add(pMap);
+        }
+
+        return plantListMap;
     }
 }
