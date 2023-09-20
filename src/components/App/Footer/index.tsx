@@ -1,15 +1,16 @@
-import { Typography } from "@mui/material"
+import useStyles from "./styles"
 
-const AppFooter = (props: any) => {
+import { Paper } from "@mui/material"
+
+const AppFooter = () => {
+  const classes = useStyles()
+
+  const year = new Date().getFullYear()
+
   return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {`Copyright © ${new Date().getFullYear()} HysterYale, all rights reserved.`}
-    </Typography>
+    <Paper className={classes.footer__container} data-testid="footer-test">
+      {`Copyright © ${year} HysterYale, all rights reserved.`}
+    </Paper>
   )
 }
 

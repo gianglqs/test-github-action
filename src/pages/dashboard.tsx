@@ -367,14 +367,14 @@ export default function Dashboard() {
                 hideFooter
                 disableColumnMenu
                 checkboxSelection
-                tableHeight={770}
+                tableHeight={795}
                 rowHeight={50}
                 rows={listUser}
                 columns={columns}
               />
             </Grid>
+            <AppFooter />
           </Paper>
-          <AppFooter sx={{ padding: 2 }} />
         </Box>
       </Box>
 

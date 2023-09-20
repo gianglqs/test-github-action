@@ -12,6 +12,8 @@ export default makeStyles((theme) => {
       boxShadow: "none !important",
       color: theme.palette.common.black,
       padding: theme.spacing(0, 1.5),
+      borderBottom: "solid 1px #1976d2",
+      marginBottom: 10,
     },
     navigation: {
       display: "flex",
@@ -21,7 +23,9 @@ export default makeStyles((theme) => {
       marginRight: 10,
     },
     appLayout__container: {
-      margin: theme.spacing(0, 1.5),
+      marginTop: 1.5,
+      padding: theme.spacing(0, 1.5),
+      width: "100%",
       // height: 910,
     },
     label: {
@@ -32,8 +36,14 @@ export default makeStyles((theme) => {
       opacity: 0.7,
       cursor: "pointer",
     },
-    footer: {
-      zIndex: 100,
+    profile__container: {
+      display: "flex",
+      alignItems: "center",
+      maxWidth: 120,
+      color: theme.palette.common.black,
+      fontWeight: theme.typography.fontWeightMedium,
+      cursor: "pointer",
+      marginLeft: theme.spacing(1.5),
     },
   }
 })

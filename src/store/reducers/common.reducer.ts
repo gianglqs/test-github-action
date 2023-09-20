@@ -17,6 +17,11 @@ export const initialState = {
     status: "success" as AlertColor,
     display: false,
   },
+  tableState: {
+    pageNo: 1,
+    perPage: 100,
+    totalItems: 0,
+  } as any,
 }
 
 const commonSlice = createSlice({
@@ -41,6 +46,12 @@ const commonSlice = createSlice({
     setDisplayMessage(state, action: PayloadAction<boolean>) {
       state.messageState.display = action.payload
     },
+    setTableState(state, { payload }: PayloadAction<Partial<any>>) {
+      state.tableState = {
+        ...state.tableState,
+        ...payload,
+      }
+    },
   },
   extraReducers: {
     [resetState.type]() {
@@ -55,6 +66,10 @@ export const selectState = (state: RootReducerType) => state[name]
 export const selectMessageState = createSelector(
   selectState,
   (state) => state.messageState
+)
+export const selectTableState = createSelector(
+  selectState,
+  (state) => state.tableState
 )
 
 export const { actions } = commonSlice

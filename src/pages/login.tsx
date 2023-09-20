@@ -27,6 +27,9 @@ const StyledFormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
 }))
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const logoHysterYale = require("../public/logo.svg")
+
 export default function LoginPage() {
   const router = useRouter()
 
@@ -87,8 +90,7 @@ export default function LoginPage() {
         {/* <CssBaseline /> */}
         <StyledFormContainer>
           <div id="logo" role="logo">
-            Hyster-Yale
-            {/* <Image src={logo as any} alt="The logo" width={160} height={40} /> */}
+            <img src={logoHysterYale} alt="Hyster - Yale" />
           </div>
           <form onSubmit={handleSubmitLogin}>
             <FormControlledTextField

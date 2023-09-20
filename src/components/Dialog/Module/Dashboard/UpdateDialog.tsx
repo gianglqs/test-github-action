@@ -25,10 +25,11 @@ const DialogUpdateUser: React.FC<any> = (props) => {
   })
 
   const handleSubmitForm = updateUserForm.handleSubmit(async (data: any) => {
+
     const transformData = {
       userName: data.userName,
       role: {
-        id: data.role,
+        id: data.role.id,
       },
       defaultLocale: data.defaultLocale,
     }
@@ -94,6 +95,7 @@ const DialogUpdateUser: React.FC<any> = (props) => {
             control={updateUserForm.control}
             name="role"
             label="User Role"
+            disabled
             renderOption={(prop, option) => `${option?.roleName}`}
             getOptionLabel={(option) => `${option?.roleName}`}
             required
