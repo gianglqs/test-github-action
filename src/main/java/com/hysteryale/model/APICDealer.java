@@ -15,13 +15,8 @@ import javax.persistence.Id;
 @NoArgsConstructor
 public class APICDealer {
     @Id
-    private int billtoCode;
+    private String billtoCode;
     private String mkgGroup;
     private String dealerDivison;
     private String dealerName;
-    private String territoryManager;
-    private String areaBusinesssDirector;
-    private String bigTruckManager;
-    private String aftermarketManager;
-    private String aftermarketTechnicalServiceManager;
 }

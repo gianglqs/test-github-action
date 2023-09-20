@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <changeSet author="hoangnhan (generated)" id="1693996009668-1">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-1">
         <createTable tableName="booking_order">
             <column name="order_no" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="booking_order_pkey"/>
@@ -16,10 +16,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="apac_serial_model" type="VARCHAR(255)"/>
-            <column name="bill_to_billto_code" type="INTEGER"/>
+            <column name="bill_to_billto_code" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-2">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-2">
         <createTable tableName="permission">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="permission_pkey"/>
@@ -27,7 +27,7 @@
             <column name="permission_name" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-3">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-3">
         <createTable tableName="unit_flags">
             <column name="unit" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="unit_flags_pkey"/>
@@ -42,22 +42,17 @@
             <column name="u_class" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-4">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-4">
         <createTable tableName="apicdealer">
-            <column name="billto_code" type="INTEGER">
+            <column name="billto_code" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="apicdealer_pkey"/>
             </column>
-            <column name="aftermarket_manager" type="VARCHAR(255)"/>
-            <column name="aftermarket_technical_service_manager" type="VARCHAR(255)"/>
-            <column name="area_businesss_director" type="VARCHAR(255)"/>
-            <column name="big_truck_manager" type="VARCHAR(255)"/>
             <column name="dealer_divison" type="VARCHAR(255)"/>
             <column name="dealer_name" type="VARCHAR(255)"/>
             <column name="mkg_group" type="VARCHAR(255)"/>
-            <column name="territory_manager" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-5">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-5">
         <createTable tableName="user">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="user_pkey"/>
@@ -73,7 +68,7 @@
             <column name="role_id" type="INTEGER"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-6">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-6">
         <createTable tableName="role_permission_list">
             <column name="role_id" type="INTEGER">
                 <constraints nullable="false"/>
@@ -83,7 +78,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-7">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-7">
         <createTable tableName="apacserial">
             <column name="model" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="apacserial_pkey"/>
@@ -96,7 +91,7 @@
             <column name="meta_series_series" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-8">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-8">
         <createTable tableName="meta_series">
             <column name="series" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="meta_series_pkey"/>
@@ -106,7 +101,21 @@
             <column name="segment2" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-9">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-9">
+        <createTable tableName="aopmargin">
+            <column name="region_series_plant" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="aopmargin_pkey"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="dnusd" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="marginstd" type="FLOAT8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="hoangnhan (generated)" id="1694772483383-10">
         <createTable tableName="role">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="role_pkey"/>
@@ -114,7 +123,7 @@
             <column name="role_name" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-10">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-11">
         <createTable tableName="price">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="price_pkey"/>
@@ -133,31 +142,31 @@
             <column name="update_action" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-11">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-12">
         <addForeignKeyConstraint baseColumnNames="bill_to_billto_code" baseTableName="booking_order" constraintName="fkm3r98x1ebn75myvmarjscqhve" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="billto_code" referencedTableName="apicdealer" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-12">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-13">
         <addForeignKeyConstraint baseColumnNames="permission_list_id" baseTableName="role_permission_list" constraintName="fkqrjk648ubvovhf4g6sxnsbdov" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="permission" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-13">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-14">
         <addUniqueConstraint columnNames="permission_list_id" constraintName="uk_15tn49006qeotwau03mryjtqc" tableName="role_permission_list"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-14">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-15">
         <addForeignKeyConstraint baseColumnNames="apac_serial_model" baseTableName="booking_order" constraintName="fk2nnr20s5tvfht2ligrnav53yw" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="model" referencedTableName="apacserial" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-15">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-16">
         <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user" constraintName="fkdl9dqp078pc03g6kdnxmnlqpc" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-16">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-17">
         <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_permission_list" constraintName="fkjuoog800x0k4fjyguyv04s2ab" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-17">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-18">
         <addForeignKeyConstraint baseColumnNames="meta_series_series" baseTableName="apacserial" constraintName="fkjm28txijtq86a539x27l1ado9" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="series" referencedTableName="meta_series" validate="true"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-18">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-19">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807" minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1693996009668-19">
+    <changeSet author="hoangnhan (generated)" id="1694772483383-20">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="price_sequence" startValue="1"/>
     </changeSet>
 </databaseChangeLog>

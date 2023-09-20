@@ -16,10 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -129,21 +126,49 @@ public class MetaSeriesService {
     /**
      * Get List of Series for selecting filter
      */
-    public List<String> getAllMetaSeries() {
-        return metaSeriesRepository.getSeries();
+    public List<Map<String, String>> getAllMetaSeries() {
+        List<Map<String, String>> seriesListMap = new ArrayList<>();
+        List<String> series = metaSeriesRepository.getSeries();
+
+        for(String s : series) {
+            Map<String, String> sMap = new HashMap<>();
+            sMap.put("value", s);
+
+            seriesListMap.add(sMap);
+        }
+        return seriesListMap;
     }
 
     /**
      * Get List of distinct MetaSeries' classes for selecting filter
      */
-    public List<String> getMetaSeriesClasses() {
-        return metaSeriesRepository.getClasses();
+    public List<Map<String, String>> getMetaSeriesClasses() {
+        List<Map<String, String>> classesMap = new ArrayList<>();
+        List<String> classes = metaSeriesRepository.getClasses();
+
+        for(String clazz : classes) {
+            Map<String, String> clazzMap = new HashMap<>();
+            clazzMap.put("value", clazz);
+
+            classesMap.add(clazzMap);
+        }
+        return classesMap;
     }
 
     /**
      * Get List of distinct MetaSeries's segment for selecting filter
      */
-    public List<String> getMetaSeriesSegments() {
-        return metaSeriesRepository.getMetaSeriesSegments();
+    public List<Map<String, String>> getMetaSeriesSegments() {
+        List<Map<String, String>> segmentsMap = new ArrayList<>();
+        List<String> segments = metaSeriesRepository.getMetaSeriesSegments();
+
+        for(String s : segments) {
+            Map<String, String> sMap = new HashMap<>();
+            sMap.put("value", s);
+
+            segmentsMap.add(sMap);
+        }
+
+        return segmentsMap;
     }
 }
