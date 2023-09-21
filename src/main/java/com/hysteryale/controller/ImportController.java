@@ -1,6 +1,7 @@
 package com.hysteryale.controller;
 
 import com.hysteryale.service.*;
+import com.hysteryale.service.impl.MarginAnalystServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,7 +10,6 @@ import javax.annotation.Resource;
 import java.io.FileNotFoundException;
 
 @RestController
-@Slf4j
 public class ImportController {
     @Resource
     MetaSeriesService metaSeriesService;
@@ -22,11 +22,13 @@ public class ImportController {
     @Resource
     AOPMarginService aopMarginService;
     @Resource
-    CurrenciesService currenciesService;
+    CurrencyService currencyService;
     @Resource
     ExchangeRateService exchangeRateService;
     @Resource
     CostUpliftService costUpliftService;
+    @Resource
+    MarginAnalystServiceImpl marginAnalystService;
 
     @PostMapping(path = "/import")
     void importData() throws FileNotFoundException, IllegalAccessException {
@@ -35,8 +37,9 @@ public class ImportController {
         apacSerialService.importAPACSerial();
         aopMarginService.importAOPMargin();
         bookingOrderService.importOrder();
-        currenciesService.importCurrencies();
+        currencyService.importCurrencies();
         exchangeRateService.importExchangeRate();
         costUpliftService.importCostUplift();
+        marginAnalystService.importMarginAnalystData();
     }
 }

@@ -37,7 +37,7 @@ public class CustomBookingOrderRepository {
         if(!models.isEmpty())
             queryString += "AND b.apacSerial.model IN :models ";
         if(!segments.isEmpty())
-            queryString += "AND b.apacSerial.metaSeries.segment1 IN :segments";
+            queryString += "AND b.apacSerial.metaSeries.segment1 IN :segments ";
         if(!strFromDate.isEmpty() && !strToDate.isEmpty())
             queryString += "AND b.date BETWEEN :fromDate AND :toDate";
 

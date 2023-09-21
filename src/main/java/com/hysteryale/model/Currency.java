@@ -14,8 +14,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class Currency {
     @Id
-    @SequenceGenerator(name = "currencySequence")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "currencySequence")
+    @SequenceGenerator(name = "currencySeq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "currencySeq")
     private int id;
     private String currency;
 }

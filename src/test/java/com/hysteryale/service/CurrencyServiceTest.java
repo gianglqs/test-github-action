@@ -1,6 +1,6 @@
 package com.hysteryale.service;
 
-import com.hysteryale.repository.CurrenciesRepository;
+import com.hysteryale.repository.CurrencyRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,10 +14,10 @@ import java.io.FileNotFoundException;
 public class CurrencyServiceTest {
     @Resource
     @Mock
-    CurrenciesRepository currenciesRepository;
+    CurrencyRepository currencyRepository;
     @Resource
     @InjectMocks
-    CurrenciesService currenciesService;
+    CurrencyService currencyService;
     AutoCloseable autoCloseable;
 
     @BeforeEach
@@ -31,7 +31,7 @@ public class CurrencyServiceTest {
 
     @Test
     void testImportCurrencies() throws FileNotFoundException {
-        currenciesService.importCurrencies();
+        currencyService.importCurrencies();
     }
 
 }

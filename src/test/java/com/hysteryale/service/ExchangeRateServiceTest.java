@@ -1,6 +1,6 @@
 package com.hysteryale.service;
 
-import com.hysteryale.repository.CurrenciesRepository;
+import com.hysteryale.repository.CurrencyRepository;
 import com.hysteryale.repository.ExchangeRateRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +21,10 @@ public class ExchangeRateServiceTest {
     ExchangeRateService exchangeRateService;
     @Resource
     @Mock
-    CurrenciesRepository currenciesRepository;
+    CurrencyRepository currencyRepository;
     @Resource
     @Mock
-    CurrenciesService currenciesService;
+    CurrencyService currencyService;
     AutoCloseable autoCloseable;
 
     @BeforeEach
