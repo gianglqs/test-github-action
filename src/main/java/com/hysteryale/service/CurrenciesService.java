@@ -29,7 +29,7 @@ public class CurrenciesService {
     public void importCurrencies() throws FileNotFoundException {
         // Initialize folder path and file name
         String folderPath = "import_files/currency_exchangerate";
-        String fileName = "EXCSEP2023 (exchange rate).xlsx";
+        String fileName = "EXCSEP2023.xlsx";
 
         InputStream is = new FileInputStream(folderPath + "/" + fileName);
         Workbook workbook = StreamingReader

@@ -107,7 +107,7 @@ public class ExchangeRateService {
     public void importExchangeRate() throws FileNotFoundException {
         // Initialize folder path and file name
         String folderPath = "import_files/currency_exchangerate";
-        String fileName = "EXCSEP2023 (exchange rate).xlsx";
+        String fileName = "EXCSEP2023.xlsx";
 
         //Pattern for getting date from fileName
         Pattern pattern = Pattern.compile("^\\w{3}(\\w{3})(\\d{4}).");
