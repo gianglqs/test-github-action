@@ -27,8 +27,9 @@ public class ImportController {
     ExchangeRateService exchangeRateService;
     @Resource
     CostUpliftService costUpliftService;
+
     @Resource
-    MarginAnalystServiceImpl marginAnalystService;
+    MarginAnalystService marginAnalystService;
 
     @PostMapping(path = "/import")
     void importData() throws FileNotFoundException, IllegalAccessException {

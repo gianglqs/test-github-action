@@ -69,7 +69,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
      * @param row contains columns' name
      * @param fileType is either Margin Analysis Data or PowerBI Export
      */
-    public void getColumns(Row row, String fileType) {
+    private void getColumns(Row row, String fileType) {
         boolean isEnded = false;
         int index = 1;
 
@@ -96,7 +96,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
     /**
      * Assign value for MarginAnalysisData from Excel row
      */
-    public MarginAnalystData mapMarginAnalysisData(Row row, List<Row> rows, String currency) throws FileNotFoundException {
+    private MarginAnalystData mapMarginAnalysisData(Row row, List<Row> rows, String currency) throws FileNotFoundException {
 
         // modelCode and partNumber from Margin Analysis Macro
         String modelCode = row.getCell(marginAnalysisColumns.get("Model Code")).getStringCellValue();
@@ -158,7 +158,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
      * @param partNumber from Margin Analysis Macro
 
      */
-    public Map<String, Double> getListPriceAndNetPrice(List<Row> rows, String modelCode, String partNumber, String currency) {
+    private Map<String, Double> getListPriceAndNetPrice(List<Row> rows, String modelCode, String partNumber, String currency) {
 
         Map<String, Double> valueMap = new HashMap<>(); // Map contains List Price and Net Price
         valueMap.put("List Price", 0.0);
@@ -188,7 +188,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
     /**
      * Read List of rows in PowerBi Export file and provide columns' name into HashMap
      */
-    public List<Row> readPowerBiExportFiles() throws FileNotFoundException {
+    private List<Row> readPowerBiExportFiles() throws FileNotFoundException {
         String folderPathPB = "import_files/margin_analyst_data";
         String fileNamePB = "power bi Aug 23.xlsx";       // "power bi Aug 23"
         InputStream isPB = new FileInputStream(folderPathPB + "/" + fileNamePB);
