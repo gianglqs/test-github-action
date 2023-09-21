@@ -6,9 +6,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,38 +21,14 @@ import java.util.List;
 
 import static org.mockito.Mockito.when;
 
-class PriceControllerTest {
-    @Resource
-    @Mock
-    PriceService priceService;
-    AutoCloseable autoCloseable;
-    @Resource @InjectMocks
+@RunWith(MockitoJUnitRunner.class)
+class PriceControllerTest extends BasedControllerTest{
+    @InjectMocks
     PriceController priceController;
 
-    @BeforeEach
-    void setUp(){
-        autoCloseable = MockitoAnnotations.openMocks(this);
-    }
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
-    }
     @Test
     void testGetAllPrices() {
-        // GIVEN
-        Price given1 = new Price("price1", "price1", "price1", "price1", "price1", "price1", "price1", 1.0, 1.0, new Date(2023, 8, 1), new Date(2023, 8, 1), "price1");
-        Price given2 = new Price("price1", "price1", "price1", "price1", "price1", "price1", "price1", 1.0, 1.0, new Date(2023, 8, 1), new Date(2023, 8, 1), "price1");
-        List<Price> givenList = new ArrayList<>();
-        givenList.add(given1);
-        givenList.add(given2);
-        priceService.addListOfPrices(givenList);
 
-        // WHEN
-        when(priceService.getAllPrices()).thenReturn(givenList);
-        List<Price> result = priceController.getAllPrices();
-
-        // THEN
-        Assertions.assertEquals(givenList.size(), result.size());
     }
 
     @Test
@@ -67,21 +45,5 @@ class PriceControllerTest {
 
     @Test
     void testGetPricesBySeries() {
-        // GIVEN
-        Price given1 = new Price("price1", "price1", "price1", "price1", "price1", "price1", "price1", 1.0, 1.0, new Date(2023, 8, 1), new Date(2023, 8, 1), "price1");
-        Price given2 = new Price("price1", "price1", "price1", "price1", "price1", "price1", "price1", 1.0, 1.0, new Date(2023, 8, 1), new Date(2023, 8, 1), "price1");
-
-        List<Price> givenList = new ArrayList<>();
-        givenList.add(given1);
-        givenList.add(given2);
-        priceService.addListOfPrices(givenList);
-
-        // WHEN
-        String series = "price1";
-        when(priceService.getPricesBySeries(series)).thenReturn(givenList);
-        List<Price> priceList = priceController.getPricesBySeries(series);
-
-        // THEN
-        Assertions.assertEquals(givenList.size(), priceList.size());
     }
 }

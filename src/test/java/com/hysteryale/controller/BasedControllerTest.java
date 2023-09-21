@@ -23,11 +23,14 @@ public abstract class BasedControllerTest {
     @Resource @Mock
     protected AOPMarginService aopMarginService;
     @Resource @Mock
-    protected CurrenciesService currenciesService;
+    protected CurrencyService currencyService;
     @Resource @Mock
     protected ExchangeRateService exchangeRateService;
     @Resource @Mock
     protected CostUpliftService costUpliftService;
+
+    @Mock
+    protected MarginAnalystService marginAnalystService;
 
     @BeforeEach
     void setUp() {
