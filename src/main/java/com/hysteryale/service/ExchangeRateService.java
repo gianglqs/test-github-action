@@ -25,7 +25,7 @@ public class ExchangeRateService {
     @Resource
     ExchangeRateRepository exchangeRateRepository;
     @Resource
-    CurrenciesService currenciesService;
+    CurrencyService currencyService;
     public static Map<Integer, String> fromCurrenciesTitle = new HashMap<>();
     public static Map<String, Integer> monthMap = new HashMap<>();
 
@@ -78,7 +78,7 @@ public class ExchangeRateService {
                 strToCurrency = "N.Z. DOLLAR";
                 break;
         }
-        Currency toCurrency = currenciesService.getCurrenciesByName(strToCurrency.toUpperCase());
+        Currency toCurrency = currencyService.getCurrenciesByName(strToCurrency.toUpperCase());
 
 
         for(Cell cell : row) {
@@ -88,7 +88,7 @@ public class ExchangeRateService {
                 if(cell.getColumnIndex() > 0) {
                     double rate = cell.getNumericCellValue();
 
-                    Currency fromCurrency = currenciesService.getCurrenciesByName(fromCurrenciesTitle.get(cell.getColumnIndex()));
+                    Currency fromCurrency = currencyService.getCurrenciesByName(fromCurrenciesTitle.get(cell.getColumnIndex()));
 
                     exchangeRate.setFrom(fromCurrency);
                     exchangeRate.setTo(toCurrency);

@@ -1,6 +1,7 @@
 package com.hysteryale.controller;
 
 import com.hysteryale.service.*;
+import com.hysteryale.service.impl.MarginAnalystServiceImpl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,21 +21,24 @@ public class ImportController {
     @Resource
     AOPMarginService aopMarginService;
     @Resource
-    CurrenciesService currenciesService;
+    CurrencyService currencyService;
     @Resource
     ExchangeRateService exchangeRateService;
     @Resource
     CostUpliftService costUpliftService;
+    @Resource
+    MarginAnalystServiceImpl marginAnalystService;
 
     @PostMapping(path = "/import")
     void importData() throws FileNotFoundException, IllegalAccessException {
-//        metaSeriesService.importMetaSeries();
-//        apicDealerService.importAPICDealer();
-//        apacSerialService.importAPACSerial();
-//        aopMarginService.importAOPMargin();
-//        bookingOrderService.importOrder();
-        currenciesService.importCurrencies();
+        metaSeriesService.importMetaSeries();
+        apicDealerService.importAPICDealer();
+        apacSerialService.importAPACSerial();
+        aopMarginService.importAOPMargin();
+        bookingOrderService.importOrder();
+        currencyService.importCurrencies();
         exchangeRateService.importExchangeRate();
         costUpliftService.importCostUplift();
+        marginAnalystService.importMarginAnalystData();
     }
 }
