@@ -27,9 +27,12 @@ public class CurrencyService {
     CurrencyRepository currencyRepository;
 
     public void importCurrencies() throws FileNotFoundException {
+
+        log.error("It is coming");
+
         // Initialize folder path and file name
         String folderPath = "import_files/currency_exchangerate";
-        String fileName = "EXCSEP2023 (exchange rate).xlsx";
+        String fileName = "EXCSEP2023.xlsx";
 
         InputStream is = new FileInputStream(folderPath + "/" + fileName);
         Workbook workbook = StreamingReader

@@ -2,6 +2,7 @@ package com.hysteryale.controller;
 
 import com.hysteryale.service.*;
 import com.hysteryale.service.impl.MarginAnalystServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
