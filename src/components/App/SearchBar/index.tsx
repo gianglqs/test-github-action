@@ -8,19 +8,24 @@ import { useState } from "react"
 export type AppSearchBarProps = {
   placeholder?: string
   width?: number
-  // onSearch(event, query): void
+  onSearch(event, query): void
   filterable?: boolean
   disabled?: boolean
 }
 
 const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
-  const { placeholder, width, disabled } = props
+  const { placeholder, onSearch, width, disabled } = props
   const classes = useStyles()
 
   const [searchQuery, setSearchQuery] = useState("")
 
   const handleInputQuery = (event) => {
     setSearchQuery(event.target.value)
+  }
+
+  const handleSubmitSearch = (event) => {
+    event.preventDefault()
+    onSearch(event, searchQuery)
   }
 
   return (
@@ -30,7 +35,7 @@ const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
         elevation={0}
         className={classes.searchBar__form}
         style={{ width }}
-        // onSubmit={handleSubmitSearch}
+        onSubmit={handleSubmitSearch}
       >
         <IconButton
           type="submit"

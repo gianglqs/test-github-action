@@ -21,7 +21,7 @@ const FormControlledTextField = forwardRef<any, ControlledTextFieldProps>(
 
     const {
       field: { onChange: onChangeController, value, ...inputProps },
-      fieldState: { invalid },
+      fieldState: { invalid, error },
     } = useController({
       name,
       rules,
@@ -50,7 +50,7 @@ const FormControlledTextField = forwardRef<any, ControlledTextFieldProps>(
         name={name}
         onChange={onChangeValue}
         error={Boolean(invalid)}
-        helperText={(invalid as any)?.message}
+        helperText={error?.message}
         value={_.toString(value)}
       />
     )

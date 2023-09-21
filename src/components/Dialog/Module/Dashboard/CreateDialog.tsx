@@ -7,7 +7,10 @@ import { useEffect, useMemo, useState } from "react"
 import FormControllerAutocomplete from "@/components/FormController/Autocomplete"
 import dashboardApi from "@/api/dashboard.api"
 import { useDispatch } from "react-redux"
-import { dashboardStore } from "@/store/reducers"
+import { commonStore, dashboardStore } from "@/store/reducers"
+import { CreateUserFormValues } from "@/types/user"
+import getValidationSchema from "./validationSchema"
+import { yupResolver } from "@hookform/resolvers/yup"
 
 const DialogCreateUser: React.FC<any> = (props) => {
   const { open, onClose, detail } = props
@@ -15,33 +18,40 @@ const DialogCreateUser: React.FC<any> = (props) => {
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
 
-  const createForm = useForm<any>({
+  const validationSchema = useMemo(() => getValidationSchema(), [])
+  const createForm = useForm({
+    resolver: yupResolver(validationSchema),
     shouldUnregister: false,
     defaultValues: detail,
   })
 
-  const handleSubmitForm = createForm.handleSubmit(async (data: any) => {
-    const transformData = {
-      userName: data.name,
-      email: data.email,
-      password: data.password,
-      role: {
-        id: data.role,
-      },
-      defaultLocale: data.defaultLocale,
+  const handleSubmitForm = createForm.handleSubmit(
+    async (data: CreateUserFormValues) => {
+      const transformData = {
+        userName: data.userName,
+        email: data.email,
+        password: data.password,
+        role: {
+          id: data.role,
+        },
+        defaultLocale: data.defaultLocale,
+      }
+      try {
+        setLoading(true)
+        await dashboardApi.createUser(transformData)
+        const { data } = await dashboardApi.getUser({ search: "" })
+        dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
+        dispatch(
+          commonStore.actions.setSuccessMessage("Create User Successfully")
+        )
+        onClose()
+      } catch (error) {
+        dispatch(commonStore.actions.setErrorMessage(error?.message))
+      } finally {
+        setLoading(false)
+      }
     }
-    try {
-      setLoading(true)
-      await dashboardApi.createUser(transformData)
-      const { data } = await dashboardApi.getUser()
-      dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
-      onClose()
-    } catch (error) {
-      alert(error.message)
-    } finally {
-      setLoading(false)
-    }
-  })
+  )
 
   const roleOptions = useMemo(
     () => [
@@ -69,12 +79,14 @@ const DialogCreateUser: React.FC<any> = (props) => {
       loading={loading}
       onOk={handleSubmitForm}
       onClose={onClose}
+      title="Create User"
+      okText="Save"
     >
       <Grid container sx={{ paddingTop: 0.8, paddingBottom: 0.8 }} spacing={2}>
         <Grid item xs={12}>
           <FormControlledTextField
             control={createForm.control}
-            name="name"
+            name="userName"
             label="Name"
             required
           />

@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AppFooter /> should be rendered without crashing 1`] = `
+<div>
+  <div
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 makeStyles-footer__container-1 css-15l6bmf-MuiPaper-root"
+    data-testid="footer-test"
+  >
+    © Copyright 
+    2022
+     DREVER INTERNATIONAL
+  </div>
+</div>
+`;

@@ -1,4 +1,4 @@
-import { darken, Palette } from "@mui/material"
+import { Palette } from "@mui/material"
 
 export const secondaryColor = {
   main: "#F4F7FC",
@@ -9,20 +9,6 @@ export const secondaryColor = {
 
 const palette = {
   secondary: secondaryColor,
-  standardDrawing: {
-    revision_changed: {
-      main: "#ff9999",
-      dark: darken("#ff9999", 0.2),
-    },
-    synchronized: {
-      main: "#fef9e7",
-      dark: darken("#fef9e7", 0.2),
-    },
-    out_of_sync: {
-      main: "#fad7a0",
-      dark: darken("#fad7a0", 0.2),
-    },
-  },
 } as Palette
 
 export default palette

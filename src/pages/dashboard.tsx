@@ -1,6 +1,5 @@
-import * as React from "react"
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles"
-import CssBaseline from "@mui/material/CssBaseline"
+import { useEffect, useMemo, useState } from "react"
+import { styled } from "@mui/material/styles"
 import MuiDrawer from "@mui/material/Drawer"
 import Box from "@mui/material/Box"
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
@@ -10,7 +9,6 @@ import Typography from "@mui/material/Typography"
 import Divider from "@mui/material/Divider"
 import IconButton from "@mui/material/IconButton"
 import Badge from "@mui/material/Badge"
-import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
 import Paper from "@mui/material/Paper"
 import Link from "@mui/material/Link"
@@ -18,7 +16,6 @@ import MenuIcon from "@mui/icons-material/Menu"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import NotificationsIcon from "@mui/icons-material/Notifications"
 import CreateIcon from "@mui/icons-material/AddCircle"
-// import { mainListItems, secondaryListItems } from './listItems';
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
@@ -26,41 +23,21 @@ import DashboardIcon from "@mui/icons-material/Dashboard"
 import PeopleIcon from "@mui/icons-material/People"
 import LayersIcon from "@mui/icons-material/Layers"
 import { ReplayOutlined as ReloadIcon } from "@mui/icons-material"
-import { Button, Menu } from "@mui/material"
-// import SearchIcon from '@mui/icons-material/Search'
-// import {
-//     DataGridPro
-//   } from '@mui/x-data-grid-pro'
+import { Button } from "@mui/material"
 
-import { AppSearchBar, DataTable } from "@/components"
-// import { Cookies } from 'react-cookie';
-import axios from "axios"
-// import dashboardApi from '@/api/dashboard.api';
+import { AppSearchBar, DataTable, EditIcon } from "@/components"
 
-import nookies from "nookies"
 import { useDispatch, useSelector } from "react-redux"
-import dashboardSlice from "@/store/reducers/dashboard.reducer"
-import { dashboardStore } from "@/store/reducers"
+import { commonStore, dashboardStore } from "@/store/reducers"
 import { createAction } from "@reduxjs/toolkit"
 import { useRouter } from "next/router"
 import { DialogCreateUser } from "@/components/Dialog/Module/Dashboard/CreateDialog"
+import { AppFooter } from "@/components/App/Footer"
 
-function Copyright(props: any) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {`Copyright © ${new Date().getFullYear()} HysterYale, all rights reserved.`}
-      {/* <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '} */}
-      {/* {new Date().getFullYear()} */}
-    </Typography>
-  )
-}
+import { iconColumn } from "@/utils/columnProperties"
+import { DeactiveUserDialog } from "@/components/Dialog/Module/Dashboard/DeactiveUserDialog"
+import dashboardApi from "@/api/dashboard.api"
+import { DialogUpdateUser } from "@/components/Dialog/Module/Dashboard/UpdateDialog"
 
 const drawerWidth: number = 240
 
@@ -113,26 +90,26 @@ const Drawer = styled(MuiDrawer, {
 }))
 
 export default function Dashboard() {
-  const [open, setOpen] = React.useState(true)
+  const [open, setOpen] = useState(true)
   createAction(`dashboard/GET_LIST`)
   const entityApp = "dashboard"
-  const getListAction = React.useMemo(
+  const getListAction = useMemo(
     () => createAction(`${entityApp}/GET_LIST`),
     [entityApp]
   )
-  const resetStateAction = React.useMemo(
+  const resetStateAction = useMemo(
     () => createAction(`${entityApp}/RESET_STATE`),
     [entityApp]
   )
   const router = useRouter()
-
   const dispatch = useDispatch()
+  const listUser = useSelector(dashboardStore.selectUserList)
 
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch(getListAction())
   }, [getListAction, router.query])
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       dispatch(resetStateAction())
     }
@@ -142,17 +119,27 @@ export default function Dashboard() {
     setOpen(!open)
   }
 
-  const listUser = useSelector(dashboardStore.selectUserList)
-
   const defaultValue = {
     userName: "",
     password: "",
     email: "",
+    role: 1,
+    defaultLocale: "us",
   }
 
-  const [dialogCreateUser, setDialogCreateUser] = React.useState({
+  const [dialogCreateUser, setDialogCreateUser] = useState({
     open: false,
     detail: defaultValue as any,
+  })
+
+  const [updateUserState, setUpdateUserState] = useState({
+    open: false,
+    detail: {} as any,
+  })
+
+  const [deactivateUserState, setDeactivateUserState] = useState({
+    open: false,
+    detail: {} as any,
   })
 
   const handleOpenCreateDialog = () => {
@@ -169,15 +156,57 @@ export default function Dashboard() {
     })
   }
 
+  const handleCloseDeactiveUser = () => {
+    setDeactivateUserState({
+      open: false,
+      detail: {},
+    })
+  }
+
+  const handleOpenDeactivateUser = (row) => {
+    setDeactivateUserState({
+      open: true,
+      detail: { userName: row?.userName, id: row?.id, isActive: row?.active },
+    })
+  }
+
+  const handleSearch = async (event, searchQuery) => {
+    const { data } = await dashboardApi.getUser({ search: searchQuery })
+    dispatch(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
+  }
+
+  const handleOpenUpdateUserDialog = async (userId) => {
+    try {
+      // Get init data
+
+      const { data } = await dashboardApi.getDetailUser(userId)
+
+      // Open form
+      setUpdateUserState({
+        open: true,
+        detail: JSON.parse(data)?.userDetails,
+      })
+    } catch (error) {
+      // dispatch(commonStore.actions.setErrorMessage(error))
+    }
+  }
+
+  const handleCloseUpdateUserDialog = () => {
+    setUpdateUserState({
+      open: false,
+      detail: {},
+    })
+  }
+
   const columns = [
     {
       field: "email",
-      flex: 1,
+      flex: 0.8,
       headerName: "Email",
     },
     {
       field: "role",
-      flex: 1,
+      flex: 0.8,
       headerName: "Role",
       renderCell(params) {
         return <span>{params.row.role.roleName}</span>
@@ -185,28 +214,41 @@ export default function Dashboard() {
     },
     {
       field: "userName",
-      flex: 1,
+      flex: 0.8,
       headerName: "Name",
     },
     {
+      field: "lastLogin",
+      flex: 0.4,
+      headerName: "Last Login",
+    },
+    {
+      ...iconColumn,
       field: "active",
-      flex: 0.5,
+      flex: 0.3,
       headerName: "Status",
       renderCell(params) {
         return (
           <Button
             variant="outlined"
             color={`${params.row.active ? "primary" : "error"}`}
+            onClick={() => handleOpenDeactivateUser(params.row)}
           >
-            Active
+            {params.row.active ? "Active" : "Locked"}
           </Button>
         )
       },
     },
     {
-      field: "lastLogin",
-      flex: 1.5,
-      headerName: "Last Login",
+      ...iconColumn,
+      field: "id",
+      headerName: "Edit",
+      flex: 0.2,
+      renderCell(params) {
+        return (
+          <EditIcon onClick={() => handleOpenUpdateUserDialog(params.row.id)} />
+        )
+      },
     },
   ]
 
@@ -274,7 +316,7 @@ export default function Dashboard() {
               </ListItemIcon>
               <ListItemText primary="Users" />
             </ListItemButton>
-            <Link href={`/booking`}>
+            <Link href={`/bookingOrder`}>
               <ListItemButton>
                 <ListItemIcon>
                   <LayersIcon />
@@ -316,8 +358,8 @@ export default function Dashboard() {
               New User
             </Button>
           </Grid>
-          <Grid container sx={{ padding: 1.5 }}>
-            <AppSearchBar></AppSearchBar>
+          <Grid container sx={{ padding: 1 }}>
+            <AppSearchBar onSearch={handleSearch}></AppSearchBar>
           </Grid>
           <Paper elevation={1} sx={{ marginLeft: 1.5, marginRight: 1.5 }}>
             <Grid container>
@@ -325,23 +367,28 @@ export default function Dashboard() {
                 hideFooter
                 disableColumnMenu
                 checkboxSelection
-                tableHeight={770}
-                rowHeight={70}
+                tableHeight={795}
+                rowHeight={50}
                 rows={listUser}
                 columns={columns}
-                // selectionModel={selectedSpecList}
-                // onSelectionModelChange={handleSelectSpecification}
-                // getRowId={(params) => params.spec_id_raw}
               />
             </Grid>
+            <AppFooter />
           </Paper>
-          <Copyright sx={{ padding: 2 }} />
         </Box>
       </Box>
 
       <DialogCreateUser
         {...dialogCreateUser}
         onClose={handleCloseCreateDialog}
+      />
+      <DeactiveUserDialog
+        {...deactivateUserState}
+        onClose={handleCloseDeactiveUser}
+      />
+      <DialogUpdateUser
+        {...updateUserState}
+        onClose={handleCloseUpdateUserDialog}
       />
     </>
   )

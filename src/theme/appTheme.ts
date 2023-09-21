@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles"
+import { createTheme } from "@mui/material"
 
 import typography from "./typography"
 import components from "./components"

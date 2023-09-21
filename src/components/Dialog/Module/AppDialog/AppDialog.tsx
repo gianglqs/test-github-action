@@ -38,8 +38,13 @@ const AppDialog: React.FC<any> = (props) => {
     onClose,
     bodyStyles,
     id,
+    draggable,
     okButtonProps,
+    PaperProps,
     loading,
+    title,
+    okText,
+    closeText,
     ...dialogProps
   } = props
   const classes = useStyles(props)
@@ -48,11 +53,10 @@ const AppDialog: React.FC<any> = (props) => {
       className={clsx(classes.appDialog__container)}
       onClose={onClose}
       PaperComponent={PaperComponent}
+      PaperProps={{ draggable, component: "form", id, ...(PaperProps as any) }}
       {...dialogProps}
     >
-      <DialogTitle className={classes.appDialog__title}>
-        Create User
-      </DialogTitle>
+      <DialogTitle className={classes.appDialog__title}>{title}</DialogTitle>
       <DialogContent
         className={classes.appDialog__content}
         style={{ ...bodyStyles }}
@@ -69,14 +73,23 @@ const AppDialog: React.FC<any> = (props) => {
           onClick={onOk}
           {...okButtonProps}
         >
-          Save
+          {okText}
         </Button>
         <Button color="primary" autoFocus disabled={loading} onClick={onClose}>
-          Close
+          {closeText}
         </Button>
       </DialogActions>
     </Dialog>
   )
+}
+
+AppDialog.defaultProps = {
+  okText: "ok",
+  maxWidth: "sm",
+  closeText: "close",
+  type: "normal",
+  draggable: true,
+  okTextHelper: null,
 }
 
 export { AppDialog }

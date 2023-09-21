@@ -19,15 +19,17 @@ const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
     defaultValue,
     name,
     rules,
+    disabled,
     primaryKeyOption,
     onChange: onChangeProps,
     textFieldProps,
+    multiple,
     ...autocompleteProps
   } = props
 
   const {
     field: { onChange, ...inputProps },
-    fieldState: { invalid },
+    fieldState: { invalid, error },
   } = useController({
     name,
     rules,
@@ -53,8 +55,10 @@ const FormControllerAutocomplete = forwardRef<any, any>((props, ref) => {
       {...inputProps}
       ref={ref}
       classes={{ ...classes }}
-      helperText={(invalid as any)?.message}
+      helperText={error?.message}
+      disabled={disabled}
       error={Boolean(invalid)}
+      multiple={multiple}
       onChange={onChangeValue}
       textFieldProps={{ name: name, ...textFieldProps }}
       primaryKeyOption={primaryKeyOption}
