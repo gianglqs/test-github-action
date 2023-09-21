@@ -12,6 +12,11 @@ import java.util.List;
 @Slf4j
 public class FileUtils {
 
+    /**
+     * Return all file names in a folder
+     * @param folderPath
+     * @return @{@link List}
+     */
     public static List<String> getAllFilesInFoler(String folderPath) {
         File file = new File(folderPath);
         List<String> fileNames = new ArrayList<>();
