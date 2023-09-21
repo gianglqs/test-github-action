@@ -19,13 +19,22 @@ public class ImportController {
     BookingOrderService bookingOrderService;
     @Resource
     AOPMarginService aopMarginService;
+    @Resource
+    CurrenciesService currenciesService;
+    @Resource
+    ExchangeRateService exchangeRateService;
+    @Resource
+    CostUpliftService costUpliftService;
 
     @PostMapping(path = "/import")
     void importData() throws FileNotFoundException, IllegalAccessException {
-        metaSeriesService.importMetaSeries();
-        apicDealerService.importAPICDealer();
-        apacSerialService.importAPACSerial();
-        aopMarginService.importAOPMargin();
-        bookingOrderService.importOrder();
+//        metaSeriesService.importMetaSeries();
+//        apicDealerService.importAPICDealer();
+//        apacSerialService.importAPACSerial();
+//        aopMarginService.importAOPMargin();
+//        bookingOrderService.importOrder();
+        currenciesService.importCurrencies();
+        exchangeRateService.importExchangeRate();
+        costUpliftService.importCostUplift();
     }
 }
