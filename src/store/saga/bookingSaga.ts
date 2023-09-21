@@ -9,20 +9,15 @@ function* fetchBooking() {
       tableState: select(commonStore.selectTableState),
     })
 
+    const { defaultValueFilterBooking } = yield* all({
+      defaultValueFilterBooking: select(
+        bookingStore.selectDefaultValueFilterBooking
+      ),
+    })
+
     const { data } = yield* call(
       bookingApi.getListBookingOrder,
-      {
-        orderNo: "",
-        regions: [],
-        dealers: [],
-        plants: [],
-        metaSeries: [],
-        classes: [],
-        models: [],
-        segments: [],
-        fromDate: "",
-        toDate: "",
-      },
+      defaultValueFilterBooking,
       { pageNo: tableState.pageNo, perPage: tableState.perPage }
     )
 

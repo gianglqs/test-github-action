@@ -1,3 +1,5 @@
+export const DATE_FORMAT = 'yyyy-MM-dd'
+
 // string
 export const OK = 'OK'
 export const CANCEL = 'CANCEL'

@@ -6,6 +6,7 @@ import {
 } from "@reduxjs/toolkit"
 
 import type { RootReducerType } from "./rootReducer"
+import { defaultValueFilterBooking } from "@/utils/defaultValues"
 
 export const name = "booking"
 export const resetState = createAction(`${name}/RESET_STATE`)
@@ -13,6 +14,7 @@ export const resetState = createAction(`${name}/RESET_STATE`)
 export const initialState = {
   bookingOrdersList: [] as any[],
   initDataFilter: {} as any,
+  defaultValueFilterBooking: defaultValueFilterBooking as any,
 }
 
 const bookingSlice = createSlice({
@@ -24,6 +26,15 @@ const bookingSlice = createSlice({
     },
     setInitDataFilter(state, { payload }: PayloadAction<any[]>) {
       state.initDataFilter = payload
+    },
+    setDefaultValueFilterBooking(
+      state,
+      { payload }: PayloadAction<Partial<any>>
+    ) {
+      state.defaultValueFilterBooking = {
+        ...state.defaultValueFilterBooking,
+        ...payload,
+      }
     },
   },
   extraReducers: {
@@ -43,6 +54,11 @@ export const selectBookingList = createSelector(
 export const selectInitDataFilter = createSelector(
   selectState,
   (state) => state.initDataFilter
+)
+
+export const selectDefaultValueFilterBooking = createSelector(
+  selectState,
+  (state) => state.defaultValueFilterBooking
 )
 
 export const { actions } = bookingSlice

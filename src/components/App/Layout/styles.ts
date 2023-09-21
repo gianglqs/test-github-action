@@ -37,13 +37,13 @@ export default makeStyles((theme) => {
       cursor: "pointer",
     },
     profile__container: {
-      display: "flex",
-      alignItems: "center",
+      display: 'flex',
+      alignItems: 'center',
       maxWidth: 120,
       color: theme.palette.common.black,
       fontWeight: theme.typography.fontWeightMedium,
-      cursor: "pointer",
-      marginLeft: theme.spacing(1.5),
+      cursor: 'pointer',
+      marginLeft: theme.spacing(1.5)
     },
   }
 })

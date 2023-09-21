@@ -6,6 +6,8 @@ import { ThemeProvider } from "@mui/material/styles"
 import { CssBaseline } from "@mui/material"
 import AppMessagePopup from "@/components/App/MessagePopup"
 import { useEffect } from "react"
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -19,7 +21,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ThemeProvider theme={appTheme}>
       <CssBaseline />
       <AppMessagePopup />
-      <Component {...pageProps} />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <Component {...pageProps} />
+      </LocalizationProvider>
     </ThemeProvider>
   )
 }
