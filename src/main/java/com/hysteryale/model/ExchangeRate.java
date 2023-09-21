@@ -19,9 +19,9 @@ public class ExchangeRate {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exchangeRateSeq")
     private int id;
     @ManyToOne(fetch = FetchType.EAGER)
-    private Currencies from;
+    private Currency from;
     @ManyToOne(fetch = FetchType.EAGER)
-    private Currencies to;
+    private Currency to;
     private double rate;
     @Temporal(TemporalType.DATE)
     private Calendar date;

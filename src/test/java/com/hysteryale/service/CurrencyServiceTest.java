@@ -11,7 +11,7 @@ import org.mockito.MockitoAnnotations;
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
 
-public class CurrenciesServiceTest {
+public class CurrencyServiceTest {
     @Resource
     @Mock
     CurrenciesRepository currenciesRepository;

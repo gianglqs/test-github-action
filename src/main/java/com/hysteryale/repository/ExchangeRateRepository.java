@@ -1,12 +1,9 @@
 package com.hysteryale.repository;
 
-import com.hysteryale.model.Currencies;
 import com.hysteryale.model.ExchangeRate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.Temporal;
 
-import javax.persistence.TemporalType;
 import java.util.Calendar;
 import java.util.Optional;
 

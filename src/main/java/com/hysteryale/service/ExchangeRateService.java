@@ -1,6 +1,6 @@
 package com.hysteryale.service;
 
-import com.hysteryale.model.Currencies;
+import com.hysteryale.model.Currency;
 import com.hysteryale.model.ExchangeRate;
 import com.hysteryale.repository.ExchangeRateRepository;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -78,7 +78,7 @@ public class ExchangeRateService {
                 strToCurrency = "N.Z. DOLLAR";
                 break;
         }
-        Currencies toCurrency = currenciesService.getCurrenciesByName(strToCurrency.toUpperCase());
+        Currency toCurrency = currenciesService.getCurrenciesByName(strToCurrency.toUpperCase());
 
 
         for(Cell cell : row) {
@@ -88,7 +88,7 @@ public class ExchangeRateService {
                 if(cell.getColumnIndex() > 0) {
                     double rate = cell.getNumericCellValue();
 
-                    Currencies fromCurrency = currenciesService.getCurrenciesByName(fromCurrenciesTitle.get(cell.getColumnIndex()));
+                    Currency fromCurrency = currenciesService.getCurrenciesByName(fromCurrenciesTitle.get(cell.getColumnIndex()));
 
                     exchangeRate.setFrom(fromCurrency);
                     exchangeRate.setTo(toCurrency);

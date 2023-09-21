@@ -1,6 +1,6 @@
 package com.hysteryale.service;
 
-import com.hysteryale.model.Currencies;
+import com.hysteryale.model.Currency;
 import com.hysteryale.repository.CurrenciesRepository;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class CurrenciesService {
                 .bufferSize(4096)
                 .open(is);
 
-        List<Currencies> currenciesList = new ArrayList<>();
+        List<Currency> currencyList = new ArrayList<>();
 
         // Get sheet contains Currencies table and get row contains Currencies
         Sheet sheet = workbook.getSheet("Summary AOP");
@@ -50,22 +50,22 @@ public class CurrenciesService {
                         String currencyName = cell.getStringCellValue();
 
                         if(currenciesRepository.getCurrenciesByName(currencyName.toUpperCase()).isEmpty()) {
-                            Currencies newCurrencies = new Currencies();
-                            newCurrencies.setCurrency(currencyName.toUpperCase());
+                            Currency newCurrency = new Currency();
+                            newCurrency.setCurrency(currencyName.toUpperCase());
 
-                            currenciesList.add(newCurrencies);
+                            currencyList.add(newCurrency);
                         }
                     }
                 }
             }
         }
-        currenciesRepository.saveAll(currenciesList);
-        log.info("Newly saved or updated Currencies: " + currenciesList.size());
-        currenciesList.clear();
+        currenciesRepository.saveAll(currencyList);
+        log.info("Newly saved or updated Currencies: " + currencyList.size());
+        currencyList.clear();
     }
 
-    public Currencies getCurrenciesByName(String currencyName) {
-        Optional<Currencies> optionalCurrencies = currenciesRepository.getCurrenciesByName(currencyName);
+    public Currency getCurrenciesByName(String currencyName) {
+        Optional<Currency> optionalCurrencies = currenciesRepository.getCurrenciesByName(currencyName);
         if(optionalCurrencies.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No currencies found with " + currencyName);
         return optionalCurrencies.get();
