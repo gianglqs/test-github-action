@@ -27,6 +27,9 @@ public class CurrenciesService {
     CurrenciesRepository currenciesRepository;
 
     public void importCurrencies() throws FileNotFoundException {
+
+        log.error("It is coming");
+
         // Initialize folder path and file name
         String folderPath = "import_files/currency_exchangerate";
         String fileName = "EXCSEP2023.xlsx";
