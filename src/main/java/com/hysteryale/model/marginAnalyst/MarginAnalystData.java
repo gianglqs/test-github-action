@@ -1,6 +1,5 @@
 package com.hysteryale.model.marginAnalyst;
 
-import com.hysteryale.model.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +27,5 @@ public class MarginAnalystData {
     private double listPrice;
     private double margin_aop;
     private Date month_year; // we only needs to care month and year, so the day is always 1
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Currency currency;
+    private String currency;
 }
