@@ -113,8 +113,9 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
         marginAnalystData.setPriceListRegion(row.getCell(marginAnalysisColumns.get("Price List Region")).getStringCellValue());
         marginAnalystData.setClass_(row.getCell(marginAnalysisColumns.get("Class")).getStringCellValue());
         marginAnalystData.setOptionCode(partNumber);
-        marginAnalystData.setStd_opt(row.getCell(marginAnalysisColumns.get("STD/OPT")).getStringCellValue());
+        marginAnalystData.setStd_opt(row.getCell(marginAnalysisColumns.get("STD/OPT"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
         marginAnalystData.setDescription(row.getCell(marginAnalysisColumns.get("Description")).getStringCellValue());
+        marginAnalystData.setCurrency(currency);
 
 
         //Calculate margin
@@ -224,29 +225,37 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
                 .bufferSize(4096)
                 .open(is);
 
-        // Init Currency
-        String currency = "AUD";
 
-        // Get sheet of AUD
-        Sheet audMarginAnalysisSheet = workbook.getSheet("AUD HYM Ruyi Staxx");
 
-        // Get List of rows in PowerBi files
-        List<Row> powerBiRows = readPowerBiExportFiles();
+        String[] macroSheets = {"USD HYM Ruyi Staxx", "AUD HYM Ruyi Staxx"};
 
-        List<MarginAnalystData> marginAnalystDataList = new ArrayList<>();
-        for(Row row : audMarginAnalysisSheet) {
-            if(row.getRowNum() == 0)
-                getColumns(row, "MarginAnalysis");
-            else if(!row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
+        for (String macroSheet : macroSheets) {
+            // Init Currency
+            String currency = macroSheet.equals("USD HYM Ruyi Staxx") ? "USD" : "AUD";
 
-                // Mapping MarginAnalysisData and add into saved list
-                MarginAnalystData marginAnalystData = mapMarginAnalysisData(row, powerBiRows, currency);
-                marginAnalystDataList.add(marginAnalystData);
+            // Get sheet of AUD
+            Sheet audMarginAnalysisSheet = workbook.getSheet(macroSheet);
+
+            // Get List of rows in PowerBi files
+            List<Row> powerBiRows = readPowerBiExportFiles();
+
+            List<MarginAnalystData> marginAnalystDataList = new ArrayList<>();
+            for(Row row : audMarginAnalysisSheet) {
+                if(row.getRowNum() == 0)
+                    getColumns(row, "MarginAnalysis");
+                else if(!row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
+
+                    // Mapping MarginAnalysisData and add into saved list
+                    MarginAnalystData marginAnalystData = mapMarginAnalysisData(row, powerBiRows, currency);
+                    marginAnalystDataList.add(marginAnalystData);
+                }
+
             }
-
+            marginAnalystDataRepository.saveAll(marginAnalystDataList);
+            log.info("MarginAnalysisData are newly saved: " + marginAnalystDataList.size());
+            marginAnalystDataList.clear();
         }
-        marginAnalystDataRepository.saveAll(marginAnalystDataList);
-        log.info("MarginAnalysisData are newly saved: " + marginAnalystDataList.size());
-        marginAnalystDataList.clear();
+
+
     }
 }
