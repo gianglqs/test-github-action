@@ -54,7 +54,10 @@ public class CurrencyService {
             for (int i = 0 ; i < numberOfSheets; i++){
                 Sheet sheet = workbook.getSheetAt(i);
                 //have a list of all available currencies and we check if sheetname is currency code, then get it
-                if(sheet.getSheetName())
+                //assuming that currency code has only 3 characters
+                if(sheet.getSheetName().length() == 3){
+
+                }
             }
 
             // Get sheet contains Currencies table and get row contains Currencies
