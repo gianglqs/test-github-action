@@ -18,4 +18,5 @@ public class Currency {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "currencySeq")
     private int id;
     private String currency;
+    private String currencyName;
 }

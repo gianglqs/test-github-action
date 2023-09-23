@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.Currency;
 import com.hysteryale.repository.CurrencyRepository;
+import com.hysteryale.utils.FileUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -26,45 +27,61 @@ public class CurrencyService {
     @Resource
     CurrencyRepository currencyRepository;
 
-    public void importCurrencies() throws FileNotFoundException {
+    public void importCurrencies(String folderPath) throws FileNotFoundException {
 
-        log.error("It is coming");
+        log.info("========= Start importing Currencies ==========");
 
-        // Initialize folder path and file name
-        String folderPath = "import_files/currency_exchangerate";
-        String fileName = "EXCSEP2023.xlsx";
+        // Try to find if there is file in this folder
+        List<String> files = FileUtils.getAllFilesInFolder(folderPath);
 
-        InputStream is = new FileInputStream(folderPath + "/" + fileName);
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+        //if there is a file, then use it to extract currency, all files in this folder can be used to do that because they have the same currencies
+        if (files.size() > 0) {
 
-        List<Currency> currencyList = new ArrayList<>();
+            List<Currency> currencyList = new ArrayList<>();
 
-        // Get sheet contains Currencies table and get row contains Currencies
-        Sheet sheet = workbook.getSheet("Summary AOP");
+            log.info("=== Use file " + files.get(0) + "to import currencies");
 
-        for (Row row : sheet) {
-            if (!row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() == 3) {
-                for (Cell cell : row) {
-                    if(!cell.getStringCellValue().isEmpty()) {
-                        String currencyName = cell.getStringCellValue();
+            InputStream is = new FileInputStream(folderPath + "/" + files.get(0));
 
-                        if(currencyRepository.getCurrenciesByName(currencyName.toUpperCase()).isEmpty()) {
-                            Currency newCurrency = new Currency();
-                            newCurrency.setCurrency(currencyName.toUpperCase());
+            Workbook workbook = StreamingReader
+                    .builder()              //setting Buffer
+                    .rowCacheSize(100)
+                    .bufferSize(4096)
+                    .open(is);
 
-                            currencyList.add(newCurrency);
+            int numberOfSheets = workbook.getNumberOfSheets();
+
+            for (int i = 0 ; i < numberOfSheets; i++){
+                Sheet sheet = workbook.getSheetAt(i);
+                //have a list of all available currencies and we check if sheetname is currency code, then get it
+                if(sheet.getSheetName())
+            }
+
+            // Get sheet contains Currencies table and get row contains Currencies
+            Sheet sheet = workbook.getSheet("Summary AOP");
+
+            for (Row row : sheet) {
+                if (!row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() == 3) {
+                    for (Cell cell : row) {
+                        if (!cell.getStringCellValue().isEmpty()) {
+                            String currencyName = cell.getStringCellValue();
+
+                            if (currencyRepository.getCurrenciesByName(currencyName.toUpperCase()).isEmpty()) {
+                                Currency newCurrency = new Currency();
+                                newCurrency.setCurrency(currencyName.toUpperCase());
+
+                                currencyList.add(newCurrency);
+                            }
                         }
                     }
                 }
             }
+
+            currencyRepository.saveAll(currencyList);
+
+            log.info("Import Currencies Completed");
         }
-        currencyRepository.saveAll(currencyList);
-        log.info("Newly saved or updated Currencies: " + currencyList.size());
-        currencyList.clear();
+
     }
 
     public Currency getCurrenciesByName(String currencyName) {

@@ -31,6 +31,8 @@ public class ImportController {
     @Resource
     MarginAnalystService marginAnalystService;
 
+    String curencyFolder = "import_files/currency_exchangerate";
+
     @PostMapping(path = "/import")
     void importData() throws FileNotFoundException, IllegalAccessException {
         metaSeriesService.importMetaSeries();
@@ -38,7 +40,7 @@ public class ImportController {
         apacSerialService.importAPACSerial();
         aopMarginService.importAOPMargin();
         bookingOrderService.importOrder();
-        currencyService.importCurrencies();
+        currencyService.importCurrencies(curencyFolder);
         exchangeRateService.importExchangeRate();
         costUpliftService.importCostUplift();
         marginAnalystService.importMarginAnalystData();
