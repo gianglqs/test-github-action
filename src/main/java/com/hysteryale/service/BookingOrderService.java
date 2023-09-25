@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.APACSerial;
 import com.hysteryale.model.APICDealer;
 import com.hysteryale.model.BookingOrder;
+import com.hysteryale.model.filters.BookingOrderFilter;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -209,31 +210,26 @@ public class BookingOrderService {
 
     /**
      * Get BookingOrder based to filters
-     * @param rawJsonFilters json as String
      */
-    public Map<String, Object> getBookingOrdersByFilters(String rawJsonFilters, int pageNo, int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {
-
-        //Parse rawJsonFilters from String to JSONObject
-        JSONParser parser = new JSONParser();
-        JSONObject filters = (JSONObject) parser.parse(rawJsonFilters);
+    public Map<String, Object> getBookingOrdersByFilters(BookingOrderFilter bookingOrderFilter, int pageNo, int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {
 
         // Use ObjectMapper to Map JSONObject value into List<String
         ObjectMapper mapper = new ObjectMapper();
-        String orderNo = filters.get("orderNo").toString();
+        String orderNo = bookingOrderFilter.getOrderNo();
 
 
         // Parse all filters into ArrayList<String>
-        List<String> regions = Arrays.asList(mapper.readValue(filters.get("regions").toString(), String[].class));
-        List<String> dealers = Arrays.asList(mapper.readValue(filters.get("dealers").toString(), String[].class));
-        List<String> plants = Arrays.asList(mapper.readValue(filters.get("plants").toString(), String[].class));
-        List<String> metaSeries = Arrays.asList(mapper.readValue(filters.get("metaSeries").toString(), String[].class));
-        List<String> classes = Arrays.asList(mapper.readValue(filters.get("classes").toString(), String[].class));
-        List<String> models = Arrays.asList(mapper.readValue(filters.get("models").toString(), String[].class));
-        List<String> segments = Arrays.asList(mapper.readValue(filters.get("segments").toString(), String[].class));
+        List<String> regions = bookingOrderFilter.getRegions();
+        List<String> dealers = bookingOrderFilter.getDealers();
+        List<String> plants = bookingOrderFilter.getPlants();
+        List<String> metaSeries = bookingOrderFilter.getMetaSeries();
+        List<String> classes = bookingOrderFilter.getClasses();
+        List<String> models = bookingOrderFilter.getModels();
+        List<String> segments = bookingOrderFilter.getSegments();
 
         // Get from DATE to DATE
-        String strFromDate = filters.get("fromDate").toString();
-        String strToDate = filters.get("toDate").toString();
+        String strFromDate = bookingOrderFilter.getStrFromDate();
+        String strToDate = bookingOrderFilter.getStrToDate();
 
         // offSet for pagination
         int offSet = pageNo * perPage;

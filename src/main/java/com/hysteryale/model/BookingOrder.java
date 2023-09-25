@@ -30,4 +30,9 @@ public class BookingOrder {
     private APACSerial apacSerial;
     private String comment;
     private int truckClass;
+
+    private int quantity;
+    private double totalCost;
+    private double AOPMarginPercentage;
+
 }
