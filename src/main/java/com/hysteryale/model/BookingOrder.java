@@ -33,6 +33,9 @@ public class BookingOrder {
 
     private int quantity;
     private double totalCost;
+    private double dealerNet;
+    private double dealerNetAfterSurCharge;
+    private double marginAfterSurCharge;
+    private double marginPercentageAfterSurCharge;
     private double AOPMarginPercentage;
-
 }
