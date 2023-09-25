@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ public class CurrencyService {
     @Resource
     CurrencyRepository currencyRepository;
 
-    public void importCurrencies(String folderPath) throws FileNotFoundException {
+    public void importCurrencies(String folderPath) throws IOException {
 
         log.info("========= Start importing Currencies ==========");
 
@@ -41,47 +43,26 @@ public class CurrencyService {
 
             log.info("=== Use file " + files.get(0) + "to import currencies");
 
-            InputStream is = new FileInputStream(folderPath + "/" + files.get(0));
+            FileInputStream is = new FileInputStream(folderPath + "/" + files.get(0));
 
-            Workbook workbook = StreamingReader
-                    .builder()              //setting Buffer
-                    .rowCacheSize(100)
-                    .bufferSize(4096)
-                    .open(is);
-
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
             int numberOfSheets = workbook.getNumberOfSheets();
+            if(numberOfSheets > 0){
+                Sheet sheet = workbook.getSheet("USD");
 
-            for (int i = 0 ; i < numberOfSheets; i++){
-                Sheet sheet = workbook.getSheetAt(i);
-                //have a list of all available currencies and we check if sheetname is currency code, then get it
-                //assuming that currency code has only 3 characters
-                if(sheet.getSheetName().length() == 3){
-
-                }
-            }
-
-            // Get sheet contains Currencies table and get row contains Currencies
-            Sheet sheet = workbook.getSheet("Summary AOP");
-
-            for (Row row : sheet) {
-                if (!row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() == 3) {
-                    for (Cell cell : row) {
-                        if (!cell.getStringCellValue().isEmpty()) {
-                            String currencyName = cell.getStringCellValue();
-
-                            if (currencyRepository.getCurrenciesByName(currencyName.toUpperCase()).isEmpty()) {
-                                Currency newCurrency = new Currency();
-                                newCurrency.setCurrency(currencyName.toUpperCase());
-
-                                currencyList.add(newCurrency);
-                            }
-                        }
+                for(int i = 8; i < 48; i++){
+                    Row row = sheet.getRow(i);
+                    String currencyName = row.getCell(0).getStringCellValue();
+                    if(!currencyName.isEmpty()){
+                        String currencyCode = row.getCell(1).getStringCellValue();
+                        currencyList.add(new Currency(currencyCode, currencyName));
+                    }else {
+                        break;
                     }
                 }
             }
 
             currencyRepository.saveAll(currencyList);
-
             log.info("Import Currencies Completed");
         }
 
