@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 
 public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
-    @Query("SELECT c FROM Currency c WHERE c.currency = ?1")
+    @Query("SELECT c FROM Currency c WHERE c.currencyName = ?1")
     public Optional<Currency> getCurrenciesByName(String currencyName);
 }
