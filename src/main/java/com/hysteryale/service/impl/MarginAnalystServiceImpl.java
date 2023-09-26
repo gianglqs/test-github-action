@@ -190,7 +190,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
      * Read List of rows in PowerBi Export file and provide columns' name into HashMap
      */
     private List<Row> readPowerBiExportFiles() throws FileNotFoundException {
-        String folderPathPB = "import_files/margin_analyst_data";
+        String folderPathPB = "import_files/bi_download";
         String fileNamePB = "power bi Aug 23.xlsx";       // "power bi Aug 23"
         InputStream isPB = new FileInputStream(folderPathPB + "/" + fileNamePB);
         Workbook workbookPB = StreamingReader
