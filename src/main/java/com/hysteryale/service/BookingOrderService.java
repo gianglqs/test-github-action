@@ -17,6 +17,7 @@ import net.minidev.json.parser.ParseException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.DirectoryStream;
@@ -146,7 +148,7 @@ public class BookingOrderService {
      * @throws FileNotFoundException
      * @throws IllegalAccessException
      */
-    public void importOrder() throws FileNotFoundException, IllegalAccessException {
+    public void importOrder() throws IOException, IllegalAccessException {
 
         // Folder contains Excel file of Booking Order
         String folderPath = "import_files/booking";
@@ -155,12 +157,12 @@ public class BookingOrderService {
 
         for(String fileName : fileList) {
             log.info("{ Start importing file: '" + fileName + "'");
+
+            String monthYearOfBooking = FileUtils.extractMonthAndYearFromFileName(fileName);
+
             InputStream is = new FileInputStream(folderPath + "/" + fileName);
-            Workbook workbook = StreamingReader
-                    .builder()              //setting Buffer
-                    .rowCacheSize(100)
-                    .bufferSize(4096)
-                    .open(is);
+
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
 
             List<BookingOrder> bookingOrderList = new ArrayList<>();
 

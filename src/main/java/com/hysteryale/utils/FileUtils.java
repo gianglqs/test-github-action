@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,5 +67,27 @@ public class FileUtils {
         log.info("File list: " + fileList);
         return fileList;
     }
+
+    /**
+     * Extract month and year from file Name. ex "01. Bookings Register - Apr -2023 (Jason).xlsx" =>
+     * @param fileName
+     * @return
+     */
+    public static Calendar extractMonthAndYearFromFileName(String fileName) {
+        //because the file names are not well-defined therefore we need to do some extra steps
+
+        //try to remove all space first
+        fileName = fileName.replaceAll("\\s", "");
+
+        //try to remove all special characters
+        fileName = fileName.replaceAll("[^a-zA-Z0-9]", " ");
+
+        int year = Integer.parseInt(fileName.replaceAll("[^0-9]", ""));
+        int month =
+
+        return
+    }
+
+    private Calend
 
 }
