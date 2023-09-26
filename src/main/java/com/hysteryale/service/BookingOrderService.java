@@ -8,6 +8,7 @@ import com.hysteryale.model.BookingOrder;
 import com.hysteryale.model.filters.BookingOrderFilter;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
+import com.hysteryale.utils.FileUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -62,31 +63,6 @@ public class BookingOrderService {
         log.info("Order Columns: " + ORDER_COLUMNS_NAME);
     }
 
-    /**
-     * Get all files having name starting with {01. Bookings Register} and ending with {.xlsx}
-     * @param folderPath path to folder contains Booking Order
-     * @return list of files' name
-     */
-    public List<String> getAllFilesInFolder(String folderPath) {
-        Pattern pattern = Pattern.compile("^(01. Bookings Register).*(.xlsx)$");
-
-        List<String> fileList = new ArrayList<>();
-        Matcher matcher;
-        try {
-            DirectoryStream<Path> folder = Files.newDirectoryStream(Paths.get(folderPath));
-            for(Path path : folder) {
-                matcher = pattern.matcher(path.getFileName().toString());
-                if(matcher.matches())
-                    fileList.add(path.getFileName().toString());
-                else
-                    log.error("Wrong formatted file's name: " + path.getFileName().toString());
-            }
-        } catch (Exception e) {
-            log.info(e.getMessage());
-        }
-        log.info("File list: " + fileList);
-        return fileList;
-    }
 
     /**
      * Map data in Excel file into each Order object
@@ -175,7 +151,7 @@ public class BookingOrderService {
         // Folder contains Excel file of Booking Order
         String folderPath = "import_files/booking";
         // Get files in Folder Path
-        List<String> fileList = getAllFilesInFolder(folderPath);
+        List<String> fileList = FileUtils.getAllFilesInFolderWithPattern(folderPath, Pattern.compile("^(01. Bookings Register).*(.xlsx)$"));
 
         for(String fileName : fileList) {
             log.info("{ Start importing file: '" + fileName + "'");
@@ -204,6 +180,7 @@ public class BookingOrderService {
             bookingOrderList.clear();
         }
     }
+
     public List<BookingOrder> getAllBookingOrders() {
         return bookingOrderRepository.findAll();
     }

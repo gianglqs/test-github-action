@@ -40,6 +40,9 @@ public class BookingOrder {
     private double marginPercentageAfterSurCharge;
     private double AOPMarginPercentage;
 
+    @OneToOne
+    private NovoQuote novoQuote;
+
     @Override
     public boolean equals(Object object){
         return this.orderNo == ((BookingOrder)object).getOrderNo();
