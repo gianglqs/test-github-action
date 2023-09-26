@@ -30,4 +30,19 @@ public class BookingOrder {
     private APACSerial apacSerial;
     private String comment;
     private int truckClass;
+
+    //properties that we need to calculate based on raw data
+    private int quantity;
+    private double totalCost;
+    private double dealerNet;
+    private double dealerNetAfterSurCharge;
+    private double marginAfterSurCharge;
+    private double marginPercentageAfterSurCharge;
+    private double AOPMarginPercentage;
+
+    @Override
+    public boolean equals(Object object){
+        return this.orderNo == ((BookingOrder)object).getOrderNo();
+    }
+
 }
