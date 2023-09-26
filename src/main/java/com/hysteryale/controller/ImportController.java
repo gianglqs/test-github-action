@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 @RestController
 public class ImportController {
@@ -31,16 +32,18 @@ public class ImportController {
     @Resource
     MarginAnalystService marginAnalystService;
 
+    String curencyFolder = "import_files/currency_exchangerate";
+
     @PostMapping(path = "/import")
-    void importData() throws FileNotFoundException, IllegalAccessException {
-        metaSeriesService.importMetaSeries();
-        apicDealerService.importAPICDealer();
-        apacSerialService.importAPACSerial();
-        aopMarginService.importAOPMargin();
-        bookingOrderService.importOrder();
-        currencyService.importCurrencies();
-        exchangeRateService.importExchangeRate();
-        costUpliftService.importCostUplift();
-        marginAnalystService.importMarginAnalystData();
+    void importData() throws IOException, IllegalAccessException {
+        //metaSeriesService.importMetaSeries();
+        //apicDealerService.importAPICDealer();
+        //apacSerialService.importAPACSerial();
+        //aopMarginService.importAOPMargin();
+       // bookingOrderService.importOrder();
+        currencyService.importCurrencies(curencyFolder);
+        //exchangeRateService.importExchangeRate();
+        //costUpliftService.importCostUplift();
+        //marginAnalystService.importMarginAnalystData();
     }
 }

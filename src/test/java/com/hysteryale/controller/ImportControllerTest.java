@@ -21,9 +21,7 @@ class ImportControllerTest extends BasedControllerTest {
     void importData() {
         try {
             importController.importData();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

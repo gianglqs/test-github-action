@@ -12,6 +12,9 @@ import javax.annotation.Resource;
 import java.io.FileNotFoundException;
 
 public class CurrencyServiceTest {
+
+    String curencyFolder = "import_files/currency_exchangerate";
+
     @Resource
     @Mock
     CurrencyRepository currencyRepository;
@@ -31,7 +34,7 @@ public class CurrencyServiceTest {
 
     @Test
     void testImportCurrencies() throws FileNotFoundException {
-        currencyService.importCurrencies();
+        currencyService.importCurrencies(curencyFolder);
     }
 
 }

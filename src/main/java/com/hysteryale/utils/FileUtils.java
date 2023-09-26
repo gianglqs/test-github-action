@@ -14,7 +14,7 @@ public class FileUtils {
      * @param folderPath
      * @return @{@link List}
      */
-    public List<String> getAllFilesInFolder(String folderPath) {
+    public static List<String> getAllFilesInFolder(String folderPath) {
         File file = new File(folderPath);
         List<String> fileNames = new ArrayList<>();
 
