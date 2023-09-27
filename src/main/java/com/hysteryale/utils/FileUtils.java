@@ -7,9 +7,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,7 +73,7 @@ public class FileUtils {
      * @param fileName
      * @return
      */
-    public static Calendar extractMonthAndYearFromFileName(String fileName) {
+    public static Calendar extractMonthAndYearFromFileName(String fileName) throws ParseException {
         //because the file names are not well-defined therefore we need to do some extra steps
 
         //try to remove all space first
@@ -82,12 +82,26 @@ public class FileUtils {
         //try to remove all special characters
         fileName = fileName.replaceAll("[^a-zA-Z0-9]", " ");
 
-        int year = Integer.parseInt(fileName.replaceAll("[^0-9]", ""));
-        int month =
+        //try to extract month and year from file name
+        String patternToExtractMonthAnYear = "\\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Sept(?:ember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)(?:19[7-9]\\d|2\\d{3})(?=\\D|$)";
+        Matcher matcher = Pattern.compile(patternToExtractMonthAnYear).matcher(fileName);
+        fileName = matcher.group();
 
-        return
+        int year = Integer.parseInt(fileName.replaceAll("[^0-9]", ""));
+        String patternToExtractMonth = "\\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Sept(?:ember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)";
+        matcher = Pattern.compile(patternToExtractMonth).matcher(fileName);
+        int month = convertMonthNameToNumber(matcher.group());
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, 1);
+        return cal;
     }
 
-    private Calend
+    private static int convertMonthNameToNumber(String monthName) throws ParseException {
+        Date date = new SimpleDateFormat("MMM", Locale.ENGLISH).parse(monthName);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.MONTH);
+    }
 
 }

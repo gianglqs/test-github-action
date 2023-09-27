@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
 
 @RestController
 public class ImportController {
@@ -35,7 +36,7 @@ public class ImportController {
     String curencyFolder = "import_files/currency_exchangerate";
 
     @PostMapping(path = "/import")
-    void importData() throws IOException, IllegalAccessException {
+    void importData() throws IOException, IllegalAccessException, ParseException {
         //metaSeriesService.importMetaSeries();
         //apicDealerService.importAPICDealer();
         //apacSerialService.importAPACSerial();

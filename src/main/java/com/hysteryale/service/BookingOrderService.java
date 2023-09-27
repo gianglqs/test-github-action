@@ -14,9 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,6 +38,7 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class BookingOrderService {
+    private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
     @Resource
     BookingOrderRepository bookingOrderRepository;
     @Resource
@@ -50,8 +49,6 @@ public class BookingOrderService {
     MetaSeriesService metaSeriesService;
     @Resource
     CustomBookingOrderRepository customBookingOrderRepository;
-
-    private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
@@ -109,15 +106,31 @@ public class BookingOrderService {
                 }
             }
             else {
-                switch (fieldType) {
-                    case "java.lang.String":
-                        field.set(bookingOrder, row.getCell(ORDER_COLUMNS_NAME.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                        break;
-                    case "int":
-                        field.set(bookingOrder, (int) row.getCell(ORDER_COLUMNS_NAME.get(hashMapKey)).getNumericCellValue());
+                    Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
+
+                    if(index != null){  // cell will be null when the properties are not mapped with the excel files, they are used to calculate values
+
+                    Cell cell = row.getCell((Integer)index , Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+
+
+                    if(cell != null) {
+                        switch (fieldType) {
+                            case "java.lang.String":
+                                log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
+                                field.set(bookingOrder, cell.getStringCellValue());
+                                break;
+                            case "int":
+                                if (cell.getCellType() == CellType.STRING.getCode()){
+                                log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
+                                field.set(bookingOrder, Integer.parseInt(cell.getStringCellValue()));
+                            }else if(cell.getCellType() == CellType.NUMERIC.getCode()){
+                                log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
+                                field.set(bookingOrder, (int) cell.getNumericCellValue());}
+
                         break;
                     case "java.util.Calendar":
-                        String strDate = row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getStringCellValue();
+                        String strDate = String.valueOf(row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getNumericCellValue());
 
                         // Cast into GregorianCalendar
                         // Create matcher with pattern {(1)_year(2)_month(2)_day(2)} as 1230404
@@ -137,8 +150,8 @@ public class BookingOrderService {
                             field.set(bookingOrder, orderDate);
                         }
                         break;
-                }
-            }
+                }}
+            }}
         }
         return bookingOrder;
     }
@@ -148,7 +161,7 @@ public class BookingOrderService {
      * @throws FileNotFoundException
      * @throws IllegalAccessException
      */
-    public void importOrder() throws IOException, IllegalAccessException {
+    public void importOrder() throws IOException, IllegalAccessException, java.text.ParseException {
 
         // Folder contains Excel file of Booking Order
         String folderPath = "import_files/booking";
@@ -157,8 +170,6 @@ public class BookingOrderService {
 
         for(String fileName : fileList) {
             log.info("{ Start importing file: '" + fileName + "'");
-
-            String monthYearOfBooking = FileUtils.extractMonthAndYearFromFileName(fileName);
 
             InputStream is = new FileInputStream(folderPath + "/" + fileName);
 
@@ -172,10 +183,11 @@ public class BookingOrderService {
                     getOrderColumnsName(row);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
                         && row.getRowNum() > 1) {
-                    BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
-                    bookingOrderList.add(newBookingOrder);
+                    BookingOrder bookingOrder = mapExcelDataIntoOrderObject(row);
+                    bookingOrderList.add(bookingOrder);
                 }
             }
+
             bookingOrderRepository.saveAll(bookingOrderList);
             log.info("End importing file: '" + fileName + "'");
             log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
