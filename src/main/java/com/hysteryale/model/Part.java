@@ -48,8 +48,10 @@ public class Part {
     private Date orderRequestDate;
     @Temporal(TemporalType.DATE)
     private Calendar recordedTime;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Currency currency;
 
-    public Part(String quoteId, int quantity, String modelCode, String series, String partNumber, double listPrice, double discount, double discountPercentage, String billTo, double netPriceEach, double customerPrice, double extendedCustomerPrice) {
+    public Part(String quoteId, int quantity, String modelCode, String series, String partNumber, double listPrice, double discount, double discountPercentage, String billTo, double netPriceEach, double customerPrice, double extendedCustomerPrice, Currency currency) {
         this.quoteId = quoteId;
         this.quantity = quantity;
         this.modelCode = modelCode;
@@ -62,5 +64,6 @@ public class Part {
         this.netPriceEach = netPriceEach;
         this.customerPrice = customerPrice;
         this.extendedCustomerPrice = extendedCustomerPrice;
+        this.currency = currency;
     }
 }

@@ -1,5 +1,6 @@
 package com.hysteryale.service;
 
+import com.hysteryale.model.Currency;
 import com.hysteryale.model.Part;
 import com.hysteryale.repository.PartRepository;
 import com.hysteryale.utils.FileUtils;
@@ -9,6 +10,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.aspectj.weaver.ast.Literal;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,6 +26,8 @@ import java.util.regex.Pattern;
 public class PartService {
     @Resource
     PartRepository partRepository;
+    @Resource
+    CurrencyService currencyService;
     public static HashMap<String, Integer> monthMap = new HashMap<>();
 
     /**
@@ -56,6 +60,9 @@ public class PartService {
     }
 
     public Part mapExcelDataToPart(Row row) {
+        String strCurrency = row.getCell(powerBIExportColumns.get("Currency")).getStringCellValue().strip();
+        Currency currency = currencyService.getCurrenciesByName(strCurrency);
+
         String quoteId = row.getCell(powerBIExportColumns.get("Quote Number")).getStringCellValue();
         int quantity = (int) row.getCell(powerBIExportColumns.get("Quoted Quantity")).getNumericCellValue();
 
@@ -75,7 +82,15 @@ public class PartService {
 
         //optionType, orderBookedDate, orderRequestDate
 
-        return new Part(quoteId, quantity, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice);
+        return new Part(quoteId, quantity, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency);
+    }
+
+    /**
+     * Verify if Part is existed or not
+     */
+    public boolean isPartExisted(Part part) {
+        Optional<Part> optionalPart = partRepository.getPartForCheckingExisted(part.getModelCode(), part.getPartNumber(), part.getQuoteId(), part.getRecordedTime(), part.getCurrency().getCurrency());
+        return optionalPart.isPresent();
     }
 
     public void importPart() throws FileNotFoundException {
@@ -112,18 +127,17 @@ public class PartService {
             }
             Calendar recordedTime = Calendar.getInstance();
             recordedTime.set(year, monthMap.get(month), 1);
-            log.info("Date " + recordedTime.getTime());
 
             for(Row row : sheet) {
                 if(row.getRowNum() == 0)
                     getPowerBiColumnsName(row);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
                     Part part = mapExcelDataToPart(row);
-
-
                     part.setRecordedTime(recordedTime);
 
-                    partList.add(part);
+                    // If Part have not been imported -> then add into list
+                    if(!isPartExisted(part))
+                        partList.add(part);
                 }
             }
 
@@ -131,6 +145,9 @@ public class PartService {
             log.info("New parts: " + partList.size());
             log.info("End importing");
         }
+    }
 
+    public List<Part> getPartForMarginAnalysis(String modelCode, String currency, Calendar monthYear) {
+        return partRepository.getPartForMarginAnalysis(modelCode, currency, monthYear);
     }
 }

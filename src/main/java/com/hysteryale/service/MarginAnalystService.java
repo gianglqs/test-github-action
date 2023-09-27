@@ -4,6 +4,7 @@ import com.hysteryale.model.marginAnalyst.MarginAnalystData;
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 
 import java.io.FileNotFoundException;
+import java.util.Calendar;
 import java.util.List;
 
 import java.util.Map;
@@ -17,7 +18,7 @@ public interface MarginAnalystService {
      * @param currency
      * @return
      */
-    Map<String, List<MarginAnalystData>> getMarginAnalystData(String modelCode, String currency);
+    Map<String, List<MarginAnalystData>> getMarginAnalystData(String modelCode, String currency, Calendar monthYear);
 
     /**
      * To query the margin analyst summarized of a model code
