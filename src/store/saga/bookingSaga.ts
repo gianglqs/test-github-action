@@ -1,5 +1,5 @@
 import { takeEvery, put } from "redux-saga/effects"
-import { bookingStore, commonStore, dashboardStore } from "../reducers"
+import { bookingStore, commonStore } from "../reducers"
 import { select, call, all } from "typed-redux-saga"
 import bookingApi from "@/api/booking.api"
 

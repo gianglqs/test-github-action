@@ -8,12 +8,10 @@ export default class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
-          {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" /> */}
           <link
             href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap"
             rel="stylesheet"
           />
-          {/* <link rel="icon" href={require("../public/iconmalis.ico")} /> */}
         </Head>
         <body>
           <Main />

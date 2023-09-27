@@ -1,19 +1,23 @@
-import { AppBar, Grid, Popover, Typography } from "@mui/material"
-import { useRouter } from "next/router"
-import useStyles from "./styles"
-import Head from "next/head"
-import _ from "lodash"
 import { useEffect, useMemo } from "react"
+import useStyles from "./styles"
+
+import { useRouter } from "next/router"
+import Head from "next/head"
+import Link from "next/link"
+import _ from "lodash"
+
 import { createAction } from "@reduxjs/toolkit"
 import { useDispatch } from "react-redux"
-import { AppLayoutProps } from "./type"
+
 import { AccountCircle } from "@mui/icons-material"
+import { AppBar, Grid, Popover, Typography } from "@mui/material"
 import {
   usePopupState,
-  bindHover,
   bindPopover,
   bindTrigger,
 } from "material-ui-popup-state/hooks"
+import { AppLayoutProps } from "./type"
+import AppFooter from '../Footer'
 
 const AppLayout: React.FC<AppLayoutProps> = (props) => {
   const { children, entity } = props
@@ -53,7 +57,7 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
   const menuObj = {
     bookingOrder: "Financial Bookings",
     shipment: "Financial Shipments",
-    analysis: "Margin Analysis",
+    margin_analysis: "Margin Analysis",
     indicators: "Indicators",
     adjustment: "Adjustment of Cost Indicators",
     trend: "Trends",
@@ -64,14 +68,19 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
   const renderMenu = () => {
     const otherOptions = _.keysIn(menuObj)
     return _.map(otherOptions, (name) => (
-      <Typography
-        variant="body1"
-        fontWeight="fontWeightMedium"
-        className={classes.label}
-        color={router.pathname === `/${name}` ? "#1976d2" : ""}
+      <Link
+        href={`${name}`}
+        style={{ textDecoration: "none", cursor: "pointer", color: "#000" }}
       >
-        {menuObj[name]}
-      </Typography>
+        <Typography
+          variant="body1"
+          fontWeight="fontWeightMedium"
+          className={classes.label}
+          color={router.pathname === `/${name}` ? "#1976d2" : ""}
+        >
+          {menuObj[name]}
+        </Typography>
+      </Link>
     ))
   }
   return (
@@ -85,7 +94,7 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
         </nav>
         <div
           className={classes.profile__container}
-          {...bindHover(popupState)}
+          {...bindTrigger(popupState)}
           data-testid="profile-testid"
         >
           <AccountCircle style={{ marginRight: 5, fontSize: 20 }} />
@@ -94,9 +103,9 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
       <Grid
         container
         style={{
-          height: 910,
+          height: 900,
           width: "100%",
-          maxHeight: 910,
+          maxHeight: 900,
         }}
       >
         <div className={classes.appLayout__container}>{children}</div>
@@ -115,13 +124,14 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
       >
         <Typography
           style={{ margin: 10, cursor: "pointer" }}
-          // onClick={onLogout}
+          onClick={() => {}}
           data-testid="user-item-testid"
           id="logout__testid"
         >
           Logout
         </Typography>
       </Popover>
+      <AppFooter />
     </>
   )
 }

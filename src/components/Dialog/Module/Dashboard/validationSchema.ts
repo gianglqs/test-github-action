@@ -9,8 +9,6 @@ function getValidationSchema() {
       .required("Email is required")
       .email("Email format is not correct! Please check again."),
     password: yup.string().required("Password is required"),
-    // role: yup.string().required("Role is required"),
-    // defaultLocale: yup.string().required("Language is required"),
   })
   return schema
 }

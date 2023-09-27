@@ -1,6 +1,5 @@
 import type { TypographyOptions } from "@mui/material/styles/createTypography"
 
-// export const FONT_FAMILY = 'sans-serif, "Arial", "Roboto", "Inter", "Helvetica"'
 export const FONT_FAMILY = '"Open Sans", sans-serif, "Arial"'
 export const FONT_SIZE_BODY_1 = 13
 export const FONT_SIZE_BODY_2 = 12

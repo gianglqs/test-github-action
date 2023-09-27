@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux"
 import { commonStore } from "@/store/reducers"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { AppFooter } from "@/components/App/Footer"
+import { AppFooter } from '@/components'
 
 const StyledContainer = styled("div")(() => ({
   height: `calc(100vh - ${25}px)`,

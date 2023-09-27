@@ -3,8 +3,7 @@ import { useController } from "react-hook-form"
 
 import _ from "lodash"
 import { makeStyles } from "@mui/styles"
-
-import { AppAutocomplete } from "@/components/App/Autocomplete"
+import { AppAutocomplete } from '@/components/App'
 
 const useStyles = makeStyles(() => ({
   popper: {

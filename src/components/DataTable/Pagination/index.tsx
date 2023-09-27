@@ -1,11 +1,3 @@
-/*******************************************************
-Copyright (C) - DREVER International
-
-This file is part of Malis 3 project.
-
-Malis 3 source code can not be copied and/or distributed without the express permission of DREVER International
-*******************************************************/
-
 import { useState, useEffect } from "react"
 
 import {
@@ -17,7 +9,6 @@ import {
   Pagination,
   Stack,
 } from "@mui/material"
-// import { AppNumberField } from '@/components'
 
 import { ArrowDropDown as ArrowDropDownIcon } from "@mui/icons-material"
 
@@ -27,10 +18,9 @@ import {
   bindMenu,
 } from "material-ui-popup-state/hooks"
 
-// import { PAGINATION_HEIGHT } from '@/styles/vars/size'
-
 import type { NumberFormatValues } from "react-number-format"
 import type { DataTablePaginationProps } from "./type"
+import { AppNumberField } from "@/components/App"
 
 const StyledPagination = styled(Pagination)(({ theme }) => ({
   "& .MuiPaginationItem-root": {
@@ -147,7 +137,7 @@ const DataTablePagination: React.FC<DataTablePaginationProps> = (props) => {
           />
           {/* Go to page */}
           <form action="">
-            {/* <AppNumberField
+            <AppNumberField
               onChange={handleChangeGoToPage}
               sx={{ width: 70 }}
               decimalScale={0}
@@ -155,12 +145,16 @@ const DataTablePagination: React.FC<DataTablePaginationProps> = (props) => {
               value={numberGoToPage}
               InputProps={{
                 endAdornment: (
-                  <StyledGoButton type="submit" onClick={handleGoToPage} aria-label="go-to-page">
+                  <StyledGoButton
+                    type="submit"
+                    onClick={handleGoToPage}
+                    aria-label="go-to-page"
+                  >
                     Go
                   </StyledGoButton>
-                )
+                ),
               }}
-            /> */}
+            />
           </form>
         </Stack>
       </Stack>

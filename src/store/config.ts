@@ -14,7 +14,6 @@ export const makeStore = (): Store => {
       getDefaultMiddleware({ thunk: false, immutableCheck: false }).concat(
         sagaMiddleware
       ),
-    // devTools: process.env.NEXT_PUBLIC_MODE === 'develop'
   })
 
   sagaMiddleware.run(rootSaga)

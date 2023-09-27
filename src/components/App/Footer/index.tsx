@@ -14,4 +14,4 @@ const AppFooter = () => {
   )
 }
 
-export { AppFooter }
+export default AppFooter
