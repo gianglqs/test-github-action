@@ -1,11 +1,8 @@
 import { makeStyles, DefaultTheme } from "@mui/styles"
-// import { AppDialogProps } from './type'
 
 export default makeStyles<DefaultTheme, any>((theme) => {
   return {
-    appDialog__container: {
-      // position: 'relative'
-    },
+    appDialog__container: {},
     appDialog__title: {
       padding: theme.spacing(1, 2.5, 1, 2.5),
       borderBottom: "1px solid #e5e5e5",
@@ -18,8 +15,6 @@ export default makeStyles<DefaultTheme, any>((theme) => {
     },
     appDialog__content: {
       height: (props) => props.height || null,
-      // width: (props) => props.width || null,
-      // height: (props) => props.height || null,
       margin: theme.spacing(1, 0),
       padding: theme.spacing(0, 2.5, 0, 2.5),
     },
@@ -37,8 +32,6 @@ export default makeStyles<DefaultTheme, any>((theme) => {
       borderTop: "1px solid #e5e5e5",
       "& button": {
         textTransform: "uppercase",
-        // paddingLeft: 2.5,
-        // paddingRight: 2.5
       },
     },
     appDialog__loading: {

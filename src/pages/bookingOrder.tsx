@@ -1,27 +1,28 @@
+import { useState } from "react"
+
+import { useDispatch, useSelector } from "react-redux"
+import { bookingStore, commonStore } from "@/store/reducers"
+
 import Grid from "@mui/material/Grid"
 import Paper from "@mui/material/Paper"
-import { Autocomplete, Button, TextField } from "@mui/material"
+import { Button } from "@mui/material"
 
-import { AppTextField, DataTable, DataTablePagination } from "@/components"
+import {
+  AppAutocomplete,
+  AppDateField,
+  AppLayout,
+  AppTextField,
+  DataTable,
+  DataTablePagination,
+} from "@/components"
 
-import { AppLayout } from "@/components/App/Layout"
-import { bookingStore, commonStore } from "@/store/reducers"
-import { useForm } from "react-hook-form"
-import FormControllerAutocomplete from "@/components/FormController/Autocomplete"
-import { AppAutocomplete } from "@/components/App/Autocomplete"
 import _ from "lodash"
-import { useDispatch, useSelector } from "react-redux"
-import { AppFooter } from "@/components/App/Footer"
-import { useState } from "react"
-import { defaultValueFilterBooking } from "@/utils/defaultValues"
-
 import { produce } from "immer"
-import AppDateField from "@/components/App/DateField"
-import { format as formatDate } from "date-fns"
+
+import { defaultValueFilterBooking } from "@/utils/defaultValues"
 
 export default function Booking() {
   const dispatch = useDispatch()
-
   const listBookingOrder = useSelector(bookingStore.selectBookingList)
   const initDataFilter = useSelector(bookingStore.selectInitDataFilter)
 
@@ -30,12 +31,8 @@ export default function Booking() {
   const handleChangeDataFilter = (option, field) => {
     setDataFilter((prev) =>
       produce(prev, (draft) => {
-        if (field === "orderNo") {
-          draft.orderNo = option
-        } else if (field === "fromDate") {
-          draft.fromDate = new Date(option)
-        } else if (field === "toDate") {
-          draft.toDate = new Date(option)
+        if (_.includes(["orderNo", "fromDate", "toDate"], field)) {
+          draft[field] = option
         } else {
           draft[field] = option.map(({ value }) => value)
         }
@@ -43,17 +40,8 @@ export default function Booking() {
     )
   }
 
-  const bookingOrderForm = useForm({})
-
   const handleFilterOrderBooking = () => {
-    const transformData = produce(dataFilter, (draft) => {
-      draft.fromDate =
-        draft.fromDate === "" ? "" : formatDate(draft.fromDate, "yyyy-MM-dd")
-      draft.toDate =
-        draft.toDate === "" ? "" : formatDate(draft.toDate, "yyyy-MM-dd")
-    })
-
-    dispatch(bookingStore.actions.setDefaultValueFilterBooking(transformData))
+    dispatch(bookingStore.actions.setDefaultValueFilterBooking(dataFilter))
     handleChangePage(1)
   }
 
@@ -88,7 +76,7 @@ export default function Booking() {
     {
       field: "dealerName",
       flex: 1.2,
-      headerName: "Deale Name",
+      headerName: "Dealer Name",
       renderCell(params) {
         return <span>{params.row.billTo?.dealerDivison}</span>
       },
@@ -157,6 +145,19 @@ export default function Booking() {
     },
   ]
 
+  const arrTmp = [
+    { value: "dealer" },
+    { value: "delser2" },
+    { value: "dealer3" },
+    { value: "delser4" },
+    { value: "delser5" },
+    { value: "delser6" },
+    { value: "delser7" },
+    { value: "delser8" },
+    { value: "delser9" },
+    { value: "delser10" },
+  ]
+
   return (
     <>
       <AppLayout entity="booking">
@@ -175,14 +176,12 @@ export default function Booking() {
           </Grid>
           <Grid item xs={2}>
             <AppAutocomplete
-              options={initDataFilter.regions}
+              options={arrTmp}
               label="Region"
-              sx={{ height: 25, zIndex: 10 }}
-              // onChange={handleChangeMatStandards}
-              // value={selectedMatStandards}
-              limitTags={1}
+              limitTags={2}
               disableListWrap
               primaryKeyOption="value"
+              freeSolo={true}
               multiple
               disableCloseOnSelect
               renderOption={(prop, option) => `${option.value}`}
@@ -195,7 +194,6 @@ export default function Booking() {
               label="Plant"
               sx={{ height: 25, zIndex: 10 }}
               onChange={(e, option) => handleChangeDataFilter(option, "plants")}
-              // value={selectedMatStandards}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -213,7 +211,6 @@ export default function Booking() {
               onChange={(e, option) =>
                 handleChangeDataFilter(option, "metaSeries")
               }
-              // value={selectedMatStandards}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -231,7 +228,6 @@ export default function Booking() {
               onChange={(e, option) =>
                 handleChangeDataFilter(option, "dealers")
               }
-              // value={selectedMatStandards}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -250,7 +246,6 @@ export default function Booking() {
               onChange={(e, option) =>
                 handleChangeDataFilter(option, "classes")
               }
-              // value={selectedMatStandards}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -266,7 +261,6 @@ export default function Booking() {
               label="Model"
               sx={{ height: 25, zIndex: 10 }}
               onChange={(e, option) => handleChangeDataFilter(option, "models")}
-              // value={selectedMatStandards}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -284,7 +278,6 @@ export default function Booking() {
               onChange={(e, option) =>
                 handleChangeDataFilter(option, "segments")
               }
-              // value={selectedMatStandards}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -295,21 +288,11 @@ export default function Booking() {
             />
           </Grid>
           <Grid item xs={2}>
-            <FormControllerAutocomplete
-              control={bookingOrderForm.control}
-              name="aopMargin"
-              label="AOP Margin %"
-              options={[]}
-            />
+            <AppAutocomplete options={[]} label="AOP Margin %" />
           </Grid>
           <Grid item xs={4}>
             <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
-              <FormControllerAutocomplete
-                control={bookingOrderForm.control}
-                name="margin"
-                label="Margin %"
-                options={[]}
-              />
+              <AppAutocomplete options={[]} label="Margin %" />
             </Grid>
           </Grid>
           <Grid item xs={2}>
@@ -317,11 +300,7 @@ export default function Booking() {
               label="From Date"
               name="from_date"
               onChange={(e, value) => handleChangeDataFilter(value, "fromDate")}
-              value={
-                dataFilter?.fromDate === ""
-                  ? null
-                  : formatDate(dataFilter?.fromDate, "yyyy-MM-dd")
-              }
+              value={dataFilter?.fromDate}
             />
           </Grid>
           <Grid item xs={2}>
@@ -329,11 +308,7 @@ export default function Booking() {
               label="To Date"
               name="toDate"
               onChange={(e, value) => handleChangeDataFilter(value, "toDate")}
-              value={
-                dataFilter?.toDate === ""
-                  ? null
-                  : formatDate(dataFilter?.toDate, "yyyy-MM-dd")
-              }
+              value={dataFilter?.toDate}
             />
           </Grid>
           <Grid item xs={2}>
@@ -368,7 +343,6 @@ export default function Booking() {
             onChangePage={handleChangePage}
             onChangePerPage={handleChangePerPage}
           />
-          <AppFooter />
         </Paper>
       </AppLayout>
     </>

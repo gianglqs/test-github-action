@@ -35,9 +35,6 @@ const components: Components = {
           padding: "5px 8px !important",
           height: 14,
         },
-        "& textarea": {
-          // padding: '6px 8px !important'
-        },
       },
     },
   },
@@ -55,25 +52,6 @@ const components: Components = {
       },
     },
   },
-  // MuiTabs: {
-  //   styleOverrides: {
-  //     root: {
-  //       marginBottom: 16
-  //     },
-  //     indicator: {
-  //       background: `${secondaryColor.main} !important`
-  //     }
-  //   }
-  // },
-  // MuiTab: {
-  //   styleOverrides: {
-  //     root: {
-  //       '@media (min-width: 600px)': {
-  //         minWidth: 100
-  //       }
-  //     }
-  //   }
-  // },
   MuiTabs: {
     styleOverrides: {
       root: {
@@ -92,19 +70,6 @@ const components: Components = {
   },
   MuiInputBase: {
     styleOverrides: {
-      root: {
-        // padding: '0 !important',
-        // overflow: 'hidden',
-        // '& input[readonly]': {
-        //   color: 'gray'
-        // },
-        // '& textarea[readonly]': {
-        //   color: 'gray'
-        // },
-        // '& input[disabled]:hover': {
-        //   cursor: 'not-allowed'
-        // }
-      },
       multiline: {
         padding: "4px 8px !important",
       },
@@ -126,12 +91,7 @@ const components: Components = {
     },
   },
   MuiFormControl: {
-    styleOverrides: {
-      // marginNormal: {
-      //   marginTop: 0,
-      //   marginBottom: 0
-      // }
-    },
+    styleOverrides: {},
   },
   MuiChip: {
     defaultProps: {

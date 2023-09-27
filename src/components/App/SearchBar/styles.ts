@@ -10,8 +10,9 @@ export default makeStyles((theme) => ({
     alignItems: "center",
     padding: "2px 4px",
     height: 40,
-    background: theme.palette.secondary.light,
-    marginLeft: 5,
+    border: '1px solid rgba(0, 0, 0, 0.25)',
+    borderRadius: '4px',
+    
   },
   searchBar__input: {
     marginLeft: theme.spacing(1),

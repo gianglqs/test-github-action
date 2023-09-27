@@ -25,18 +25,17 @@ import LayersIcon from "@mui/icons-material/Layers"
 import { ReplayOutlined as ReloadIcon } from "@mui/icons-material"
 import { Button } from "@mui/material"
 
-import { AppSearchBar, DataTable, EditIcon } from "@/components"
-
 import { useDispatch, useSelector } from "react-redux"
-import { commonStore, dashboardStore } from "@/store/reducers"
+import { dashboardStore } from "@/store/reducers"
 import { createAction } from "@reduxjs/toolkit"
 import { useRouter } from "next/router"
-import { DialogCreateUser } from "@/components/Dialog/Module/Dashboard/CreateDialog"
-import { AppFooter } from "@/components/App/Footer"
 
 import { iconColumn } from "@/utils/columnProperties"
-import { DeactiveUserDialog } from "@/components/Dialog/Module/Dashboard/DeactiveUserDialog"
 import dashboardApi from "@/api/dashboard.api"
+
+import { AppFooter, AppSearchBar, DataTable, EditIcon } from "@/components"
+import { DialogCreateUser } from "@/components/Dialog/Module/Dashboard/CreateDialog"
+import { DeactiveUserDialog } from "@/components/Dialog/Module/Dashboard/DeactiveUserDialog"
 import { DialogUpdateUser } from "@/components/Dialog/Module/Dashboard/UpdateDialog"
 
 const drawerWidth: number = 240
@@ -358,7 +357,7 @@ export default function Dashboard() {
               New User
             </Button>
           </Grid>
-          <Grid container sx={{ padding: 1 }}>
+          <Grid container sx={{ padding: 1, paddingLeft: 1.5 }}>
             <AppSearchBar onSearch={handleSearch}></AppSearchBar>
           </Grid>
           <Paper elevation={1} sx={{ marginLeft: 1.5, marginRight: 1.5 }}>

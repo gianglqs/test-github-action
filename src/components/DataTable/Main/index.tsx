@@ -1,11 +1,4 @@
-import {
-  DataGridPro,
-  DataGridProProps,
-  GridRowId,
-  GridToolbarColumnsButton,
-  GridToolbarContainer,
-  GridToolbarDensitySelector,
-} from "@mui/x-data-grid-pro"
+import { DataGridPro, DataGridProProps } from "@mui/x-data-grid-pro"
 
 export interface DataTableProps extends DataGridProProps {
   tableHeight?: number | string
@@ -25,7 +18,6 @@ const DataTable: React.FC<any> = (props) => {
     hideFooter,
     entity,
     page,
-    // density,
     showToolbar,
     perPage,
     totalItems,
@@ -45,8 +37,6 @@ const DataTable: React.FC<any> = (props) => {
           autoHeight={autoHeight}
           selectionModel={selectionModel}
           hideFooter
-          // density={handleSetDentity(valueDensity)}
-          // getRowHeight={getRowHeight}
           rowBuffer={35}
           rowThreshold={25}
           {...rest}

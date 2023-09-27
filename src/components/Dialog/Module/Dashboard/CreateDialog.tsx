@@ -1,16 +1,18 @@
+import { useEffect, useMemo, useState } from "react"
 import { Grid } from "@mui/material"
 
 import { AppDialog } from "../AppDialog/AppDialog"
-import FormControlledTextField from "@/components/FormController/TextField"
 import { useForm } from "react-hook-form"
-import { useEffect, useMemo, useState } from "react"
-import FormControllerAutocomplete from "@/components/FormController/Autocomplete"
-import dashboardApi from "@/api/dashboard.api"
+import { yupResolver } from "@hookform/resolvers/yup"
 import { useDispatch } from "react-redux"
 import { commonStore, dashboardStore } from "@/store/reducers"
+import dashboardApi from "@/api/dashboard.api"
 import { CreateUserFormValues } from "@/types/user"
+
+import FormControlledTextField from "@/components/FormController/TextField"
+import FormControllerAutocomplete from "@/components/FormController/Autocomplete"
+
 import getValidationSchema from "./validationSchema"
-import { yupResolver } from "@hookform/resolvers/yup"
 
 const DialogCreateUser: React.FC<any> = (props) => {
   const { open, onClose, detail } = props

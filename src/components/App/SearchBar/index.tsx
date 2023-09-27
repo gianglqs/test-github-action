@@ -37,14 +37,6 @@ const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
         style={{ width }}
         onSubmit={handleSubmitSearch}
       >
-        <IconButton
-          type="submit"
-          className={classes.searchBar__searchIcon}
-          aria-label="search"
-          disabled={disabled}
-        >
-          <SearchIcon />
-        </IconButton>
         <InputBase
           autoFocus
           disabled={disabled}
@@ -53,6 +45,14 @@ const AppSearchBar: React.FC<AppSearchBarProps> = (props) => {
           value={searchQuery}
           onChange={handleInputQuery}
         />
+        <IconButton
+          type="submit"
+          className={classes.searchBar__searchIcon}
+          aria-label="search"
+          disabled={disabled}
+        >
+          <SearchIcon />
+        </IconButton>
       </Paper>
     </div>
   )

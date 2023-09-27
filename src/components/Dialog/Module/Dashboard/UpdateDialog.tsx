@@ -1,15 +1,17 @@
+import { useEffect, useMemo, useState } from "react"
 import { Grid } from "@mui/material"
 
 import { AppDialog } from "../AppDialog/AppDialog"
+
 import FormControlledTextField from "@/components/FormController/TextField"
-import { useForm } from "react-hook-form"
-import { useEffect, useMemo, useState } from "react"
 import FormControllerAutocomplete from "@/components/FormController/Autocomplete"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
 import dashboardApi from "@/api/dashboard.api"
+
 import { useDispatch } from "react-redux"
 import { commonStore, dashboardStore } from "@/store/reducers"
 import getValidationSchema from "./validationSchema"
-import { yupResolver } from "@hookform/resolvers/yup"
 
 const DialogUpdateUser: React.FC<any> = (props) => {
   const { open, onClose, detail } = props
@@ -25,7 +27,6 @@ const DialogUpdateUser: React.FC<any> = (props) => {
   })
 
   const handleSubmitForm = updateUserForm.handleSubmit(async (data: any) => {
-
     const transformData = {
       userName: data.userName,
       role: {

@@ -1,4 +1,10 @@
 export { default as AppTextField } from "./TextField"
+export { default as AppDateField } from "./DateField"
+export { default as AppAutocomplete } from "./Autocomplete"
+export { default as AppFooter } from "./Footer"
+export { default as AppMessagePopup } from "./MessagePopup"
 
 export { default as AppHeader } from "./Header"
 export * from "./SearchBar"
+export * from "./Layout"
+export * from "./NumberField"

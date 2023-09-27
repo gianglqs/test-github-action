@@ -142,20 +142,29 @@ const AppAutocomplete: React.FC<AppAutocompleteProps<any>> = (props) => {
     setIsFocusing(false)
   }
 
-  const renderInput = (params: AutocompleteRenderInputParams) => (
-    <TextField
-      {...params}
-      error={error}
-      label={label}
-      required={required}
-      inputRef={isFocus && focusRef}
-      {...textFieldProps}
-      InputProps={{
-        ...params.InputProps,
-        ...textFieldProps.InputProps,
-      }}
-    />
-  )
+  const renderInput = (params: AutocompleteRenderInputParams) => {
+    return (
+      <TextField
+        {...params}
+        error={error}
+        label={label}
+        required={required}
+        inputRef={isFocus && focusRef}
+        {...textFieldProps}
+        sx={{
+          zIndex: 100,
+          maxHeight: 25,
+          "& .MuiInputBase-root": {
+            backgroundColor: "#fff",
+          },
+        }}
+        InputProps={{
+          ...params.InputProps,
+          ...textFieldProps.InputProps,
+        }}
+      />
+    )
+  }
 
   return (
     <FormControllerErrorMessage title={helperText} open={openTooltip}>
@@ -194,4 +203,4 @@ AppAutocomplete.defaultProps = {
 }
 
 export * from "./type"
-export { AppAutocomplete }
+export default AppAutocomplete

@@ -1,11 +1,12 @@
+import { useState } from "react"
+import { useForm } from "react-hook-form"
 import { Grid } from "@mui/material"
 
 import { AppDialog } from "../AppDialog/AppDialog"
-import { useState } from "react"
 import { useDispatch } from "react-redux"
-import dashboardApi from "@/api/dashboard.api"
 import { commonStore, dashboardStore } from "@/store/reducers"
-import { useForm } from "react-hook-form"
+
+import dashboardApi from "@/api/dashboard.api"
 
 const DeactiveUserDialog: React.FC<any> = (props) => {
   const { open, onClose, detail } = props

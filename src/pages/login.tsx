@@ -1,19 +1,21 @@
 import { styled, Paper, Grid } from "@mui/material"
+import { LoadingButton } from "@mui/lab"
+import FormControlledTextField from "@/components/FormController/TextField"
 
 import NextHead from "next/head"
-import { LoadingButton } from "@mui/lab"
 import { useRouter } from "next/router"
+import Link from "next/link"
+
 import { setCookie } from "nookies"
-import { useForm } from "react-hook-form"
-import FormControlledTextField from "@/components/FormController/TextField"
 import axios from "axios"
+import * as yup from "yup"
+
+import { useForm } from "react-hook-form"
 import { useDispatch } from "react-redux"
 import { commonStore } from "@/store/reducers"
-import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { LoginFormValues } from "@/types/auth"
-import { AppFooter } from "@/components/App/Footer"
-import Link from "next/link"
+import { AppFooter } from '@/components'
 
 const StyledContainer = styled("div")(() => ({
   height: `calc(100vh - ${25}px)`,
@@ -109,9 +111,6 @@ export default function LoginPage() {
               type="password"
             />
 
-            {/* <Link href={`/dashboard`}>
-            Sign in
-          </Link> */}
             <LoadingButton
               sx={{ mt: 2 }}
               loadingPosition="start"
@@ -119,15 +118,12 @@ export default function LoginPage() {
               fullWidth
               variant="contained"
               color="primary"
-              // onClick={getAccessToken}
-              // loading={loading}
-              // disabled={loadingSSO || loading}
             >
               Sign in
             </LoadingButton>
           </form>
           <Grid sx={{ marginTop: 1 }}>
-            <Link color="primary" href={`/resetPassword`}>
+            <Link color="primary" href={`/reset_password`}>
               Forgot Password
             </Link>
           </Grid>
