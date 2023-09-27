@@ -52,10 +52,11 @@ public class BookingOrderService {
 
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
+     *
      * @param row which contains columns' name
      */
-    public void getOrderColumnsName(Row row){
-        for(int i = 0; i < 17; i++) {
+    public void getOrderColumnsName(Row row) {
+        for (int i = 0; i < 17; i++) {
             String columnName = row.getCell(i).getStringCellValue();
             ORDER_COLUMNS_NAME.put(columnName, i);
         }
@@ -65,6 +66,7 @@ public class BookingOrderService {
 
     /**
      * Map data in Excel file into each Order object
+     *
      * @param row which is the row contains data
      * @return new Order object
      */
@@ -73,19 +75,19 @@ public class BookingOrderService {
         Class<? extends BookingOrder> bookingOrderClass = bookingOrder.getClass();
         Field[] fields = bookingOrderClass.getDeclaredFields();
 
-        for (Field field: fields) {
+        for (Field field : fields) {
             // String key of column's name
             String hashMapKey = field.getName().toUpperCase();
             // Get the data type of the field
             String fieldType = field.getType().getName();
 
             // Currency column is the only one which is not uppercase all character
-            if(field.getName().equals("currency"))
+            if (field.getName().equals("currency"))
                 hashMapKey = "Currency";
 
             // allow assigning value for object's fields
             field.setAccessible(true);
-            if(field.getName().equals("apacSerial")) {
+            if (field.getName().equals("apacSerial")) {
                 try {
                     field.setAccessible(true);
                     APACSerial apacSerial =
@@ -94,8 +96,7 @@ public class BookingOrderService {
                 } catch (Exception e) {
                     log.error(e.toString());
                 }
-            }
-            else if(field.getName().equals("billTo")) {
+            } else if (field.getName().equals("billTo")) {
                 try {
                     field.setAccessible(true);
                     APICDealer apicDealer =
@@ -104,60 +105,62 @@ public class BookingOrderService {
                 } catch (Exception e) {
                     log.error(e.toString());
                 }
-            }
-            else {
-                    Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
+            } else {
+                Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
 
-                    if(index != null){  // cell will be null when the properties are not mapped with the excel files, they are used to calculate values
+                if (index != null) {  // cell will be null when the properties are not mapped with the excel files, they are used to calculate values
 
-                    Cell cell = row.getCell((Integer)index , Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-
+                    Cell cell = row.getCell((Integer) index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
 
-                    if(cell != null) {
+                    if (cell != null) {
                         switch (fieldType) {
                             case "java.lang.String":
                                 log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
                                 field.set(bookingOrder, cell.getStringCellValue());
                                 break;
                             case "int":
-                                if (cell.getCellType() == CellType.STRING.getCode()){
-                                log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
-                                field.set(bookingOrder, Integer.parseInt(cell.getStringCellValue()));
-                            }else if(cell.getCellType() == CellType.NUMERIC.getCode()){
-                                log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
-                                field.set(bookingOrder, (int) cell.getNumericCellValue());}
+                                if (cell.getCellType().equals(CellType.STRING.getCode())) {
+                                    log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
+                                    field.set(bookingOrder, Integer.parseInt(cell.getStringCellValue()));
+                                } else if (cell.getCellType().equals(CellType.NUMERIC.getCode())) {
+                                    log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
+                                    field.set(bookingOrder, (int) cell.getNumericCellValue());
+                                }
 
-                        break;
-                    case "java.util.Calendar":
-                        String strDate = String.valueOf(row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getNumericCellValue());
+                                break;
+                            case "java.util.Calendar":
+                                String strDate = String.valueOf(row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getNumericCellValue());
 
-                        // Cast into GregorianCalendar
-                        // Create matcher with pattern {(1)_year(2)_month(2)_day(2)} as 1230404
-                        Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
-                        Matcher matcher = pattern.matcher(strDate);
-                        int year, month, day;
+                                // Cast into GregorianCalendar
+                                // Create matcher with pattern {(1)_year(2)_month(2)_day(2)} as 1230404
+                                Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
+                                Matcher matcher = pattern.matcher(strDate);
+                                int year, month, day;
 
-                        if (matcher.find()) {
-                            year = Integer.parseInt(matcher.group(1)) + 2000;
-                            month = Integer.parseInt(matcher.group(2));
-                            day = Integer.parseInt(matcher.group(3));
+                                if (matcher.find()) {
+                                    year = Integer.parseInt(matcher.group(1)) + 2000;
+                                    month = Integer.parseInt(matcher.group(2));
+                                    day = Integer.parseInt(matcher.group(3));
 
-                            GregorianCalendar orderDate = new GregorianCalendar();
+                                    GregorianCalendar orderDate = new GregorianCalendar();
 
-                            // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
-                            orderDate.set(year, month - 1, day);
-                            field.set(bookingOrder, orderDate);
+                                    // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
+                                    orderDate.set(year, month - 1, day);
+                                    field.set(bookingOrder, orderDate);
+                                }
+                                break;
                         }
-                        break;
-                }}
-            }}
+                    }
+                }
+            }
         }
         return bookingOrder;
     }
 
     /**
      * Read booking data in Excel files then import to the database
+     *
      * @throws FileNotFoundException
      * @throws IllegalAccessException
      */
@@ -168,7 +171,7 @@ public class BookingOrderService {
         // Get files in Folder Path
         List<String> fileList = FileUtils.getAllFilesInFolderWithPattern(folderPath, Pattern.compile("^(01. Bookings Register).*(.xlsx)$"));
 
-        for(String fileName : fileList) {
+        for (String fileName : fileList) {
             log.info("{ Start importing file: '" + fileName + "'");
 
             InputStream is = new FileInputStream(folderPath + "/" + fileName);
@@ -179,7 +182,7 @@ public class BookingOrderService {
 
             Sheet orderSheet = workbook.getSheet("Input - Bookings");
             for (Row row : orderSheet) {
-                if(row.getRowNum() == 1)
+                if (row.getRowNum() == 1)
                     getOrderColumnsName(row);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
                         && row.getRowNum() > 1) {
