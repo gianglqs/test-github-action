@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class BookingOrderService {
+public class BookingOrderService extends BasedService{
     @Resource
     BookingOrderRepository bookingOrderRepository;
     @Resource
@@ -83,6 +83,7 @@ public class BookingOrderService {
             }
         } catch (Exception e) {
             log.info(e.getMessage());
+
         }
         log.info("File list: " + fileList);
         return fileList;
@@ -117,6 +118,7 @@ public class BookingOrderService {
                             apacSerialService.getAPACSerialByModel(row.getCell(ORDER_COLUMNS_NAME.get("MODEL"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
                     field.set(bookingOrder, apacSerial);
                 } catch (Exception e) {
+                    rollbar.error(e.toString());
                     log.error(e.toString());
                 }
             }
@@ -127,6 +129,7 @@ public class BookingOrderService {
                             apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
                     field.set(bookingOrder, apicDealer);
                 } catch (Exception e) {
+                    rollbar.error(e.toString());
                     log.error(e.toString());
                 }
             }
