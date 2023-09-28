@@ -3,17 +3,16 @@ package com.hysteryale.service;
 import com.hysteryale.model.Currency;
 import com.hysteryale.model.ExchangeRate;
 import com.hysteryale.repository.ExchangeRateRepository;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -109,7 +108,7 @@ public class ExchangeRateService {
         }return exchangeRateList;
     }
 
-    public void importExchangeRate() throws FileNotFoundException {
+    public void importExchangeRate() throws IOException {
         // Initialize folder path and file name
         String folderPath = "import_files/currency_exchangerate";
         String fileName = "EXCSEP2023.xlsx";
@@ -130,11 +129,7 @@ public class ExchangeRateService {
         }
 
         InputStream is = new FileInputStream(folderPath + "/" + fileName);
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet sheet = workbook.getSheet("Summary AOP");
         List<ExchangeRate> exchangeRatesList = new ArrayList<>();

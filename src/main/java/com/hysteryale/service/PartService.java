@@ -3,19 +3,18 @@ package com.hysteryale.service;
 import com.hysteryale.model.Currency;
 import com.hysteryale.model.Part;
 import com.hysteryale.repository.PartRepository;
+import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.FileUtils;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.aspectj.weaver.ast.Literal;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -28,26 +27,6 @@ public class PartService {
     PartRepository partRepository;
     @Resource
     CurrencyService currencyService;
-    public static HashMap<String, Integer> monthMap = new HashMap<>();
-
-    /**
-     * Initialize HashMap for getting month -> Calendar[index]
-     */
-    public void initMonthMap() {
-        monthMap.put("Jan", 0);
-        monthMap.put("Feb", 1);
-        monthMap.put("Mar", 2);
-        monthMap.put("Apr", 3);
-        monthMap.put("May", 4);
-        monthMap.put("Jun", 5);
-        monthMap.put("Jul", 6);
-        monthMap.put("Aug", 7);
-        monthMap.put("Sep", 8);
-        monthMap.put("Oct", 9);
-        monthMap.put("Nov", 10);
-        monthMap.put("Dec", 11);
-    }
-
 
     private static final HashMap<String, Integer> powerBIExportColumns = new HashMap<>();
 
@@ -93,22 +72,16 @@ public class PartService {
         return optionalPart.isPresent();
     }
 
-    public void importPart() throws FileNotFoundException {
+    public void importPart() throws IOException {
         String folderPath = "import_files/bi_download";
         List<String> files = FileUtils.getAllFilesInFolder(folderPath);
 
         log.info("Files: " + files);
 
-        initMonthMap();
         for(String fileName : files) {
             log.info("==== Importing " + fileName + " ====");
             InputStream is = new FileInputStream(folderPath + "/" + fileName);
-            Workbook workbook = StreamingReader
-                    .builder()              //setting Buffer
-                    .rowCacheSize(100)
-                    .bufferSize(4096)
-                    .open(is);
-
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
 
             Sheet sheet = workbook.getSheet("Export");
             List<Part> partList = new ArrayList<>();
@@ -126,7 +99,7 @@ public class PartService {
                 log.info(year + " " + month);
             }
             Calendar recordedTime = Calendar.getInstance();
-            recordedTime.set(year, monthMap.get(month), 1);
+            recordedTime.set(year, DateUtils.monthMap.get(month), 1);
 
             for(Row row : sheet) {
                 if(row.getRowNum() == 0)
@@ -147,7 +120,14 @@ public class PartService {
         }
     }
 
-    public List<Part> getPartForMarginAnalysis(String modelCode, String currency, Calendar monthYear) {
-        return partRepository.getPartForMarginAnalysis(modelCode, currency, monthYear);
+    public Optional<Part> getPartForMarginAnalysis(String modelCode, String partNumber, String currency, Calendar monthYear, String dealer) {
+        return partRepository.getPartForMarginAnalysis(modelCode, partNumber, currency, monthYear, dealer);
+    }
+    public double getNetPriceInPart(String modelCode, String currency, Calendar recordedTime, String partNumber) {
+        List<Part> partList = partRepository.getNetPriceInPart(modelCode, currency, recordedTime, partNumber);
+        return !partList.isEmpty() ? partList.get(0).getNetPriceEach(): 0.0;
+    }
+    public List<String> getDistinctDealerNames(String modelCode, String currency, Calendar recordedTime, String partNumber) {
+        return partRepository.getDealerNames(modelCode, currency, recordedTime, partNumber);
     }
 }

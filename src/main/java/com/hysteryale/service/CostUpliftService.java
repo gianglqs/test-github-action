@@ -2,16 +2,15 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.CostUplift;
 import com.hysteryale.repository.CostUpliftRepository;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -67,7 +66,7 @@ public class CostUpliftService {
         return fileList;
     }
 
-    public void importCostUplift() throws FileNotFoundException {
+    public void importCostUplift() throws IOException {
         // Folder contains Excel file of Booking Order
         String folderPath = "import_files/booking";
         // Get files in Folder Path
@@ -77,11 +76,7 @@ public class CostUpliftService {
         for(String fileName : fileList) {
             log.info("{ Start importing file: '" + fileName + "'");
             InputStream is = new FileInputStream(folderPath + "/" + fileName);
-            Workbook workbook = StreamingReader
-                    .builder()              //setting Buffer
-                    .rowCacheSize(100)
-                    .bufferSize(4096)
-                    .open(is);
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
 
             //Pattern for getting month and year in fileName
             Pattern pattern = Pattern.compile(".{24}(.{4}).*(\\d{4}).*");

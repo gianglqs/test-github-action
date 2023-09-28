@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Calendar;
-import java.util.Date;
 
 @Entity
 @Getter
@@ -35,4 +34,5 @@ public class MarginAnalystData {
     @ManyToOne(fetch = FetchType.EAGER)
     private Currency currency;
     private double costRMB;
+    private String dealer;  // equivalent with billTo in Part
 }

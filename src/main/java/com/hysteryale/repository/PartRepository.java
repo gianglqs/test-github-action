@@ -10,12 +10,15 @@ import java.util.Optional;
 
 public interface PartRepository extends JpaRepository<Part, String> {
 
-    @Query("SELECT p FROM Part p WHERE p.modelCode = ?1 AND p.currency.currency = ?2 AND p.recordedTime = ?3")
-    public List<Part> getPartForMarginAnalysis(String modelCode, String currency, Calendar recordedTime);
+    @Query(value = "SELECT * FROM Part p WHERE p.model_code = ?1 AND p.part_number = ?2 AND p.currency_currency = ?3 AND p.recorded_time = ?4 AND p.bill_to = ?5 LIMIT 1", nativeQuery = true)
+    public Optional<Part> getPartForMarginAnalysis(String modelCode, String partNumber, String currency, Calendar recordedTime, String dealer);
 
     @Query("SELECT DISTINCT p FROM Part p WHERE p.modelCode = ?1 AND p.partNumber = ?2 AND p.quoteId = ?3 AND p.recordedTime = ?4 AND p.currency.currency = ?5")
     public Optional<Part> getPartForCheckingExisted(String modelCode, String partNumber, String quoteId, Calendar recordedTime, String currency);
 
-    @Query("SELECT p FROM Part p WHERE p.modelCode = ?1 AND p.currency.currency = ?2")
-    public List<Part> getPartsByModelCodeAndCurrency(String modelCode, String currency);
+    @Query("SELECT p FROM Part p WHERE p.modelCode = ?1 AND p.currency.currency = ?2 AND p.recordedTime = ?3 AND p.partNumber = ?4")
+    public List<Part> getNetPriceInPart(String modelCode, String currency, Calendar recordedTime, String partNumber);
+
+    @Query("SElECT DISTINCT p.billTo FROM Part p WHERE p.modelCode = ?1 AND p.currency.currency = ?2 AND p.recordedTime = ?3 AND p.partNumber = ?4")
+    public List<String> getDealerNames(String modelCode, String currency, Calendar recordedTime, String partNumber);
 }

@@ -1,13 +1,10 @@
 package com.hysteryale.controller;
 
 import com.hysteryale.service.*;
-import com.hysteryale.service.impl.MarginAnalystServiceImpl;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @RestController
@@ -44,10 +41,10 @@ public class ImportController {
 //        apacSerialService.importAPACSerial();
 //        aopMarginService.importAOPMargin();
 //        bookingOrderService.importOrder();
-//        currencyService.importCurrencies(curencyFolder);
+        currencyService.importCurrencies(curencyFolder);
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
-//        marginAnalystService.importMarginAnalystData();
         partService.importPart();
+        marginAnalystService.importMarginAnalystData();
     }
 }

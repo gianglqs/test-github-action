@@ -23,7 +23,6 @@ public class Part {
     //TODO this one is temporarily replaced by quoteId
 //    @OneToOne
 //    private NovoQuote novoQuote;
-
     private String quoteId;
 
     private String description;
