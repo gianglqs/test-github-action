@@ -24,7 +24,7 @@ public class NovoQuote {
     private String description;
     @OneToMany(fetch = FetchType.EAGER)
     private List<BookingOrder> bookingOrders;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Part> parts;
     private String opportunityName;
 

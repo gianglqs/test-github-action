@@ -3,17 +3,16 @@ package com.hysteryale.service;
 import com.hysteryale.model.Currency;
 import com.hysteryale.model.ExchangeRate;
 import com.hysteryale.repository.ExchangeRateRepository;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -55,30 +54,34 @@ public class ExchangeRateService {
         return fromCurrenciesTitle;
     }
 
+    public String formatCurrencyInSpecialCase(String strCurrency) {
+
+        //special cases of currency name
+        switch (strCurrency.strip()) {
+            case "NORWAY KRONER" :
+                strCurrency = "NORWEGIAN KRONER";
+                break;
+            case "BRAZILIAN REAL":
+                strCurrency = "BRAZILIAN";
+                break;
+            case "SING. DOLLAR":
+                strCurrency = "SINGAPORE DOLLAR";
+                break;
+            case "N.Z. DOLLAR":
+                strCurrency = "N.Z.DOLLAR";
+                break;
+        }
+        return strCurrency;
+    }
+
     /**
      * Get List of Currencies rates based on a toCurrency
      */
     public List<ExchangeRate> mapExcelDataToExchangeRate(Row row, Calendar date) {
         List<ExchangeRate> exchangeRateList = new ArrayList<>();
 
-        String strToCurrency = row.getCell(0).getStringCellValue().toUpperCase();
-
-        //special cases of currency name
-        switch (strToCurrency.strip()) {
-            case "NORWEGIAN KRONER":
-                strToCurrency = "NORWAY KRONER";
-                break;
-            case "BRAZILIAN":
-                strToCurrency = "BRAZILIAN REAL";
-                break;
-            case "SINGAPORE DOLLAR":
-                strToCurrency = "SING. DOLLAR";
-                break;
-            case "N.Z.DOLLAR":
-                strToCurrency = "N.Z. DOLLAR";
-                break;
-        }
-        Currency toCurrency = currencyService.getCurrenciesByName(strToCurrency.toUpperCase());
+        String strToCurrency = row.getCell(0).getStringCellValue().toUpperCase().strip();
+        Currency toCurrency = currencyService.getCurrenciesByName(formatCurrencyInSpecialCase(strToCurrency));
 
 
         for(Cell cell : row) {
@@ -87,8 +90,9 @@ public class ExchangeRateService {
 
                 if(cell.getColumnIndex() > 0) {
                     double rate = cell.getNumericCellValue();
+                    String strFromCurrency = fromCurrenciesTitle.get(cell.getColumnIndex()).toUpperCase().strip();
 
-                    Currency fromCurrency = currencyService.getCurrenciesByName(fromCurrenciesTitle.get(cell.getColumnIndex()));
+                    Currency fromCurrency = currencyService.getCurrenciesByName(formatCurrencyInSpecialCase(strFromCurrency));
 
                     exchangeRate.setFrom(fromCurrency);
                     exchangeRate.setTo(toCurrency);
@@ -97,14 +101,14 @@ public class ExchangeRateService {
 
                     log.info("from: " + fromCurrency.getCurrency() + " to: " + toCurrency.getCurrency());
 
-                    if(exchangeRateRepository.getExchangeRateByFromToCurrencyAndDate(fromCurrency.getId(), toCurrency.getId(), date).isEmpty())
+                    if(exchangeRateRepository.getExchangeRateByFromToCurrencyAndDate(fromCurrency.getCurrency(), toCurrency.getCurrency(), date).isEmpty())
                         exchangeRateList.add(exchangeRate);
                 }
             }
         }return exchangeRateList;
     }
 
-    public void importExchangeRate() throws FileNotFoundException {
+    public void importExchangeRate() throws IOException {
         // Initialize folder path and file name
         String folderPath = "import_files/currency_exchangerate";
         String fileName = "EXCSEP2023.xlsx";
@@ -125,11 +129,7 @@ public class ExchangeRateService {
         }
 
         InputStream is = new FileInputStream(folderPath + "/" + fileName);
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet sheet = workbook.getSheet("Summary AOP");
         List<ExchangeRate> exchangeRatesList = new ArrayList<>();

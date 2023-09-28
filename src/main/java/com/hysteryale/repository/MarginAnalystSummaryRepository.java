@@ -1,0 +1,16 @@
+package com.hysteryale.repository;
+
+import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.Calendar;
+import java.util.Optional;
+
+public interface MarginAnalystSummaryRepository extends JpaRepository<MarginAnalystSummary, Integer> {
+    @Query("SELECT m FROM MarginAnalystSummary m WHERE m.modelCode = ?1 AND m.currency.currency= ?2 AND m.monthYear = ?3")
+    public Optional<MarginAnalystSummary> getMarginAnalystSummaryMonthly(String modelCode, String currency, Calendar monthYear);
+
+    @Query("SELECT m FROM MarginAnalystSummary m WHERE m.modelCode = ?1 AND m.currency.currency= ?2 AND m.monthYear = ?3")
+    public Optional<MarginAnalystSummary> getMarginAnalystSummaryAnnually(String modelCode, String currency, Calendar monthYear);
+}
