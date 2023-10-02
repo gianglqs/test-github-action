@@ -51,49 +51,23 @@ public class BookingOrderService {
     @Resource
     CustomBookingOrderRepository customBookingOrderRepository;
 
-    private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
      *
      * @param row which contains columns' name
      */
-    public void getOrderColumnsName(Row row){
-        for(int i = 0; i < 17; i++) {
+    public void getOrderColumnsName(Row row) {
+        for (int i = 0; i < 17; i++) {
             String columnName = row.getCell(i).getStringCellValue();
             ORDER_COLUMNS_NAME.put(columnName, i);
         }
         log.info("Order Columns: " + ORDER_COLUMNS_NAME);
     }
 
-    /**
-     * Get all files having name starting with {01. Bookings Register} and ending with {.xlsx}
-     * @param folderPath path to folder contains Booking Order
-     * @return list of files' name
-     */
-    public List<String> getAllFilesInFolder(String folderPath) {
-        Pattern pattern = Pattern.compile("^(01. Bookings Register).*(.xlsx)$");
-
-        List<String> fileList = new ArrayList<>();
-        Matcher matcher;
-        try {
-            DirectoryStream<Path> folder = Files.newDirectoryStream(Paths.get(folderPath));
-            for(Path path : folder) {
-                matcher = pattern.matcher(path.getFileName().toString());
-                if(matcher.matches())
-                    fileList.add(path.getFileName().toString());
-                else
-                    log.error("Wrong formatted file's name: " + path.getFileName().toString());
-            }
-        } catch (Exception e) {
-            log.info(e.getMessage());
-        }
-        log.info("File list: " + fileList);
-        return fileList;
-    }
 
     /**
      * Map data in Excel file into each Order object
+     *
      * @param row which is the row contains data
      * @return new Order object
      */
@@ -102,19 +76,19 @@ public class BookingOrderService {
         Class<? extends BookingOrder> bookingOrderClass = bookingOrder.getClass();
         Field[] fields = bookingOrderClass.getDeclaredFields();
 
-        for (Field field: fields) {
+        for (Field field : fields) {
             // String key of column's name
             String hashMapKey = field.getName().toUpperCase();
             // Get the data type of the field
             String fieldType = field.getType().getName();
 
             // Currency column is the only one which is not uppercase all character
-            if(field.getName().equals("currency"))
+            if (field.getName().equals("currency"))
                 hashMapKey = "Currency";
 
             // allow assigning value for object's fields
             field.setAccessible(true);
-            if(field.getName().equals("apacSerial")) {
+            if (field.getName().equals("apacSerial")) {
                 try {
                     field.setAccessible(true);
                     APACSerial apacSerial =
@@ -123,8 +97,7 @@ public class BookingOrderService {
                 } catch (Exception e) {
                     log.error(e.toString());
                 }
-            }
-            else if(field.getName().equals("billTo")) {
+            } else if (field.getName().equals("billTo")) {
                 try {
                     field.setAccessible(true);
                     APICDealer apicDealer =
@@ -188,10 +161,11 @@ public class BookingOrderService {
 
     /**
      * Read booking data in Excel files then import to the database
+     *
      * @throws FileNotFoundException
      * @throws IllegalAccessException
      */
-    public void importOrder() throws FileNotFoundException, IllegalAccessException {
+    public void importOrder() throws IOException, IllegalAccessException, java.text.ParseException {
 
         // Folder contains Excel file of Booking Order
         String folderPath = "import_files/booking";

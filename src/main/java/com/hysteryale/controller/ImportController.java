@@ -1,5 +1,6 @@
 package com.hysteryale.controller;
 
+import com.hysteryale.model.BookingOrderPart;
 import com.hysteryale.service.*;
 import com.hysteryale.service.impl.MarginAnalystServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,9 @@ public class ImportController {
     @Resource
     MarginAnalystService marginAnalystService;
 
+    @Resource
+    BookingOrderPartService bookingOrderPartService;
+
     String curencyFolder = "import_files/currency_exchangerate";
 
     @PostMapping(path = "/import")
@@ -41,7 +45,8 @@ public class ImportController {
         //apicDealerService.importAPICDealer();
         //apacSerialService.importAPACSerial();
         //aopMarginService.importAOPMargin();
-        bookingOrderService.importOrder();
+        //bookingOrderService.importOrder();
+        bookingOrderPartService.importBookingOrderPart();
         //currencyService.importCurrencies(curencyFolder);
         //exchangeRateService.importExchangeRate();
         //costUpliftService.importCostUplift();
