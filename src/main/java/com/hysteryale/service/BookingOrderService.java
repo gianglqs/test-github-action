@@ -9,16 +9,13 @@ import com.hysteryale.model.filters.BookingOrderFilter;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.hysteryale.utils.FileUtils;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -27,11 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,7 +105,6 @@ public class BookingOrderService {
 
                     Cell cell = row.getCell((Integer) index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
-
                     if (cell != null) {
                         switch (fieldType) {
                             case "java.lang.String":
@@ -121,10 +112,10 @@ public class BookingOrderService {
                                 field.set(bookingOrder, cell.getStringCellValue());
                                 break;
                             case "int":
-                                if (cell.getCellTypeEnum() == CellType.STRING) {
+                                if (cell.getCellType() == CellType.STRING) {
                                     log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
                                     field.set(bookingOrder, Integer.parseInt(cell.getStringCellValue()));
-                                } else if (cell.getCellTypeEnum() == CellType.NUMERIC) {
+                                } else if (cell.getCellType() == CellType.NUMERIC) {
                                     log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
                                     field.set(bookingOrder, (int) cell.getNumericCellValue());
                                 }
