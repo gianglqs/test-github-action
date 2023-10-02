@@ -52,9 +52,9 @@ public class CurrencyService {
 
                 for(int i = 8; i < 48; i++){
                     Row row = sheet.getRow(i);
-                    String currencyName = row.getCell(0).getStringCellValue();
+                    String currencyName = row.getCell(0).getStringCellValue().strip();
                     if(!currencyName.isEmpty()){
-                        String currencyCode = row.getCell(1).getStringCellValue();
+                        String currencyCode = row.getCell(1).getStringCellValue().strip();
                         currencyList.add(new Currency(currencyCode, currencyName));
                     }else {
                         break;

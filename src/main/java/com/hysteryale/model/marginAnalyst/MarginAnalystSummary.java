@@ -1,12 +1,30 @@
 package com.hysteryale.model.marginAnalyst;
 
 import com.hysteryale.model.Currency;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import javax.persistence.*;
+import java.util.Calendar;
 import java.util.Date;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class MarginAnalystSummary {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "marginAnalystSummarySequence")
+    private int id;
 
-    private Date month_year;
+    private String modelCode;
+
+    @Temporal(TemporalType.DATE)
+    private Calendar monthYear;
+    @ManyToOne(fetch = FetchType.EAGER)
     private Currency currency;
 
     private double manufacturingCostRMB;
@@ -14,7 +32,7 @@ public class MarginAnalystSummary {
     private double addWarranty;
     private double duty;
     private double freight;
-    private double liIonIncluded;
+    private boolean liIonIncluded;
     private double totalCostRMB;
 
     private double totalListPrice;

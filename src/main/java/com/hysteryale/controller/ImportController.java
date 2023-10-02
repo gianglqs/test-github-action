@@ -45,6 +45,7 @@ public class ImportController {
         //currencyService.importCurrencies(curencyFolder);
         //exchangeRateService.importExchangeRate();
         //costUpliftService.importCostUplift();
+        //partService.importPart();
         //marginAnalystService.importMarginAnalystData();
     }
 }

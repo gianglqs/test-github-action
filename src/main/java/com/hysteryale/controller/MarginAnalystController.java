@@ -5,14 +5,14 @@ import com.hysteryale.model.marginAnalyst.MarginAnalystData;
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 import com.hysteryale.service.MarginAnalystService;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.parser.ParseException;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,14 +24,15 @@ public class MarginAnalystController {
     @Resource
     MarginAnalystService marginAnalystService;
 
-    @GetMapping(path = "/marginAnalystData", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<MarginAnalystData>> getMarginAnalystData(@RequestParam String modelCode, @RequestParam String currency) {
-        return marginAnalystService.getMarginAnalystData(modelCode, currency);
+    @PostMapping(path = "/marginAnalystData", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, List<MarginAnalystData>> getMarginAnalystData(@RequestBody MarginAnalystData marginAnalystData) throws ParseException {
+
+        return marginAnalystService.getMarginAnalystData(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear());
     }
 
-    @GetMapping(path = "/marginAnalystSummary", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, MarginAnalystSummary> getMarginAnalystSummary(@RequestParam String modelCode, @RequestParam String currency) {
-        return marginAnalystService.getMarginAnalystSummary(modelCode, currency);
+    @PostMapping(path = "/marginAnalystSummary", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, MarginAnalystSummary> getMarginAnalystSummary(@RequestBody MarginAnalystData marginAnalystData) {
+        return marginAnalystService.getMarginAnalystSummary(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear());
     }
 }
 

@@ -1,12 +1,13 @@
 package com.hysteryale.model.marginAnalyst;
 
+import com.hysteryale.model.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.Calendar;
 
 @Entity
 @Getter
@@ -26,6 +27,12 @@ public class MarginAnalystData {
     private String description;
     private double listPrice;
     private double margin_aop;
-    private Date month_year; // we only needs to care month and year, so the day is always 1
-    private String currency;
+
+    @Temporal(TemporalType.DATE)
+    private Calendar monthYear; // we only needs to care month and year, so the day is always 1
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Currency currency;
+    private double costRMB;
+    private String dealer;  // equivalent with billTo in Part
 }
