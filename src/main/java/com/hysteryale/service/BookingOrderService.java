@@ -120,10 +120,10 @@ public class BookingOrderService {
                                 field.set(bookingOrder, cell.getStringCellValue());
                                 break;
                             case "int":
-                                if (cell.getCellType() == (CellType.STRING.getCode())) {
+                                if (cell.getCellType() == (CellType.STRING)) {
                                     log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
                                     field.set(bookingOrder, Integer.parseInt(cell.getStringCellValue()));
-                                } else if (cell.getCellType() == (CellType.NUMERIC.getCode())) {
+                                } else if (cell.getCellType() == (CellType.NUMERIC)) {
                                     log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
                                     field.set(bookingOrder, (int) cell.getNumericCellValue());
                                 }
