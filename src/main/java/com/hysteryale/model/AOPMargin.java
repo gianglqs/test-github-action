@@ -19,5 +19,6 @@ public class AOPMargin {
     private String description;
     private double dnUSD;
     private double marginSTD;
+    private int year;
 
 }

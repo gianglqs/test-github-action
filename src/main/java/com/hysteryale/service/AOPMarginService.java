@@ -7,11 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -63,17 +65,14 @@ public class AOPMarginService {
         return aopMargin;
     }
 
-    public void importAOPMargin() throws FileNotFoundException, IllegalAccessException {
+    public void importAOPMargin() throws IOException, IllegalAccessException {
         // Initialize folderPath and fileName
         String folderPath = "import_files/AOPMargin/";
         String fileName = "2023 AOP DN and Margin%.xlsx";
 
         InputStream is = new FileInputStream(folderPath + fileName);
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         List<AOPMargin> aopMarginList = new ArrayList<>();
 
@@ -84,6 +83,8 @@ public class AOPMarginService {
                 getAOPMarginColumns(row);
             else if(row.getRowNum() > 2 && !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
                 AOPMargin aopMargin = mapExcelToAOPMargin(row);
+                //TODO need to get year from file name, not hardcode as I did below
+                aopMargin.setYear(2023);
                 aopMarginList.add(aopMargin);
             }
         }

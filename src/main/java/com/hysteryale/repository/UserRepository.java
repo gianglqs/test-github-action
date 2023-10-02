@@ -13,11 +13,11 @@ import java.util.Optional;
 
 public interface UserRepository extends PagingAndSortingRepository<User, Integer> {
     @Query("SELECT a FROM User a WHERE a.email = ?1")
-    public Optional<User> getUserByEmail(String email);
+    Optional<User> getUserByEmail(String email);
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN TRUE ELSE FALSE END FROM User a WHERE a.email = ?1")
-    public boolean isEmailExisted(String email);
+    boolean isEmailExisted(String email);
     @Query("SELECT a FROM User a WHERE a.email = ?1 AND a.isActive = true")
-    public Optional<User> getActiveUserByEmail(String email);
+    Optional<User> getActiveUserByEmail(String email);
     @Query("SELECT a FROM User a WHERE CONCAT(a.userName, a.email) LIKE %?1%")
-    public Page<User> searchUser(String searchString, Pageable pageable);
+    Page<User> searchUser(String searchString, Pageable pageable);
 }

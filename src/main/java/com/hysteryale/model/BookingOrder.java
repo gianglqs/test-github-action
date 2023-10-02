@@ -22,14 +22,11 @@ public class BookingOrder {
     private String currency;
     private String orderType;
     private String region;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private APICDealer billTo;
     private String ctryCode;
     private String dealerPO;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private APACSerial apacSerial;
     private String comment;
     private int truckClass;
+    private String Series;
 
     //properties that we need to calculate based on raw data
     private int quantity;

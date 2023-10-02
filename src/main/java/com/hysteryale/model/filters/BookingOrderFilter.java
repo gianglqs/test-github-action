@@ -1,7 +1,10 @@
 package com.hysteryale.model.filters;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class BookingOrderFilter {
 
     private String orderNo;
@@ -28,80 +31,40 @@ public class BookingOrderFilter {
         this.strToDate = strToDate;
     }
 
-    public String getOrderNo() {
-        return orderNo;
-    }
-
     public void setOrderNo(String orderNo) {
         this.orderNo = orderNo;
-    }
-
-    public List<String> getRegions() {
-        return regions;
     }
 
     public void setRegions(List<String> regions) {
         this.regions = regions;
     }
 
-    public List<String> getDealers() {
-        return dealers;
-    }
-
     public void setDealers(List<String> dealers) {
         this.dealers = dealers;
-    }
-
-    public List<String> getPlants() {
-        return plants;
     }
 
     public void setPlants(List<String> plants) {
         this.plants = plants;
     }
 
-    public List<String> getMetaSeries() {
-        return metaSeries;
-    }
-
     public void setMetaSeries(List<String> metaSeries) {
         this.metaSeries = metaSeries;
-    }
-
-    public List<String> getClasses() {
-        return classes;
     }
 
     public void setClasses(List<String> classes) {
         this.classes = classes;
     }
 
-    public List<String> getModels() {
-        return models;
-    }
-
     public void setModels(List<String> models) {
         this.models = models;
-    }
-
-    public List<String> getSegments() {
-        return segments;
     }
 
     public void setSegments(List<String> segments) {
         this.segments = segments;
     }
 
-    public String getStrFromDate() {
-        return strFromDate;
-    }
-
     public void setStrFromDate(String strFromDate) {
         this.strFromDate = strFromDate;
-    }
-
-    public String getStrToDate() {
-        return strToDate;
     }
 
     public void setStrToDate(String strToDate) {

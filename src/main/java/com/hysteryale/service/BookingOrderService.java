@@ -2,10 +2,11 @@ package com.hysteryale.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hysteryale.model.APACSerial;
-import com.hysteryale.model.APICDealer;
-import com.hysteryale.model.BookingOrder;
+import com.hysteryale.model.*;
 import com.hysteryale.model.filters.BookingOrderFilter;
+import com.hysteryale.repository.AOPMarginRepository;
+import com.hysteryale.repository.BookingOrderPartRepository;
+import com.hysteryale.repository.PartRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -47,6 +48,15 @@ public class BookingOrderService extends BasedService{
     MetaSeriesService metaSeriesService;
     @Resource
     CustomBookingOrderRepository customBookingOrderRepository;
+
+    @Resource
+    AOPMarginRepository AOPMarginRepository;
+
+    @Resource
+    BookingOrderPartRepository bookingOrderPartRepository;
+
+    @Resource
+    PartRepository partRepository;
 
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
@@ -198,9 +208,14 @@ public class BookingOrderService extends BasedService{
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
                         && row.getRowNum() > 1) {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
+
+                    //calculate and adding extra values
+                    newBookingOrder = calculateOrderValues(newBookingOrder);
+
                     bookingOrderList.add(newBookingOrder);
                 }
             }
+
             bookingOrderRepository.saveAll(bookingOrderList);
             log.info("End importing file: '" + fileName + "'");
             log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
@@ -251,5 +266,81 @@ public class BookingOrderService extends BasedService{
      */
     public long getNumberOfBookingOrderByFilters(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate) throws java.text.ParseException {
         return customBookingOrderRepository.getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate);
+    }
+
+    /**
+     * To calculate extra values of an order
+     */
+    private BookingOrder calculateOrderValues(BookingOrder bookingOrder) {
+        //from orderId get Series
+        String series = bookingOrder.getSeries();
+
+        // quantity is always 1
+        bookingOrder.setQuantity(1);
+
+        //get all parts of an order
+        Set<Part> parts = getPartsOfOrder(bookingOrder);
+
+        //from orderId + Series + Part we can calculate the following
+        //      total cost
+        //      dealerNet
+        //      dealerNetAfterSurCharge
+        //      marginAfterSurCharge
+        //      marginPercentageAfterSurCharge
+        //      AOPMarginPercentage
+        double totalCost = 0;
+        double dealerNet = 0;
+        //double dealerNetAfterSurCharge = 0;
+
+        //get margin
+        Map<String, AOPMargin> aopMarginByYear = AOPMarginRepository.findByYear(bookingOrder.getDate().get(Calendar.YEAR));
+
+        for (Part part : parts) {
+            totalCost = totalCost + part.getListPrice();
+            dealerNet = dealerNet + part.getNetPriceEach();
+            //dealerNetAfterSurCharge = (part.getNetPriceEach() - part.getDiscount());
+
+            //get AOP Margin Percentage
+            // AOP Margin % = Margin % STD
+            double marginPercent = aopMarginByYear.get(series).getMarginSTD();
+            bookingOrder.setAOPMarginPercentage(marginPercent);
+
+            //dealnet after surcharge
+            double dealerNetAfterSurchage = dealerNet - (dealerNet * marginPercent);
+            bookingOrder.setDealerNetAfterSurCharge(dealerNetAfterSurchage);
+
+            //margin $ after surcharge
+            double marginAfterSurcharge = dealerNetAfterSurchage - totalCost;
+            bookingOrder.setMarginAfterSurCharge(marginAfterSurcharge);
+
+            //margin % after surcharge
+            double marginPercentageAfterSurcharge = marginAfterSurcharge / totalCost;
+            bookingOrder.setMarginPercentageAfterSurCharge(marginPercentageAfterSurcharge);
+        }
+
+       return bookingOrder;
+    }
+
+    /**
+     * To create a new table OrderPart
+     */
+    private Set<Part> getPartsOfOrder(BookingOrder bookingOrder) {
+        Set<BookingOrderPart> bookingOrderParts = bookingOrderPartRepository.findByOrderNo(bookingOrder.getOrderNo());
+
+        List<String> partNumbers = new ArrayList<String>();
+
+        for (BookingOrderPart bookingOrderPart: bookingOrderParts) {
+            partNumbers.add(bookingOrderPart.getPart());
+        }
+
+        return partRepository.getPartsByPartNumbers(partNumbers);
+    }
+
+    /**
+     * Return a collection of <Series, AOP Margin> by Year
+     * @return
+     */
+    private Map<String, AOPMargin> getMarginPercentageSTD(int year){
+        return AOPMarginRepository.findByYear(year);
     }
 }

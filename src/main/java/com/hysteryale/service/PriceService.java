@@ -119,7 +119,7 @@ public class PriceService {
         }
         // save all Price (s) in the List
         addListOfPrices(priceList);
-        log.info("New Price added: " + String.valueOf(priceList.size()));
+        log.info("New Price added: " + priceList.size());
     }
 //    public void importPriceChanges() throws ParseException, FileNotFoundException {
 //        // Tracking parameter

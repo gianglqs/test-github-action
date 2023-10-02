@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface CostUpliftRepository extends JpaRepository<CostUplift, Integer> {
     @Query("SELECT c FROM CostUplift c WHERE c.plant = ?1 AND c.date = ?2")
-    public Optional<CostUplift> getCostUpliftByPlantAndDate(String plant, Calendar date);
+    Optional<CostUplift> getCostUpliftByPlantAndDate(String plant, Calendar date);
 }

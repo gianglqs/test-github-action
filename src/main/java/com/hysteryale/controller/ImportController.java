@@ -39,12 +39,12 @@ public class ImportController {
 //        metaSeriesService.importMetaSeries();
 //        apicDealerService.importAPICDealer();
 //        apacSerialService.importAPACSerial();
-//        aopMarginService.importAOPMargin();
+        aopMarginService.importAOPMargin();
 //        bookingOrderService.importOrder();
-        currencyService.importCurrencies(curencyFolder);
+//        currencyService.importCurrencies(curencyFolder);
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
-        partService.importPart();
-        marginAnalystService.importMarginAnalystData();
+//        partService.importPart();
+//       marginAnalystService.importMarginAnalystData();
     }
 }

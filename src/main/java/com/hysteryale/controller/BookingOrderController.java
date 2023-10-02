@@ -49,6 +49,8 @@ public class BookingOrderController {
         filters.put("classes", metaSeriesService.getMetaSeriesClasses());
         filters.put("segments", metaSeriesService.getMetaSeriesSegments());
         filters.put("models", apacSerialService.getAllAPACSerialModels());
+        //filters.put("AOPMarginPercetage", bookingOrderService.getAPOMarginPercentageForFilter());
+        //filters.put("MarginPercetage", bookingOrderService.getMarginPercentageForFilter());
 
         return filters;
     }

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
     @Query("SELECT c FROM Currency c WHERE c.currencyName = ?1 OR c.currency = ?1")
-    public Optional<Currency> getCurrenciesByName(String currencyName);
+    Optional<Currency> getCurrenciesByName(String currencyName);
 }

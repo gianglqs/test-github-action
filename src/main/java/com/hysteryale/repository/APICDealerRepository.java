@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface APICDealerRepository extends JpaRepository<APICDealer, String> {
     @Query("SELECT DISTINCT a.dealerDivison FROM APICDealer a ORDER BY a.dealerDivison")
-    public List<String> getDealerNames();
+    List<String> getDealerNames();
 }
