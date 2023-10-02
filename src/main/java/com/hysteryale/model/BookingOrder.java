@@ -32,7 +32,7 @@ public class BookingOrder {
     private int truckClass;
 
     //properties that we need to calculate based on raw data
-    private int quantity;
+    private int quantity = 1;
     private double totalCost;
     private double dealerNet;
     private double dealerNetAfterSurCharge;
