@@ -22,6 +22,9 @@ public class NovoQuote {
     @Id
     private String quoteNumber;
     private String description;
+
+    //TODO: we need to consider to use Set here as I encountered https://www.baeldung.com/java-hibernate-multiplebagfetchexception
+    // in another post that I read it may cause performance exception https://vladmihalcea.com/spring-data-jpa-multiplebagfetchexception/
     @OneToMany(fetch = FetchType.EAGER)
     private List<BookingOrder> bookingOrders;
     @OneToMany(fetch = FetchType.LAZY)
