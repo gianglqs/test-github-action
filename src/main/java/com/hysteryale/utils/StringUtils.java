@@ -33,11 +33,7 @@ public class StringUtils {
         }
 
         // if all the conditions passed then password is strong
-        if(minLength && containDigit && containUpperChar && containSpecialChar && containLowerChar){
-            return true;
-        }else{
-            return false;
-        }
+        return minLength && containDigit && containUpperChar && containSpecialChar && containLowerChar;
     }
 
 }

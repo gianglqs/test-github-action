@@ -11,5 +11,5 @@ import java.util.Optional;
 @Repository
 public interface PriceRepository extends JpaRepository<Price, Integer> {
     @Query("SELECT p FROM Price p WHERE p.series= ?1")
-    public List<Price> getPricesListBySeries(String seriesNum);
+    List<Price> getPricesListBySeries(String seriesNum);
 }

@@ -27,6 +27,6 @@ public interface MarginAnalystService {
      */
     Map<String, MarginAnalystSummary> getMarginAnalystSummary(String modelCode, String currency, Calendar monthYear);
 
-    public void importMarginAnalystData() throws IOException;
+    void importMarginAnalystData() throws IOException;
 
 }
