@@ -58,10 +58,11 @@ public class PartService {
         // double discountToCustomerPercentage
         double customerPrice = row.getCell(powerBIExportColumns.get("Customer Price")).getNumericCellValue();
         double extendedCustomerPrice = row.getCell(powerBIExportColumns.get("Ext Customer Price")).getNumericCellValue();
+        String orderNumber = row.getCell(powerBIExportColumns.get("Order Number")).getStringCellValue();
 
         //optionType, orderBookedDate, orderRequestDate
 
-        return new Part(quoteId, quantity, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency);
+        return new Part(quoteId, quantity,orderNumber, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency);
     }
 
     /**

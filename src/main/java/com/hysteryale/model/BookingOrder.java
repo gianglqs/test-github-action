@@ -37,9 +37,4 @@ public class BookingOrder {
     private double marginPercentageAfterSurCharge;
     private double AOPMarginPercentage;
 
-    @Override
-    public boolean equals(Object object){
-        return this.orderNo == ((BookingOrder)object).getOrderNo();
-    }
-
 }

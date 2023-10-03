@@ -43,11 +43,11 @@ public class ImportController {
         //      metaSeriesService.importMetaSeries();
 //        apicDealerService.importAPICDealer();
         //      apacSerialService.importAPACSerial();
-    //    currencyService.importCurrencies(curencyFolder);
+        currencyService.importCurrencies(curencyFolder);
         partService.importPart();
     //    bookingOrderPartService.importBookingOrderPart();
-     //   aopMarginService.importAOPMargin();
-    //    bookingOrderService.importOrder();
+       aopMarginService.importAOPMargin();
+        bookingOrderService.importOrder();
 
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();

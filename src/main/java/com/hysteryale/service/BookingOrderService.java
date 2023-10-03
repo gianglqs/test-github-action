@@ -225,9 +225,9 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
 
                     //calculate and adding extra values
-                    if(newBookingOrder.getOrderNo().equals("H19905")){
+                 //   if(newBookingOrder.getOrderNo().equals("H19905")){
                         newBookingOrder = calculateOrderValues(newBookingOrder);
-                    }
+                 //   }
 
                     bookingOrderList.add(newBookingOrder);
                 }
@@ -299,6 +299,8 @@ public class BookingOrderService extends BasedService {
         //get all parts of an order
         Set<Part> parts = getPartsOfOrder(bookingOrder);
 
+        Set<Part> newParts = partRepository.getPartByOrderNumber(bookingOrder.getOrderNo());
+
         //from orderId + Series + Part we can calculate the following
         //      total cost
         //      dealerNet
@@ -332,7 +334,7 @@ public class BookingOrderService extends BasedService {
         double marginPercentageAfterSurcharge = 0;
 
 
-        for (Part part : parts) {
+        for (Part part : newParts) {
 
 
             log.info(part.getPartNumber()+"---------"+part.getListPrice());
@@ -369,6 +371,7 @@ public class BookingOrderService extends BasedService {
 
         dealerNetAfterSurchage += dealerNet - (dealerNet * marginPercent);
         marginAfterSurcharge += totalCost - dealerNetAfterSurchage;
+
         marginPercentageAfterSurcharge += marginAfterSurcharge / totalCost;
 
         bookingOrder.setDealerNet(dealerNet);
@@ -380,6 +383,8 @@ public class BookingOrderService extends BasedService {
 
         return bookingOrder;
     }
+
+
 
     private AOPMargin getAOPMargin(String series, Map<String, AOPMargin> aopMarginByYear) {
         Set<String> setAOPMargins = aopMarginByYear.keySet();

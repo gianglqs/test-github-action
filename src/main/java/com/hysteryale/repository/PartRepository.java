@@ -14,6 +14,9 @@ import java.util.Set;
 
 public interface PartRepository extends JpaRepository<Part, String> {
 
+    @Query("SELECT DISTINCT p FROM Part p WHERE p.orderNumber = ?1 ")
+    public Set<Part> getPartByOrderNumber(String orderNumber) ;
+
     @Query(value = "SELECT * FROM Part p WHERE p.model_code = ?1 AND p.part_number = ?2 AND p.currency_currency = ?3 AND p.recorded_time = ?4 AND p.bill_to = ?5 LIMIT 1", nativeQuery = true)
     Optional<Part> getPartForMarginAnalysis(String modelCode, String partNumber, String currency, Calendar recordedTime, String dealer);
 
@@ -30,16 +33,16 @@ public interface PartRepository extends JpaRepository<Part, String> {
     public Set<Part> getPartByPartNumberAndSeries(String partNumber, String series);
 
 
-    @Query("SELECT DISTINCT p FROM Part p WHERE p.partNumber IN ?1 AND p.")
+    @Query("SELECT DISTINCT p FROM Part p WHERE p.partNumber IN ?1 ")
     public Set<Part> getPartsByPartNumbers(List<String> partNumbers, Calendar date, String series);
 
-    @Query("SELECT p FROM Part p WHERE p.partNumber = :partNumber AND p.series = :series " +
-            "AND EXTRACT(MONTH FROM p.recordedTime) = :month " +
-            "AND EXTRACT(YEAR FROM p.recordedTime) = :year")
-    List<Part> findPartsByPartNumberAndSeriesAndMonthAndYear(
-            @Param("partNumber") String partNumber,
-            @Param("series") String series,
-            @Param("month") int month,
-            @Param("year") int year
-    );
+//    @Query("SELECT p FROM Part p WHERE p.partNumber = :partNumber AND p.series = :series " +
+//            "AND EXTRACT(MONTH FROM p.recordedTime) = :month " +
+//            "AND EXTRACT(YEAR FROM p.recordedTime) = :year")
+//    List<Part> findPartsByPartNumberAndSeriesAndMonthAndYear(
+//            @Param("partNumber") String partNumber,
+//            @Param("series") String series,
+//            @Param("month") int month,
+//            @Param("year") int year
+//    );
 }
