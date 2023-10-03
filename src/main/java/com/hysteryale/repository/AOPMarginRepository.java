@@ -6,8 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface AOPMarginRepository extends JpaRepository<AOPMargin, String> {
-    @Query("SELECT aopMargin FROM AOPMargin aopMargin WHERE aopMargin.year= :year")
-    Map<String, AOPMargin> findByYear(@Param("year") int year);
+    @Query("SELECT DISTINCT aopMargin FROM AOPMargin aopMargin WHERE aopMargin.year= :year")
+    Set< AOPMargin> findByYear(@Param("year") int year);
 }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.text.ParseException;
 
 @RestController
 public class ImportController {
@@ -30,21 +31,26 @@ public class ImportController {
     MarginAnalystService marginAnalystService;
 
     @Resource
+    BookingOrderPartService bookingOrderPartService;
+
+    @Resource
     PartService partService;
 
     String curencyFolder = "import_files/currency_exchangerate";
 
     @PostMapping(path = "/import")
     void importData() throws IOException, IllegalAccessException {
-//        metaSeriesService.importMetaSeries();
+        //      metaSeriesService.importMetaSeries();
 //        apicDealerService.importAPICDealer();
-//        apacSerialService.importAPACSerial();
-        aopMarginService.importAOPMargin();
-//        bookingOrderService.importOrder();
-//        currencyService.importCurrencies(curencyFolder);
+        //      apacSerialService.importAPACSerial();
+    //    currencyService.importCurrencies(curencyFolder);
+        partService.importPart();
+    //    bookingOrderPartService.importBookingOrderPart();
+     //   aopMarginService.importAOPMargin();
+    //    bookingOrderService.importOrder();
+
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
-//        partService.importPart();
-//       marginAnalystService.importMarginAnalystData();
+        //  marginAnalystService.importMarginAnalystData();
     }
 }

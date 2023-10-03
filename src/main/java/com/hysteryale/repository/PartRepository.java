@@ -3,11 +3,14 @@ package com.hysteryale.repository;
 import com.hysteryale.model.Part;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.sql.Date;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 
 public interface PartRepository extends JpaRepository<Part, String> {
 
@@ -26,5 +29,17 @@ public interface PartRepository extends JpaRepository<Part, String> {
     @Query("SElECT DISTINCT p FROM Part p WHERE p.partNumber = ?1 AND p.series = ?2 ")
     public Set<Part> getPartByPartNumberAndSeries(String partNumber, String series);
 
-    public Set<Part> getPartsByPartNumbers(List<String> partNumbers);
+
+    @Query("SELECT DISTINCT p FROM Part p WHERE p.partNumber IN ?1 AND p.")
+    public Set<Part> getPartsByPartNumbers(List<String> partNumbers, Calendar date, String series);
+
+    @Query("SELECT p FROM Part p WHERE p.partNumber = :partNumber AND p.series = :series " +
+            "AND EXTRACT(MONTH FROM p.recordedTime) = :month " +
+            "AND EXTRACT(YEAR FROM p.recordedTime) = :year")
+    List<Part> findPartsByPartNumberAndSeriesAndMonthAndYear(
+            @Param("partNumber") String partNumber,
+            @Param("series") String series,
+            @Param("month") int month,
+            @Param("year") int year
+    );
 }
