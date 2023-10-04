@@ -17,17 +17,23 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-
 @Slf4j
 public class MarginAnalystController {
 
     @Resource
     MarginAnalystService marginAnalystService;
 
-    @PostMapping(path = "/marginAnalystData", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<MarginAnalystData>> getMarginAnalystData(@RequestBody MarginAnalystData marginAnalystData) throws ParseException {
+    @GetMapping(path = "/marginAnalystData/getDealers")
+    public Map<String, List<String>> getDealersInMarginAnalystData() {
+        List<String> dealers = marginAnalystService.getDealersFromMarginAnalystData();
+        return Map.of("dealers", dealers);
+    }
 
-        return marginAnalystService.getMarginAnalystData(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear());
+    @PostMapping(path = "/marginAnalystData", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, List<MarginAnalystData>> getMarginAnalystData(@RequestBody MarginAnalystData marginAnalystData) {
+        if(marginAnalystData.getDealer() == null)
+            return marginAnalystService.getMarginAnalystData(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear());
+        return marginAnalystService.getMarginDataForAnalysisByDealer(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear(), marginAnalystData.getDealer());
     }
 
     @PostMapping(path = "/marginAnalystSummary", consumes = MediaType.APPLICATION_JSON_VALUE)

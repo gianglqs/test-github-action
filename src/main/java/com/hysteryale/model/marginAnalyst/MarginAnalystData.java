@@ -35,4 +35,5 @@ public class MarginAnalystData {
     private Currency currency;
     private double costRMB;
     private String dealer;  // equivalent with billTo in Part
+    private double dealerNet;
 }
