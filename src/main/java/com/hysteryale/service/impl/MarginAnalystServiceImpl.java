@@ -140,6 +140,8 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             double netPrice = part.getNetPriceEach();
             double costRMB = row.getCell(marginAnalysisColumns.get("Add on Cost RMB")).getNumericCellValue();
 
+            marginAnalystData.setDealerNet(netPrice);
+
             // Notes: some of parameters are assigned manually
 
             // AUD = 0.2159, USD = 0.1569
@@ -352,5 +354,13 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             else
                 return 0.2132;
         }
+    }
+    @Override
+    public List<String> getDealersFromMarginAnalystData() {
+        return marginAnalystDataRepository.getDealersFromMarginAnalystData();
+    }
+    @Override
+    public Map<String, List<MarginAnalystData>> getMarginDataForAnalysisByDealer(String modelCode, String currency, Calendar monthYear, String dealer) {
+        return Map.of("MarginAnalystData", marginAnalystDataRepository.getMarginDataForAnalysisByDealer(modelCode, currency, monthYear, dealer));
     }
 }
