@@ -27,6 +27,7 @@ public class BookingOrder {
     private String comment;
     private int truckClass;
     private String Series;
+   // private String billTo;
 
     //properties that we need to calculate based on raw data
     private int quantity = 1;
