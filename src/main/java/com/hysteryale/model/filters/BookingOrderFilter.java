@@ -1,10 +1,12 @@
 package com.hysteryale.model.filters;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
+@AllArgsConstructor
 public class BookingOrderFilter {
 
     private String orderNo;
@@ -17,6 +19,8 @@ public class BookingOrderFilter {
     private List<String> segments;
     private String strFromDate;
     private String strToDate;
+    private String AOPMarginPercetage;
+    private String MarginPercetage;
 
     public BookingOrderFilter(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate) {
         this.orderNo = orderNo;

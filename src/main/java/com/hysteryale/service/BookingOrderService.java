@@ -225,9 +225,9 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
 
                     //calculate and adding extra values
-                 //   if(newBookingOrder.getOrderNo().equals("H19905")){
-                        newBookingOrder = calculateOrderValues(newBookingOrder);
-                 //   }
+                    //   if(newBookingOrder.getOrderNo().equals("H19905")){
+                    newBookingOrder = calculateOrderValues(newBookingOrder);
+                    //   }
 
                     bookingOrderList.add(newBookingOrder);
                 }
@@ -263,6 +263,9 @@ public class BookingOrderService extends BasedService {
         List<String> models = bookingOrderFilter.getModels();
         List<String> segments = bookingOrderFilter.getSegments();
 
+        String AOPMarginPercetage = bookingOrderFilter.getAOPMarginPercetage();
+        String  MarginPercetage = bookingOrderFilter.getMarginPercetage();
+
         // Get from DATE to DATE
         String strFromDate = bookingOrderFilter.getStrFromDate();
         String strToDate = bookingOrderFilter.getStrToDate();
@@ -273,8 +276,8 @@ public class BookingOrderService extends BasedService {
         // Create Map of BookingOrders based on filters and pagination
         // And totalItems without paging
         Map<String, Object> bookingOrdersPage = new HashMap<>();
-        bookingOrdersPage.put("bookingOrdersList", customBookingOrderRepository.getBookingOrdersByFiltersByPage(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, perPage, offSet));
-        bookingOrdersPage.put("totalItems", getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate));
+        bookingOrdersPage.put("bookingOrdersList", customBookingOrderRepository.getBookingOrdersByFiltersByPage(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate,AOPMarginPercetage,MarginPercetage, perPage, offSet));
+        bookingOrdersPage.put("totalItems", getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage));
 
         return bookingOrdersPage;
     }
@@ -282,8 +285,8 @@ public class BookingOrderService extends BasedService {
     /**
      * Get number of BookingOrders returned by filters
      */
-    public long getNumberOfBookingOrderByFilters(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate) throws java.text.ParseException {
-        return customBookingOrderRepository.getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate);
+    public long getNumberOfBookingOrderByFilters(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage) throws java.text.ParseException {
+        return customBookingOrderRepository.getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate,AOPMarginPercetage,MarginPercetage);
     }
 
     /**
@@ -337,7 +340,7 @@ public class BookingOrderService extends BasedService {
         for (Part part : newParts) {
 
 
-            log.info(part.getPartNumber()+"---------"+part.getListPrice());
+            log.info(part.getPartNumber() + "---------" + part.getListPrice());
 
             //total Cost
             totalCost = totalCost + part.getListPrice();
@@ -349,8 +352,7 @@ public class BookingOrderService extends BasedService {
 
 
             // marginPercent = aopMargin.getMarginSTD();
-           // bookingOrder.setAOPMarginPercentage(marginPercent);
-
+            // bookingOrder.setAOPMarginPercentage(marginPercent);
 
 
 //            //dealnet after surcharge
@@ -367,7 +369,7 @@ public class BookingOrderService extends BasedService {
 
 
         }
-        log.info(dealerNet+"");
+        log.info(dealerNet + "");
 
         dealerNetAfterSurchage += dealerNet - (dealerNet * marginPercent);
         marginAfterSurcharge += totalCost - dealerNetAfterSurchage;
@@ -383,7 +385,6 @@ public class BookingOrderService extends BasedService {
 
         return bookingOrder;
     }
-
 
 
     private AOPMargin getAOPMargin(String series, Map<String, AOPMargin> aopMarginByYear) {
@@ -427,7 +428,46 @@ public class BookingOrderService extends BasedService {
             partNumbers.add(bookingOrderPart.getPart());
         }
 
-        return partRepository.getPartsByPartNumbers(partNumbers, bookingOrder.getDate(), bookingOrder.getSeries()  );
+        return partRepository.getPartsByPartNumbers(partNumbers, bookingOrder.getDate(), bookingOrder.getSeries());
+    }
+
+    public List<Map<String, String>> getAPOMarginPercentageForFilter() {
+        List<Map<String, String>> result = new ArrayList<>();
+
+        Map<String, String> APOMarginPercentageMapAbove = new HashMap<>();
+        APOMarginPercentageMapAbove.put("value", "Above AOP Margin %");
+        result.add(APOMarginPercentageMapAbove);
+
+        Map<String, String> APOMarginPercentageMapBelow = new HashMap<>();
+        APOMarginPercentageMapBelow.put("value", "Below AOP Margin %");
+        result.add(APOMarginPercentageMapBelow);
+
+        return result;
+    }
+
+    public List<Map<String, String>> getMarginPercentageForFilter() {
+        List<Map<String, String>> result = new ArrayList<>();
+
+        Map<String, String> MarginBelow10 = new HashMap<>();
+        MarginBelow10.put("value", "<10% Margin");
+        result.add(MarginBelow10);
+
+        Map<String, String> MarginBelow20 = new HashMap<>();
+        MarginBelow20.put("value", "<20% Margin");
+        result.add(MarginBelow20);
+
+        Map<String, String> MarginBelow30 = new HashMap<>();
+        MarginBelow30.put("value", "<30% Margin");
+        result.add(MarginBelow30);
+
+        Map<String, String> MarginAbove30 = new HashMap<>();
+        MarginAbove30.put("value", ">=30% Margin");
+        result.add(MarginAbove30);
+
+//        Map<String, String> MarginVe = new HashMap<>();
+//        MarginBelow10.put("value", "<10% Margin>");
+//        result.add(MarginBelow10);
+        return result;
     }
 
     /**
