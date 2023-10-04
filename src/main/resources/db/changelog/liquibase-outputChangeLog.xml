@@ -12,7 +12,7 @@
             <column name="dealerpo" type="VARCHAR(255)"/>
             <column name="order_type" type="VARCHAR(255)"/>
             <column name="region" type="VARCHAR(255)"/>
-            <column name="truck_class" type="INTEGER">
+            <column name="truck_class" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="apac_serial_model" type="VARCHAR(255)"/>

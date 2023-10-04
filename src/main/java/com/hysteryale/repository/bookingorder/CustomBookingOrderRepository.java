@@ -30,11 +30,11 @@ public class CustomBookingOrderRepository {
         if (!regions.isEmpty())
             queryString += "AND b.region IN :regions ";
         if (!dealers.isEmpty())
-            queryString += "AND b.billTo.dealerDivison IN :dealers ";
+            queryString += "AND b.billTo IN :dealers ";
         if (!plants.isEmpty())
             queryString += "AND b.apacSerial.plant IN :plants ";
         if (!metaSeries.isEmpty())
-            queryString += "AND b.apacSerial.metaSeries.series IN :metaSeries ";
+            queryString += "AND b.Series IN :metaSeries ";
         if (!classes.isEmpty())
             queryString += "AND b.apacSerial.metaSeries.clazz IN :classes ";
         if (!models.isEmpty())
@@ -51,9 +51,10 @@ public class CustomBookingOrderRepository {
             }
         }
         if (!MarginPercetage.isEmpty()) {
+            queryString+="AND b.marginPercentageAfterSurCharge <> 'NaN'";
             switch (MarginPercetage) {
                 case "<10% Margin":
-                    queryString += "AND b.marginPercentageAfterSurCharge < 0.1 "; //AND b.marginPercentageAfterSurCharge <> 'NaN'
+                    queryString += "AND b.marginPercentageAfterSurCharge < 0.1 "; //
                     break;
                 case "<20% Margin":
                     queryString += "AND b.marginPercentageAfterSurCharge < 0.2";

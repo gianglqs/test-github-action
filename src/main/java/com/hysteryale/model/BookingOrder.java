@@ -24,10 +24,12 @@ public class BookingOrder {
     private String region;
     private String ctryCode;
     private String dealerPO;
+    private String dealerName;
     private String comment;
-    private int truckClass;
     private String Series;
-   // private String billTo;
+    private String billTo;
+    private String model;
+    private String truckClass;
 
     //properties that we need to calculate based on raw data
     private int quantity = 1;

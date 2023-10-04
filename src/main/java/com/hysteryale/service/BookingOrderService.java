@@ -137,9 +137,21 @@ public class BookingOrderService extends BasedService {
             } else if (field.getName().equals("billTo")) {
                 try {
                     field.setAccessible(true);
+                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
+                    field.set(bookingOrder, cell.getStringCellValue());
                     APICDealer apicDealer =
                             apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
                     field.set(bookingOrder, apicDealer);
+                } catch (Exception e) {
+                    rollbar.error(e.toString());
+                    log.error(e.toString());
+                }
+            } else if (field.getName().equals("model")) {
+                try {
+                    field.setAccessible(true);
+                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
+                    field.set(bookingOrder, cell.getStringCellValue());
+
                 } catch (Exception e) {
                     rollbar.error(e.toString());
                     log.error(e.toString());
@@ -156,7 +168,11 @@ public class BookingOrderService extends BasedService {
                         switch (fieldType) {
                             case "java.lang.String":
                                 //log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
-                                field.set(bookingOrder, cell.getStringCellValue());
+                                if (cell.getCellType() == CellType.STRING) {
+                                    field.set(bookingOrder, cell.getStringCellValue());
+                                } else if (cell.getCellType() == CellType.NUMERIC) {
+                                    field.set(bookingOrder, cell.getNumericCellValue()+"");
+                                }
                                 break;
                             case "int":
                                 if (cell.getCellType().equals(CellType.STRING.getCode())) {
@@ -226,7 +242,7 @@ public class BookingOrderService extends BasedService {
 
                     //calculate and adding extra values
                     //   if(newBookingOrder.getOrderNo().equals("H19905")){
-                    newBookingOrder = calculateOrderValues(newBookingOrder);
+                    //  newBookingOrder = calculateOrderValues(newBookingOrder);
                     //   }
 
                     bookingOrderList.add(newBookingOrder);
@@ -264,7 +280,7 @@ public class BookingOrderService extends BasedService {
         List<String> segments = bookingOrderFilter.getSegments();
 
         String AOPMarginPercetage = bookingOrderFilter.getAOPMarginPercetage();
-        String  MarginPercetage = bookingOrderFilter.getMarginPercetage();
+        String MarginPercetage = bookingOrderFilter.getMarginPercetage();
 
         // Get from DATE to DATE
         String strFromDate = bookingOrderFilter.getStrFromDate();
@@ -276,7 +292,7 @@ public class BookingOrderService extends BasedService {
         // Create Map of BookingOrders based on filters and pagination
         // And totalItems without paging
         Map<String, Object> bookingOrdersPage = new HashMap<>();
-        bookingOrdersPage.put("bookingOrdersList", customBookingOrderRepository.getBookingOrdersByFiltersByPage(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate,AOPMarginPercetage,MarginPercetage, perPage, offSet));
+        bookingOrdersPage.put("bookingOrdersList", customBookingOrderRepository.getBookingOrdersByFiltersByPage(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage, perPage, offSet));
         bookingOrdersPage.put("totalItems", getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage));
 
         return bookingOrdersPage;
@@ -286,7 +302,7 @@ public class BookingOrderService extends BasedService {
      * Get number of BookingOrders returned by filters
      */
     public long getNumberOfBookingOrderByFilters(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage) throws java.text.ParseException {
-        return customBookingOrderRepository.getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate,AOPMarginPercetage,MarginPercetage);
+        return customBookingOrderRepository.getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
     }
 
     /**

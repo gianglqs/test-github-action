@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class APICDealerServiceTest {
     @Resource
@@ -32,7 +33,7 @@ public class APICDealerServiceTest {
     }
 
     @Test
-    void testImportAPICDealer() throws FileNotFoundException, IllegalAccessException {
+    void testImportAPICDealer() throws IOException, IllegalAccessException {
         apicDealerService.importAPICDealer();
     }
 }
