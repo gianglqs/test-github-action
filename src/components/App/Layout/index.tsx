@@ -76,7 +76,7 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
           variant="body1"
           fontWeight="fontWeightMedium"
           className={classes.label}
-          color={router.pathname === `/${name}` ? "#1976d2" : ""}
+          color={router.pathname === `/${name}` ? "#e7a800" : ""}
         >
           {menuObj[name]}
         </Typography>

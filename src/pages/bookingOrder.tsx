@@ -31,7 +31,18 @@ export default function Booking() {
   const handleChangeDataFilter = (option, field) => {
     setDataFilter((prev) =>
       produce(prev, (draft) => {
-        if (_.includes(["orderNo", "fromDate", "toDate"], field)) {
+        if (
+          _.includes(
+            [
+              "orderNo",
+              "fromDate",
+              "toDate",
+              "MarginPercetage",
+              "AOPMarginPercetage",
+            ],
+            field
+          )
+        ) {
           draft[field] = option
         } else {
           draft[field] = option.map(({ value }) => value)
@@ -145,19 +156,6 @@ export default function Booking() {
     },
   ]
 
-  const arrTmp = [
-    { value: "dealer" },
-    { value: "delser2" },
-    { value: "dealer3" },
-    { value: "delser4" },
-    { value: "delser5" },
-    { value: "delser6" },
-    { value: "delser7" },
-    { value: "delser8" },
-    { value: "delser9" },
-    { value: "delser10" },
-  ]
-
   return (
     <>
       <AppLayout entity="booking">
@@ -176,7 +174,7 @@ export default function Booking() {
           </Grid>
           <Grid item xs={2}>
             <AppAutocomplete
-              options={arrTmp}
+              options={[]}
               label="Region"
               limitTags={2}
               disableListWrap
@@ -288,11 +286,29 @@ export default function Booking() {
             />
           </Grid>
           <Grid item xs={2}>
-            <AppAutocomplete options={[]} label="AOP Margin %" />
+            <AppAutocomplete
+              options={initDataFilter.AOPMarginPercetage}
+              label="AOP Margin %"
+              primaryKeyOption="value"
+              onChange={(e, { value }) =>
+                handleChangeDataFilter(value, "MarginPercetage")
+              }
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
           </Grid>
           <Grid item xs={4}>
             <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
-              <AppAutocomplete options={[]} label="Margin %" />
+              <AppAutocomplete
+                options={initDataFilter.MarginPercetage}
+                label="Margin %"
+                onChange={(e, { value }) =>
+                  handleChangeDataFilter(value, "AOPMarginPercetage")
+                }
+                primaryKeyOption="value"
+                renderOption={(prop, option) => `${option.value}`}
+                getOptionLabel={(option) => `${option.value}`}
+              />
             </Grid>
           </Grid>
           <Grid item xs={2}>

@@ -52,6 +52,13 @@ const components: Components = {
       },
     },
   },
+  MuiIconButton: {
+    styleOverrides: {
+      root: {
+        marginRight: "0px !important",
+      },
+    },
+  },
   MuiTabs: {
     styleOverrides: {
       root: {

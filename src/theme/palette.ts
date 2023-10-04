@@ -8,6 +8,9 @@ export const secondaryColor = {
 }
 
 const palette = {
+  primary: {
+    main: "#e7a800", // very red
+  },
   secondary: secondaryColor,
 } as Palette
 

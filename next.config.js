@@ -1,4 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {}
+/* eslint-disable @typescript-eslint/no-var-requires */
+const withImages = require("next-images")
+const withPlugins = require("next-compose-plugins")
 
-module.exports = nextConfig
+module.exports = withPlugins([
+  withImages(),
+  {
+    images: {
+      disableStaticImages: true,
+    },
+  },
+])
