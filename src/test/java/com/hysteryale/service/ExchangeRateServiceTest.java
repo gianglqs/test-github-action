@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class ExchangeRateServiceTest {
     @Resource
@@ -31,14 +32,15 @@ public class ExchangeRateServiceTest {
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
     }
+
     @AfterEach
     void tearDown() throws Exception {
         autoCloseable.close();
     }
 
     @Test
-    void testImportExchangeRate() throws FileNotFoundException {
-       // exchangeRateService.importExchangeRate();
+    void testImportExchangeRate() throws IOException {
+        exchangeRateService.importExchangeRate();
     }
 
 }
