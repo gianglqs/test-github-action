@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class AOPMarginServiceTest {
     @Resource
@@ -30,7 +31,7 @@ public class AOPMarginServiceTest {
     }
 
     @Test
-    void testImportAOPMargin() throws FileNotFoundException, IllegalAccessException {
+    void testImportAOPMargin() throws IOException, IllegalAccessException {
         aopMarginService.importAOPMargin();
     }
 }

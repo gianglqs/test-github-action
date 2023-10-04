@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +39,7 @@ public class BookingOrderServiceTest {
     List<BookingOrder> bookingOrderList = new ArrayList<>();
 
     @BeforeEach
-    void setUp() throws FileNotFoundException, IllegalAccessException {
+    void setUp() throws IOException, IllegalAccessException {
         autoCloseable = MockitoAnnotations.openMocks(this);
         createMockedBookingOrderList();
     }
@@ -47,13 +49,9 @@ public class BookingOrderServiceTest {
         autoCloseable.close();
     }
 
-    void createMockedBookingOrderList() throws IllegalAccessException, FileNotFoundException {
+    void createMockedBookingOrderList() throws IllegalAccessException, IOException {
         InputStream is = new FileInputStream("import_files/booking/01. Bookings Register - Apr -2023 (Jason).xlsx");
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet orderSheet = workbook.getSheet("Input - Bookings");
         for (Row row : orderSheet) {
@@ -91,13 +89,9 @@ public class BookingOrderServiceTest {
         Assertions.assertFalse(result.isEmpty());
     }
     @Test
-    void testGetAPACColumnsName() throws FileNotFoundException {
+    void testGetAPACColumnsName() throws IOException {
         InputStream is = new FileInputStream("import_files/APAC/APAC Serial in NOVO master file.xlsx");
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet orderSheet = workbook.getSheet("Master Summary");
         HashMap<String, Integer> APAC_COLUMNS = new HashMap<>();

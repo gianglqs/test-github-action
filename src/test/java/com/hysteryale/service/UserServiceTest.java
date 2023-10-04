@@ -40,7 +40,7 @@ public class UserServiceTest {
     @Mock
     EmailServiceImpl emailService;
     private AutoCloseable autoCloseable;
-    int pageNo = 0;
+    int pageNo = 1;
     int perPage = 100;
     String sortType = "ascending";
 
@@ -181,11 +181,11 @@ public class UserServiceTest {
         String userName = "given";
 
         // WHEN
-        when(userRepository.searchUser(userName, PageRequest.of(pageNo, perPage, Sort.by("userName").ascending()))).thenReturn(new PageImpl<>(userList));
+        when(userRepository.searchUser(userName, PageRequest.of(pageNo - 1, perPage, Sort.by("userName").ascending()))).thenReturn(new PageImpl<>(userList));
         Page<User> result = underTest.searchUser(userName, pageNo, perPage, sortType);
 
         // THEN
-        Mockito.verify(userRepository).searchUser(userName, PageRequest.of(pageNo, perPage, Sort.by("userName").ascending()));
+        Mockito.verify(userRepository).searchUser(userName, PageRequest.of(pageNo - 1, perPage, Sort.by("userName").ascending()));
         Assertions.assertEquals(userList.size(), result.getContent().size());
     }
 

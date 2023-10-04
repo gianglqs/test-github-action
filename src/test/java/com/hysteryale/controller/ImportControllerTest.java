@@ -1,5 +1,6 @@
 package com.hysteryale.controller;
 
+import com.hysteryale.service.PartService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -12,10 +13,10 @@ import java.io.FileNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
 class ImportControllerTest extends BasedControllerTest {
-
-
     @InjectMocks
     ImportController importController;
+    @Mock
+    PartService partService;
 
     @Test
     void importData() {
