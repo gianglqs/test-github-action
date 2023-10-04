@@ -1,4 +1,4 @@
-import { styled, Paper } from "@mui/material"
+import { styled, Paper, CssBaseline } from "@mui/material"
 
 import NextHead from "next/head"
 import { LoadingButton } from "@mui/lab"
@@ -9,7 +9,11 @@ import { useDispatch } from "react-redux"
 import { commonStore } from "@/store/reducers"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
-import { AppFooter } from '@/components'
+import { AppFooter } from "@/components"
+import Image from "next/image"
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const logo = require("../public/logo.svg")
 
 const StyledContainer = styled("div")(() => ({
   height: `calc(100vh - ${25}px)`,
@@ -56,12 +60,10 @@ export default function LoginPage() {
       <NextHead>
         <title>HysterYale - Sign in</title>
       </NextHead>
+      <CssBaseline />
       <StyledContainer className="center-element">
         <StyledFormContainer>
-          <div id="logo" role="logo">
-            Hyster-Yale
-            {/* <Image src={logo as any} alt="The logo" width={160} height={40} /> */}
-          </div>
+          <Image src={logo} width={250} height={40} alt="Hyster-Yale" />
           <form onSubmit={handleResetPassword}>
             <FormControlledTextField
               control={resetPasswordForm.control}

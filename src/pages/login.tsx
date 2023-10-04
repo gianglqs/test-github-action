@@ -15,7 +15,12 @@ import { useDispatch } from "react-redux"
 import { commonStore } from "@/store/reducers"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { LoginFormValues } from "@/types/auth"
-import { AppFooter } from '@/components'
+import { AppFooter } from "@/components"
+
+import Image from "next/image"
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const logo = require("../public/logo.svg")
 
 const StyledContainer = styled("div")(() => ({
   height: `calc(100vh - ${25}px)`,
@@ -28,9 +33,6 @@ const StyledFormContainer = styled(Paper)(({ theme }) => ({
   maxWidth: 400,
   padding: theme.spacing(3),
 }))
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const logoHysterYale = require("../public/logo.svg")
 
 export default function LoginPage() {
   const router = useRouter()
@@ -66,7 +68,11 @@ export default function LoginPage() {
         },
       }
       axios
-        .post("http://192.168.1.150:8080/hysteryale-2.3.0.RELEASE/oauth/token", transformData, options)
+        .post(
+          "http://192.168.1.150:8080/hysteryale-2.3.0.RELEASE/oauth/token",
+          transformData,
+          options
+        )
         .then((response) => {
           const { redirect_to, access_token } = response.data
           setCookie(null, "token", access_token, { maxAge: 2147483647 })
@@ -91,9 +97,7 @@ export default function LoginPage() {
       <StyledContainer className="center-element">
         {/* <CssBaseline /> */}
         <StyledFormContainer>
-          <div id="logo" role="logo">
-            <img src={logoHysterYale} alt="Hyster - Yale" />
-          </div>
+          <Image src={logo} width={250} height={40} alt="Hyster-Yale" />
           <form onSubmit={handleSubmitLogin}>
             <FormControlledTextField
               control={loginForm.control}

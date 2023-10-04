@@ -23,7 +23,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard"
 import PeopleIcon from "@mui/icons-material/People"
 import LayersIcon from "@mui/icons-material/Layers"
 import { ReplayOutlined as ReloadIcon } from "@mui/icons-material"
-import { Button } from "@mui/material"
+import { Button, CssBaseline } from "@mui/material"
 
 import { useDispatch, useSelector } from "react-redux"
 import { dashboardStore } from "@/store/reducers"
@@ -37,6 +37,10 @@ import { AppFooter, AppSearchBar, DataTable, EditIcon } from "@/components"
 import { DialogCreateUser } from "@/components/Dialog/Module/Dashboard/CreateDialog"
 import { DeactiveUserDialog } from "@/components/Dialog/Module/Dashboard/DeactiveUserDialog"
 import { DialogUpdateUser } from "@/components/Dialog/Module/Dashboard/UpdateDialog"
+import Image from "next/image"
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const logo = require("../public/logo.svg")
 
 const drawerWidth: number = 240
 
@@ -297,6 +301,7 @@ export default function Dashboard() {
               px: [1],
             }}
           >
+            <Image src={logo} width={185} height={60} alt="Hyster-Yale" />
             <IconButton onClick={toggleDrawer}>
               <ChevronLeftIcon />
             </IconButton>
@@ -340,7 +345,7 @@ export default function Dashboard() {
           <Toolbar />
           <Grid container justifyContent="flex-end" sx={{ padding: 1 }}>
             <Button
-              variant="outlined"
+              variant="contained"
               style={{ marginLeft: 5 }}
               color="primary"
             >
@@ -349,7 +354,7 @@ export default function Dashboard() {
             </Button>
             <Button
               onClick={handleOpenCreateDialog}
-              variant="outlined"
+              variant="contained"
               style={{ marginLeft: 5 }}
               color="primary"
             >

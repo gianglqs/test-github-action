@@ -6,23 +6,16 @@ import marginAnalysisApi from "@/api/marginAnalysis.api"
 
 function* fetchMarginAnalysis() {
   try {
-    const { data } = yield* call(
-      marginAnalysisApi.getListMarginAnalysisSummary,
-      {
-        modelCode: "GP30UX",
-        currency: {
-          currency: "USD",
-        },
-        monthYear: "2023-08-01",
-      }
-    )
+    const { data } = yield* call(marginAnalysisApi.getDealerList)
 
-    // yield put(dashboardStore.actions.setUserList(JSON.parse(data)?.userList))
+    yield put(
+      marginAnalysisStore.actions.setDealerList(JSON.parse(data)?.dealers)
+    )
   } catch (error) {}
 }
 
 function* marginAnalysisSaga() {
-  // yield takeEvery(marginAnalysisStore.sagaGetList, fetchMarginAnalysis)
+  yield takeEvery(marginAnalysisStore.sagaGetList, fetchMarginAnalysis)
 }
 
 export default marginAnalysisSaga

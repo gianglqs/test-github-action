@@ -13,6 +13,7 @@ export const resetState = createAction(`${name}/RESET_STATE`)
 
 export const initialState = {
   marginAnalystData: [] as any[],
+  dealerList: [] as any[],
 }
 
 const marginAnalysisSlice = createSlice({
@@ -21,6 +22,9 @@ const marginAnalysisSlice = createSlice({
   reducers: {
     setMarginAnalystData(state, { payload }: PayloadAction<any[]>) {
       state.marginAnalystData = payload
+    },
+    setDealerList(state, { payload }: PayloadAction<any[]>) {
+      state.dealerList = payload
     },
   },
   extraReducers: {
@@ -36,6 +40,11 @@ export const selectState = (state: RootReducerType) => state[name]
 export const selectMarginAnalystData = createSelector(
   selectState,
   (state) => state.marginAnalystData
+)
+
+export const selectDealerList = createSelector(
+  selectState,
+  (state) => state.dealerList
 )
 
 export const { actions } = marginAnalysisSlice

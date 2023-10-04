@@ -12,7 +12,7 @@ export default makeStyles((theme) => {
       boxShadow: "none !important",
       color: theme.palette.common.black,
       padding: theme.spacing(0, 1.5),
-      borderBottom: "solid 1px #1976d2",
+      borderBottom: "solid 1px #e7a800",
       marginBottom: 10,
     },
     navigation: {
