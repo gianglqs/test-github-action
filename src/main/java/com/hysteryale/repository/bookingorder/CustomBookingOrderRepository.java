@@ -30,19 +30,24 @@ public class CustomBookingOrderRepository {
         if (!regions.isEmpty())
             queryString += "AND b.region IN :regions ";
         if (!dealers.isEmpty())
-            queryString += "AND b.billTo IN :dealers ";
-        if (!plants.isEmpty())
-            queryString += "AND b.apacSerial.plant IN :plants ";
+            queryString += "AND b.dealerName IN :dealers ";
+//        if (!plants.isEmpty())
+//            queryString += "AND b.apacSerial.plant IN :plants "; //
         if (!metaSeries.isEmpty())
             queryString += "AND b.Series IN :metaSeries ";
-        if (!classes.isEmpty())
-            queryString += "AND b.apacSerial.metaSeries.clazz IN :classes ";
+//        if (!classes.isEmpty())
+//            queryString += "AND b.apacSerial.metaSeries.clazz IN :classes ";
         if (!models.isEmpty())
-            queryString += "AND b.apacSerial.model IN :models ";
-        if (!segments.isEmpty())
-            queryString += "AND b.apacSerial.metaSeries.segment1 IN :segments ";
-        if (!strFromDate.isEmpty() && !strToDate.isEmpty())
-            queryString += "AND b.date BETWEEN :fromDate AND :toDate";
+            queryString += "AND b.model IN :models ";
+//        if (!segments.isEmpty())
+//            queryString += "AND b.apacSerial.metaSeries.segment1 IN :segments ";
+        if (!strFromDate.isEmpty() )
+            queryString += "AND b.date >= :fromDate ";
+
+        if ( !strToDate.isEmpty())
+            queryString += "AND b.date <= :toDate";
+
+
         if (!AOPMarginPercetage.isEmpty()) {
             if (AOPMarginPercetage.equals("Above AOP Margin %")) {
                 queryString += "AND b.marginPercentageAfterSurCharge >= b.AOPMarginPercentage";
@@ -72,27 +77,31 @@ public class CustomBookingOrderRepository {
         query.setParameter("orderNo", orderNo);
 
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar ;
 
         // Set value if parameter is existed
         if (!regions.isEmpty())
             query.setParameter("regions", regions);
         if (!dealers.isEmpty())
             query.setParameter("dealers", dealers);
-        if (!plants.isEmpty())
-            query.setParameter("plants", plants);
+//        if (!plants.isEmpty())
+//            query.setParameter("plants", plants);
         if (!metaSeries.isEmpty())
             query.setParameter("metaSeries", metaSeries);
-        if (!classes.isEmpty())
-            query.setParameter("classes", classes);
+//        if (!classes.isEmpty())
+//            query.setParameter("classes", classes);
         if (!models.isEmpty())
             query.setParameter("models", models);
-        if (!segments.isEmpty())
-            query.setParameter("segments", segments);
-        if (!strFromDate.isEmpty() && !strToDate.isEmpty()) {
+//        if (!segments.isEmpty())
+//            query.setParameter("segments", segments);
+        if (!strFromDate.isEmpty() ) {
+            calendar = Calendar.getInstance();
             calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(strFromDate));
             query.setParameter("fromDate", calendar);
 
+        }
+        if ( !strToDate.isEmpty()) {
+            calendar = Calendar.getInstance();
             calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(strToDate));
             query.setParameter("toDate", calendar);
         }

@@ -242,7 +242,7 @@ public class BookingOrderService extends BasedService {
 
                     //calculate and adding extra values
                     //   if(newBookingOrder.getOrderNo().equals("H19905")){
-                    //  newBookingOrder = calculateOrderValues(newBookingOrder);
+                      newBookingOrder = calculateOrderValues(newBookingOrder);
                     //   }
 
                     bookingOrderList.add(newBookingOrder);
