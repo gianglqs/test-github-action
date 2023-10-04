@@ -40,17 +40,16 @@ public class ImportController {
 
     @PostMapping(path = "/import")
     void importData() throws IOException, IllegalAccessException {
-        //      metaSeriesService.importMetaSeries();
+//        metaSeriesService.importMetaSeries();
 //        apicDealerService.importAPICDealer();
-        //      apacSerialService.importAPACSerial();
-        currencyService.importCurrencies(curencyFolder);
-        partService.importPart();
-    //    bookingOrderPartService.importBookingOrderPart();
-       aopMarginService.importAOPMargin();
-        bookingOrderService.importOrder();
-
+//        apacSerialService.importAPACSerial();
+//        currencyService.importCurrencies(curencyFolder);
+//        partService.importPart();
+//        bookingOrderPartService.importBookingOrderPart();
+//        aopMarginService.importAOPMargin();
+//        bookingOrderService.importOrder();
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
-        //  marginAnalystService.importMarginAnalystData();
+        marginAnalystService.importMarginAnalystData();
     }
 }

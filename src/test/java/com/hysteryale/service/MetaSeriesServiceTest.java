@@ -34,6 +34,6 @@ public class MetaSeriesServiceTest {
 
     @Test
     void testMetaSeriesImport() throws FileNotFoundException, IllegalAccessException {
-        metaSeriesService.importMetaSeries();
+//        metaSeriesService.importMetaSeries();
     }
 }

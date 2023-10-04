@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
 public class UserControllerTest extends BasedControllerTest{
     @InjectMocks
     UserController userController;
