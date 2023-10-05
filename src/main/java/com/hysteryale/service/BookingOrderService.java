@@ -486,23 +486,25 @@ public class BookingOrderService extends BasedService {
         return result;
     }
 
-    public List<Map<String, String>> getAllDealer() {
+
+    public List<Map<String, String>> getAllDealerName() {
         List<Map<String, String>> result = new ArrayList<>();
-        List<BookingOrder> bookingOrderList = bookingOrderRepository.findAll();
-        for (BookingOrder bookingOrder : bookingOrderList) {
+        List<String> list = bookingOrderRepository.getAllDealerName();
+        for (String dealerName : list) {
             Map<String, String> map = new HashMap<>();
-            map.put("value", bookingOrder.getDealerName());
+            map.put("value", dealerName);
             result.add(map);
         }
         return result;
     }
 
+
     public List<Map<String, String>> getAllModel() {
         List<Map<String, String>> result = new ArrayList<>();
-        List<BookingOrder> bookingOrderList = bookingOrderRepository.findAll();
-        for (BookingOrder bookingOrder : bookingOrderList) {
+        List<String> modelList = bookingOrderRepository.getAllModel();
+        for (String model : modelList) {
             Map<String, String> map = new HashMap<>();
-            map.put("value", bookingOrder.getModel());
+            map.put("value", model);
             result.add(map);
         }
         return result;

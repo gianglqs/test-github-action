@@ -44,7 +44,7 @@ public class BookingOrderController {
         Map<String, Object> filters = new HashMap<>();
 
         //filters.put("dealers", apicDealerService.getAllAPICDealers());
-        filters.put("dealers", bookingOrderService.getAllDealer());
+        filters.put("dealers", bookingOrderService.getAllDealerName());
         filters.put("plants", apacSerialService.getAllPlants());
         filters.put("metaSeries", metaSeriesService.getAllMetaSeries());
         filters.put("classes", metaSeriesService.getMetaSeriesClasses());
