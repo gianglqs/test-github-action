@@ -25,8 +25,7 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
-@Slf4j
-public class UserService {
+public class UserService extends BasedService{
     @Resource
     UserRepository userRepository;
     @Resource
@@ -52,7 +51,7 @@ public class UserService {
     public User getUserById(Integer userId) {
         Optional<User> user = userRepository.findById(userId);
         if(user.isEmpty()){
-            log.error("NOT_FOUND: userId " + userId );
+            logError("NOT_FOUND: userId " + userId );
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user with id: " + userId);
         }
         return user.get();
