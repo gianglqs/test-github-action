@@ -89,7 +89,7 @@ export default function Booking() {
       flex: 1.2,
       headerName: "Dealer Name",
       renderCell(params) {
-        return <span>{params.row.billTo?.dealerDivison}</span>
+        return <span>{params.row.dealerName}</span>
       },
     },
     {
@@ -113,7 +113,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Series",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.metaSeries?.series}</span>
+        return <span>{params.row.series}</span>
       },
     },
     {
@@ -121,38 +121,60 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Models",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.model}</span>
+        return <span>{params.row.model}</span>
       },
     },
     {
-      field: "qty",
+      field: "quantity",
       flex: 0.8,
       headerName: "Qty",
     },
     {
-      field: "Total Cost",
+      field: "totalCost",
       flex: 0.8,
       headerName: "Total Cost",
     },
     {
-      field: "DN",
+      field: "dealerNet",
       flex: 0.8,
       headerName: "DN",
+      renderCell(params) {
+        return <span>{(params?.row.dealerNet).toFixed(2)}</span>
+      },
     },
     {
-      field: "DN After Surcharge",
+      field: "dealerNetAfterSurCharge",
       flex: 0.8,
       headerName: "DN After Surcharge",
+      renderCell(params) {
+        return <span>{(params?.row.dealerNetAfterSurCharge).toFixed(2)}</span>
+      },
     },
     {
-      field: "Margin $ After Surcharge",
+      field: "marginAfterSurCharge",
       flex: 1,
       headerName: "Margin $ After Surcharge",
+      renderCell(params) {
+        return <span>{(params?.row.marginAfterSurCharge).toFixed(2)}</span>
+      },
     },
+
     {
-      field: "Margin % After Surcharge",
+      field: "marginPercentageAfterSurCharge",
       flex: 1,
       headerName: "Margin % After Surcharge",
+      renderCell(params) {
+        return (
+          <span>
+            {(params?.row.marginPercentageAfterSurCharge * 100).toFixed(2)}%
+          </span>
+        )
+      },
+    },
+    {
+      field: "aopmarginPercentage",
+      flex: 1,
+      headerName: "AOP Margin%",
     },
   ]
 
@@ -290,9 +312,13 @@ export default function Booking() {
               options={initDataFilter.AOPMarginPercetage}
               label="AOP Margin %"
               primaryKeyOption="value"
-              onChange={(e, { value }) =>
-                handleChangeDataFilter(value, "MarginPercetage")
+              onChange={(e, option) =>
+                handleChangeDataFilter(
+                  _.isNil(option) ? "" : option?.value,
+                  "MarginPercetage"
+                )
               }
+              disableClearable={false}
               renderOption={(prop, option) => `${option.value}`}
               getOptionLabel={(option) => `${option.value}`}
             />
@@ -302,9 +328,13 @@ export default function Booking() {
               <AppAutocomplete
                 options={initDataFilter.MarginPercetage}
                 label="Margin %"
-                onChange={(e, { value }) =>
-                  handleChangeDataFilter(value, "AOPMarginPercetage")
+                onChange={(e, option) =>
+                  handleChangeDataFilter(
+                    _.isNil(option) ? "" : option?.value,
+                    "AOPMarginPercetage"
+                  )
                 }
+                disableClearable={false}
                 primaryKeyOption="value"
                 renderOption={(prop, option) => `${option.value}`}
                 getOptionLabel={(option) => `${option.value}`}
@@ -315,7 +345,9 @@ export default function Booking() {
             <AppDateField
               label="From Date"
               name="from_date"
-              onChange={(e, value) => handleChangeDataFilter(value, "fromDate")}
+              onChange={(e, value) =>
+                handleChangeDataFilter(_.isNil(value) ? "" : value, "fromDate")
+              }
               value={dataFilter?.fromDate}
             />
           </Grid>
@@ -323,7 +355,9 @@ export default function Booking() {
             <AppDateField
               label="To Date"
               name="toDate"
-              onChange={(e, value) => handleChangeDataFilter(value, "toDate")}
+              onChange={(e, value) =>
+                handleChangeDataFilter(_.isNil(value) ? "" : value, "toDate")
+              }
               value={dataFilter?.toDate}
             />
           </Grid>
