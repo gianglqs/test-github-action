@@ -9,6 +9,7 @@ import com.hysteryale.service.CurrencyService;
 import com.hysteryale.service.MarginAnalystService;
 import com.hysteryale.service.PartService;
 import com.hysteryale.utils.DateUtils;
+import com.hysteryale.utils.CurrencyFormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -162,9 +163,9 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             }
 
             // Calculated data fields
-            marginAnalystData.setCostRMB(BigDecimal.valueOf(costRMB).setScale(4, RoundingMode.HALF_UP).doubleValue());
-            marginAnalystData.setListPrice(BigDecimal.valueOf(listPrice).setScale(4, RoundingMode.HALF_UP).doubleValue());
-            marginAnalystData.setMargin_aop(BigDecimal.valueOf(marginAOP).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystData.setCostRMB(CurrencyFormatUtils.formatDoubleValue(costRMB, CurrencyFormatUtils.decimalFormatFourDigits));
+            marginAnalystData.setListPrice(CurrencyFormatUtils.formatDoubleValue(listPrice, CurrencyFormatUtils.decimalFormatFourDigits));
+            marginAnalystData.setMargin_aop(CurrencyFormatUtils.formatDoubleValue(marginAOP, CurrencyFormatUtils.decimalFormatFourDigits));
             return marginAnalystData;
         }
         return null;
