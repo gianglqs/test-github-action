@@ -19,6 +19,8 @@ import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -125,7 +127,6 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             marginAnalystData.setStd_opt(row.getCell(marginAnalysisColumns.get("STD/OPT"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
             marginAnalystData.setDescription(row.getCell(marginAnalysisColumns.get("Description")).getStringCellValue());
             marginAnalystData.setCurrency(currencyService.getCurrenciesByName(currency));
-            marginAnalystData.setCostRMB(row.getCell(marginAnalysisColumns.get("Add on Cost RMB")).getNumericCellValue());
             marginAnalystData.setMonthYear(monthYear);
             marginAnalystData.setDealer(dealer);
 
@@ -140,7 +141,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             double netPrice = part.getNetPriceEach();
             double costRMB = row.getCell(marginAnalysisColumns.get("Add on Cost RMB")).getNumericCellValue();
 
-            marginAnalystData.setDealerNet(netPrice);
+            marginAnalystData.setDealerNet(BigDecimal.valueOf(netPrice).setScale(4, RoundingMode.HALF_UP).doubleValue());
 
             // Notes: some of parameters are assigned manually
 
@@ -161,8 +162,9 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             }
 
             // Calculated data fields
-            marginAnalystData.setListPrice(listPrice);
-            marginAnalystData.setMargin_aop(marginAOP);
+            marginAnalystData.setCostRMB(BigDecimal.valueOf(costRMB).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystData.setListPrice(BigDecimal.valueOf(listPrice).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystData.setMargin_aop(BigDecimal.valueOf(marginAOP).setScale(4, RoundingMode.HALF_UP).doubleValue());
             return marginAnalystData;
         }
         return null;
@@ -295,25 +297,25 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             // fields for both annually and monthly MarginAnalystSummary
             marginAnalystSummary.setModelCode(modelCode);
             marginAnalystSummary.setCurrency(currencyService.getCurrenciesByName(currency));
-            marginAnalystSummary.setManufacturingCostRMB(manufacturingCostRMB);
+            marginAnalystSummary.setManufacturingCostRMB(BigDecimal.valueOf(manufacturingCostRMB).setScale(4, RoundingMode.HALF_UP).doubleValue());
             marginAnalystSummary.setCostUplift(costUplift);
             marginAnalystSummary.setAddWarranty(warranty);
             marginAnalystSummary.setSurcharge(surcharge);
             marginAnalystSummary.setDuty(duty);
             marginAnalystSummary.setFreight(freight);
             marginAnalystSummary.setLiIonIncluded(liIonIncluded);
-            marginAnalystSummary.setTotalCostRMB(totalCostRMB);
-            marginAnalystSummary.setTotalListPrice(totalListPrice);
-            marginAnalystSummary.setBlendedDiscountPercentage(blendedDiscount);
-            marginAnalystSummary.setDealerNet(dealerNet);
-            marginAnalystSummary.setMargin(margin);
+            marginAnalystSummary.setTotalCostRMB(BigDecimal.valueOf(totalCostRMB).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystSummary.setTotalListPrice(BigDecimal.valueOf(totalListPrice).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystSummary.setBlendedDiscountPercentage(BigDecimal.valueOf(blendedDiscount).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystSummary.setDealerNet(BigDecimal.valueOf(dealerNet).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystSummary.setMargin(BigDecimal.valueOf(margin).setScale(4, RoundingMode.HALF_UP).doubleValue());
             marginAnalystSummary.setMarginAopRate(marginAnalysisAOPRate);
 
             if(durationUnit.equals("monthly")) {
                 marginAnalystSummary.setMonthYear(monthYear);
                 // monthly valued
-                marginAnalystSummary.setFullMonthlyRate(fullCostAOPRate);
-                marginAnalystSummary.setMarginPercentMonthlyRate(marginPercentAopRate);
+                marginAnalystSummary.setFullMonthlyRate(BigDecimal.valueOf(fullCostAOPRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
+                marginAnalystSummary.setMarginPercentMonthlyRate(BigDecimal.valueOf(marginPercentAopRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
             }
             else {
                 // annually valued
@@ -323,8 +325,8 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
                 annualDate.set(monthYear.get(Calendar.YEAR), Calendar.JANUARY, 28);
 
                 marginAnalystSummary.setMonthYear(annualDate);
-                marginAnalystSummary.setFullCostAopRate(fullCostAOPRate);
-                marginAnalystSummary.setMarginPercentAopRate(marginPercentAopRate);
+                marginAnalystSummary.setFullCostAopRate(BigDecimal.valueOf(fullCostAOPRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
+                marginAnalystSummary.setMarginPercentAopRate(BigDecimal.valueOf(marginPercentAopRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
             }
             marginAnalystSummaryList.add(marginAnalystSummary);
 
@@ -356,8 +358,16 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
         }
     }
     @Override
-    public List<String> getDealersFromMarginAnalystData() {
-        return marginAnalystDataRepository.getDealersFromMarginAnalystData();
+    public Map<String, List<Map<String, String>>>  getDealersFromMarginAnalystData() {
+        List<String> dealerList = marginAnalystDataRepository.getDealersFromMarginAnalystData();
+        List<Map<String, String>> dealerNameList = new ArrayList<>();
+        for(String dealerName : dealerList) {
+            Map<String, String> dMap = new HashMap<>();
+            dMap.put("value", dealerName);
+
+            dealerNameList.add(dMap);
+        }
+        return Map.of("dealers", dealerNameList);
     }
     @Override
     public Map<String, List<MarginAnalystData>> getMarginDataForAnalysisByDealer(String modelCode, String currency, Calendar monthYear, String dealer) {
