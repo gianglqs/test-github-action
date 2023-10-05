@@ -12,10 +12,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -64,7 +61,7 @@ public class BookingOrderController {
      * @param pageNo  current page
      * @param perPage number of items per page
      */
-    @GetMapping(path = "/bookingOrders", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/bookingOrders", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getBookingOrders(@RequestBody String filters,
                                                 @RequestParam(defaultValue = "1") int pageNo,
                                                 @RequestParam(defaultValue = "100") int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {

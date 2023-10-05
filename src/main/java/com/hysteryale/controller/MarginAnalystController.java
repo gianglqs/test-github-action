@@ -24,14 +24,13 @@ public class MarginAnalystController {
     MarginAnalystService marginAnalystService;
 
     @GetMapping(path = "/marginAnalystData/getDealers")
-    public Map<String, List<String>> getDealersInMarginAnalystData() {
-        List<String> dealers = marginAnalystService.getDealersFromMarginAnalystData();
-        return Map.of("dealers", dealers);
+    public Map<String, List<Map<String, String>>> getDealersInMarginAnalystData() {
+        return marginAnalystService.getDealersFromMarginAnalystData();
     }
 
     @PostMapping(path = "/marginAnalystData", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, List<MarginAnalystData>> getMarginAnalystData(@RequestBody MarginAnalystData marginAnalystData) {
-        if(marginAnalystData.getDealer() == null)
+        if(marginAnalystData.getDealer().isEmpty())
             return marginAnalystService.getMarginAnalystData(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear());
         return marginAnalystService.getMarginDataForAnalysisByDealer(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear(), marginAnalystData.getDealer());
     }
