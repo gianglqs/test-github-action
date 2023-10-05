@@ -14,7 +14,7 @@ import java.util.Calendar;
 public class BookingOrderDTO {
     private String orderNo;
     private Calendar date;
-    private String currency;
+    //private String currency;
     private String orderType;
     private String region;
     private String ctryCode;
@@ -27,6 +27,7 @@ public class BookingOrderDTO {
     private String truckClass;
     private String clazz;
 
+
     //properties that we need to calculate based on raw data
     private int quantity = 1;
     private double totalCost;
@@ -35,4 +36,7 @@ public class BookingOrderDTO {
     private double marginAfterSurCharge;
     private double marginPercentageAfterSurCharge;
     private double AOPMarginPercentage;
+
+
+    private String plant;
 }

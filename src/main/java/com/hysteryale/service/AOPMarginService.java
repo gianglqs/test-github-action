@@ -4,9 +4,7 @@ import com.hysteryale.model.AOPMargin;
 import com.hysteryale.repository.AOPMarginRepository;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,7 @@ public class AOPMarginService {
     private final HashMap<String, Integer> AOP_MARGIN_COLUMNS = new HashMap<>();
 
     public void getAOPMarginColumns(Row row) {
-        for(int i = 0; i < 11; i++) {
+        for (int i = 0; i < 11; i++) {
             String columnName = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
             AOP_MARGIN_COLUMNS.put(columnName, i);
         }
@@ -40,7 +38,7 @@ public class AOPMarginService {
         Class<? extends AOPMargin> aopMarginClass = aopMargin.getClass();
         Field[] fields = aopMarginClass.getDeclaredFields();
 
-        for(Field field : fields) {
+        for (Field field : fields) {
             field.setAccessible(true);
 
             String fieldName = field.getName();
@@ -58,6 +56,20 @@ public class AOPMarginService {
                     break;
                 case "marginSTD":
                     field.set(aopMargin, row.getCell(AOP_MARGIN_COLUMNS.get("Margin % STD")).getNumericCellValue());
+                    break;
+                case "plant":
+                    field.set(aopMargin, row.getCell(AOP_MARGIN_COLUMNS.get("Plant")).getStringCellValue());
+                    break;
+                case "region":
+                    field.set(aopMargin, row.getCell(AOP_MARGIN_COLUMNS.get("Region")).getStringCellValue());
+                    break;
+                case "series":
+                    Cell cell = row.getCell(AOP_MARGIN_COLUMNS.get("Series"));
+                    if (cell.getCellType() == CellType.STRING) {
+                        field.set(aopMargin, cell.getStringCellValue());
+                    } else if (cell.getCellType() == CellType.NUMERIC) {
+                        field.set(aopMargin, String.valueOf((int) cell.getNumericCellValue()));
+                    }
                     break;
             }
         }
@@ -78,10 +90,10 @@ public class AOPMarginService {
 
         Sheet aopMarginSheet = workbook.getSheetAt(0);
 
-        for(Row row : aopMarginSheet) {
-            if(row.getRowNum() == 2)
+        for (Row row : aopMarginSheet) {
+            if (row.getRowNum() == 2)
                 getAOPMarginColumns(row);
-            else if(row.getRowNum() > 2 && !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
+            else if (row.getRowNum() > 2 && !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
                 AOPMargin aopMargin = mapExcelToAOPMargin(row);
                 //TODO need to get year from file name, not hardcode as I did below
                 aopMargin.setYear(2023);
