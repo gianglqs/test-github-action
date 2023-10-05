@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -52,13 +54,9 @@ public class APICDealerService {
         return apicDealer;
     }
 
-    public void importAPICDealer() throws FileNotFoundException, IllegalAccessException {
+    public void importAPICDealer() throws IOException, IllegalAccessException {
         InputStream is = new FileInputStream("import_files/APIC/APIC Dealer Master Template (1).xlsx");
-        Workbook workbook = StreamingReader
-                .builder()              //setting Buffer
-                .rowCacheSize(100)
-                .bufferSize(4096)
-                .open(is);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         List<APICDealer> apicDealerList = new ArrayList<>();
 

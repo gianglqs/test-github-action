@@ -50,6 +50,6 @@ public class ImportController {
 //        bookingOrderService.importOrder();
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
-        marginAnalystService.importMarginAnalystData();
+        //  marginAnalystService.importMarginAnalystData();
     }
 }
