@@ -43,12 +43,14 @@ public class BookingOrderController {
     public Map<String, Object> getFilters() {
         Map<String, Object> filters = new HashMap<>();
 
-        filters.put("dealers", apicDealerService.getAllAPICDealers());
+        //filters.put("dealers", apicDealerService.getAllAPICDealers());
+        filters.put("dealers", bookingOrderService.getAllDealer());
         filters.put("plants", apacSerialService.getAllPlants());
         filters.put("metaSeries", metaSeriesService.getAllMetaSeries());
         filters.put("classes", metaSeriesService.getMetaSeriesClasses());
         filters.put("segments", metaSeriesService.getMetaSeriesSegments());
-        filters.put("models", apacSerialService.getAllAPACSerialModels());
+     //  filters.put("models", apacSerialService.getAllAPACSerialModels());
+        filters.put("models", bookingOrderService.getAllModel());
         filters.put("AOPMarginPercetage", bookingOrderService.getAPOMarginPercentageForFilter());
         filters.put("MarginPercetage", bookingOrderService.getMarginPercentageForFilter());
 

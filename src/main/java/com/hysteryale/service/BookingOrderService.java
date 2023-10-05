@@ -171,7 +171,7 @@ public class BookingOrderService extends BasedService {
                                 if (cell.getCellType() == CellType.STRING) {
                                     field.set(bookingOrder, cell.getStringCellValue());
                                 } else if (cell.getCellType() == CellType.NUMERIC) {
-                                    field.set(bookingOrder, cell.getNumericCellValue()+"");
+                                    field.set(bookingOrder, cell.getNumericCellValue() + "");
                                 }
                                 break;
                             case "int":
@@ -242,7 +242,7 @@ public class BookingOrderService extends BasedService {
 
                     //calculate and adding extra values
                     //   if(newBookingOrder.getOrderNo().equals("H19905")){
-                      newBookingOrder = calculateOrderValues(newBookingOrder);
+                 //   newBookingOrder = calculateOrderValues(newBookingOrder);
                     //   }
 
                     bookingOrderList.add(newBookingOrder);
@@ -483,6 +483,28 @@ public class BookingOrderService extends BasedService {
 //        Map<String, String> MarginVe = new HashMap<>();
 //        MarginBelow10.put("value", "<10% Margin>");
 //        result.add(MarginBelow10);
+        return result;
+    }
+
+    public List<Map<String, String>> getAllDealer() {
+        List<Map<String, String>> result = new ArrayList<>();
+        List<BookingOrder> bookingOrderList = bookingOrderRepository.findAll();
+        for (BookingOrder bookingOrder : bookingOrderList) {
+            Map<String, String> map = new HashMap<>();
+            map.put("value", bookingOrder.getDealerName());
+            result.add(map);
+        }
+        return result;
+    }
+
+    public List<Map<String, String>> getAllModel() {
+        List<Map<String, String>> result = new ArrayList<>();
+        List<BookingOrder> bookingOrderList = bookingOrderRepository.findAll();
+        for (BookingOrder bookingOrder : bookingOrderList) {
+            Map<String, String> map = new HashMap<>();
+            map.put("value", bookingOrder.getModel());
+            result.add(map);
+        }
         return result;
     }
 
