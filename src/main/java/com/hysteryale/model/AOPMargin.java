@@ -20,5 +20,8 @@ public class AOPMargin {
     private double dnUSD;
     private double marginSTD;
     private int year;
+    private String plant;
+    private String series;
+    private String region;
 
 }
