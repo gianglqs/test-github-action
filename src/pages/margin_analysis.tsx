@@ -109,7 +109,7 @@ export default function MarginAnalysis() {
       headerName: "Cost RMB",
     },
     {
-      field: "dn",
+      field: "dealerNet",
       flex: 0.4,
       headerName: "DN",
     },
