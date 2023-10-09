@@ -466,4 +466,13 @@
     <changeSet author="hoangnhan (generated)" id="1696480184867-47">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="series_part_numberlpseq" startValue="1"/>
     </changeSet>
+
+    <changeSet author="songiang (generated)" id="1271849484-1">
+        <createTable tableName="region">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="region_pkey"/>
+            </column>
+            <column name="region" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

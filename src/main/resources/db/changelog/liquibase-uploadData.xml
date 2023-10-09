@@ -101,6 +101,16 @@
                 tableName="margin_analyst_summary">
         </loadUpdateData>
 
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/region.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="region">
+        </loadUpdateData>
+
 <!--        <loadUpdateData-->
 <!--                encoding="UTF-8"-->
 <!--                file="file:database/apacserial.csv"-->
