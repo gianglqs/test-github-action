@@ -7,6 +7,7 @@ import com.hysteryale.model.filters.BookingOrderFilter;
 import com.hysteryale.repository.AOPMarginRepository;
 import com.hysteryale.repository.BookingOrderPartRepository;
 import com.hysteryale.repository.PartRepository;
+import com.hysteryale.repository.RegionRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -16,6 +17,8 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.aspectj.weaver.ast.Not;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -57,6 +60,9 @@ public class BookingOrderService extends BasedService {
 
     @Resource
     PartRepository partRepository;
+
+    @Resource
+    RegionRepository regionRepository;
 
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
@@ -156,6 +162,21 @@ public class BookingOrderService extends BasedService {
                     rollbar.error(e.toString());
                     log.error(e.toString());
                 }
+            } else if (field.getName().equals("region")) {
+                try {
+                    field.setAccessible(true);
+                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
+                    Optional<Region> region = regionRepository.findById(cell.getStringCellValue());
+                    if(region.isPresent()){
+                        field.set(bookingOrder, region.get().getRegion());
+                    }else{
+                        throw new Exception("Not match Region with region_Id: "+cell.getStringCellValue());
+                    }
+
+                } catch (Exception e) {
+                    rollbar.error(e.toString());
+                    log.error(e.toString());
+                }
             } else {
                 Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
 
@@ -242,7 +263,7 @@ public class BookingOrderService extends BasedService {
 
                     //calculate and adding extra values
                     //   if(newBookingOrder.getOrderNo().equals("H19905")){
-                    newBookingOrder = calculateOrderValues(newBookingOrder);
+                    //newBookingOrder = calculateOrderValues(newBookingOrder);
                     //   }
 
                     bookingOrderList.add(newBookingOrder);

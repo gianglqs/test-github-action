@@ -21,6 +21,7 @@ public class BookingOrder {
     private Calendar date;
     private String currency;
     private String orderType;
+    //@ManyToOne(fetch = FetchType.EAGER)
     private String region;
     private String ctryCode;
     private String dealerPO;
@@ -30,6 +31,7 @@ public class BookingOrder {
     private String billTo;
     private String model;
     private String truckClass;
+
 
     //properties that we need to calculate based on raw data
     private int quantity = 1;
