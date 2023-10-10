@@ -44,12 +44,12 @@ public class ImportController {
     void importData() throws IOException, IllegalAccessException {
 //        metaSeriesService.importMetaSeries();
 //        apicDealerService.importAPICDealer();
-//        apacSerialService.importAPACSerial();
+        apacSerialService.importAPACSerial();
 //        currencyService.importCurrencies(curencyFolder);
 //        partService.importPart();
 //        bookingOrderPartService.importBookingOrderPart();
-//        aopMarginService.importAOPMargin();
-//        bookingOrderService.importOrder();
+        aopMarginService.importAOPMargin();
+        bookingOrderService.importOrder();
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
         marginAnalystMacroService.importMarginAnalystMacro();
