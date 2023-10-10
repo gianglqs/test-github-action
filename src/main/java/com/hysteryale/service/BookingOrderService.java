@@ -152,25 +152,27 @@ public class BookingOrderService extends BasedService {
                     rollbar.error(e.toString());
                     log.error(e.toString());
                 }
-            } else if (field.getName().equals("model")) {
-                try {
-                    field.setAccessible(true);
-                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
-                    field.set(bookingOrder, cell.getStringCellValue());
-
-                } catch (Exception e) {
-                    rollbar.error(e.toString());
-                    log.error(e.toString());
-                }
-            } else if (field.getName().equals("region")) {
+            }
+//            else if (field.getName().equals("model")) { // model in APACSerial
+//                try {
+//                    field.setAccessible(true);
+//                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
+//                    field.set(bookingOrder, cell.getStringCellValue());
+//
+//                } catch (Exception e) {
+//                    rollbar.error(e.toString());
+//                    log.error(e.toString());
+//                }
+//            }
+            else if (field.getName().equals("region")) {
                 try {
                     field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
                     Optional<Region> region = regionRepository.findById(cell.getStringCellValue());
-                    if(region.isPresent()){
-                        field.set(bookingOrder, region.get().getRegion());
-                    }else{
-                        throw new Exception("Not match Region with region_Id: "+cell.getStringCellValue());
+                    if (region.isPresent()) {
+                        field.set(bookingOrder, region.get()/*.getRegion()*/);
+                    } else {
+                        throw new Exception("Not match Region with region_Id: " + cell.getStringCellValue());
                     }
 
                 } catch (Exception e) {
