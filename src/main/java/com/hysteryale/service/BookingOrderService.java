@@ -3,11 +3,9 @@ package com.hysteryale.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.*;
+import com.hysteryale.model.Currency;
 import com.hysteryale.model.filters.BookingOrderFilter;
-import com.hysteryale.repository.AOPMarginRepository;
-import com.hysteryale.repository.BookingOrderPartRepository;
-import com.hysteryale.repository.PartRepository;
-import com.hysteryale.repository.RegionRepository;
+import com.hysteryale.repository.*;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -63,6 +61,9 @@ public class BookingOrderService extends BasedService {
 
     @Resource
     RegionRepository regionRepository;
+
+    @Resource
+    CurrencyRepository currencyRepository;
 
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
@@ -125,8 +126,23 @@ public class BookingOrderService extends BasedService {
             String fieldType = field.getType().getName();
 
             // Currency column is the only one which is not uppercase all character
-            if (field.getName().equals("currency"))
+            if (field.getName().equals("currency")) {
                 hashMapKey = "Currency";
+                Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
+                if (cell.getCellType() == CellType.FORMULA) {
+                    // get formula
+                    String formula = cell.getCellFormula();
+
+                    //  create evaluator formula
+                    FormulaEvaluator evaluator = row.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+
+                    // evaluator formula
+                    CellValue cellValue = evaluator.evaluate(cell);
+                    String result = cellValue.getStringValue();
+                    field.setAccessible(true);
+                    field.set(bookingOrder, result);
+                }
+            }
 
             // allow assigning value for object's fields
             field.setAccessible(true);
@@ -168,7 +184,7 @@ public class BookingOrderService extends BasedService {
                 try {
                     field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
-                    Optional<Region> region = regionRepository.findById(cell.getStringCellValue());
+                    Optional<Region> region = regionRepository.findByRegionId(cell.getStringCellValue());
                     if (region.isPresent()) {
                         field.set(bookingOrder, region.get()/*.getRegion()*/);
                     } else {

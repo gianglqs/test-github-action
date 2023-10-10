@@ -1,5 +1,8 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
     <changeSet author="hoangnhan (generated)" id="1696480184867-1">
         <createTable tableName="booking_order">
             <column name="order_no" type="VARCHAR(255)">
@@ -389,88 +392,143 @@
         </createTable>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-22">
-        <addForeignKeyConstraint baseColumnNames="booking_orders_order_no" baseTableName="novo_quote_booking_orders" constraintName="fkqjdy7i6vlt9pv0sbplfpnyamx" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="order_no" referencedTableName="booking_order" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="booking_orders_order_no" baseTableName="novo_quote_booking_orders"
+                                 constraintName="fkqjdy7i6vlt9pv0sbplfpnyamx" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="order_no" referencedTableName="booking_order" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-23">
-        <addForeignKeyConstraint baseColumnNames="currency_currency" baseTableName="part" constraintName="fk6i59f600icpfwr4ysm2kuaf0b" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="currency_currency" baseTableName="part"
+                                 constraintName="fk6i59f600icpfwr4ysm2kuaf0b" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-24">
-        <addForeignKeyConstraint baseColumnNames="from_currency" baseTableName="exchange_rate" constraintName="fkam61ekqg4jgygwiw13fo07ntm" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="from_currency" baseTableName="exchange_rate"
+                                 constraintName="fkam61ekqg4jgygwiw13fo07ntm" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-25">
-        <addForeignKeyConstraint baseColumnNames="to_currency" baseTableName="exchange_rate" constraintName="fkibhl6kmd2vkpsoee229kdqnsm" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="to_currency" baseTableName="exchange_rate"
+                                 constraintName="fkibhl6kmd2vkpsoee229kdqnsm" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-26">
-        <addForeignKeyConstraint baseColumnNames="currency_currency" baseTableName="margin_analyst_summary" constraintName="fkl0pk7m656n04l2lvkl6vqmun2" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="currency_currency" baseTableName="margin_analyst_summary"
+                                 constraintName="fkl0pk7m656n04l2lvkl6vqmun2" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-27">
-        <addForeignKeyConstraint baseColumnNames="currency_currency" baseTableName="margin_analyst_data" constraintName="fkmw1f831sowoi20ix05huw0b91" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="currency_currency" baseTableName="margin_analyst_data"
+                                 constraintName="fkmw1f831sowoi20ix05huw0b91" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="currency" referencedTableName="currency" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-28">
-        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user" constraintName="fkdl9dqp078pc03g6kdnxmnlqpc" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user"
+                                 constraintName="fkdl9dqp078pc03g6kdnxmnlqpc" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="role" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-29">
-        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_permission_list" constraintName="fkjuoog800x0k4fjyguyv04s2ab" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_permission_list"
+                                 constraintName="fkjuoog800x0k4fjyguyv04s2ab" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="role" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-30">
-        <addForeignKeyConstraint baseColumnNames="permission_list_id" baseTableName="role_permission_list" constraintName="fkqrjk648ubvovhf4g6sxnsbdov" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="permission" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="permission_list_id" baseTableName="role_permission_list"
+                                 constraintName="fkqrjk648ubvovhf4g6sxnsbdov" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="permission" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-31">
-        <addUniqueConstraint columnNames="permission_list_id" constraintName="uk_15tn49006qeotwau03mryjtqc" tableName="role_permission_list"/>
+        <addUniqueConstraint columnNames="permission_list_id" constraintName="uk_15tn49006qeotwau03mryjtqc"
+                             tableName="role_permission_list"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-32">
-        <addForeignKeyConstraint baseColumnNames="novo_quote_quote_number" baseTableName="novo_quote_booking_orders" constraintName="fkh60xiq6tbirip2svi4myc3ipf" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="quote_number" referencedTableName="novo_quote" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="novo_quote_quote_number" baseTableName="novo_quote_booking_orders"
+                                 constraintName="fkh60xiq6tbirip2svi4myc3ipf" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="quote_number" referencedTableName="novo_quote" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-33">
-        <addUniqueConstraint columnNames="booking_orders_order_no" constraintName="uk_g4ximcbcif01y0nec1457iv8h" tableName="novo_quote_booking_orders"/>
+        <addUniqueConstraint columnNames="booking_orders_order_no" constraintName="uk_g4ximcbcif01y0nec1457iv8h"
+                             tableName="novo_quote_booking_orders"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-34">
-        <addForeignKeyConstraint baseColumnNames="novo_quote_quote_number" baseTableName="novo_quote_parts" constraintName="fkbdkh8vruqgpdf6suub0ridp61" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="quote_number" referencedTableName="novo_quote" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="novo_quote_quote_number" baseTableName="novo_quote_parts"
+                                 constraintName="fkbdkh8vruqgpdf6suub0ridp61" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="quote_number" referencedTableName="novo_quote" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-35">
-        <addForeignKeyConstraint baseColumnNames="parts_id" baseTableName="novo_quote_parts" constraintName="fkocj8h9hmkr1nc7282nh0ceyvr" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="part" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="parts_id" baseTableName="novo_quote_parts"
+                                 constraintName="fkocj8h9hmkr1nc7282nh0ceyvr" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="part" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-36">
-        <addUniqueConstraint columnNames="parts_id" constraintName="uk_qop7dtow0qcs9wjuingv345js" tableName="novo_quote_parts"/>
+        <addUniqueConstraint columnNames="parts_id" constraintName="uk_qop7dtow0qcs9wjuingv345js"
+                             tableName="novo_quote_parts"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-37">
-        <addForeignKeyConstraint baseColumnNames="meta_series_series" baseTableName="apacserial" constraintName="fkjm28txijtq86a539x27l1ado9" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="series" referencedTableName="meta_series" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="meta_series_series" baseTableName="apacserial"
+                                 constraintName="fkjm28txijtq86a539x27l1ado9" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="series" referencedTableName="meta_series" validate="true"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-38">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="cost_uplift_seq" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="cost_uplift_seq" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-39">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="currency_seq" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="currency_seq" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-40">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="discount_seq" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="discount_seq" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-41">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="exchange_rate_seq" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="exchange_rate_seq" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-42">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807" minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-43">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="margin_analyst_seq" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="margin_analyst_seq" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-44">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="margin_analyst_summary_sequence" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="margin_analyst_summary_sequence" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-45">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="part_sequence" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="part_sequence" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-46">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="price_sequence" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="price_sequence" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-47">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="series_part_numberlpseq" startValue="1"/>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="series_part_numberlpseq" startValue="1"/>
     </changeSet>
 
     <changeSet author="songiang (generated)" id="1271849484-1">
         <createTable tableName="region">
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="SERIAL">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="region_pkey"/>
+            </column>
+            <column name="id_region" type="VARCHAR(255)">
+                <constraints nullable="false"/>
             </column>
             <column name="region" type="VARCHAR(255)"/>
         </createTable>

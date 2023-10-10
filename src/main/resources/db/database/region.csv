@@ -1,3 +1,3 @@
-'id','region'
-'A','Asia'
-'P','Pacific'
+'id','id_region','region'
+1,'A','Asia'
+2,'P','Pacific'
