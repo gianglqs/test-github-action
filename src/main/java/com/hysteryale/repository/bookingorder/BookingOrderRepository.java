@@ -11,6 +11,6 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
     @Query("SELECT DISTINCT b.dealerName FROM BookingOrder b")
     public List<String> getAllDealerName();
 
-    @Query("SELECT DISTINCT b.apacSerial.model FROM BookingOrder b") // dang bi loi
+    @Query("SELECT DISTINCT b.apacSerial.model FROM BookingOrder b")
     List<String> getAllModel();
 }

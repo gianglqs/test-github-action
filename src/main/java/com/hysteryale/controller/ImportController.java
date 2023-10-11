@@ -30,8 +30,6 @@ public class ImportController {
     @Resource
     MarginAnalystService marginAnalystService;
 
-    @Resource
-    BookingOrderPartService bookingOrderPartService;
 
     @Resource
     PartService partService;

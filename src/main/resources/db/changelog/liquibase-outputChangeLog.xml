@@ -527,7 +527,7 @@
             <column name="id" type="SERIAL">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="region_pkey"/>
             </column>
-            <column name="id_region" type="VARCHAR(255)">
+            <column name="region_short_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="region" type="VARCHAR(255)"/>

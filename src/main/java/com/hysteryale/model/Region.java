@@ -16,6 +16,6 @@ public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    private String id_region;
+    private String regionShortName;
     private String region;
 }

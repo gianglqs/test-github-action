@@ -3,22 +3,20 @@ package com.hysteryale.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.*;
-import com.hysteryale.model.Currency;
 import com.hysteryale.model.filters.BookingOrderFilter;
-import com.hysteryale.repository.*;
+import com.hysteryale.repository.AOPMarginRepository;
+import com.hysteryale.repository.CurrencyRepository;
+import com.hysteryale.repository.PartRepository;
+import com.hysteryale.repository.RegionRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.aspectj.weaver.ast.Not;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -31,7 +29,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,8 +50,6 @@ public class BookingOrderService extends BasedService {
     @Resource
     AOPMarginRepository AOPMarginRepository;
 
-    @Resource
-    BookingOrderPartRepository bookingOrderPartRepository;
 
     @Resource
     PartRepository partRepository;
@@ -73,7 +68,7 @@ public class BookingOrderService extends BasedService {
      * @param row which contains columns' name
      */
     public void getOrderColumnsName(Row row) {
-        for (int i = 0; i < 17; i++) {
+        for (int i = 0; i < 13; i++) {
             String columnName = row.getCell(i).getStringCellValue();
             ORDER_COLUMNS_NAME.put(columnName, i);
         }
@@ -87,7 +82,7 @@ public class BookingOrderService extends BasedService {
      * @return list of files' name
      */
     public List<String> getAllFilesInFolder(String folderPath) {
-        Pattern pattern = Pattern.compile("^(01. Bookings Register).*(.xlsx)$");
+        Pattern pattern = Pattern.compile("^(BOOKED).*Final.*(.xlsx)$");
 
         List<String> fileList = new ArrayList<>();
         Matcher matcher;
@@ -95,10 +90,8 @@ public class BookingOrderService extends BasedService {
             DirectoryStream<Path> folder = Files.newDirectoryStream(Paths.get(folderPath));
             for (Path path : folder) {
                 matcher = pattern.matcher(path.getFileName().toString());
-                if (matcher.matches())
-                    fileList.add(path.getFileName().toString());
-                else
-                    log.error("Wrong formatted file's name: " + path.getFileName().toString());
+                if (matcher.matches()) fileList.add(path.getFileName().toString());
+                else log.error("Wrong formatted file's name: " + path.getFileName().toString());
             }
         } catch (Exception e) {
             log.info(e.getMessage());
@@ -126,31 +119,30 @@ public class BookingOrderService extends BasedService {
             String fieldType = field.getType().getName();
 
             // Currency column is the only one which is not uppercase all character
-            if (field.getName().equals("currency")) {
-                hashMapKey = "Currency";
-                Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
-                if (cell.getCellType() == CellType.FORMULA) {
-                    // get formula
-                    String formula = cell.getCellFormula();
-
-                    //  create evaluator formula
-                    FormulaEvaluator evaluator = row.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
-
-                    // evaluator formula
-                    CellValue cellValue = evaluator.evaluate(cell);
-                    String result = cellValue.getStringValue();
-                    field.setAccessible(true);
-                    field.set(bookingOrder, result);
-                }
-            }
+//            if (field.getName().equals("currency")) {
+//                hashMapKey = "Currency";
+//                Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
+//                if (cell.getCellType() == CellType.FORMULA) {
+//                    // get formula
+//                    String formula = cell.getCellFormula();
+//
+//                    //  create evaluator formula
+//                    FormulaEvaluator evaluator = row.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+//
+//                    // evaluator formula
+//                    CellValue cellValue = evaluator.evaluate(cell);
+//                    String result = cellValue.getStringValue();
+//                    field.setAccessible(true);
+//                    field.set(bookingOrder, result);
+//                }
+//            }
 
             // allow assigning value for object's fields
             field.setAccessible(true);
             if (field.getName().equals("apacSerial")) {
                 try {
                     field.setAccessible(true);
-                    APACSerial apacSerial =
-                            apacSerialService.getAPACSerialByModel(row.getCell(ORDER_COLUMNS_NAME.get("MODEL"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+                    APACSerial apacSerial = apacSerialService.getAPACSerialByModel(row.getCell(ORDER_COLUMNS_NAME.get("MODEL"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
                     field.set(bookingOrder, apacSerial);
                 } catch (Exception e) {
                     rollbar.error(e.toString());
@@ -161,9 +153,8 @@ public class BookingOrderService extends BasedService {
                     field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
                     field.set(bookingOrder, cell.getStringCellValue());
-                    APICDealer apicDealer =
-                            apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                    field.set(bookingOrder, apicDealer);
+                    // APICDealer apicDealer = apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+                    // field.set(bookingOrder, apicDealer);
                 } catch (Exception e) {
                     rollbar.error(e.toString());
                     log.error(e.toString());
@@ -261,7 +252,7 @@ public class BookingOrderService extends BasedService {
     public void importOrder() throws IOException, IllegalAccessException {
 
         // Folder contains Excel file of Booking Order
-        String folderPath = "import_files/booking";
+        String folderPath = "import_files/booked";
         // Get files in Folder Path
         List<String> fileList = getAllFilesInFolder(folderPath);
 
@@ -271,12 +262,10 @@ public class BookingOrderService extends BasedService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             List<BookingOrder> bookingOrderList = new LinkedList<>();
 
-            Sheet orderSheet = workbook.getSheet("Input - Bookings");
+            Sheet orderSheet = workbook.getSheet("NOPLDTA.NOPORDP,NOPLDTA.>Sheet1");
             for (Row row : orderSheet) {
-                if (row.getRowNum() == 1)
-                    getOrderColumnsName(row);
-                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
-                        && row.getRowNum() > 1) {
+                if (row.getRowNum() == 0) getOrderColumnsName(row);
+                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
 
                     //calculate and adding extra values
@@ -354,8 +343,6 @@ public class BookingOrderService extends BasedService {
         // quantity is always 1
         bookingOrder.setQuantity(1);
 
-        //get all parts of an order
-        Set<Part> parts = getPartsOfOrder(bookingOrder);
 
         Set<Part> newParts = partRepository.getPartByOrderNumber(bookingOrder.getOrderNo());
 
@@ -447,8 +434,7 @@ public class BookingOrderService extends BasedService {
     private AOPMargin getAOPMargin(String series, Map<String, AOPMargin> aopMarginByYear) {
         Set<String> setAOPMargins = aopMarginByYear.keySet();
         for (String AOPMargin : setAOPMargins) {
-            if (AOPMargin.contains(series))
-                return aopMarginByYear.get(AOPMargin);
+            if (AOPMargin.contains(series)) return aopMarginByYear.get(AOPMargin);
         }
         return null;
     }
@@ -476,17 +462,7 @@ public class BookingOrderService extends BasedService {
     /**
      * To create a new table OrderPart
      */
-    private Set<Part> getPartsOfOrder(BookingOrder bookingOrder) {
-        Set<BookingOrderPart> bookingOrderParts = bookingOrderPartRepository.findByOrderNo(bookingOrder.getOrderNo());
 
-        List<String> partNumbers = new ArrayList<String>();
-
-        for (BookingOrderPart bookingOrderPart : bookingOrderParts) {
-            partNumbers.add(bookingOrderPart.getPart());
-        }
-
-        return partRepository.getPartsByPartNumbers(partNumbers, bookingOrder.getDate(), bookingOrder.getSeries());
-    }
 
     public List<Map<String, String>> getAPOMarginPercentageForFilter() {
         List<Map<String, String>> result = new ArrayList<>();
