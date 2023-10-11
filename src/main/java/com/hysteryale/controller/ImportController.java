@@ -35,6 +35,8 @@ public class ImportController {
 
     @Resource
     PartService partService;
+    @Resource
+    MarginAnalystMacroService marginAnalystMacroService;
 
     String curencyFolder = "import_files/currency_exchangerate";
 
@@ -50,6 +52,7 @@ public class ImportController {
 //        bookingOrderService.importOrder();
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
-        //  marginAnalystService.importMarginAnalystData();
+        marginAnalystMacroService.importMarginAnalystMacro();
+//        marginAnalystService.importMarginAnalystData();
     }
 }
