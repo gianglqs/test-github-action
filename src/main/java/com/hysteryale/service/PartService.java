@@ -69,7 +69,7 @@ public class PartService {
      * Verify if Part is existed or not
      */
     public boolean isPartExisted(Part part) {
-        Optional<Part> optionalPart = partRepository.getPartForCheckingExisted(part.getModelCode(), part.getPartNumber(), part.getQuoteId(), part.getRecordedTime(), part.getCurrency().getCurrency());
+        Optional<Part> optionalPart = partRepository.getPartForCheckingExisted(part.getModelCode(), part.getPartNumber(), part.getOrderNumber(), part.getRecordedTime(), part.getCurrency().getCurrency());
         return optionalPart.isPresent();
     }
 
@@ -120,15 +120,14 @@ public class PartService {
             log.info("End importing");
         }
     }
-
-    public Optional<Part> getPartForMarginAnalysis(String modelCode, String partNumber, String currency, Calendar monthYear, String dealer) {
-        return partRepository.getPartForMarginAnalysis(modelCode, partNumber, currency, monthYear, dealer);
-    }
     public double getNetPriceInPart(String modelCode, String currency, Calendar recordedTime, String partNumber) {
         List<Part> partList = partRepository.getNetPriceInPart(modelCode, currency, recordedTime, partNumber);
         return !partList.isEmpty() ? partList.get(0).getNetPriceEach(): 0.0;
     }
-    public List<String> getDistinctDealerNames(String modelCode, String currency, Calendar recordedTime, String partNumber) {
-        return partRepository.getDealerNames(modelCode, currency, recordedTime, partNumber);
+    public List<String> getDistinctModelCodeByMonthYear(Calendar monthYear) {
+        return partRepository.getDistinctModelCodeByMonthYear(monthYear);
+    }
+    public List<Part> getDistinctPart(String modelCode, Calendar monthYear, String currency) {
+        return partRepository.getDistinctPart(modelCode, monthYear, currency);
     }
 }

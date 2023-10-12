@@ -2,17 +2,18 @@ package com.hysteryale.service.impl;
 
 import com.hysteryale.model.Part;
 import com.hysteryale.model.marginAnalyst.MarginAnalystData;
+import com.hysteryale.model.marginAnalyst.MarginAnalystMacro;
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 import com.hysteryale.repository.MarginAnalystDataRepository;
 import com.hysteryale.repository.MarginAnalystSummaryRepository;
 import com.hysteryale.service.CurrencyService;
+import com.hysteryale.service.MarginAnalystMacroService;
 import com.hysteryale.service.MarginAnalystService;
 import com.hysteryale.service.PartService;
-import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.CurrencyFormatUtils;
+import com.hysteryale.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,8 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
     PartService partService;
     @Resource
     MarginAnalystSummaryRepository marginAnalystSummaryRepository;
+    @Resource
+    MarginAnalystMacroService marginAnalystMacroService;
 
     /**
      * Get List of MarginAnalystData having modelCode, currency in a month {monthYear}
@@ -104,32 +107,27 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
 
     /**
      * Assign value for MarginAnalysisData from Excel row
-     * @param row in Margin Analysis Macro
      */
-    private MarginAnalystData mapMarginAnalysisData(Row row, String currency, Calendar monthYear, String dealer) {
+    private MarginAnalystData mapMarginAnalysisData(Part part) {
 
-        // modelCode and partNumber from Margin Analysis Macro
-        String modelCode = row.getCell(marginAnalysisColumns.get("Model Code")).getStringCellValue();
-        String partNumber = row.getCell(marginAnalysisColumns.get("Option Code")).getStringCellValue();
+        Optional<MarginAnalystMacro> optionalMarginAnalystMacro = marginAnalystMacroService.getMarginAnalystMacro(part.getModelCode(), part.getPartNumber(), part.getCurrency().getCurrency(), part.getRecordedTime());
+        if(optionalMarginAnalystMacro.isPresent()) {
+            MarginAnalystMacro marginAnalystMacro = optionalMarginAnalystMacro.get();
 
-        Optional<Part> optionalPart = partService.getPartForMarginAnalysis(modelCode, partNumber, currency, monthYear, dealer);
-
-        // if Net Price and List Price are found -> then create new and assign value for MarginAnalystData
-        if(optionalPart.isPresent()) {
-            Part part = optionalPart.get();
             MarginAnalystData marginAnalystData = new MarginAnalystData();
 
             // Non-calculated data fields
-            marginAnalystData.setPlant(row.getCell(marginAnalysisColumns.get("Plant")).getStringCellValue());
-            marginAnalystData.setModelCode(modelCode);
-            marginAnalystData.setPriceListRegion(row.getCell(marginAnalysisColumns.get("Price List Region")).getStringCellValue());
-            marginAnalystData.setClass_(row.getCell(marginAnalysisColumns.get("Class")).getStringCellValue());
-            marginAnalystData.setOptionCode(partNumber);
-            marginAnalystData.setStd_opt(row.getCell(marginAnalysisColumns.get("STD/OPT"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-            marginAnalystData.setDescription(row.getCell(marginAnalysisColumns.get("Description")).getStringCellValue());
-            marginAnalystData.setCurrency(currencyService.getCurrenciesByName(currency));
-            marginAnalystData.setMonthYear(monthYear);
-            marginAnalystData.setDealer(dealer);
+            marginAnalystData.setPlant(marginAnalystMacro.getPlant());
+            marginAnalystData.setModelCode(marginAnalystMacro.getModelCode());
+            marginAnalystData.setPriceListRegion(marginAnalystMacro.getPriceListRegion());
+            marginAnalystData.setClass_(marginAnalystMacro.getClazz());
+            marginAnalystData.setOptionCode(marginAnalystMacro.getPartNumber());
+            marginAnalystData.setStd_opt(marginAnalystMacro.getStdOpt());
+            marginAnalystData.setDescription(marginAnalystMacro.getDescription());
+            marginAnalystData.setCurrency(marginAnalystMacro.getCurrency());
+            marginAnalystData.setMonthYear(marginAnalystMacro.getMonthYear());
+
+            marginAnalystData.setDealer(part.getBillTo());
 
 
             //Calculate margin
@@ -140,14 +138,14 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
 
             double listPrice = part.getListPrice();
             double netPrice = part.getNetPriceEach();
-            double costRMB = row.getCell(marginAnalysisColumns.get("Add on Cost RMB")).getNumericCellValue();
+            double costRMB = marginAnalystMacro.getCostRMB();
 
-            marginAnalystData.setDealerNet(BigDecimal.valueOf(netPrice).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystData.setDealerNet(CurrencyFormatUtils.formatDoubleValue(netPrice, CurrencyFormatUtils.decimalFormatFourDigits));
 
             // Notes: some of parameters are assigned manually
 
             // AUD = 0.2159, USD = 0.1569
-            double marginAnalysisAOPRate = currency.equals("AUD") ? 0.2159 : 0.1569;
+            double marginAnalysisAOPRate = part.getCurrency().getCurrency().equals("AUD") ? 0.2159 : 0.1569;
             double costUplift = 0.0;
             double surcharge = 0.015;
             double duty = 0.0;
@@ -190,51 +188,36 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
         Calendar monthYear = Calendar.getInstance();
         monthYear.set(year, DateUtils.monthMap.get(month), 1);
 
+        String[] currencies = {"USD", "AUD"};
 
-        String[] macroSheets = {"USD HYM Ruyi Staxx", "AUD HYM Ruyi Staxx"};
-        for (String macroSheet : macroSheets) {
-            // Init Currency
-            String currency = macroSheet.equals("USD HYM Ruyi Staxx") ? "USD" : "AUD";
+        List<String> modelCodeList = partService.getDistinctModelCodeByMonthYear(monthYear);
 
-            // Get sheet of AUD
-            Sheet audMarginAnalysisSheet = workbook.getSheet(macroSheet);
+        for(String strCurrency : currencies) {
+            for(String modelCode : modelCodeList) {
+                log.info(" === Model Code " + modelCode + " === ");
 
-            List<MarginAnalystData> marginAnalystDataList = new ArrayList<>();
-            for(Row row : audMarginAnalysisSheet) {
-                if(row.getRowNum() == 0)
-                    getColumns(row);
-                else if(!row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
+                // parts are found by modelCode, monthYear and currency
+                List<Part> partList = partService.getDistinctPart(modelCode, monthYear, strCurrency);
 
-                    // modelCode + partNumber + monthYear + currency -> List<Part> with different Dealer(netPrice, discount....)
-                    // modelCode and partNumber from Margin Analysis Macro
-                    String modelCode = row.getCell(marginAnalysisColumns.get("Model Code")).getStringCellValue();
-                    String partNumber = row.getCell(marginAnalysisColumns.get("Option Code")).getStringCellValue();
-                    List<String> dealerNames = partService.getDistinctDealerNames(modelCode, currency, monthYear, partNumber);
-
-                    for(String dealer : dealerNames) {
-                        // Mapping MarginAnalysisData and add into saved list
-                        MarginAnalystData marginAnalystData = mapMarginAnalysisData(row, currency, monthYear, dealer);
-
-                        //if it is null -> then do not save
-                        if(marginAnalystData != null) {
-                            marginAnalystDataList.add(marginAnalystData);
-                        }
+                List<MarginAnalystData> marginAnalystDataList = new ArrayList<>();
+                for(Part part : partList) {
+                    MarginAnalystData marginAnalystData = mapMarginAnalysisData(part);
+                    if(marginAnalystData != null) {
+                        marginAnalystDataList.add(marginAnalystData);
                     }
                 }
 
+                log.info("Newly saved MarginAnalystData: " + marginAnalystDataList.size());
+                marginAnalystDataRepository.saveAll(marginAnalystDataList);
+                marginAnalystDataList.clear();
             }
-            marginAnalystDataRepository.saveAll(marginAnalystDataList);
-            log.info("MarginAnalysisData are newly saved: " + marginAnalystDataList.size());
-            marginAnalystDataList.clear();
         }
-
         // after having MarginAnalystData -> calculate MarginAnalystSummary
         calculateMarginAnalystSummary(monthYear, "USD", "monthly");
         calculateMarginAnalystSummary(monthYear, "AUD", "monthly");
 
         calculateMarginAnalystSummary(monthYear, "USD", "annually");
         calculateMarginAnalystSummary(monthYear, "AUD", "annually");
-
     }
 
     /**
@@ -277,7 +260,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
                 totalListPrice += m.getListPrice();
                 manufacturingCostRMB += m.getCostRMB();
 
-                dealerNet += partService.getNetPriceInPart(modelCode, currency, monthYear, m.getOptionCode());
+                dealerNet += m.getDealerNet();
             }
             double totalCostRMB = manufacturingCostRMB * (1 + costUplift) * (1 + warranty + surcharge + duty);
             double blendedDiscount = 1 - (dealerNet / totalListPrice);
@@ -298,25 +281,25 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             // fields for both annually and monthly MarginAnalystSummary
             marginAnalystSummary.setModelCode(modelCode);
             marginAnalystSummary.setCurrency(currencyService.getCurrenciesByName(currency));
-            marginAnalystSummary.setManufacturingCostRMB(BigDecimal.valueOf(manufacturingCostRMB).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystSummary.setManufacturingCostRMB(CurrencyFormatUtils.formatDoubleValue(manufacturingCostRMB, CurrencyFormatUtils.decimalFormatFourDigits));
             marginAnalystSummary.setCostUplift(costUplift);
             marginAnalystSummary.setAddWarranty(warranty);
             marginAnalystSummary.setSurcharge(surcharge);
             marginAnalystSummary.setDuty(duty);
             marginAnalystSummary.setFreight(freight);
             marginAnalystSummary.setLiIonIncluded(liIonIncluded);
-            marginAnalystSummary.setTotalCostRMB(BigDecimal.valueOf(totalCostRMB).setScale(4, RoundingMode.HALF_UP).doubleValue());
-            marginAnalystSummary.setTotalListPrice(BigDecimal.valueOf(totalListPrice).setScale(4, RoundingMode.HALF_UP).doubleValue());
-            marginAnalystSummary.setBlendedDiscountPercentage(BigDecimal.valueOf(blendedDiscount).setScale(4, RoundingMode.HALF_UP).doubleValue());
-            marginAnalystSummary.setDealerNet(BigDecimal.valueOf(dealerNet).setScale(4, RoundingMode.HALF_UP).doubleValue());
-            marginAnalystSummary.setMargin(BigDecimal.valueOf(margin).setScale(4, RoundingMode.HALF_UP).doubleValue());
+            marginAnalystSummary.setTotalCostRMB(CurrencyFormatUtils.formatDoubleValue(totalCostRMB, CurrencyFormatUtils.decimalFormatFourDigits));
+            marginAnalystSummary.setTotalListPrice(CurrencyFormatUtils.formatDoubleValue(totalListPrice, CurrencyFormatUtils.decimalFormatFourDigits));
+            marginAnalystSummary.setBlendedDiscountPercentage(CurrencyFormatUtils.formatDoubleValue(blendedDiscount, CurrencyFormatUtils.decimalFormatFourDigits));
+            marginAnalystSummary.setDealerNet(CurrencyFormatUtils.formatDoubleValue(dealerNet, CurrencyFormatUtils.decimalFormatFourDigits));
+            marginAnalystSummary.setMargin(CurrencyFormatUtils.formatDoubleValue(margin, CurrencyFormatUtils.decimalFormatFourDigits));
             marginAnalystSummary.setMarginAopRate(marginAnalysisAOPRate);
 
             if(durationUnit.equals("monthly")) {
                 marginAnalystSummary.setMonthYear(monthYear);
                 // monthly valued
-                marginAnalystSummary.setFullMonthlyRate(BigDecimal.valueOf(fullCostAOPRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
-                marginAnalystSummary.setMarginPercentMonthlyRate(BigDecimal.valueOf(marginPercentAopRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
+                marginAnalystSummary.setFullMonthlyRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
+                marginAnalystSummary.setMarginPercentMonthlyRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             }
             else {
                 // annually valued
@@ -326,8 +309,8 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
                 annualDate.set(monthYear.get(Calendar.YEAR), Calendar.JANUARY, 28);
 
                 marginAnalystSummary.setMonthYear(annualDate);
-                marginAnalystSummary.setFullCostAopRate(BigDecimal.valueOf(fullCostAOPRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
-                marginAnalystSummary.setMarginPercentAopRate(BigDecimal.valueOf(marginPercentAopRate).setScale(4, RoundingMode.HALF_UP).doubleValue());
+                marginAnalystSummary.setFullMonthlyRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
+                marginAnalystSummary.setMarginPercentMonthlyRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             }
             marginAnalystSummaryList.add(marginAnalystSummary);
 
