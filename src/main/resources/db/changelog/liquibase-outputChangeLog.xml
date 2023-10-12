@@ -36,7 +36,7 @@
             <column name="quantity" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
-            <column name="region" type="VARCHAR(255)"/>
+            <column name="region" type="INTEGER"/>
             <column name="total_cost" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
@@ -285,9 +285,10 @@
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-15">
         <createTable tableName="apacserial">
-            <column name="model" type="VARCHAR(255)">
+            <column name="id" type="SERIAL">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="apacserial_pkey"/>
             </column>
+            <column name="model" type="VARCHAR(255)" />
             <column name="brand" type="VARCHAR(255)"/>
             <column name="line" type="VARCHAR(255)"/>
             <column name="plant" type="VARCHAR(255)"/>
@@ -533,4 +534,5 @@
             <column name="region" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+
 </databaseChangeLog>

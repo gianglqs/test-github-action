@@ -3,6 +3,7 @@ package com.hysteryale.service;
 import com.hysteryale.model.APACSerial;
 import com.hysteryale.model.MetaSeries;
 import com.hysteryale.repository.APACSerialRepository;
+import com.hysteryale.repository.CustomAPACSerialRepository;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -27,19 +28,19 @@ public class APACSerialService {
     APACSerialRepository apacSerialRepository;
     @Resource
     MetaSeriesService metaSeriesService;
-    private final HashMap<String, Integer> APAC_COLUMNS = new HashMap<>();
 
-    public void getAPACColumnsName(Row row) {
+    //private final HashMap<String, Integer> APAC_COLUMNS = new HashMap<>();
+
+    public void getAPACColumnsName(Row row, HashMap<String, Integer> APAC_COLUMNS) {
+
         for (int i = 0; i < 11; i++) {
             String columnName = row.getCell(i).getStringCellValue();
-            if (APAC_COLUMNS.get(columnName) != null)
-                columnName += "_Yale";
             APAC_COLUMNS.put(columnName, i);
         }
         log.info("APAC Columns: " + APAC_COLUMNS);
     }
 
-    public APACSerial mapExcelToAPACSerial(Row row, String brand) throws IllegalAccessException {
+    public APACSerial mapExcelToAPACSerial(Row row, HashMap<String, Integer> APAC_COLUMNS, String brand) throws IllegalAccessException {
         APACSerial apacSerial = new APACSerial();
         Class<? extends APACSerial> apacSerialClass = apacSerial.getClass();
         Field[] fields = apacSerialClass.getDeclaredFields();
@@ -48,7 +49,8 @@ public class APACSerialService {
             // String key of column's name and capitalize first character
             String fieldName = field.getName();
             String hashMapKey = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-
+            if (fieldName.equals("id"))
+                continue;
             field.setAccessible(true);
             if (fieldName.equals("brand"))
                 field.set(apacSerial, brand);
@@ -73,9 +75,9 @@ public class APACSerialService {
                 // Suffix for specify Model and Quote reference of either Hyster or Yale
                 String suffix = brand.equals("Hyster") ? "" : ("_" + "Yale");
                 switch (hashMapKey) {
-                    case "Line":
-                        hashMapKey = hashMapKey + (brand.equals("Hyster") ? " " : (" _" + "Yale"));
-                        break;
+//                    case "Line":
+//                        hashMapKey = hashMapKey + (brand.equals("Hyster") ? " " : (" _" + "Yale"));
+//                        break;
                     case "Model":
                         hashMapKey = hashMapKey + suffix;
                         break;
@@ -87,10 +89,65 @@ public class APACSerialService {
                         hashMapKey = "Class";
                         break;
                 }
-                    Cell cell = row.getCell(APAC_COLUMNS.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                if(cell.getCellType() == CellType.NUMERIC){
+                Cell cell = row.getCell(APAC_COLUMNS.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                if (cell.getCellType() == CellType.NUMERIC) {
                     field.set(apacSerial, String.valueOf(cell.getNumericCellValue()));
-                }else if(cell.getCellType() == CellType.STRING){
+                } else if (cell.getCellType() == CellType.STRING) {
+                    field.set(apacSerial, cell.getStringCellValue());
+                }
+//
+//                String value = row.getCell(APAC_COLUMNS.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+//                if (!value.equals("NA"))
+//                    field.set(apacSerial, value);
+
+            }
+        }
+        return apacSerial;
+    }
+
+    public APACSerial mapExcelSheetToAPACSerial(Row row, HashMap<String, Integer> APAC_COLUMNS, String brand) throws IllegalAccessException {
+        APACSerial apacSerial = new APACSerial();
+        Class<? extends APACSerial> apacSerialClass = apacSerial.getClass();
+        Field[] fields = apacSerialClass.getDeclaredFields();
+
+        for (Field field : fields) {
+            // String key of column's name and capitalize first character
+            String fieldName = field.getName();
+            String hashMapKey = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+            if (fieldName.equals("id"))
+                continue;
+
+            field.setAccessible(true);
+            if (fieldName.equals("brand"))
+                field.set(apacSerial, brand);
+            else if (fieldName.equals("metaSeries")) {
+                Cell seriesCell = row.getCell(APAC_COLUMNS.get("Series"));
+                String series = "";
+                if (seriesCell.getCellType() == CellType.STRING) {
+                    series = seriesCell.getStringCellValue();
+                } else if (seriesCell.getCellType() == CellType.NUMERIC) {
+                    series = String.valueOf(seriesCell.getNumericCellValue());
+                }
+                if (series.length() == 4) {
+                    series = series.substring(1);
+                }
+                try {
+                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(series);
+                    field.set(apacSerial, metaSeries);
+                } catch (Exception e) {
+                    log.error(e.toString());
+                }
+            } else if (fieldName.equals("quoteReference")) {
+                Cell quoteCell = row.getCell(APAC_COLUMNS.get("Quote #"));
+
+                field.set(apacSerial, quoteCell.getStringCellValue());
+            } else {
+                // Suffix for specify Model and Quote reference of either Hyster or Yale
+
+                Cell cell = row.getCell(APAC_COLUMNS.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                if (cell.getCellType() == CellType.NUMERIC) {
+                    field.set(apacSerial, String.valueOf(cell.getNumericCellValue()));
+                } else if (cell.getCellType() == CellType.STRING) {
                     field.set(apacSerial, cell.getStringCellValue());
                 }
 //
@@ -112,26 +169,55 @@ public class APACSerialService {
         List<APACSerial> apacSerialList = new ArrayList<>();
 
         Sheet orderSheet = workbook.getSheet("Master Summary");
-        for (Row row : orderSheet) {
-            if (row.getRowNum() == 0)
-                getAPACColumnsName(row);
-            else if (row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getCellType() != CellType.BLANK
-                    && row.getRowNum() > 0) {
-                for (String brand : brands) {
-                    APACSerial apacSerial = mapExcelToAPACSerial(row, brand);
-                    if (!(apacSerial.getModel() == null))
-                        apacSerialList.add(apacSerial);
+        HashMap<String, Integer> columnSheet = new HashMap<>();
+
+//        for (Row row : orderSheet) {
+//            if (row.getRowNum() == 0)
+//                getAPACColumnsName(row, columnSheet);
+//            else if (row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getCellType() != CellType.BLANK
+//                    && row.getRowNum() > 0) {
+//                for (String brand : brands) {
+//                    APACSerial apacSerial = mapExcelToAPACSerial(row, columnSheet, brand);
+//                    if (!(apacSerial.getModel() == null))
+//                        apacSerialList.add(apacSerial);
+//                }
+//            }
+//        }
+
+        for (String brand : brands) {
+            log.info(brand);
+            Sheet brandSheet = workbook.getSheet(brand + " Model");
+            for (Row row : brandSheet) {
+                if (row.getRowNum() == 0)
+                    getAPACColumnsName(row, columnSheet);
+                else if (row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getCellType() != CellType.BLANK
+                        && row.getRowNum() > 0) {
+                    APACSerial apacSerial = mapExcelSheetToAPACSerial(row, columnSheet, brand);
+                    if ((apacSerial.getModel() != null) && !isExist(apacSerial))
+                        apacSerialRepository.save(apacSerial);
                 }
             }
         }
-        apacSerialRepository.saveAll(apacSerialList);
+
+
+    //    apacSerialRepository.saveAll(apacSerialList);
+
         log.info("Newly saved " + apacSerialList.size());
 
         apacSerialList.clear();
     }
 
+    private boolean isExist(APACSerial apacSerial) {
+        Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findByModel(apacSerial.getModel());
+        if (optionalAPACSerial.isPresent()) {
+
+            return true;
+        }
+        return false;
+    }
+
     public APACSerial getAPACSerialByModel(String model) {
-        Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findById(model);
+        Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findByModel(model);
         if (optionalAPACSerial.isPresent())
             return optionalAPACSerial.get();
         else
