@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.*;
 import com.hysteryale.model.filters.BookingOrderFilter;
-import com.hysteryale.repository.AOPMarginRepository;
-import com.hysteryale.repository.CurrencyRepository;
-import com.hysteryale.repository.PartRepository;
-import com.hysteryale.repository.RegionRepository;
+import com.hysteryale.repository.*;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +56,9 @@ public class BookingOrderService extends BasedService {
 
     @Resource
     CurrencyRepository currencyRepository;
+
+    @Resource
+    APACSerialRepository apacSerialRepository;
 
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
@@ -268,7 +268,7 @@ public class BookingOrderService extends BasedService {
                 if (row.getRowNum() == 0) getOrderColumnsName(row);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
-
+                    newBookingOrder = importPlant(newBookingOrder);
                     //calculate and adding extra values
                     //   if(newBookingOrder.getOrderNo().equals("H19905")){
                     //newBookingOrder = calculateOrderValues(newBookingOrder);
@@ -284,6 +284,14 @@ public class BookingOrderService extends BasedService {
             bookingOrderList.clear();
         }
     }
+
+    private BookingOrder importPlant(BookingOrder bookingOrder) {
+        Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findByModelAndSeries(bookingOrder.getModel(), bookingOrder.getSeries());
+        if (optionalAPACSerial.isPresent())
+            bookingOrder.setPlant(optionalAPACSerial.get().getPlant());
+        return bookingOrder;
+    }
+
 
     public List<BookingOrder> getAllBookingOrders() {
         return bookingOrderRepository.findAll();

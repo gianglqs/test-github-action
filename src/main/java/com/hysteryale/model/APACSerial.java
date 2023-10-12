@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Setter
 @Table(uniqueConstraints =
 @UniqueConstraint(columnNames = {"model", "series"}))
-public class APACSerial implements Serializable {
+public class APACSerial  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

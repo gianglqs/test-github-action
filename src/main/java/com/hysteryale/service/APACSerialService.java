@@ -1,6 +1,7 @@
 package com.hysteryale.service;
 
 import com.hysteryale.model.APACSerial;
+import com.hysteryale.model.BookingOrder;
 import com.hysteryale.model.MetaSeries;
 import com.hysteryale.repository.APACSerialRepository;
 import com.hysteryale.repository.CustomAPACSerialRepository;
@@ -64,8 +65,7 @@ public class APACSerialService {
             field.setAccessible(true);
             if (fieldName.equals("brand")) {
                 field.set(apacSerial, brand);
-            }
-            else if (fieldName.equals("series")) {
+            } else if (fieldName.equals("series")) {
                 Cell seriesCell = row.getCell(APAC_COLUMNS.get(brand));
                 String series = "";
                 if (seriesCell.getCellType() == CellType.STRING) {
@@ -83,8 +83,7 @@ public class APACSerialService {
 //                } catch (Exception e) {
 //                    log.error(e.toString());
 //                }
-            }
-            else {
+            } else {
                 // Suffix for specify Model and Quote reference of either Hyster or Yale
                 String suffix = brand.equals("Hyster") ? "" : ("_" + "Yale");
                 switch (hashMapKey) {
@@ -176,6 +175,7 @@ public class APACSerialService {
         }
         return apacSerial;
     }
+
 
     public void importAPACSerial() throws IOException, IllegalAccessException {
         InputStream is = new FileInputStream("import_files/APAC/APAC Serial in NOVO master file.xlsx");

@@ -36,6 +36,7 @@ public class BookingOrder implements Serializable {
 //    private APACSerial apacSerial;
     private String model;
     private String truckClass;
+    private String plant;
 
 
     //properties that we need to calculate based on raw data
