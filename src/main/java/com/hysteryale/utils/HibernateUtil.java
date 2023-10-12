@@ -1,4 +1,4 @@
-package com.hysteryale.repository.bookingorder;
+package com.hysteryale.utils;
 
 import com.hysteryale.model.BookingOrder;
 import com.hysteryale.model.Region;
@@ -9,6 +9,21 @@ import org.hibernate.service.ServiceRegistry;
 import org.springframework.context.annotation.Bean;
 
 public class HibernateUtil {
+//
+//    private static SessionFactory sessionFactory = null;
+//
+//    static {
+//        Configuration cfg = new Configuration().configure();
+//        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
+//                .applySettings(cfg.getProperties());
+//        sessionFactory = cfg.buildSessionFactory(builder.build());
+//    }
+//
+//    public static SessionFactory getSessionFactory() {
+//        return sessionFactory;
+//    }
+
+
     private static SessionFactory sessionFactory;
 
     private static SessionFactory buildSessionFactory() {
@@ -35,7 +50,6 @@ public class HibernateUtil {
     @Bean
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) sessionFactory = buildSessionFactory();
-
         return sessionFactory;
     }
 }

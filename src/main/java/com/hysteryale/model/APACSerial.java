@@ -13,17 +13,19 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 @Setter
+@Table(uniqueConstraints =
+@UniqueConstraint(columnNames = {"model", "series"}))
 public class APACSerial implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(unique = true)
     private String model;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private MetaSeries metaSeries;
+    //    @ManyToOne(fetch = FetchType.EAGER)
+    //    private MetaSeries metaSeries;
+    private String series;
     private String brand;       // Hyster or Yale
-   // private String line;
-   private String quoteReference;
+    // private String line;
+    private String quoteReference;
     private String plant;
     private String remarks;
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -14,7 +15,7 @@ import java.util.GregorianCalendar;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingOrder {
+public class BookingOrder implements Serializable {
     @Id
     private String orderNo;
     @Temporal(TemporalType.DATE)
@@ -30,10 +31,10 @@ public class BookingOrder {
     private String comment;
     private String Series;
     private String billTo;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "apac_serial")
-    private APACSerial apacSerial;
-   // private String model;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "apac_serial")
+//    private APACSerial apacSerial;
+    private String model;
     private String truckClass;
 
 

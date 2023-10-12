@@ -15,4 +15,7 @@ public interface APACSerialRepository extends JpaRepository<APACSerial, String> 
 
     @Query("SELECT a FROM APACSerial a WHERE a.model = ?1")
     Optional<APACSerial> findByModel(String model);
+
+    @Query("SELECT a FROM APACSerial a WHERE a.model = ?1 AND a.series = ?2")
+    Optional<APACSerial> findByModelAndSeries(String model, String series);
 }

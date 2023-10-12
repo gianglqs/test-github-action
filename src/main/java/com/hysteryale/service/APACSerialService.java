@@ -31,10 +31,20 @@ public class APACSerialService {
 
     //private final HashMap<String, Integer> APAC_COLUMNS = new HashMap<>();
 
-    public void getAPACColumnsName(Row row, HashMap<String, Integer> APAC_COLUMNS) {
+//    public void getAPACColumnsName(Row row, HashMap<String, Integer> APAC_COLUMNS) {
+//
+//        for (int i = 0; i < 11; i++) {
+//            String columnName = row.getCell(i).getStringCellValue();
+//            APAC_COLUMNS.put(columnName, i);
+//        }
+//        log.info("APAC Columns: " + APAC_COLUMNS);
+//    }
 
+    public void getAPACColumnsName(Row row, HashMap<String, Integer> APAC_COLUMNS) {
         for (int i = 0; i < 11; i++) {
             String columnName = row.getCell(i).getStringCellValue();
+            if (APAC_COLUMNS.get(columnName) != null)
+                columnName += "_Yale";
             APAC_COLUMNS.put(columnName, i);
         }
         log.info("APAC Columns: " + APAC_COLUMNS);
@@ -52,9 +62,10 @@ public class APACSerialService {
             if (fieldName.equals("id"))
                 continue;
             field.setAccessible(true);
-            if (fieldName.equals("brand"))
+            if (fieldName.equals("brand")) {
                 field.set(apacSerial, brand);
-            else if (fieldName.equals("metaSeries")) {
+            }
+            else if (fieldName.equals("series")) {
                 Cell seriesCell = row.getCell(APAC_COLUMNS.get(brand));
                 String series = "";
                 if (seriesCell.getCellType() == CellType.STRING) {
@@ -62,22 +73,24 @@ public class APACSerialService {
                 } else if (seriesCell.getCellType() == CellType.NUMERIC) {
                     series = String.valueOf(seriesCell.getNumericCellValue());
                 }
-                if (series.length() == 4) {
-                    series = series.substring(1);
-                }
-                try {
-                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(series);
-                    field.set(apacSerial, metaSeries);
-                } catch (Exception e) {
-                    log.error(e.toString());
-                }
-            } else {
+                field.set(apacSerial, series);
+//                if (series.length() == 4) {
+//                    series = series.substring(1);
+//                }
+//                try {
+//                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(series);
+//                    field.set(apacSerial, metaSeries);
+//                } catch (Exception e) {
+//                    log.error(e.toString());
+//                }
+            }
+            else {
                 // Suffix for specify Model and Quote reference of either Hyster or Yale
                 String suffix = brand.equals("Hyster") ? "" : ("_" + "Yale");
                 switch (hashMapKey) {
-//                    case "Line":
-//                        hashMapKey = hashMapKey + (brand.equals("Hyster") ? " " : (" _" + "Yale"));
-//                        break;
+                    case "Line":
+                        hashMapKey = hashMapKey + (brand.equals("Hyster") ? " " : (" _" + "Yale"));
+                        break;
                     case "Model":
                         hashMapKey = hashMapKey + suffix;
                         break;
@@ -120,24 +133,28 @@ public class APACSerialService {
             field.setAccessible(true);
             if (fieldName.equals("brand"))
                 field.set(apacSerial, brand);
-            else if (fieldName.equals("metaSeries")) {
-                Cell seriesCell = row.getCell(APAC_COLUMNS.get("Series"));
-                String series = "";
-                if (seriesCell.getCellType() == CellType.STRING) {
-                    series = seriesCell.getStringCellValue();
-                } else if (seriesCell.getCellType() == CellType.NUMERIC) {
-                    series = String.valueOf(seriesCell.getNumericCellValue());
-                }
-                if (series.length() == 4) {
-                    series = series.substring(1);
-                }
-                try {
-                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(series);
-                    field.set(apacSerial, metaSeries);
-                } catch (Exception e) {
-                    log.error(e.toString());
-                }
-            } else if (fieldName.equals("quoteReference")) {
+            else if (fieldName.equals("series")) {
+                field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Series")).getStringCellValue());
+            }
+//            else if (fieldName.equals("metaSeries")) {
+//                Cell seriesCell = row.getCell(APAC_COLUMNS.get("Series"));
+//                String series = "";
+//                if (seriesCell.getCellType() == CellType.STRING) {
+//                    series = seriesCell.getStringCellValue();
+//                } else if (seriesCell.getCellType() == CellType.NUMERIC) {
+//                    series = String.valueOf(seriesCell.getNumericCellValue());
+//                }
+//                if (series.length() == 4) {
+//                    series = series.substring(1);
+//                }
+//                try {
+//                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(series);
+//                    field.set(apacSerial, metaSeries);
+//                } catch (Exception e) {
+//                    log.error(e.toString());
+//                }
+//            }
+            else if (fieldName.equals("quoteReference")) {
                 Cell quoteCell = row.getCell(APAC_COLUMNS.get("Quote #"));
 
                 field.set(apacSerial, quoteCell.getStringCellValue());
@@ -171,18 +188,18 @@ public class APACSerialService {
         Sheet orderSheet = workbook.getSheet("Master Summary");
         HashMap<String, Integer> columnSheet = new HashMap<>();
 
-//        for (Row row : orderSheet) {
-//            if (row.getRowNum() == 0)
-//                getAPACColumnsName(row, columnSheet);
-//            else if (row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getCellType() != CellType.BLANK
-//                    && row.getRowNum() > 0) {
-//                for (String brand : brands) {
-//                    APACSerial apacSerial = mapExcelToAPACSerial(row, columnSheet, brand);
-//                    if (!(apacSerial.getModel() == null))
-//                        apacSerialList.add(apacSerial);
-//                }
-//            }
-//        }
+        for (Row row : orderSheet) {
+            if (row.getRowNum() == 0)
+                getAPACColumnsName(row, columnSheet);
+            else if (row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getCellType() != CellType.BLANK
+                    && row.getRowNum() > 0) {
+                for (String brand : brands) {
+                    APACSerial apacSerial = mapExcelToAPACSerial(row, columnSheet, brand);
+                    if ((apacSerial.getModel() != null) && !isExist(apacSerial))
+                        apacSerialRepository.save(apacSerial);
+                }
+            }
+        }
 
         for (String brand : brands) {
             log.info(brand);
@@ -200,7 +217,7 @@ public class APACSerialService {
         }
 
 
-    //    apacSerialRepository.saveAll(apacSerialList);
+        //    apacSerialRepository.saveAll(apacSerialList);
 
         log.info("Newly saved " + apacSerialList.size());
 
@@ -208,7 +225,7 @@ public class APACSerialService {
     }
 
     private boolean isExist(APACSerial apacSerial) {
-        Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findByModel(apacSerial.getModel());
+        Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findByModelAndSeries(apacSerial.getModel(), apacSerial.getSeries());
         if (optionalAPACSerial.isPresent()) {
 
             return true;

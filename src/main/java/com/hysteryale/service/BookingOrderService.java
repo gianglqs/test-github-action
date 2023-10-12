@@ -139,16 +139,17 @@ public class BookingOrderService extends BasedService {
 
             // allow assigning value for object's fields
             field.setAccessible(true);
-            if (field.getName().equals("apacSerial")) {
-                try {
-                    field.setAccessible(true);
-                    APACSerial apacSerial = apacSerialService.getAPACSerialByModel(row.getCell(ORDER_COLUMNS_NAME.get("MODEL"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                    field.set(bookingOrder, apacSerial);
-                } catch (Exception e) {
-                    rollbar.error(e.toString());
-                    log.error(e.toString());
-                }
-            } else if (field.getName().equals("billTo")) {
+//            if (field.getName().equals("apacSerial")) {
+//                try {
+//                    field.setAccessible(true);
+//                    APACSerial apacSerial = apacSerialService.getAPACSerialByModel(row.getCell(ORDER_COLUMNS_NAME.get("MODEL"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+//                    field.set(bookingOrder, apacSerial);
+//                } catch (Exception e) {
+//                    rollbar.error(e.toString());
+//                    log.error(e.toString());
+//                }
+//            } else
+            if (field.getName().equals("billTo")) {
                 try {
                     field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
@@ -160,17 +161,17 @@ public class BookingOrderService extends BasedService {
                     log.error(e.toString());
                 }
             }
-//            else if (field.getName().equals("model")) { // model in APACSerial
-//                try {
-//                    field.setAccessible(true);
-//                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
-//                    field.set(bookingOrder, cell.getStringCellValue());
-//
-//                } catch (Exception e) {
-//                    rollbar.error(e.toString());
-//                    log.error(e.toString());
-//                }
-//            }
+            else if (field.getName().equals("model")) { // model in APACSerial
+                try {
+                    field.setAccessible(true);
+                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
+                    field.set(bookingOrder, cell.getStringCellValue());
+
+                } catch (Exception e) {
+                    rollbar.error(e.toString());
+                    log.error(e.toString());
+                }
+            }
             else if (field.getName().equals("region")) {
                 try {
                     field.setAccessible(true);

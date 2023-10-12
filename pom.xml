@@ -175,6 +175,11 @@
             <artifactId>rollbar-java</artifactId>
         </dependency>
 
+        <dependency>
+            <artifactId>hibernate-ehcache</artifactId>
+            <groupId>org.hibernate</groupId>
+        </dependency>
+
     </dependencies>
 
     <build>
