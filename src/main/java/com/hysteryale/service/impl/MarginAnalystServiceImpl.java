@@ -7,20 +7,15 @@ import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 import com.hysteryale.repository.marginAnalyst.MarginAnalystDataRepository;
 import com.hysteryale.repository.marginAnalyst.MarginAnalystSummaryRepository;
 import com.hysteryale.service.CurrencyService;
+import com.hysteryale.service.PartService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
-import com.hysteryale.service.PartService;
 import com.hysteryale.utils.CurrencyFormatUtils;
 import com.hysteryale.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,32 +70,13 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
         Calendar calendarForAnnually = Calendar.getInstance();
         calendarForAnnually.set(monthYear.get(Calendar.YEAR), Calendar.JANUARY, 28);
 
-        MarginAnalystSummary marginAnalystSummaryMonthly = marginAnalystSummaryRepository.getMarginAnalystSummaryMonthly(modelCode, currency, monthYear).get();
-        MarginAnalystSummary marginAnalystSummaryAnnually = marginAnalystSummaryRepository.getMarginAnalystSummaryAnnually(modelCode, currency, calendarForAnnually).get();
+        Optional<MarginAnalystSummary> optionalMarginAnalystSummaryMonthly = marginAnalystSummaryRepository.getMarginAnalystSummaryMonthly(modelCode, currency, monthYear);
+        Optional<MarginAnalystSummary> optionalMarginAnalystSummaryAnnually = marginAnalystSummaryRepository.getMarginAnalystSummaryAnnually(modelCode, currency, calendarForAnnually);
 
-        marginAnalystSummaryMap.put("MarginAnalystSummaryMonthly", marginAnalystSummaryMonthly);
-        marginAnalystSummaryMap.put("MarginAnalystSummaryAnnually", marginAnalystSummaryAnnually);
+        optionalMarginAnalystSummaryMonthly.ifPresent(marginAnalystSummary -> marginAnalystSummaryMap.put("MarginAnalystSummaryMonthly", marginAnalystSummary));
+        optionalMarginAnalystSummaryAnnually.ifPresent(marginAnalystSummary -> marginAnalystSummaryMap.put("MarginAnalystSummaryAnnually", marginAnalystSummary));
+
         return marginAnalystSummaryMap;
-    }
-
-    public static HashMap<String, Integer> marginAnalysisColumns = new HashMap<>();
-    /**
-     * Mapping Columns' name with cell index in Excel file
-     * @param row contains columns' name
-     */
-    private void getColumns(Row row) {
-        boolean isEnded = false;
-        int index = 1;
-        while(!isEnded) {
-            if(row.getCell(index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty())
-                isEnded = true;
-            else{
-                String columnName = row.getCell(index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
-                marginAnalysisColumns.put(columnName, index);
-            }
-            index++;
-        }
-            log.info("MarginAnalysis Column: " + marginAnalysisColumns);
     }
 
     /**
@@ -140,14 +116,14 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
 
             marginAnalystData.setDealerNet(CurrencyFormatUtils.formatDoubleValue(netPrice, CurrencyFormatUtils.decimalFormatFourDigits));
 
-            // Notes: some of parameters are assigned manually
+            // Notes: some of the parameters are assigned manually
 
             // AUD = 0.2159, USD = 0.1569
             double marginAnalysisAOPRate = part.getCurrency().getCurrency().equals("AUD") ? 0.2159 : 0.1569;
             double costUplift = 0.0;
             double surcharge = 0.015;
             double duty = 0.0;
-            double marginAOP = 0.0;
+            double marginAOP;
             double freight = 0;
             double warranty = 0;
 
@@ -167,13 +143,9 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
         return null;
     }
 
-    public void importMarginAnalystData() throws IOException {
+    public void importMarginAnalystData() {
         // Init folderPath and fileName
-        String folderPath = "import_files/margin_analyst_data";
         String fileName = "Copy of USD AUD Margin Analysis Template Macro_Aug 1st.xlsx";       // "Margin Analysis Macro"
-
-        InputStream is = new FileInputStream(folderPath + "/" + fileName);
-        XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         // Extract monthYear from fileName pattern
         Pattern pattern = Pattern.compile(".* Macro_(\\w{3}) .*");
@@ -296,8 +268,6 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             if(durationUnit.equals("monthly")) {
                 marginAnalystSummary.setMonthYear(monthYear);
                 // monthly valued
-                marginAnalystSummary.setFullMonthlyRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
-                marginAnalystSummary.setMarginPercentMonthlyRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             }
             else {
                 // annually valued
@@ -307,9 +277,9 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
                 annualDate.set(monthYear.get(Calendar.YEAR), Calendar.JANUARY, 28);
 
                 marginAnalystSummary.setMonthYear(annualDate);
-                marginAnalystSummary.setFullMonthlyRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
-                marginAnalystSummary.setMarginPercentMonthlyRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             }
+            marginAnalystSummary.setFullMonthlyRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
+            marginAnalystSummary.setMarginPercentMonthlyRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             marginAnalystSummaryList.add(marginAnalystSummary);
 
             log.info(" === End === ");
