@@ -294,7 +294,7 @@
             <column name="plant" type="VARCHAR(255)"/>
             <column name="quote_reference" type="VARCHAR(255)"/>
             <column name="remarks" type="VARCHAR(255)"/>
-            <column name="meta_series_series" type="VARCHAR(255)"/>
+<!--            <column name="meta_series_series" type="VARCHAR(255)"/>-->
         </createTable>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1696480184867-16">
@@ -476,12 +476,12 @@
         <addUniqueConstraint columnNames="parts_id" constraintName="uk_qop7dtow0qcs9wjuingv345js"
                              tableName="novo_quote_parts"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1696480184867-37">
-        <addForeignKeyConstraint baseColumnNames="meta_series_series" baseTableName="apacserial"
-                                 constraintName="fkjm28txijtq86a539x27l1ado9" deferrable="false"
-                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
-                                 referencedColumnNames="series" referencedTableName="meta_series" validate="true"/>
-    </changeSet>
+<!--    <changeSet author="hoangnhan (generated)" id="1696480184867-37">-->
+<!--        <addForeignKeyConstraint baseColumnNames="meta_series_series" baseTableName="apacserial"-->
+<!--                                 constraintName="fkjm28txijtq86a539x27l1ado9" deferrable="false"-->
+<!--                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"-->
+<!--                                 referencedColumnNames="series" referencedTableName="meta_series" validate="true"/>-->
+<!--    </changeSet>-->
     <changeSet author="hoangnhan (generated)" id="1696480184867-38">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
                         minValue="1" sequenceName="cost_uplift_seq" startValue="1"/>

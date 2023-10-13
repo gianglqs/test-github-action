@@ -74,15 +74,7 @@ public class APACSerialService {
                     series = String.valueOf(seriesCell.getNumericCellValue());
                 }
                 field.set(apacSerial, series);
-//                if (series.length() == 4) {
-//                    series = series.substring(1);
-//                }
-//                try {
-//                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(series);
-//                    field.set(apacSerial, metaSeries);
-//                } catch (Exception e) {
-//                    log.error(e.toString());
-//                }
+
             } else {
                 // Suffix for specify Model and Quote reference of either Hyster or Yale
                 String suffix = brand.equals("Hyster") ? "" : ("_" + "Yale");
@@ -134,28 +126,11 @@ public class APACSerialService {
                 field.set(apacSerial, brand);
             else if (fieldName.equals("series")) {
                 field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Series")).getStringCellValue());
-            }
-//            else if (fieldName.equals("metaSeries")) {
-//                Cell seriesCell = row.getCell(APAC_COLUMNS.get("Series"));
-//                String series = "";
-//                if (seriesCell.getCellType() == CellType.STRING) {
-//                    series = seriesCell.getStringCellValue();
-//                } else if (seriesCell.getCellType() == CellType.NUMERIC) {
-//                    series = String.valueOf(seriesCell.getNumericCellValue());
-//                }
-//                if (series.length() == 4) {
-//                    series = series.substring(1);
-//                }
-//                try {
-//                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(series);
-//                    field.set(apacSerial, metaSeries);
-//                } catch (Exception e) {
-//                    log.error(e.toString());
-//                }
-//            }
-            else if (fieldName.equals("quoteReference")) {
+            } else if (fieldName.equals("quoteReference")) {
                 Cell quoteCell = row.getCell(APAC_COLUMNS.get("Quote #"));
-
+                field.set(apacSerial, quoteCell.getStringCellValue());
+            } else if (fieldName.equals("model")) {
+                Cell quoteCell = row.getCell(APAC_COLUMNS.get("Model"));
                 field.set(apacSerial, quoteCell.getStringCellValue());
             } else {
                 // Suffix for specify Model and Quote reference of either Hyster or Yale
@@ -166,11 +141,6 @@ public class APACSerialService {
                 } else if (cell.getCellType() == CellType.STRING) {
                     field.set(apacSerial, cell.getStringCellValue());
                 }
-//
-//                String value = row.getCell(APAC_COLUMNS.get(hashMapKey), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
-//                if (!value.equals("NA"))
-//                    field.set(apacSerial, value);
-
             }
         }
         return apacSerial;
@@ -195,15 +165,17 @@ public class APACSerialService {
                     && row.getRowNum() > 0) {
                 for (String brand : brands) {
                     APACSerial apacSerial = mapExcelToAPACSerial(row, columnSheet, brand);
-                    if ((apacSerial.getModel() != null) && !isExist(apacSerial))
+                     if ((apacSerial.getModel() != null) && !isExist(apacSerial))
                         apacSerialRepository.save(apacSerial);
                 }
             }
         }
 
         for (String brand : brands) {
-            log.info(brand);
+
             Sheet brandSheet = workbook.getSheet(brand + " Model");
+            log.info(brandSheet.getSheetName());
+            columnSheet = new HashMap<>();
             for (Row row : brandSheet) {
                 if (row.getRowNum() == 0)
                     getAPACColumnsName(row, columnSheet);
@@ -215,11 +187,9 @@ public class APACSerialService {
                 }
             }
         }
-
-
         //    apacSerialRepository.saveAll(apacSerialList);
 
-        log.info("Newly saved " + apacSerialList.size());
+     //   log.info("Newly saved " + apacSerialList.size());
 
         apacSerialList.clear();
     }
@@ -227,7 +197,6 @@ public class APACSerialService {
     private boolean isExist(APACSerial apacSerial) {
         Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findByModelAndSeries(apacSerial.getModel(), apacSerial.getSeries());
         if (optionalAPACSerial.isPresent()) {
-
             return true;
         }
         return false;

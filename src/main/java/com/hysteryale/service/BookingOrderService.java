@@ -160,8 +160,7 @@ public class BookingOrderService extends BasedService {
                     rollbar.error(e.toString());
                     log.error(e.toString());
                 }
-            }
-            else if (field.getName().equals("model")) { // model in APACSerial
+            } else if (field.getName().equals("model")) {
                 try {
                     field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
@@ -171,8 +170,7 @@ public class BookingOrderService extends BasedService {
                     rollbar.error(e.toString());
                     log.error(e.toString());
                 }
-            }
-            else if (field.getName().equals("region")) {
+            } else if (field.getName().equals("region")) {
                 try {
                     field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
@@ -269,11 +267,7 @@ public class BookingOrderService extends BasedService {
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
                     newBookingOrder = importPlant(newBookingOrder);
-                    //calculate and adding extra values
-                    //   if(newBookingOrder.getOrderNo().equals("H19905")){
-                    //newBookingOrder = calculateOrderValues(newBookingOrder);
-                    //   }
-
+                    newBookingOrder = calculateOrderValues(newBookingOrder);
                     bookingOrderList.add(newBookingOrder);
                 }
             }
@@ -286,9 +280,22 @@ public class BookingOrderService extends BasedService {
     }
 
     private BookingOrder importPlant(BookingOrder bookingOrder) {
-        Optional<APACSerial> optionalAPACSerial = apacSerialRepository.findByModelAndSeries(bookingOrder.getModel(), bookingOrder.getSeries());
-        if (optionalAPACSerial.isPresent())
-            bookingOrder.setPlant(optionalAPACSerial.get().getPlant());
+        // first: query by MetaSeries, if result not unique then query combine model
+
+        List<String> getListPlantBySeries = apacSerialRepository.findPlantsByMetaSeries(bookingOrder.getSeries());
+        if (getListPlantBySeries.size() == 1) {
+            bookingOrder.setPlant(getListPlantBySeries.get(0));
+        } else if (getListPlantBySeries.size() == 0) {
+            rollbar.log("NOT FOUND PLANT WITH METASERIES " + bookingOrder.getSeries().substring(1));
+        } else {
+            Optional<String> optionalPlant = apacSerialRepository.findByModelAndMetaSeries(bookingOrder.getModel(), bookingOrder.getSeries());
+            if (optionalPlant.isPresent()) {
+                bookingOrder.setPlant(optionalPlant.get());
+            } else {
+                rollbar.log("NOT FOUND PLANT WITH METASERIES " + bookingOrder.getSeries().substring(1) + " AND MODEL  " + bookingOrder.getModel());
+            }
+        }
+
         return bookingOrder;
     }
 
