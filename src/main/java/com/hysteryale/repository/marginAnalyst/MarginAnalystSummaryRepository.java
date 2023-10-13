@@ -1,4 +1,4 @@
-package com.hysteryale.repository;
+package com.hysteryale.repository.marginAnalyst;
 
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
