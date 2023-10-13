@@ -33,9 +33,9 @@ public class CustomBookingOrderRepository {
         if (!plants.isEmpty())
             queryString += "AND b.plant IN :plants "; //
         if (!metaSeries.isEmpty())
-            queryString += "AND b.Series IN :metaSeries ";
+            queryString += "AND b.metaSeries.series IN :metaSeries ";
         if (!classes.isEmpty())
-            queryString += "AND m.clazz IN :classes ";
+            queryString += "AND b.metaSeries.clazz IN :classes ";
         if (!models.isEmpty())
             queryString += "AND b.model IN :models ";
 //        if (!segments.isEmpty())
@@ -120,7 +120,7 @@ public class CustomBookingOrderRepository {
 
         // Query for getting BookingOrder
         // String queryString = "SELECT b FROM BookingOrder b WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%')";
-        String queryString = "SELECT DISTINCT b FROM BookingOrder b LEFT JOIN MetaSeries m ON SUBSTRING(b.Series, 2, 3) = m.series WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%') ";
+        String queryString = "SELECT DISTINCT b FROM BookingOrder b  WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%') ";
 
         // Append filters
         Query query = createQueryByFilters(queryString, orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
@@ -144,7 +144,7 @@ public class CustomBookingOrderRepository {
      * Get the number of BookingOrders returned based on filters
      */
     public long getNumberOfBookingOrderByFilters(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage) throws ParseException {
-        String queryString = "SELECT COUNT(b) FROM BookingOrder b LEFT JOIN MetaSeries m ON SUBSTRING(b.Series, 2, LENGTH(m.series)) = m.series WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%')";
+        String queryString = "SELECT COUNT(b) FROM BookingOrder b  WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%')";
         Query query = createQueryByFilters(queryString, orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
         return (long) query.getSingleResult();
     }

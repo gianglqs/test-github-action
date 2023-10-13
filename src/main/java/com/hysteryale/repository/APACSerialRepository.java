@@ -22,6 +22,6 @@ public interface APACSerialRepository extends JpaRepository<APACSerial, String> 
     @Query("SELECT DISTINCT a.plant FROM APACSerial a WHERE SUBSTRING(a.series, 2, 3) = ?1")
     List<String> findPlantsByMetaSeries(String series);
 
-    @Query("SELECT a.plant FROM APACSerial a WHERE a.model = ?1 AND SUBSTRING(a.series, 2, 3) = SUBSTRING(?2, 2, 3)")
+    @Query("SELECT a.plant FROM APACSerial a WHERE a.model = ?1 AND SUBSTRING(a.series, 2, 3) = ?2")
     Optional<String> findByModelAndMetaSeries(String model, String series);
 }

@@ -278,7 +278,7 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
                     if (newBookingOrder.getMetaSeries() != null)
                         newBookingOrder = importPlant(newBookingOrder);
-               //     newBookingOrder = calculateOrderValues(newBookingOrder);
+                    newBookingOrder = calculateOrderValues(newBookingOrder);
                     bookingOrderList.add(newBookingOrder);
                 }
             }
@@ -298,15 +298,11 @@ public class BookingOrderService extends BasedService {
             bookingOrder.setPlant(getListPlantBySeries.get(0));
         } else if (getListPlantBySeries.size() == 0) {
             rollbar.log("NOT FOUND PLANT WITH METASERIES " + bookingOrder.getMetaSeries().getSeries());
-            System.err.println("Metaseries " + bookingOrder.getMetaSeries().getSeries());
         } else {
             Optional<String> optionalPlant = apacSerialRepository.findByModelAndMetaSeries(bookingOrder.getModel(), bookingOrder.getMetaSeries().getSeries());
             if (optionalPlant.isPresent()) {
                 bookingOrder.setPlant(optionalPlant.get());
-                System.err.println("==============Metaseries " + bookingOrder.getMetaSeries().getSeries());
             } else {
-                System.err.println("=========$$$$$$$$$$$$$=====Metaseries " + bookingOrder.getMetaSeries().getSeries());
-
                 rollbar.log("NOT FOUND PLANT WITH METASERIES " + bookingOrder.getMetaSeries().getSeries() + " AND MODEL  " + bookingOrder.getModel());
             }
         }
