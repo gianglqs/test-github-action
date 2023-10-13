@@ -29,7 +29,9 @@ public class BookingOrder implements Serializable {
     private String dealerPO;
     private String dealerName;
     private String comment;
-    private String Series;
+  //  private String Series;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private MetaSeries metaSeries;
     private String billTo;
 //    @ManyToOne(fetch = FetchType.EAGER)
 //    @JoinColumn(name = "apac_serial")
