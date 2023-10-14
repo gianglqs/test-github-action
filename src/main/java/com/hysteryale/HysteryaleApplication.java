@@ -10,8 +10,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class HysteryaleApplication extends RollbarInitializer {
 
 	public static void main(String[] args) {
-		rollbar.log("Hello, Rollbar");
+
 		SpringApplication.run(HysteryaleApplication.class, args);
+		rollbar.log("Hello, Rollbar has been installed on Server QA");
+	//	System.out.println(rollbar);
 	}
 
 }

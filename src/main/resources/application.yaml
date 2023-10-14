@@ -1,0 +1,48 @@
+# Need to be configured to import database
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hysteryale
+    username: postgres
+    password: postgres
+  config:
+    import: optional:file:/home/songiang/hysteryale/application-qa.properties
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: true
+    show_sql: false
+  security:
+    user:
+      name: client
+      password: password
+
+server:
+  error:
+    include-message: always
+
+
+# Messages
+messages:
+  basename: languages/message
+  fallback-to-system-locale: false
+
+# Liquibase
+liquibase:
+  change-log: classpath:db/changelog/liquibase-master.xml
+
+# Define import_files paths
+import-files:
+  home-path: /home/hoangnhan
+  base-folder: /Documents/import_files
+  booking-order: /booking
+  currency: /currency_exchangerate
+  margin_analyst_data: /margin_analyst_data
+  meta-series: /meta_series
+  bi-download: /bi_download
+  bi-download-history: /BI download history
+  apac: /APAC
+  aopmargin: /AOPMargin
+  apic: /APIC
