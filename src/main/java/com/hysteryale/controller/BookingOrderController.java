@@ -6,7 +6,6 @@ import com.hysteryale.model.filters.BookingOrderFilter;
 import com.hysteryale.service.APACSerialService;
 import com.hysteryale.service.APICDealerService;
 import com.hysteryale.service.BookingOrderService;
-import com.hysteryale.service.MetaSeriesService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -30,8 +29,7 @@ public class BookingOrderController {
     APICDealerService apicDealerService;
     @Resource
     APACSerialService apacSerialService;
-    @Resource
-    MetaSeriesService metaSeriesService;
+
 
     /**
      * Get filters' value as: dealers, plants, metaSeries, classes, segments, models for BookingOrders' filtering
@@ -43,9 +41,9 @@ public class BookingOrderController {
         //filters.put("dealers", apicDealerService.getAllAPICDealers());
         filters.put("dealers", bookingOrderService.getAllDealerName());
         filters.put("plants", apacSerialService.getAllPlants());
-        filters.put("metaSeries", metaSeriesService.getAllMetaSeries());
-        filters.put("classes", metaSeriesService.getMetaSeriesClasses());
-        filters.put("segments", metaSeriesService.getMetaSeriesSegments());
+        filters.put("metaSeries", apacSerialService.getAllMetaSeries());
+        filters.put("classes", apacSerialService.getAllClasses());
+        filters.put("segments", apacSerialService.getAllSegments());
      //  filters.put("models", apacSerialService.getAllAPACSerialModels());
         filters.put("models", bookingOrderService.getAllModel());
         filters.put("AOPMarginPercetage", bookingOrderService.getAPOMarginPercentageForFilter());

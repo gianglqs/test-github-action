@@ -40,8 +40,6 @@ public class BookingOrderService extends BasedService {
     @Resource
     APICDealerService apicDealerService;
     @Resource
-    MetaSeriesService metaSeriesService;
-    @Resource
     CustomBookingOrderRepository customBookingOrderRepository;
 
     @Resource
@@ -139,19 +137,17 @@ public class BookingOrderService extends BasedService {
 
             // allow assigning value for object's fields
             field.setAccessible(true);
-//            if (field.getName().equals("apacSerial")) {
-//                try {
-//                    field.setAccessible(true);
-//                    APACSerial apacSerial = apacSerialService.getAPACSerialByModel(row.getCell(ORDER_COLUMNS_NAME.get("MODEL"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-//                    field.set(bookingOrder, apacSerial);
-//                } catch (Exception e) {
-//                    rollbar.error(e.toString());
-//                    log.error(e.toString());
-//                }
-//            } else
+            if (field.getName().equals("apacSerial")) {
+                try {
+                    APACSerial apacSerial = apacSerialService.getAPACSerialByMetaseries(row.getCell(ORDER_COLUMNS_NAME.get("SERIES"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+                    field.set(bookingOrder, apacSerial);
+                } catch (Exception e) {
+                    rollbar.error(e.toString());
+                    log.error(e.toString());
+                }
+            } else
             if (field.getName().equals("billTo")) {
                 try {
-                    field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
                     field.set(bookingOrder, cell.getStringCellValue());
                     // APICDealer apicDealer = apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
@@ -162,7 +158,6 @@ public class BookingOrderService extends BasedService {
                 }
             } else if (field.getName().equals("model")) {
                 try {
-                    field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
                     field.set(bookingOrder, cell.getStringCellValue());
 
@@ -172,7 +167,6 @@ public class BookingOrderService extends BasedService {
                 }
             } else if (field.getName().equals("region")) {
                 try {
-                    field.setAccessible(true);
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
                     Optional<Region> region = regionRepository.findByRegionId(cell.getStringCellValue());
                     if (region.isPresent()) {
@@ -185,17 +179,7 @@ public class BookingOrderService extends BasedService {
                     rollbar.error(e.toString());
                     log.error(e.toString());
                 }
-            } else if (field.getName().equals("metaSeries")) {
-                field.setAccessible(true);
-                try {
-                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("SERIES"));
-                    MetaSeries metaSeries = metaSeriesService.getMetaSeriesBySeries(cell.getStringCellValue().substring(1));
-                    field.set(bookingOrder, metaSeries);
-                } catch (Exception e) {
-                    rollbar.error(e.toString());
-                    log.error(e.toString());
-                }
-            } else {
+            }  else {
                 Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
 
                 if (index != null) {  // cell will be null when the properties are not mapped with the excel files, they are used to calculate values
@@ -276,8 +260,8 @@ public class BookingOrderService extends BasedService {
                 if (row.getRowNum() == 0) getOrderColumnsName(row);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
-                    if (newBookingOrder.getMetaSeries() != null)
-                        newBookingOrder = importPlant(newBookingOrder);
+                  //  if (newBookingOrder.getMetaSeries() != null)
+           //             newBookingOrder = importPlant(newBookingOrder);
                     newBookingOrder = calculateOrderValues(newBookingOrder);
                     bookingOrderList.add(newBookingOrder);
                 }
@@ -288,26 +272,6 @@ public class BookingOrderService extends BasedService {
             log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
             bookingOrderList.clear();
         }
-    }
-
-    private BookingOrder importPlant(BookingOrder bookingOrder) {
-        // first: query by MetaSeries, if result not unique then query combine model
-
-        List<String> getListPlantBySeries = apacSerialRepository.findPlantsByMetaSeries(bookingOrder.getMetaSeries().getSeries());
-        if (getListPlantBySeries.size() == 1) {
-            bookingOrder.setPlant(getListPlantBySeries.get(0));
-        } else if (getListPlantBySeries.size() == 0) {
-            rollbar.log("NOT FOUND PLANT WITH METASERIES " + bookingOrder.getMetaSeries().getSeries());
-        } else {
-            Optional<String> optionalPlant = apacSerialRepository.findByModelAndMetaSeries(bookingOrder.getModel(), bookingOrder.getMetaSeries().getSeries());
-            if (optionalPlant.isPresent()) {
-                bookingOrder.setPlant(optionalPlant.get());
-            } else {
-                rollbar.log("NOT FOUND PLANT WITH METASERIES " + bookingOrder.getMetaSeries().getSeries() + " AND MODEL  " + bookingOrder.getModel());
-            }
-        }
-
-        return bookingOrder;
     }
 
 
@@ -366,8 +330,8 @@ public class BookingOrderService extends BasedService {
     private BookingOrder calculateOrderValues(BookingOrder bookingOrder) {
         //from orderId get Series
         String series = "";
-        if (bookingOrder.getMetaSeries() != null)
-            series = bookingOrder.getMetaSeries().getSeries();
+        if (bookingOrder.getSeries() != null)
+            series = bookingOrder.getSeries();
 
         // quantity is always 1
         bookingOrder.setQuantity(1);

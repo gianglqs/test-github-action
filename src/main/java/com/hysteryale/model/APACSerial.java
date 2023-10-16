@@ -6,26 +6,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"model", "series"}))
-public class APACSerial  {
+public class APACSerial {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String model;
-    //    @ManyToOne(fetch = FetchType.EAGER)
-    //    private MetaSeries metaSeries;
-    private String series;
-    private String brand;       // Hyster or Yale
-    // private String line;
-    private String quoteReference;
+    @Column(unique = true)
+    private String metaSeries;
+    private String brand;
     private String plant;
-    private String remarks;
+    private String clazz;
+    private String segment;
 }

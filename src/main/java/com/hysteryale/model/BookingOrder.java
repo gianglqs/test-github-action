@@ -29,16 +29,13 @@ public class BookingOrder implements Serializable {
     private String dealerPO;
     private String dealerName;
     private String comment;
-    private String Series;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private MetaSeries metaSeries;
+    private String series;
     private String billTo;
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "apac_serial")
-//    private APACSerial apacSerial;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "apac_serial")
+    private APACSerial apacSerial;
     private String model;
     private String truckClass;
-    private String plant;
 
 
     //properties that we need to calculate based on raw data
