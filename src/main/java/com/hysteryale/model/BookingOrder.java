@@ -21,13 +21,18 @@ public class BookingOrder {
     private Calendar date;
     private String currency;
     private String orderType;
-    private String region;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "region")
+    private Region region;
     private String ctryCode;
     private String dealerPO;
     private String dealerName;
     private String comment;
-    private String Series;
+    private String series;
     private String billTo;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_dimension")
+    private ProductDimension productDimension;
     private String model;
     private String truckClass;
 

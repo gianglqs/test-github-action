@@ -8,16 +8,19 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "booking_order_part")
-public class BookingOrderPart {
+public class ProductDimension {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String orderNo;
-    private String part;
-
+    private String model;
+    @Column(unique = true)
+    private String metaSeries;
+    private String brand;
+    private String plant;
+    private String clazz;
+    private String segment;
 }
