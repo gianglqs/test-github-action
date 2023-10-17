@@ -107,7 +107,6 @@ public class CustomBookingOrderRepository {
 
         log.error(query.unwrap(org.hibernate.query.Query.class).getQueryString());
         log.info(queryString);
-        log.info("AOPMarginPercetage:      " + MarginPercetage);
 
         return query;
     }

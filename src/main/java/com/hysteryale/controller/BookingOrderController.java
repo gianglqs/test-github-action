@@ -3,10 +3,7 @@ package com.hysteryale.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.filters.BookingOrderFilter;
-import com.hysteryale.service.APACSerialService;
-import com.hysteryale.service.APICDealerService;
-import com.hysteryale.service.BookingOrderService;
-import com.hysteryale.service.ProductDimensionService;
+import com.hysteryale.service.*;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -31,6 +28,8 @@ public class BookingOrderController {
     @Resource
     ProductDimensionService productDimensionService;
 
+    @Resource
+    RegionService regionService;
 
     /**
      * Get filters' value as: dealers, plants, metaSeries, classes, segments, models for BookingOrders' filtering
@@ -47,6 +46,7 @@ public class BookingOrderController {
         filters.put("models", bookingOrderService.getAllModel());
         filters.put("AOPMarginPercetage", bookingOrderService.getAPOMarginPercentageForFilter());
         filters.put("MarginPercetage", bookingOrderService.getMarginPercentageForFilter());
+        filters.put("regions", regionService.getAllRegionForFilter());
 
         return filters;
     }

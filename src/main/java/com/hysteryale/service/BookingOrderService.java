@@ -36,7 +36,7 @@ public class BookingOrderService extends BasedService {
     @Resource
     BookingOrderRepository bookingOrderRepository;
     @Resource
-    APACSerialService apacSerialService;
+    ProductDimensionService productDimensionService;
     @Resource
     APICDealerService apicDealerService;
     @Resource
@@ -56,7 +56,7 @@ public class BookingOrderService extends BasedService {
     CurrencyRepository currencyRepository;
 
     @Resource
-    APACSerialRepository apacSerialRepository;
+    ProductDimensionRepository productDimensionRepository;
 
     private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
@@ -137,10 +137,10 @@ public class BookingOrderService extends BasedService {
 
             // allow assigning value for object's fields
             field.setAccessible(true);
-            if (field.getName().equals("apacSerial")) {
+            if (field.getName().equals("productDimension")) {
                 try {
-                    APACSerial apacSerial = apacSerialService.getAPACSerialByMetaseries(row.getCell(ORDER_COLUMNS_NAME.get("SERIES"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                    field.set(bookingOrder, apacSerial);
+                    ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(row.getCell(ORDER_COLUMNS_NAME.get("SERIES"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+                    field.set(bookingOrder, productDimension);
                 } catch (Exception e) {
                     rollbar.error(e.toString());
                     log.error(e.toString());
