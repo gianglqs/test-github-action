@@ -1,6 +1,7 @@
 package com.hysteryale.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
 import java.nio.file.DirectoryStream;
@@ -65,4 +66,26 @@ public class FileUtils {
         return fileList;
     }
 
+    /**
+     * Verify whether the file's name is Excel file or not
+     */
+    public static boolean isExcelFile(String fileName) {
+        Pattern excelPattern = Pattern.compile(".* (.)xlsx|xls");
+        Matcher matcher = excelPattern.matcher(fileName);
+        return matcher.find();
+    }
+
+    /**
+     * Hash the file's name for avoiding SQL Injection using MD5
+     */
+    public static String hashFileName(String fileName) {
+        Pattern pattern = Pattern.compile("(.*).(.*)");
+        Matcher matcher = pattern.matcher(fileName);
+
+        String originalFileName = "";
+        if(matcher.find()) {
+            originalFileName = matcher.group(1);
+        }
+        return DigestUtils.md5Hex(originalFileName);
+    }
 }
