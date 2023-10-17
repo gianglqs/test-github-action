@@ -1,8 +1,9 @@
-package com.hysteryale.service;
+package com.hysteryale.service.marginAnalyst;
 
 import com.hysteryale.model.Currency;
 import com.hysteryale.model.marginAnalyst.MarginAnalystMacro;
-import com.hysteryale.repository.MarginAnalystMacroRepository;
+import com.hysteryale.repository.marginAnalyst.MarginAnalystMacroRepository;
+import com.hysteryale.service.CurrencyService;
 import com.hysteryale.utils.CurrencyFormatUtils;
 import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.EnvironmentUtils;
