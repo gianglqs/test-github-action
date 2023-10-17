@@ -14,6 +14,7 @@ import java.util.Calendar;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "margin_analyst_macro")
 public class MarginAnalystMacro {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -21,14 +22,26 @@ public class MarginAnalystMacro {
     private String clazz;
     private double costRMB;
     private String description;
+
+    @Column(name = "model_code")
     private String modelCode;
+
+    @Column(name = "part_number")
     private String partNumber;
     private String plant;
+
+    @Column(name = "price_list_region")
     private String priceListRegion;
+
+    @Column(name = "series_code")
     private String seriesCode;
+
+    @Column(name = "std_opt")
     private String stdOpt;
     @ManyToOne(fetch = FetchType.EAGER)
     private Currency currency;
+
+    @Column(name = "month_year")
     @Temporal(TemporalType.DATE)
     private Calendar monthYear;
 }

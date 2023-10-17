@@ -15,5 +15,6 @@ import javax.persistence.*;
 public class Currency {
     @Id
     private String currency;
+    @Column(name = "currency_name")
     private String currencyName;
 }

@@ -13,6 +13,7 @@ import java.util.Calendar;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "exchange_rate")
 public class ExchangeRate {
     @Id
     @SequenceGenerator(name = "exchangeRateSeq")

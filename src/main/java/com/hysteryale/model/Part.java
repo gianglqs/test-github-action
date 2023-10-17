@@ -14,6 +14,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "part")
 public class Part {
 
     @Id
@@ -23,30 +24,57 @@ public class Part {
     //TODO this one is temporarily replaced by quoteId
 //    @OneToOne
 //    private NovoQuote novoQuote;
+    @Column(name = "quote_id")
     private String quoteId;
 
     private String description;
     private int quantity;
 
+    @Column(name = "model_code")
     private String modelCode;
 
+    @Column(name = "order_number")
     private String orderNumber;
 
     //TODO this can be grouped ?
     private String series;
+
+    @Column(name = "part_number")
     private String partNumber;
+
+    @Column(name = "list_price")
     private double listPrice;
 
     private double discount;
+
+    @Column(name = "discount_percentage")
     private double discountPercentage;
+
+    @Column(name = "bill_to")
     private String billTo;
+
+    @Column(name = "net_price_each")
     private double netPriceEach;
+
+    @Column(name = "discount_to_customer_percentage")
     private double discountToCustomerPercentage;
+
+    @Column(name = "customer_price")
     private double customerPrice;
+
+    @Column(name = "extended_customer_price")
     private double extendedCustomerPrice;
+
+    @Column(name = "option_type")
     private String optionType;
+
+    @Column(name = "order_booed_date")
     private Date orderBookedDate;
+
+    @Column(name = "order_request_date")
     private Date orderRequestDate;
+
+    @Column(name = "recorded_time")
     @Temporal(TemporalType.DATE)
     private Calendar recordedTime;
     @ManyToOne(fetch = FetchType.EAGER)
