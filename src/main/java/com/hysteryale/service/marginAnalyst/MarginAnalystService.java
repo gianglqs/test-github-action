@@ -1,4 +1,4 @@
-package com.hysteryale.service;
+package com.hysteryale.service.marginAnalyst;
 
 import com.hysteryale.model.marginAnalyst.MarginAnalystData;
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
