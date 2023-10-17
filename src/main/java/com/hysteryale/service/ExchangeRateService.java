@@ -3,6 +3,7 @@ package com.hysteryale.service;
 import com.hysteryale.model.Currency;
 import com.hysteryale.model.ExchangeRate;
 import com.hysteryale.repository.ExchangeRateRepository;
+import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -110,7 +111,8 @@ public class ExchangeRateService {
 
     public void importExchangeRate() throws IOException {
         // Initialize folder path and file name
-        String folderPath = "import_files/currency_exchangerate";
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import_files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.currency");
         String fileName = "EXCSEP2023.xlsx";
 
         //Pattern for getting date from fileName

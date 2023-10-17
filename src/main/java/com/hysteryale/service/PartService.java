@@ -4,6 +4,7 @@ import com.hysteryale.model.Currency;
 import com.hysteryale.model.Part;
 import com.hysteryale.repository.PartRepository;
 import com.hysteryale.utils.DateUtils;
+import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -74,7 +75,8 @@ public class PartService {
     }
 
     public void importPart() throws IOException {
-        String folderPath = "import_files/bi_download";
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.bi-download");
         List<String> files = FileUtils.getAllFilesInFolder(folderPath);
 
         log.info("Files: " + files);

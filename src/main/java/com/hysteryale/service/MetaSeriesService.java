@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.MetaSeries;
 import com.hysteryale.repository.MetaSeriesRepository;
+import com.hysteryale.utils.EnvironmentUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
@@ -78,7 +79,8 @@ public class MetaSeriesService {
     }
     public void importMetaSeries() throws FileNotFoundException, IllegalAccessException {
         // Initialize folderPath and fileName
-        String folderPath = "import_files/meta_series";
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.meta-series");
         String fileName = "Meta series vs segment vs class mapping.xlsx";
 
         InputStream is = new FileInputStream(folderPath + "/" + fileName);

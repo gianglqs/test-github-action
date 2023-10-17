@@ -2,13 +2,11 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.Currency;
 import com.hysteryale.repository.CurrencyRepository;
+import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.FileUtils;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,9 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,9 +25,11 @@ public class CurrencyService {
     @Resource
     CurrencyRepository currencyRepository;
 
-    public void importCurrencies(String folderPath) throws IOException {
+    public void importCurrencies() throws IOException {
 
         log.info("========= Start importing Currencies ==========");
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.currency");
 
         // Try to find if there is file in this folder
         List<String> files = FileUtils.getAllFilesInFolder(folderPath);
