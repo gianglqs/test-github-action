@@ -84,7 +84,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
      */
     private MarginAnalystData mapMarginAnalysisData(Part part) {
 
-        Optional<MarginAnalystMacro> optionalMarginAnalystMacro = marginAnalystMacroService.getMarginAnalystMacro(part.getModelCode(), part.getPartNumber(), part.getCurrency().getCurrency(), part.getRecordedTime());
+        Optional<MarginAnalystMacro> optionalMarginAnalystMacro = marginAnalystMacroService.getMarginAnalystMacroByMonthYear(part.getModelCode(), part.getPartNumber(), part.getCurrency().getCurrency(), part.getRecordedTime());
         if(optionalMarginAnalystMacro.isPresent()) {
             MarginAnalystMacro marginAnalystMacro = optionalMarginAnalystMacro.get();
 
@@ -268,6 +268,8 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             if(durationUnit.equals("monthly")) {
                 marginAnalystSummary.setMonthYear(monthYear);
                 // monthly valued
+                marginAnalystSummary.setFullMonthlyRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
+                marginAnalystSummary.setMarginPercentMonthlyRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             }
             else {
                 // annually valued
@@ -277,9 +279,9 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
                 annualDate.set(monthYear.get(Calendar.YEAR), Calendar.JANUARY, 28);
 
                 marginAnalystSummary.setMonthYear(annualDate);
+                marginAnalystSummary.setFullCostAopRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
+                marginAnalystSummary.setMarginPercentAopRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             }
-            marginAnalystSummary.setFullMonthlyRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
-            marginAnalystSummary.setMarginPercentMonthlyRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
             marginAnalystSummaryList.add(marginAnalystSummary);
 
             log.info(" === End === ");
