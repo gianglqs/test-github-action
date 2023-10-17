@@ -1,6 +1,7 @@
 package com.hysteryale.controller;
 
 import com.hysteryale.service.*;
+import com.hysteryale.service.marginAnalyst.MarginAnalystService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;

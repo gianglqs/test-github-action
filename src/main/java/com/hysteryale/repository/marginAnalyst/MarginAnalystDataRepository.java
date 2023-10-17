@@ -1,4 +1,4 @@
-package com.hysteryale.repository;
+package com.hysteryale.repository.marginAnalyst;
 
 import com.hysteryale.model.marginAnalyst.MarginAnalystData;
 import org.apache.poi.hssf.record.Margin;
