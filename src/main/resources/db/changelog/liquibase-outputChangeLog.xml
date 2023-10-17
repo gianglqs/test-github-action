@@ -53,7 +53,7 @@
             <column name="quantity" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
-            <column name="region" type="VARCHAR(255)"/>
+            <column name="region" type="INTEGER"/>
             <column name="total_cost" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
@@ -302,27 +302,19 @@
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1697011760574-16">
         <createTable tableName="apacserial">
-            <column name="model" type="VARCHAR(255)">
+            <column name="id" type="SERIAL">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="apacserial_pkey"/>
             </column>
+            <column name="model" type="VARCHAR(255)" />
             <column name="brand" type="VARCHAR(255)"/>
             <column name="line" type="VARCHAR(255)"/>
             <column name="plant" type="VARCHAR(255)"/>
             <column name="quote_reference" type="VARCHAR(255)"/>
             <column name="remarks" type="VARCHAR(255)"/>
-            <column name="meta_series_series" type="VARCHAR(255)"/>
+<!--            <column name="meta_series_series" type="VARCHAR(255)"/>-->
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697011760574-17">
-        <createTable tableName="meta_series">
-            <column name="series" type="VARCHAR(255)">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="meta_series_pkey"/>
-            </column>
-            <column name="clazz" type="VARCHAR(255)"/>
-            <column name="segment1" type="VARCHAR(255)"/>
-            <column name="segment2" type="VARCHAR(255)"/>
-        </createTable>
-    </changeSet>
+
     <changeSet author="hoangnhan (generated)" id="1697011760574-18">
         <createTable tableName="margin_analyst_data">
             <column name="id" type="INTEGER">
@@ -459,9 +451,6 @@
     <changeSet author="hoangnhan (generated)" id="1697011760574-38">
         <addUniqueConstraint columnNames="parts_id" constraintName="uk_qop7dtow0qcs9wjuingv345js" tableName="novo_quote_parts"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697011760574-39">
-        <addForeignKeyConstraint baseColumnNames="meta_series_series" baseTableName="apacserial" constraintName="fkjm28txijtq86a539x27l1ado9" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="series" referencedTableName="meta_series" validate="true"/>
-    </changeSet>
     <changeSet author="hoangnhan (generated)" id="1697011760574-40">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="cost_uplift_seq" startValue="1"/>
     </changeSet>
@@ -492,4 +481,21 @@
     <changeSet author="hoangnhan (generated)" id="1697011760574-49">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="series_part_numberlpseq" startValue="1"/>
     </changeSet>
+    <changeSet author="hoangnhan (generated)" id="1696480184867-50">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="series_part_numberlpseq" startValue="1"/>
+    </changeSet>
+
+    <changeSet author="songiang (generated)" id="1271849484-1">
+        <createTable tableName="region">
+            <column name="id" type="SERIAL">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="region_pkey"/>
+            </column>
+            <column name="region_short_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="region" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

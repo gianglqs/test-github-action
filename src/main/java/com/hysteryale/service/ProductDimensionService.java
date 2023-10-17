@@ -1,13 +1,15 @@
 package com.hysteryale.service;
 
-import com.hysteryale.model.APACSerial;
-import com.hysteryale.repository.APACSerialRepository;
+import com.hysteryale.model.ProductDimension;
+import com.hysteryale.model.ProductDimension;
+import com.hysteryale.repository.ProductDimensionRepository;
+import com.hysteryale.repository.ProductDimensionRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
@@ -19,9 +21,9 @@ import java.util.*;
 
 @Service
 @Slf4j
-public class APACSerialService {
+public class ProductDimensionService {
     @Resource
-    APACSerialRepository apacSerialRepository;
+    ProductDimensionRepository productDimensionRepository;
 
     private final HashMap<String, Integer> APAC_COLUMNS = new HashMap<>();
 
@@ -33,10 +35,10 @@ public class APACSerialService {
         log.info("APAC Columns: " + APAC_COLUMNS);
     }
 
-    public APACSerial mapExcelSheetToAPACSerial(Row row) throws IllegalAccessException {
-        APACSerial apacSerial = new APACSerial();
-        Class<? extends APACSerial> apacSerialClass = apacSerial.getClass();
-        Field[] fields = apacSerialClass.getDeclaredFields();
+    public ProductDimension mapExcelSheetToProductDimension(Row row) throws IllegalAccessException {
+        ProductDimension productDimension = new ProductDimension();
+        Class<? extends ProductDimension> ProductDimensionClass = productDimension.getClass();
+        Field[] fields = ProductDimensionClass.getDeclaredFields();
 
         for (Field field : fields) {
             // String key of column's name and capitalize first character
@@ -47,28 +49,28 @@ public class APACSerialService {
 
             field.setAccessible(true);
             if (fieldName.equals("brand")) {
-                field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Brand")).getStringCellValue());
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Brand")).getStringCellValue());
             } else if (fieldName.equals("metaSeries")) {
-                field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Metaseries")).getStringCellValue());
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Metaseries")).getStringCellValue());
             } else if (fieldName.equals("model")) {
-                field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Model")).getStringCellValue());
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Model")).getStringCellValue());
             } else if (fieldName.equals("plant")) {
-                field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Plant")).getStringCellValue());
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Plant")).getStringCellValue());
             } else if (fieldName.equals("clazz")) {
-                field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Class_wBT")).getStringCellValue());
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Class_wBT")).getStringCellValue());
             } else if (fieldName.equals("segment")) {
-                field.set(apacSerial, row.getCell(APAC_COLUMNS.get("Segment")).getStringCellValue());
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Segment")).getStringCellValue());
             }
         }
-        return apacSerial;
+        return productDimension;
     }
 
 
-    public void importAPACSerial() throws IOException, IllegalAccessException {
+    public void importProductDimension() throws IOException, IllegalAccessException {
         InputStream is = new FileInputStream("import_files/APAC/Product Fcst dimension 2023_02_24.xlsx");
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
-        List<APACSerial> apacSerialList = new ArrayList<>();
+        List<ProductDimension> ProductDimensionList = new ArrayList<>();
 
         Sheet orderSheet = workbook.getSheet("Data");
 
@@ -78,24 +80,23 @@ public class APACSerialService {
             else if (row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getCellType() != CellType.BLANK
                     && row.getRowNum() >= 2) {
 
-                APACSerial newApacSerial = mapExcelSheetToAPACSerial(row);
-                Optional<APACSerial> getApacFromDB = apacSerialRepository.findByMetaSeries(newApacSerial.getMetaSeries());
-                if (getApacFromDB.isPresent()) {
-                    APACSerial apac = getApacFromDB.get();
-                    apac.setModel(newApacSerial.getModel());
-                    apacSerialRepository.save(apac);
-                    System.err.println("DA TON TAI :" + apac.getMetaSeries());
+                ProductDimension newProductDimension = mapExcelSheetToProductDimension(row);
+                Optional<ProductDimension> getProductDimensionFromDB = productDimensionRepository.findByMetaSeries(newProductDimension.getMetaSeries());
+                if (getProductDimensionFromDB.isPresent()) {
+                    ProductDimension productDimension = getProductDimensionFromDB.get();
+                    productDimension.setModel(newProductDimension.getModel());
+                    productDimensionRepository.save(productDimension);
                 } else {
-                    apacSerialRepository.save(newApacSerial);
+                    productDimensionRepository.save(newProductDimension);
                 }
             }
+
+            // ProductDimensionRepository.saveAll(ProductDimensionList);
+
+            log.info("Newly saved " + ProductDimensionList.size());
+
+            ProductDimensionList.clear();
         }
-
-        // apacSerialRepository.saveAll(apacSerialList);
-
-        log.info("Newly saved " + apacSerialList.size());
-
-        apacSerialList.clear();
     }
 
     /**
@@ -103,7 +104,7 @@ public class APACSerialService {
      */
     public List<Map<String, String>> getAllMetaSeries() {
         List<Map<String, String>> metaSeriesMap = new ArrayList<>();
-        List<String> metaSeries = apacSerialRepository.getAllMetaSeries();
+        List<String> metaSeries = productDimensionRepository.getAllMetaSeries();
 
         for (String m : metaSeries) {
             Map<String, String> mMap = new HashMap<>();
@@ -119,7 +120,7 @@ public class APACSerialService {
      */
     public List<Map<String, String>> getAllPlants() {
         List<Map<String, String>> plantListMap = new ArrayList<>();
-        List<String> plants = apacSerialRepository.getPlants();
+        List<String> plants = productDimensionRepository.getPlants();
 
         for (String p : plants) {
             Map<String, String> pMap = new HashMap<>();
@@ -131,15 +132,15 @@ public class APACSerialService {
         return plantListMap;
     }
 
-    public APACSerial getAPACSerialByMetaseries(String series) {
-        Optional<APACSerial> apacSerialOptional = apacSerialRepository.findByMetaSeries(series.substring(1));
-        return apacSerialOptional.orElse(null);
+    public ProductDimension getProductDimensionByMetaseries(String series) {
+        Optional<ProductDimension> productDimensionOptional = productDimensionRepository.findByMetaSeries(series.substring(1));
+        return productDimensionOptional.orElse(null);
     }
 
 
     public List<Map<String, String>> getAllClasses() {
         List<Map<String, String>> classMap = new ArrayList<>();
-        List<String> classes = apacSerialRepository.getAllClass();
+        List<String> classes = productDimensionRepository.getAllClass();
 
         for (String m : classes) {
             Map<String, String> mMap = new HashMap<>();
@@ -152,7 +153,7 @@ public class APACSerialService {
 
     public List<Map<String, String>> getAllSegments() {
         List<Map<String, String>> segmentMap = new ArrayList<>();
-        List<String> segments = apacSerialRepository.getAllClass();
+        List<String> segments = productDimensionRepository.getAllClass();
 
         for (String m : segments) {
             Map<String, String> mMap = new HashMap<>();

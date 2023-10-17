@@ -14,12 +14,13 @@ import javax.persistence.*;
 @Setter
 public class APACSerial {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     private String model;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private MetaSeries metaSeries;
-    private String brand;       // Hyster or Yale
-    private String line;
-    private String quoteReference;
+    @Column(unique = true)
+    private String metaSeries;
+    private String brand;
     private String plant;
-    private String remarks;
+    private String clazz;
+    private String segment;
 }
