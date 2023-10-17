@@ -33,6 +33,8 @@ public class ImportController {
 
     @Resource
     PartService partService;
+    @Resource
+    MarginAnalystMacroService marginAnalystMacroService;
 
     String curencyFolder = "import_files/currency_exchangerate";
 
@@ -40,14 +42,15 @@ public class ImportController {
     void importData() throws IOException, IllegalAccessException {
 //        metaSeriesService.importMetaSeries();
 //        apicDealerService.importAPICDealer();
-        apacSerialService.importAPACSerial();
+//        apacSerialService.importAPACSerial();
 //        currencyService.importCurrencies(curencyFolder);
-  //      partService.importPart();
+//        partService.importPart();
 //        bookingOrderPartService.importBookingOrderPart();
- //       aopMarginService.importAOPMargin();
-       bookingOrderService.importOrder();
+//        aopMarginService.importAOPMargin();
+//        bookingOrderService.importOrder();
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
-        //  marginAnalystService.importMarginAnalystData();
+        marginAnalystMacroService.importMarginAnalystMacro();
+//        marginAnalystService.importMarginAnalystData();
     }
 }

@@ -88,8 +88,10 @@ public class BookingOrderService extends BasedService {
             DirectoryStream<Path> folder = Files.newDirectoryStream(Paths.get(folderPath));
             for (Path path : folder) {
                 matcher = pattern.matcher(path.getFileName().toString());
-                if (matcher.matches()) fileList.add(path.getFileName().toString());
-                else log.error("Wrong formatted file's name: " + path.getFileName().toString());
+                if (matcher.matches())
+                    fileList.add(path.getFileName().toString());
+                else
+                    log.error("Wrong formatted file's name: " + path.getFileName().toString());
             }
         } catch (Exception e) {
             log.info(e.getMessage());

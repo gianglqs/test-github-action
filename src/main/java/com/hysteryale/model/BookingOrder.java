@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -15,7 +14,7 @@ import java.util.GregorianCalendar;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingOrder implements Serializable {
+public class BookingOrder {
     @Id
     private String orderNo;
     @Temporal(TemporalType.DATE)
@@ -36,7 +35,6 @@ public class BookingOrder implements Serializable {
     private ProductDimension productDimension;
     private String model;
     private String truckClass;
-
 
     //properties that we need to calculate based on raw data
     private int quantity = 1;
