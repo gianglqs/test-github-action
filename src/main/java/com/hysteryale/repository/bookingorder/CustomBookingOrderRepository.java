@@ -31,11 +31,11 @@ public class CustomBookingOrderRepository {
         if (!dealers.isEmpty())
             queryString += "AND b.dealerName IN :dealers ";
         if (!plants.isEmpty())
-            queryString += "AND b.apacSerial.plant IN :plants "; //
+            queryString += "AND b.productDimension.plant IN :plants "; //
         if (!metaSeries.isEmpty())
-            queryString += "AND b.apacSerial.metaSeries IN :metaSeries ";
+            queryString += "AND b.productDimension.metaSeries IN :metaSeries ";
         if (!classes.isEmpty())
-            queryString += "AND b.apacSerial.clazz IN :classes ";
+            queryString += "AND b.productDimension.clazz IN :classes ";
         if (!models.isEmpty())
             queryString += "AND b.model IN :models ";
 //        if (!segments.isEmpty())

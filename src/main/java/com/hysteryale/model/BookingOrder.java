@@ -32,8 +32,8 @@ public class BookingOrder implements Serializable {
     private String series;
     private String billTo;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "apac_serial")
-    private APACSerial apacSerial;
+    @JoinColumn(name = "product_dimension")
+    private ProductDimension productDimension;
     private String model;
     private String truckClass;
 
