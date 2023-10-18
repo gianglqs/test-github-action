@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
@@ -17,12 +16,6 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    @Column(name = "role_name")
     private String roleName;
-    @OneToMany(fetch = FetchType.EAGER)
-    private List<Permission> permissionList;
-
-    public Role(String roleName, List<Permission> permissionList) {
-        this.roleName = roleName;
-        this.permissionList = permissionList;
-    }
 }

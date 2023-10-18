@@ -72,14 +72,13 @@ public class MarginAnalystMacroService {
     }
 
     public void importMarginAnalystMacro() throws IOException {
-        String homePath = EnvironmentUtils.getEnvironmentValue("import-files.home-path");
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = EnvironmentUtils.getEnvironmentValue("import-files.margin_analyst_data");
         String fileName = "/Copy of USD AUD Margin Analysis Template Macro_Aug 1st.xlsx";
 
-        log.info("Path: " + homePath + baseFolder + folderPath + fileName);
+        log.info("Path: " + baseFolder + folderPath + fileName);
 
-        InputStream is = new FileInputStream(homePath + baseFolder + folderPath + fileName);
+        InputStream is = new FileInputStream( baseFolder + folderPath + fileName);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         // Extract monthYear from fileName pattern
@@ -116,7 +115,10 @@ public class MarginAnalystMacroService {
         }
     }
 
-    public Optional<MarginAnalystMacro> getMarginAnalystMacro(String modelCode, String partNumber, String strCurrency, Calendar monthYear) {
-        return marginAnalystMacroRepository.getMarginAnalystMacro(modelCode, partNumber, strCurrency, monthYear);
+    public Optional<MarginAnalystMacro> getMarginAnalystMacroByMonthYear(String modelCode, String partNumber, String strCurrency, Calendar monthYear) {
+        return marginAnalystMacroRepository.getMarginAnalystMacroByMonthYear(modelCode, partNumber, strCurrency, monthYear);
+    }
+    public Optional<MarginAnalystMacro> getMarginAnalystMacro(String modelCode, String partNumber, String strCurrency) {
+        return marginAnalystMacroRepository.getMarginAnalystMacro(modelCode, partNumber, strCurrency);
     }
 }

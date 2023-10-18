@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.CostUplift;
 import com.hysteryale.repository.CostUpliftRepository;
+import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -68,7 +69,8 @@ public class CostUpliftService {
 
     public void importCostUplift() throws IOException {
         // Folder contains Excel file of Booking Order
-        String folderPath = "import_files/booking";
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.booking");
         // Get files in Folder Path
         List<String> fileList = getAllFilesInFolder(folderPath);
         List<CostUplift> costUpliftList = new ArrayList<>();

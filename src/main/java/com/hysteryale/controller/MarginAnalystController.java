@@ -2,16 +2,18 @@ package com.hysteryale.controller;
 
 import com.hysteryale.model.marginAnalyst.MarginAnalystData;
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
-import com.hysteryale.model.marginAnalyst.inmemory.IMMarginAnalystData;
-import com.hysteryale.model.marginAnalyst.inmemory.IMMarginAnalystSummary;
+import com.hysteryale.model_h2.IMMarginAnalystData;
 import com.hysteryale.service.marginAnalyst.IMMarginAnalystDataService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystFileUploadService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
+import com.hysteryale.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -47,29 +49,39 @@ public class MarginAnalystController {
     }
 
     /**
-     * Upload Excel file for calculating MarginAnalystData and MarginAnalystSummary
-     * @param excelFile contains modelCode, partNumbers and needed information
-     * @param authentication contains the owner of the uploaded file
-     */
-    @PostMapping(path = "/uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void uploadFile(@RequestParam("excelFile")MultipartFile excelFile, Authentication authentication) throws IOException {
-        marginAnalystFileUploadService.saveMarginAnalystFileUpload(excelFile, authentication);
-    }
-
-    /**
      * Calculate MarginAnalystData and MarginAnalystSummary based on user's uploaded file
-     * @param fileUUID identifier of uploaded file
-     * @return Map of MarginAnalystData and MarginAnalystSummary
      */
-    @PostMapping(path = "/estimateMarginAnalystData", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> estimateMarginAnalystData(@RequestParam String fileUUID) {
+    @PostMapping(path = "/estimateMarginAnalystData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String estimateMarginAnalystData(@RequestParam("multipartFile")MultipartFile multipartFile, Authentication authentication) throws IOException {
 
-        IMMarginAnalystData imMarginAnalystData = IMMarginAnalystDataService.calculateMarginAnalystData(fileUUID);
-        IMMarginAnalystSummary imMarginAnalystSummary = IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID);
+        // Verify the Excel file
+        if(FileUtils.isExcelFile(multipartFile.getOriginalFilename())) {
+            String originalFileName = multipartFile.getOriginalFilename();
+            String fileUUID = marginAnalystFileUploadService.saveMarginAnalystFileUpload(multipartFile, authentication);
+
+            log.info(multipartFile.getContentType());
+
+            IMMarginAnalystDataService.calculateMarginAnalystData(originalFileName, fileUUID);
+            IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "monthly");
+            IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "annually");
+
+            return fileUUID;
+        }
+        else
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
+
+    }
+    @PostMapping (path = "/getEstimateMarginAnalystData")
+    Map<String, Object> getIMMarginAnalystData(@RequestBody IMMarginAnalystData imMarginAnalystData) {
+        List<IMMarginAnalystData> imMarginAnalystDataList =
+                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
+
+        Map<String, Object> imMarginAnalystSummaryMap =
+                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
 
         return Map.of(
-                "marginAnalystData", imMarginAnalystData,
-                "marginAnalystSummary", imMarginAnalystSummary
+                "marginAnalystData", imMarginAnalystDataList,
+                "marginAnalystSummary", imMarginAnalystSummaryMap
         );
     }
 }

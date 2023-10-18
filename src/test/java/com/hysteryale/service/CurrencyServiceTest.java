@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.annotation.Resource;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class CurrencyServiceTest {
@@ -35,7 +34,7 @@ public class CurrencyServiceTest {
 
     @Test
     void testImportCurrencies() throws IOException {
-        currencyService.importCurrencies(curencyFolder);
+        currencyService.importCurrencies();
     }
 
 }

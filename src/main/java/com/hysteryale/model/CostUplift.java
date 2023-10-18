@@ -13,11 +13,14 @@ import java.util.Calendar;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "cost_uplift")
 public class CostUplift {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "costUpliftSeq")
     private int id;
     private String plant;
+
+    @Column(name = "cost_uplift")
     private double costUplift;
     @Temporal(TemporalType.DATE)
     private Calendar date;

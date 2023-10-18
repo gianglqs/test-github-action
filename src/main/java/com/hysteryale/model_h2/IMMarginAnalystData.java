@@ -1,9 +1,6 @@
-package com.hysteryale.model.marginAnalyst;
+package com.hysteryale.model_h2;
 
-import com.hysteryale.model.Currency;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -12,10 +9,8 @@ import java.util.Calendar;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "margin_analyst_data")
-public class MarginAnalystData {
+public class IMMarginAnalystData {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MarginAnalystSeq")
     private int id;
@@ -41,11 +36,12 @@ public class MarginAnalystData {
     @Column(name = "month_year")
     private Calendar monthYear; // we only needs to care month and year, so the day is always 1
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Currency currency;
+    private String currency;
     private double costRMB;
     private String dealer;  // equivalent with billTo in Part
 
     @Column(name = "dealer_net")
     private double dealerNet;
+
+    private String fileUUID;
 }

@@ -1,7 +1,6 @@
 package com.hysteryale.repository.marginAnalyst;
 
 import com.hysteryale.model.marginAnalyst.MarginAnalystData;
-import org.apache.poi.hssf.record.Margin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -15,26 +15,6 @@
 
         <loadUpdateData
                 encoding="UTF-8"
-                file="classpath:db/database/_permission_.csv"
-                onlyUpdate="false"
-                primaryKey="id"
-                quotchar="'"
-                separator=","
-                tableName="permission">
-        </loadUpdateData>
-
-        <loadUpdateData
-                encoding="UTF-8"
-                file="classpath:db/database/role_permission_list.csv"
-                onlyUpdate="false"
-                primaryKey="permission_list_id"
-                quotchar="'"
-                separator=","
-                tableName="role_permission_list">
-        </loadUpdateData>
-
-        <loadUpdateData
-                encoding="UTF-8"
                 file="classpath:db/database/_user_.csv"
                 onlyUpdate="false"
                 primaryKey="id"

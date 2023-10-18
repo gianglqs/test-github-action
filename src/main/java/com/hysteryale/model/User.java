@@ -20,19 +20,29 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
     @Size(min = 2, message = "User name must be at least 2 characters")
+    @Column(name = "user_name")
     private String userName;
+
     @NotBlank(message = "Email must not be blank")
     private String email;
+
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
-    private String defaultLocale;
-    private boolean isActive;
-    @Temporal(TemporalType.DATE)
-    private Date lastLogin;
 
+    @Column(name = "default_locale")
+    private String defaultLocale;
+
+    @Column(name = "is_active")
+    private boolean isActive;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "last_login")
+    private Date lastLogin;
 
     public User(String userName, String email, String password, Role role) {
         this.userName = userName;

@@ -38,8 +38,6 @@ public class ImportController {
     @Resource
     MarginAnalystMacroService marginAnalystMacroService;
 
-    String curencyFolder = "import_files/currency_exchangerate";
-
     @PostMapping(path = "/import")
     void importData() throws IOException, IllegalAccessException {
 //        metaSeriesService.importMetaSeries();
