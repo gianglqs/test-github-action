@@ -38,8 +38,8 @@ public class CustomBookingOrderRepository {
             queryString += "AND b.productDimension.clazz IN :classes ";
         if (!models.isEmpty())
             queryString += "AND b.model IN :models ";
-//        if (!segments.isEmpty())
-//            queryString += "AND b.apacSerial.metaSeries.segment1 IN :segments ";
+        if (!segments.isEmpty())
+            queryString += "AND b.productDimension.segment IN :segments ";
         if (!strFromDate.isEmpty())
             queryString += "AND b.date >= :fromDate ";
 
@@ -91,8 +91,8 @@ public class CustomBookingOrderRepository {
             query.setParameter("classes", classes);
         if (!models.isEmpty())
             query.setParameter("models", models);
-//        if (!segments.isEmpty())
-//            query.setParameter("segments", segments);
+        if (!segments.isEmpty())
+            query.setParameter("segments", segments);
         if (!strFromDate.isEmpty()) {
             calendar = Calendar.getInstance();
             calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(strFromDate));

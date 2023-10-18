@@ -1,3 +1,5 @@
 'id','region_short_name','region'
 1,'A','Asia'
 2,'P','Pacific'
+3,'C','China'
+4,'I','India'

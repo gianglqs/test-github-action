@@ -20,4 +20,7 @@ public interface ProductDimensionRepository extends JpaRepository<ProductDimensi
 
     @Query("SELECT DISTINCT a.clazz FROM ProductDimension a")
     List<String> getAllClass();
+
+    @Query("SELECT DISTINCT p.segment FROM ProductDimension p")
+    List<String> getAllSegments();
 }
