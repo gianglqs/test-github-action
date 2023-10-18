@@ -46,7 +46,7 @@ public class IMMarginAnalystDataService {
         log.info("Column Name: " + COLUMN_NAME);
     }
 
-    private IMMarginAnalystData mapIMMarginAnalystData(Row row, String plant, String strCurrency) {
+    private IMMarginAnalystData mapIMMarginAnalystData(Row row, String plant, String strCurrency, Calendar monthYear) {
 
         String modelCode = row.getCell(COLUMN_NAME.get("Model Code")).getStringCellValue();
         String partNumber = row.getCell(COLUMN_NAME.get("Part Number")).getStringCellValue();
@@ -66,6 +66,7 @@ public class IMMarginAnalystDataService {
             imMarginAnalystData.setClass_(marginAnalystMacro.getClazz());
             imMarginAnalystData.setStd_opt(marginAnalystMacro.getStdOpt());
             imMarginAnalystData.setCurrency(strCurrency);
+            imMarginAnalystData.setMonthYear(monthYear);
 
             //missing monthYear
             //missing dealer
@@ -122,12 +123,18 @@ public class IMMarginAnalystDataService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
 
             Sheet sheet = workbook.getSheetAt(0);
+
+            Calendar monthYear = Calendar.getInstance();
             List<IMMarginAnalystData> imMarginAnalystDataList = new ArrayList<>();
             for(Row row : sheet) {
                 if(row.getRowNum() == 0) {
                     getColumnName(row);
                 } else if (!row.getCell(COLUMN_NAME.get("Part Number"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
-                    IMMarginAnalystData imMarginAnalystData = mapIMMarginAnalystData(row, plant, strCurrency);
+                    String strDate = row.getCell(COLUMN_NAME.get("Order Booked Date")).getStringCellValue();
+                    if(!strDate.isEmpty()) {
+                        monthYear = parseMonthYear(strDate);
+                    }
+                    IMMarginAnalystData imMarginAnalystData = mapIMMarginAnalystData(row, plant, strCurrency, monthYear);
                     if(imMarginAnalystData != null) {
                         imMarginAnalystData.setFileUUID(fileUUID);
                         imMarginAnalystDataList.add(imMarginAnalystData);
@@ -149,9 +156,11 @@ public class IMMarginAnalystDataService {
         Pattern pattern = Pattern.compile("(.*)_(.*)(.xlsx)");
         Matcher matcher = pattern.matcher(originalFileName);
         if(matcher.find()) {
+            log.info(durationUnit + " calculating...");
             String strCurrency = matcher.group(2);
 
             List<String> modelCodeList = imMarginAnalystDataRepository.getModelCodesByFileUUID(fileUUID);
+            log.info("" + modelCodeList.size());
             for(String modelCode : modelCodeList) {
                 IMMarginAnalystSummary imMarginAnalystSummary = new IMMarginAnalystSummary();
 
@@ -203,7 +212,7 @@ public class IMMarginAnalystDataService {
                 imMarginAnalystSummary.setMarginAopRate(marginAnalysisAOPRate);
                 imMarginAnalystSummary.setFileUUID(fileUUID);
 
-                Calendar monthYear = mockingMonthYear();
+                Calendar monthYear =  imMarginAnalystDataList.get(0).getMonthYear();
 
                 if(durationUnit.equals("monthly")) {
                     imMarginAnalystSummary.setMonthYear(monthYear);
@@ -222,6 +231,7 @@ public class IMMarginAnalystDataService {
                     imMarginAnalystSummary.setFullCostAopRate(CurrencyFormatUtils.formatDoubleValue(fullCostAOPRate, CurrencyFormatUtils.decimalFormatFourDigits));
                     imMarginAnalystSummary.setMarginPercentAopRate(CurrencyFormatUtils.formatDoubleValue(marginPercentAopRate, CurrencyFormatUtils.decimalFormatFourDigits));
                 }
+
                 imMarginAnalystSummaryRepository.save(imMarginAnalystSummary);
             }
         }
@@ -242,13 +252,24 @@ public class IMMarginAnalystDataService {
     }
 
     /**
-     * Mock monthYear for calculating IMMarginDataSummary (will be removed later)
+     * Parse String to Calendar with format MMM dd yyyy (Sep 12 2023)
      */
-    private Calendar mockingMonthYear() {
-        Calendar monthYear = Calendar.getInstance();
-        monthYear.set(2023, DateUtils.monthMap.get("Sep"), 1);
-        return monthYear;
+    private Calendar parseMonthYear(String strDate) {
+        Calendar calendar = Calendar.getInstance();
+        Pattern pattern = Pattern.compile("(\\w{3}) (\\d{2}) (\\d{4})");
+        Matcher matcher = pattern.matcher(strDate);
+        log.info(strDate);
+        if(matcher.find()) {
+            String strMonth = matcher.group(1);
+            int year = Integer.parseInt(matcher.group(3));
+
+            int monthIndex = DateUtils.monthMap.get(strMonth);
+
+            calendar.set(year, monthIndex, 1);
+        }
+        return calendar;
     }
+
     public List<IMMarginAnalystData> getIMMarginAnalystData(String modelCode, String strCurrency, String fileUUID) {
         return imMarginAnalystDataRepository.getIMMarginAnalystData(modelCode, strCurrency, fileUUID);
     }
