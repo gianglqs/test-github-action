@@ -17,4 +17,14 @@ public class EnvironmentUtils implements EnvironmentAware {
     public void setEnvironment(Environment environment) {
         env = environment;
     }
+
+//    @Bean
+//    public Dotenv dotenv() {
+//        return Dotenv.configure()
+//                .directory("/home/songiang/Phoenix-software/hyster-yale-backend/")
+//                .filename("env")
+//                .ignoreIfMalformed()
+//                .load();
+//    }
+
 }
