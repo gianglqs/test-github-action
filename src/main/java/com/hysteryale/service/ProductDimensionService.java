@@ -153,7 +153,7 @@ public class ProductDimensionService {
 
     public List<Map<String, String>> getAllSegments() {
         List<Map<String, String>> segmentMap = new ArrayList<>();
-        List<String> segments = productDimensionRepository.getAllClass();
+        List<String> segments = productDimensionRepository.getAllSegments();
 
         for (String m : segments) {
             Map<String, String> mMap = new HashMap<>();
