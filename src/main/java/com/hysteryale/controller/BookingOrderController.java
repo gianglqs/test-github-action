@@ -3,10 +3,7 @@ package com.hysteryale.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.filters.BookingOrderFilter;
-import com.hysteryale.service.APACSerialService;
-import com.hysteryale.service.APICDealerService;
-import com.hysteryale.service.BookingOrderService;
-import com.hysteryale.service.MetaSeriesService;
+import com.hysteryale.service.*;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -29,9 +26,10 @@ public class BookingOrderController {
     @Resource
     APICDealerService apicDealerService;
     @Resource
-    APACSerialService apacSerialService;
+    ProductDimensionService productDimensionService;
+
     @Resource
-    MetaSeriesService metaSeriesService;
+    RegionService regionService;
 
     /**
      * Get filters' value as: dealers, plants, metaSeries, classes, segments, models for BookingOrders' filtering
@@ -40,16 +38,15 @@ public class BookingOrderController {
     public Map<String, Object> getFilters() {
         Map<String, Object> filters = new HashMap<>();
 
-        //filters.put("dealers", apicDealerService.getAllAPICDealers());
         filters.put("dealers", bookingOrderService.getAllDealerName());
-        filters.put("plants", apacSerialService.getAllPlants());
-        filters.put("metaSeries", metaSeriesService.getAllMetaSeries());
-        filters.put("classes", metaSeriesService.getMetaSeriesClasses());
-        filters.put("segments", metaSeriesService.getMetaSeriesSegments());
-     //  filters.put("models", apacSerialService.getAllAPACSerialModels());
+        filters.put("plants", productDimensionService.getAllPlants());
+        filters.put("metaSeries", productDimensionService.getAllMetaSeries());
+        filters.put("classes", productDimensionService.getAllClasses());
+        filters.put("segments", productDimensionService.getAllSegments());
         filters.put("models", bookingOrderService.getAllModel());
         filters.put("AOPMarginPercetage", bookingOrderService.getAPOMarginPercentageForFilter());
         filters.put("MarginPercetage", bookingOrderService.getMarginPercentageForFilter());
+        filters.put("regions", regionService.getAllRegionForFilter());
 
         return filters;
     }

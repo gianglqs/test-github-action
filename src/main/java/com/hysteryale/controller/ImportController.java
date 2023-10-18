@@ -11,8 +11,7 @@ import java.io.IOException;
 
 @RestController
 public class ImportController {
-    @Resource
-    MetaSeriesService metaSeriesService;
+
     @Resource
     APICDealerService apicDealerService;
     @Resource
@@ -32,7 +31,7 @@ public class ImportController {
     MarginAnalystService marginAnalystService;
 
     @Resource
-    BookingOrderPartService bookingOrderPartService;
+    ProductDimensionService productDimensionService;
 
     @Resource
     PartService partService;
@@ -44,14 +43,14 @@ public class ImportController {
 //        metaSeriesService.importMetaSeries();
 //        apicDealerService.importAPICDealer();
 //        apacSerialService.importAPACSerial();
-//        currencyService.importCurrencies();
-//        partService.importPart();
-//        bookingOrderPartService.importBookingOrderPart();
-//        aopMarginService.importAOPMargin();
-//        bookingOrderService.importOrder();
+//        currencyService.importCurrencies(curencyFolder);
+        partService.importPart();
+        aopMarginService.importAOPMargin();
+        productDimensionService.importProductDimension();
+        bookingOrderService.importOrder();
 //        exchangeRateService.importExchangeRate();
 //        costUpliftService.importCostUplift();
 //        marginAnalystMacroService.importMarginAnalystMacro();
-        marginAnalystService.importMarginAnalystData();
+//        marginAnalystService.importMarginAnalystData();
     }
 }

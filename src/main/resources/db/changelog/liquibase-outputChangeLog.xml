@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <changeSet author="hoangnhan (generated)" id="1697535759238-1">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-1">
         <createTable tableName="margin_analyst_macro">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="margin_analyst_macro_pkey"/>
@@ -20,7 +20,7 @@
             <column name="currency_currency" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-2">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-2">
         <createTable tableName="booking_order">
             <column name="order_no" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="booking_order_pkey"/>
@@ -53,14 +53,14 @@
             <column name="quantity" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
-            <column name="region" type="VARCHAR(255)"/>
+            <column name="region" type="INTEGER"/>
             <column name="total_cost" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
             <column name="truck_class" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-3">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-3">
         <createTable tableName="margin_analyst_summary">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="margin_analyst_summary_pkey"/>
@@ -116,7 +116,7 @@
             <column name="margin_percent_aop_rate" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
-            <column name="margin_percent_monthly_rate" type="FLOAT8">
+            <column nzame="margin_percent_monthly_rate" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
             <column name="model_code" type="VARCHAR(255)"/>
@@ -139,7 +139,7 @@
             <column name="currency_currency" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-4">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-4">
         <createTable tableName="unit_flags">
             <column name="unit" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="unit_flags_pkey"/>
@@ -154,7 +154,7 @@
             <column name="u_class" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-5">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-5">
         <createTable tableName="apicdealer">
             <column name="billto_code" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="apicdealer_pkey"/>
@@ -173,7 +173,7 @@
             <column name="part" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-7">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-14">
         <createTable tableName="user">
             <column name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="user_pkey"/>
@@ -191,25 +191,16 @@
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1697535759238-8">
         <createTable tableName="apacserial">
-            <column name="model" type="VARCHAR(255)">
+            <column name="id" type="SERIAL">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="apacserial_pkey"/>
             </column>
+            <column name="model" type="VARCHAR(255)" />
             <column name="brand" type="VARCHAR(255)"/>
             <column name="line" type="VARCHAR(255)"/>
             <column name="plant" type="VARCHAR(255)"/>
             <column name="quote_reference" type="VARCHAR(255)"/>
             <column name="remarks" type="VARCHAR(255)"/>
-            <column name="meta_series_series" type="VARCHAR(255)"/>
-        </createTable>
-    </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-9">
-        <createTable tableName="meta_series">
-            <column name="series" type="VARCHAR(255)">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="meta_series_pkey"/>
-            </column>
-            <column name="clazz" type="VARCHAR(255)"/>
-            <column name="segment1" type="VARCHAR(255)"/>
-            <column name="segment2" type="VARCHAR(255)"/>
+<!--            <column name="meta_series_series" type="VARCHAR(255)"/>-->
         </createTable>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1697535759238-10">
@@ -284,7 +275,7 @@
             <column name="currency_currency" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-13">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-20">
         <createTable tableName="aopmargin">
             <column name="region_series_plant" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="aopmargin_pkey"/>
@@ -388,7 +379,19 @@
     <changeSet author="hoangnhan (generated)" id="1697535759238-26">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="fileuploadedseq" startValue="1"/>
     </changeSet>
-    <changeSet author="hoangnhan (generated)" id="1697535759238-27">
+    <changeSet author="hoangnhan (generated)" id="1697011760574-40">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="cost_uplift_seq" startValue="1"/>
+    </changeSet>
+    <changeSet author="hoangnhan (generated)" id="1697011760574-41">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="currency_seq" startValue="1"/>
+    </changeSet>
+    <changeSet author="hoangnhan (generated)" id="1697011760574-42">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="discount_seq" startValue="1"/>
+    </changeSet>
+    <changeSet author="hoangnhan (generated)" id="1697011760574-43">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="exchange_rate_seq" startValue="1"/>
+    </changeSet>
+    <changeSet author="hoangnhan (generated)" id="1697011760574-44">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807" minValue="1" sequenceName="hibernate_sequence" startValue="1"/>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1697535759238-28">
@@ -418,4 +421,21 @@
     <changeSet author="hoangnhan (generated)" id="1697535759238-36">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="series_part_numberlpseq" startValue="1"/>
     </changeSet>
+    <changeSet author="hoangnhan (generated)" id="1696480184867-50">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="series_part_numberlpseq" startValue="1"/>
+    </changeSet>
+
+    <changeSet author="songiang (generated)" id="1271849484-1">
+        <createTable tableName="region">
+            <column name="id" type="SERIAL">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="region_pkey"/>
+            </column>
+            <column name="region_short_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="region" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

@@ -43,24 +43,33 @@
                 tableName="currency">
         </loadUpdateData>
 
-        <loadUpdateData
-                encoding="UTF-8"
-                file="classpath:db/database/booking_order.csv"
-                onlyUpdate="false"
-                primaryKey="order_no"
-                quotchar="'"
-                separator=","
-                tableName="booking_order">
-        </loadUpdateData>
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/booking_order.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="order_no"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="booking_order">-->
+<!--        </loadUpdateData>-->
 
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/part.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="id"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="part">-->
+<!--        </loadUpdateData>-->
         <loadUpdateData
                 encoding="UTF-8"
-                file="classpath:db/database/part.csv"
+                file="classpath:db/database/margin_analyst_data.csv"
                 onlyUpdate="false"
                 primaryKey="id"
                 quotchar="'"
                 separator=","
-                tableName="part">
+                tableName="margin_analyst_data">
         </loadUpdateData>
 
         <loadUpdateData
@@ -75,21 +84,22 @@
 
         <loadUpdateData
                 encoding="UTF-8"
-                file="classpath:db/database/margin_analyst_data.csv"
-                onlyUpdate="false"
-                primaryKey="id"
-                quotchar="'"
-                separator=","
-                tableName="margin_analyst_data">
-        </loadUpdateData>
-        <loadUpdateData
-                encoding="UTF-8"
                 file="classpath:db/database/margin_analyst_summary.csv"
                 onlyUpdate="false"
                 primaryKey="id"
                 quotchar="'"
                 separator=","
                 tableName="margin_analyst_summary">
+        </loadUpdateData>
+
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/region.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="region">
         </loadUpdateData>
 
 <!--        <loadUpdateData-->

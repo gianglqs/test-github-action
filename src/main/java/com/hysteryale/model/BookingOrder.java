@@ -25,7 +25,10 @@ public class BookingOrder {
 
     @Column(name = "order_type")
     private String orderType;
-    private String region;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "region")
+    private Region region;
 
     @Column(name = "ctry_code")
     private String ctryCode;
@@ -35,11 +38,16 @@ public class BookingOrder {
 
     @Column(name = "dealer_name")
     private String dealerName;
+
     private String comment;
-    private String Series;
+    private String series;
 
     @Column(name = "bill_to")
     private String billTo;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_dimension")
+    private ProductDimension productDimension;
     private String model;
 
     @Column(name = "truck_class")
