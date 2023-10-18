@@ -68,7 +68,7 @@ public class Part {
     @Column(name = "option_type")
     private String optionType;
 
-    @Column(name = "order_booed_date")
+    @Column(name = "order_booked_date")
     private Date orderBookedDate;
 
     @Column(name = "order_request_date")

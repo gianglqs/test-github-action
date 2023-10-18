@@ -239,7 +239,6 @@
             <column name="price_list_region" type="VARCHAR(255)"/>
             <column name="std_opt" type="VARCHAR(255)"/>
             <column name="currency_currency" type="VARCHAR(255)"/>
-            <column name="dtype" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1697535759238-12">
