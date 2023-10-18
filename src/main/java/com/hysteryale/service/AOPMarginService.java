@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.AOPMargin;
 import com.hysteryale.repository.AOPMarginRepository;
+import com.hysteryale.utils.EnvironmentUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -79,10 +80,11 @@ public class AOPMarginService {
 
     public void importAOPMargin() throws IOException, IllegalAccessException {
         // Initialize folderPath and fileName
-        String folderPath = "import_files/AOPMargin/";
         String fileName = "2023 AOP DN and Margin%.xlsx";
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.aopmargin");
 
-        InputStream is = new FileInputStream(folderPath + fileName);
+        InputStream is = new FileInputStream(folderPath + "/"+fileName);
 
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
