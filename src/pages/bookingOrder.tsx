@@ -36,6 +36,7 @@ export default function Booking() {
             [
               "orderNo",
               "fromDate",
+
               "toDate",
               "MarginPercetage",
               "AOPMarginPercetage",
@@ -78,6 +79,9 @@ export default function Booking() {
       field: "region",
       flex: 0.8,
       headerName: "Region",
+      renderCell(params) {
+        return <span>{params.row.region.region}</span>
+      },
     },
     {
       field: "ctryCode",
@@ -88,16 +92,14 @@ export default function Booking() {
       field: "dealerName",
       flex: 1.2,
       headerName: "Dealer Name",
-      renderCell(params) {
-        return <span>{params.row.dealerName}</span>
-      },
+      
     },
     {
       field: "Plant",
       flex: 0.8,
       headerName: "Plant",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.plant}</span>
+        return <span>{params.row.productDimension?.plant}</span>
       },
     },
     {
@@ -105,7 +107,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "Class",
       renderCell(params) {
-        return <span>{params.row.apacSerial?.metaSeries?.clazz}</span>
+        return <span>{params.row.productDimension?.clazz}</span>
       },
     },
     {
@@ -194,14 +196,14 @@ export default function Booking() {
               />
             </Grid>
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
             <AppAutocomplete
-              options={[]}
+              options={initDataFilter.regions}
               label="Region"
+              onChange={(e, option) => handleChangeDataFilter(option, "regions")}
               limitTags={2}
               disableListWrap
               primaryKeyOption="value"
-              freeSolo={true}
               multiple
               disableCloseOnSelect
               renderOption={(prop, option) => `${option.value}`}
