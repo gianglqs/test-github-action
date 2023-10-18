@@ -3,7 +3,6 @@ package com.hysteryale.controller;
 import com.hysteryale.model.marginAnalyst.MarginAnalystData;
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 import com.hysteryale.model_h2.IMMarginAnalystData;
-import com.hysteryale.model_h2.IMMarginAnalystSummary;
 import com.hysteryale.service.marginAnalyst.IMMarginAnalystDataService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystFileUploadService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
@@ -51,10 +50,9 @@ public class MarginAnalystController {
 
     /**
      * Calculate MarginAnalystData and MarginAnalystSummary based on user's uploaded file
-     * @return Map of MarginAnalystData and MarginAnalystSummary
      */
     @PostMapping(path = "/estimateMarginAnalystData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, Object> estimateMarginAnalystData(@RequestParam("multipartFile")MultipartFile multipartFile, @RequestParam String modelCode,Authentication authentication) throws IOException {
+    public String estimateMarginAnalystData(@RequestParam("multipartFile")MultipartFile multipartFile, Authentication authentication) throws IOException {
 
         // Verify the Excel file
         if(FileUtils.isExcelFile(multipartFile.getOriginalFilename())) {
@@ -63,21 +61,28 @@ public class MarginAnalystController {
 
             log.info(multipartFile.getContentType());
 
-            List<IMMarginAnalystData> imMarginAnalystData = IMMarginAnalystDataService.calculateMarginAnalystData(originalFileName, fileUUID);
-            IMMarginAnalystSummary imMarginAnalystSummary = IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, modelCode, "monthly");
+            IMMarginAnalystDataService.calculateMarginAnalystData(originalFileName, fileUUID);
+            IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "monthly");
+            IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "annually");
 
-            return Map.of(
-                    "marginAnalystData", imMarginAnalystData,
-                    "marginAnalystSummary", imMarginAnalystSummary
-            );
+            return fileUUID;
         }
         else
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
 
     }
-    @GetMapping (path = "/imMarginData")
-    List<IMMarginAnalystData> getIMMarginAnalystData() {
-        return IMMarginAnalystDataService.getIMMarginAnalystData();
+    @PostMapping (path = "/getEstimateMarginAnalystData")
+    Map<String, Object> getIMMarginAnalystData(@RequestBody IMMarginAnalystData imMarginAnalystData) {
+        List<IMMarginAnalystData> imMarginAnalystDataList =
+                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
+
+        Map<String, Object> imMarginAnalystSummaryMap =
+                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
+
+        return Map.of(
+                "marginAnalystData", imMarginAnalystDataList,
+                "marginAnalystSummary", imMarginAnalystSummaryMap
+        );
     }
 }
 

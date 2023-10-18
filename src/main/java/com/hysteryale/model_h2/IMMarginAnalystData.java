@@ -9,7 +9,6 @@ import java.util.Calendar;
 @Entity
 @Getter
 @Setter
-@DiscriminatorValue("in_memory")
 public class IMMarginAnalystData {
 
     @Id
