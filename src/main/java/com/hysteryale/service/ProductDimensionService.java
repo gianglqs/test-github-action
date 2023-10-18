@@ -4,6 +4,7 @@ import com.hysteryale.model.ProductDimension;
 import com.hysteryale.model.ProductDimension;
 import com.hysteryale.repository.ProductDimensionRepository;
 import com.hysteryale.repository.ProductDimensionRepository;
+import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -32,7 +33,7 @@ public class ProductDimensionService {
             String columnName = row.getCell(i).getStringCellValue();
             APAC_COLUMNS.put(columnName, i);
         }
-        log.info("APAC Columns: " + APAC_COLUMNS);
+        log.info("ProductDimension Columns: " + APAC_COLUMNS);
     }
 
     public ProductDimension mapExcelSheetToProductDimension(Row row) throws IllegalAccessException {
@@ -67,7 +68,10 @@ public class ProductDimensionService {
 
 
     public void importProductDimension() throws IOException, IllegalAccessException {
-        InputStream is = new FileInputStream("import_files/APAC/Product Fcst dimension 2023_02_24.xlsx");
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.product-dimension");
+
+        InputStream is = new FileInputStream(folderPath+ "/Product Fcst dimension 2023_02_24.xlsx");
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         List<ProductDimension> ProductDimensionList = new ArrayList<>();
@@ -93,7 +97,6 @@ public class ProductDimensionService {
 
             // ProductDimensionRepository.saveAll(ProductDimensionList);
 
-            log.info("Newly saved " + ProductDimensionList.size());
 
             ProductDimensionList.clear();
         }

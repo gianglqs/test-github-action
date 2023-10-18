@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -15,6 +16,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 public class AOPMargin {
     @Id
+    @Column(name = "region_series_plant")
     private String regionSeriesPlant;
     private String description;
     private double dnUSD;

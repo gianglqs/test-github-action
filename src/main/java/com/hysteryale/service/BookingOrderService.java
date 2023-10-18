@@ -248,7 +248,9 @@ public class BookingOrderService extends BasedService {
     public void importOrder() throws IOException, IllegalAccessException {
 
         // Folder contains Excel file of Booking Order
-        String folderPath = "import_files/booked";
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.booked-order");
+
         // Get files in Folder Path
         List<String> fileList = getAllFilesInFolder(folderPath);
 
@@ -265,7 +267,7 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
                   //  if (newBookingOrder.getMetaSeries() != null)
            //             newBookingOrder = importPlant(newBookingOrder);
-                    newBookingOrder = calculateOrderValues(newBookingOrder);
+                    //      newBookingOrder = calculateOrderValues(newBookingOrder);
                     bookingOrderList.add(newBookingOrder);
                 }
             }
