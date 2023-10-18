@@ -116,7 +116,7 @@
             <column name="margin_percent_aop_rate" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
-            <column nzame="margin_percent_monthly_rate" type="FLOAT8">
+            <column name="margin_percent_monthly_rate" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
             <column name="model_code" type="VARCHAR(255)"/>
