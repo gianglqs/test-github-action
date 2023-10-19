@@ -28,7 +28,7 @@ import java.util.Map;
 public class BookingOrderControllerTest extends BasedControllerTest {
 
 
-    @InjectMocks
-    BookingOrderController bookingOrderController;
+//    @InjectMocks
+//    BookingOrderController bookingOrderController;
 
 }

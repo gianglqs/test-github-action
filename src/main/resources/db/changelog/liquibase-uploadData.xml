@@ -43,15 +43,15 @@
 <!--                tableName="booking_order">-->
 <!--        </loadUpdateData>-->
 
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/part.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="part">-->
-<!--        </loadUpdateData>-->
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/part.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="part">
+        </loadUpdateData>
         <loadUpdateData
                 encoding="UTF-8"
                 file="classpath:db/database/margin_analyst_data.csv"

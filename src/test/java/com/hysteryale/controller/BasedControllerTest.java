@@ -13,8 +13,8 @@ public abstract class BasedControllerTest {
 
     protected AutoCloseable autoCloseable;
 
-    @Resource @Mock
-    protected  MetaSeriesService metaSeriesService;
+//    @Resource @Mock
+//    protected  MetaSeriesService metaSeriesService;
     @Resource @Mock
     protected APICDealerService apicDealerService;
     @Resource @Mock

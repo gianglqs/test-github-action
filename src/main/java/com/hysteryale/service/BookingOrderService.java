@@ -267,7 +267,7 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
                   //  if (newBookingOrder.getMetaSeries() != null)
            //             newBookingOrder = importPlant(newBookingOrder);
-                    //      newBookingOrder = calculateOrderValues(newBookingOrder);
+                          newBookingOrder = calculateOrderValues(newBookingOrder);
                     bookingOrderList.add(newBookingOrder);
                 }
             }
