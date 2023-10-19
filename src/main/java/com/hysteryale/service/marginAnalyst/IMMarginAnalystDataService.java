@@ -287,8 +287,8 @@ public class IMMarginAnalystDataService {
         }
 
         return Map.of(
-                "marginAnalystSummaryMonthly", monthly,
-                "marginAnalystSummaryAnnually", annually
+                "MarginAnalystSummaryMonthly", monthly,
+                "MarginAnalystSummaryAnnually", annually
         );
     }
 
