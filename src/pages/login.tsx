@@ -69,7 +69,7 @@ export default function LoginPage() {
       }
       axios
         .post(
-          "http://192.168.1.150:8080/hysteryale-2.3.0.RELEASE/oauth/token",
+          "http://localhost:8080/oauth/token",
           transformData,
           options
         )
