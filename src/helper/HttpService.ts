@@ -13,11 +13,11 @@ class HttpService<GetList = any> {
     this.entity = plural(entity)
     axios.defaults.withCredentials = true
     this.instance = axios.create({
-      baseURL: "http://192.168.1.150:8080/hysteryale-2.3.0.RELEASE/",
+      baseURL: "http://localhost:8080/",
     })
     this.instance.interceptors.response.use(
       this.handleSuccessRes,
-      this.handleErrorRes
+      this.handleErrorRes   
     )
   }
 
