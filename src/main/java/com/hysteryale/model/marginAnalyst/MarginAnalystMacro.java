@@ -17,7 +17,7 @@ import java.util.Calendar;
 @Table(name = "margin_analyst_macro")
 public class MarginAnalystMacro {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "marginMacroSeq")
     private int id;
     private String clazz;
     private double costRMB;

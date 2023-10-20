@@ -2,7 +2,7 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <changeSet author="hoangnhan" id="loadData-1" context="!prod">
+    <changeSet author="hoangnhan" id="loadData-2" context="!prod">
         <loadUpdateData
                 encoding="UTF-8"
                 file="classpath:db/database/_role_.csv"
@@ -43,24 +43,24 @@
 <!--                tableName="booking_order">-->
 <!--        </loadUpdateData>-->
 
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/part.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="part">-->
-<!--        </loadUpdateData>-->
         <loadUpdateData
                 encoding="UTF-8"
-                file="classpath:db/database/margin_analyst_data.csv"
+                file="classpath:db/database/part.csv"
                 onlyUpdate="false"
                 primaryKey="id"
                 quotchar="'"
                 separator=","
-                tableName="margin_analyst_data">
+                tableName="part">
         </loadUpdateData>
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/margin_analyst_data.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="id"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="margin_analyst_data">-->
+<!--        </loadUpdateData>-->
 
         <loadUpdateData
                 encoding="UTF-8"
@@ -74,13 +74,24 @@
 
         <loadUpdateData
                 encoding="UTF-8"
-                file="classpath:db/database/margin_analyst_summary.csv"
+                file="classpath:db/database/marginanalysisaoprate.csv"
                 onlyUpdate="false"
                 primaryKey="id"
                 quotchar="'"
                 separator=","
-                tableName="margin_analyst_summary">
+                tableName="marginanalysisaoprate">
         </loadUpdateData>
+
+
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/margin_analyst_summary.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="id"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="margin_analyst_summary">-->
+<!--        </loadUpdateData>-->
 
         <loadUpdateData
                 encoding="UTF-8"
