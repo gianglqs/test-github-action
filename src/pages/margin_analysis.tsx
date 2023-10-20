@@ -82,8 +82,19 @@ export default function MarginAnalysis() {
       })
 
       const analysisSummary = data?.MarginAnalystSummary
+      const marginAnalystData = data?.MarginAnalystData
+
+      marginAnalystData.forEach(margin => {
+
+        margin.listPrice = margin.listPrice.toLocaleString()
+        margin.costRMB = margin.costRMB.toLocaleString()
+        margin.dealerNet = margin.dealerNet.toLocaleString()
+        margin.margin_aop = margin.margin_aop.toLocaleString()
+        
+      });
+
       setMarginAnalysisSummary(analysisSummary)
-      setListDataAnalysis(data?.MarginAnalystData)
+      setListDataAnalysis(marginAnalystData)
 
 
       setOpenAccordion(true)
@@ -265,7 +276,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .marginAopRate
+                            .marginAopRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -287,7 +298,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .manufacturingCostRMB
+                            .manufacturingCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -358,7 +369,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .totalCostRMB
+                            .totalCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -377,7 +388,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .fullCostAopRate
+                            .fullCostAopRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -400,7 +411,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .marginAopRate
+                            .marginAopRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -422,7 +433,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .manufacturingCostRMB
+                            .manufacturingCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -493,7 +504,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .totalCostRMB
+                            .totalCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -512,7 +523,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .fullMonthlyRate
+                            .fullMonthlyRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -587,7 +598,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .totalListPrice
+                            .totalListPrice.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -615,7 +626,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .dealerNet
+                            .dealerNet.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -626,7 +637,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .margin
+                            .margin.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -666,7 +677,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .totalListPrice
+                            .totalListPrice.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -693,7 +704,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .dealerNet
+                            .dealerNet.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -704,7 +715,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .margin
+                            .margin.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -868,9 +879,6 @@ function UploadFileDropZone(props) {
     })
   }, [])
 
-  const dropRejected = useCallback((rejectedFile) => {
-    console.log(rejectedFile.name)
-  }, [])
 
   const {
         getRootProps, 
