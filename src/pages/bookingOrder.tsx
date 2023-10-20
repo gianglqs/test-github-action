@@ -36,7 +36,6 @@ export default function Booking() {
             [
               "orderNo",
               "fromDate",
-
               "toDate",
               "MarginPercetage",
               "AOPMarginPercetage",
@@ -67,6 +66,9 @@ export default function Booking() {
     handleChangePage(1)
   }
 
+  const formatNumber = (num : number)=>{
+    return num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
   const tableState = useSelector(commonStore.selectTableState)
 
   const columns = [
@@ -135,13 +137,16 @@ export default function Booking() {
       field: "totalCost",
       flex: 0.8,
       headerName: "Total Cost",
+      renderCell(params) {
+        return <span>{formatNumber(params?.row.totalCost)}</span>
+      },
     },
     {
       field: "dealerNet",
       flex: 0.8,
       headerName: "DN",
       renderCell(params) {
-        return <span>{(params?.row.dealerNet).toFixed(2)}</span>
+        return <span>{formatNumber(params?.row.dealerNet)}</span>
       },
     },
     {
@@ -149,7 +154,7 @@ export default function Booking() {
       flex: 0.8,
       headerName: "DN After Surcharge",
       renderCell(params) {
-        return <span>{(params?.row.dealerNetAfterSurCharge).toFixed(2)}</span>
+        return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>
       },
     },
     {
@@ -157,7 +162,7 @@ export default function Booking() {
       flex: 1,
       headerName: "Margin $ After Surcharge",
       renderCell(params) {
-        return <span>{(params?.row.marginAfterSurCharge).toFixed(2)}</span>
+        return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>
       },
     },
 
@@ -168,7 +173,7 @@ export default function Booking() {
       renderCell(params) {
         return (
           <span>
-            {(params?.row.marginPercentageAfterSurCharge * 100).toFixed(2)}%
+            {formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%
           </span>
         )
       },
@@ -177,6 +182,9 @@ export default function Booking() {
       field: "aopmarginPercentage",
       flex: 1,
       headerName: "AOP Margin%",
+      renderCell(params) {
+        return <span>{(params?.row.aopmarginPercentage * 100).toLocaleString(undefined, {maximumFractionDigits:10})}%</span>
+      },
     },
   ]
 
@@ -317,7 +325,7 @@ export default function Booking() {
               onChange={(e, option) =>
                 handleChangeDataFilter(
                   _.isNil(option) ? "" : option?.value,
-                  "MarginPercetage"
+                  "AOPMarginPercetage"
                 )
               }
               disableClearable={false}
@@ -328,12 +336,12 @@ export default function Booking() {
           <Grid item xs={4}>
             <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
               <AppAutocomplete
-                options={initDataFilter.MarginPercetage}
+                options={initDataFilter.MarginPercetage}  
                 label="Margin %"
                 onChange={(e, option) =>
                   handleChangeDataFilter(
                     _.isNil(option) ? "" : option?.value,
-                    "AOPMarginPercetage"
+                    "MarginPercetage"
                   )
                 }
                 disableClearable={false}
