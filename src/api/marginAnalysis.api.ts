@@ -17,6 +17,13 @@ class MarginAnalysisApi extends HttpService<any> {
   getDealerList = () => {
     return this.get<any>(`marginAnalystData/getDealers`)
   }
+
+  estimateMarginAnalystData = (data: any) => {
+    return this.post<any>(`estimateMarginAnalystData`, {...data})
+  }
+  getEstimateMarginAnalystData = (data: any) => {
+    return this.post<any>(`getEstimateMarginAnalystData`, {...data})
+  }
 }
 
 const marginAnalysisApi = new MarginAnalysisApi("bookingOrder")

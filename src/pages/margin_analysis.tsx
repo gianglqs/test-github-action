@@ -22,13 +22,18 @@ import {
   Typography,
 } from "@mui/material"
 import { GridExpandMoreIcon } from "@mui/x-data-grid-pro"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import marginAnalysisApi from "@/api/marginAnalysis.api"
 import { useDispatch } from "react-redux"
 import { commonStore, marginAnalysisStore } from "@/store/reducers"
 import { DatePicker } from "@mui/x-date-pickers"
 import { format as formatDate } from "date-fns"
 import { useSelector } from "react-redux"
+import {useDropzone} from 'react-dropzone'
+import { error } from "console"
+import nookies, { parseCookies, setCookie } from "nookies"
+import axios from "axios"
+
 
 export default function MarginAnalysis() {
   const dispatch = useDispatch()
@@ -54,9 +59,13 @@ export default function MarginAnalysis() {
   const [openAccordion, setOpenAccordion] = useState(true)
   const [openAccordionTable, setOpenAccordionTable] = useState(true)
   const [dealer, setDealer] = useState("")
+  const [uploadedFile, setUploadedFile] = useState({name: ""})
 
   const handleFilterMarginAnalysis = async () => {
+  
     try {
+      const cookies = parseCookies()
+
       if (valueSearch.value === "") {
         setValueSearch({ value: "", error: true })
         return
@@ -64,23 +73,30 @@ export default function MarginAnalysis() {
 
       const transformData = {
         modelCode: valueSearch.value,
-        currency: {
-          currency: valueCurrency,
-        },
-        monthYear: year === "" ? "" : `${year.slice(0, 7)}-01`,
+        currency: valueCurrency,
+        fileUUID: cookies["fileUUID"],
       }
 
-      const { data } = await marginAnalysisApi.getListMarginAnalysis({
+      const { data } = await marginAnalysisApi.getEstimateMarginAnalystData({
         ...transformData,
-        dealer: dealer,
       })
 
-      const analysisSummary =
-        await marginAnalysisApi.getListMarginAnalysisSummary(transformData)
+      const analysisSummary = data?.MarginAnalystSummary
+      const marginAnalystData = data?.MarginAnalystData
 
-      setMarginAnalysisSummary(analysisSummary?.data)
+      marginAnalystData.forEach(margin => {
 
-      setListDataAnalysis(data?.MarginAnalystData)
+        margin.listPrice = margin.listPrice.toLocaleString()
+        margin.costRMB = margin.costRMB.toLocaleString()
+        margin.dealerNet = margin.dealerNet.toLocaleString()
+        margin.margin_aop = margin.margin_aop.toLocaleString()
+        
+      });
+
+      setMarginAnalysisSummary(analysisSummary)
+      setListDataAnalysis(marginAnalystData)
+
+
       setOpenAccordion(true)
       setOpenAccordionTable(true)
     } catch (error) {
@@ -91,6 +107,33 @@ export default function MarginAnalysis() {
   const handleSelectDealer = (e, option) => {
     setDealer(_.isNil(option) ? "" : option?.value)
   }
+
+  const handleUploadFile = async (file) => {
+      let formData = new FormData()
+      formData.append("file", file)
+
+      console.log(formData.get("file"))
+      console.log(file)
+
+      let cookies = parseCookies()
+      let token = cookies["token"]
+      axios({
+        method: "post",
+        url: "http://localhost:8080/estimateMarginAnalystData",
+        data: formData,
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          "Authorization": "Bearer" + token
+        },
+      })
+        .then(function (response) {
+          setCookie(null, "fileUUID", response.data.fileUUID)
+        })
+        .catch(function (response) {
+          console.log(response);
+        });
+  }
+
 
   const columns = [
     {
@@ -140,18 +183,7 @@ export default function MarginAnalysis() {
             required
           />
         </Grid>
-        <Grid item xs={2.5}>
-          <AppAutocomplete
-            options={dealerList}
-            label="Dealer"
-            sx={{ height: 25, zIndex: 10 }}
-            onChange={handleSelectDealer}
-            primaryKeyOption="value"
-            disableClearable={false}
-            renderOption={(prop, { value }) => `${value}`}
-            getOptionLabel={({ value }) => `${value}`}
-          />
-        </Grid>
+
         <Grid item xs={1}>
           <RadioGroup
             row
@@ -170,14 +202,6 @@ export default function MarginAnalysis() {
             <FormControlLabel value="AUD" control={<Radio />} label="AUD" />
           </RadioGroup>
         </Grid>
-        <Grid item xs={1.5}>
-          <DatePicker
-            onChange={handleChangeDate}
-            label="Month and Year"
-            views={["month", "year"]}
-            sx={{ paddingLeft: -1 }}
-          />
-        </Grid>
         <Grid item xs={1}>
           <Button
             variant="contained"
@@ -187,7 +211,41 @@ export default function MarginAnalysis() {
             Filter
           </Button>
         </Grid>
+
+        <Grid item xs={1.5}>
+            <UploadFileDropZone
+              uploadedFile = {uploadedFile}
+              setUploadedFile = {setUploadedFile}
+              handleUploadFile = {handleUploadFile}
+            />
+        </Grid>
+        
         <Grid item xs={12}>
+        <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
+
+        <Accordion
+            expanded={openAccordionTable}
+            onChange={(e, expanded) => setOpenAccordionTable(expanded)}
+          >
+            <AccordionSummary
+              expandIcon={<GridExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography></Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <DataTable
+                hideFooter
+                disableColumnMenu
+                tableHeight={openAccordion ? 195 : 710}
+                sx={{ margin: -2 }}
+                rowHeight={50}
+                rows={listDataAnalysis}
+                columns={columns}
+              />
+            </AccordionDetails>
+          </Accordion>
           <Accordion
             expanded={openAccordion}
             onChange={(e, expanded) => setOpenAccordion(expanded)}
@@ -218,7 +276,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .marginAopRate
+                            .marginAopRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -240,7 +298,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .manufacturingCostRMB
+                            .manufacturingCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -311,7 +369,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .totalCostRMB
+                            .totalCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -330,7 +388,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .fullCostAopRate
+                            .fullCostAopRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -353,7 +411,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .marginAopRate
+                            .marginAopRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -375,7 +433,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .manufacturingCostRMB
+                            .manufacturingCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -446,7 +504,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .totalCostRMB
+                            .totalCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -465,7 +523,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .fullCostAopRate
+                            .fullMonthlyRate.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -540,7 +598,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .totalListPrice
+                            .totalListPrice.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -568,7 +626,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .dealerNet
+                            .dealerNet.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -579,7 +637,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .margin
+                            .margin.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -619,7 +677,7 @@ export default function MarginAnalysis() {
                       >
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .totalListPrice
+                            .totalListPrice.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -646,7 +704,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .dealerNet
+                            .dealerNet.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -657,7 +715,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .margin
+                            .margin.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -668,12 +726,12 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {_.isNil(
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .marginPercentAopRate
+                            .marginPercentMonthlyRate
                         )
                           ? ""
                           : `${(
                               marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                                .marginPercentAopRate * 100
+                                .marginPercentMonthlyRate * 100
                             ).toFixed(2)}%`}
                       </Typography>
                     </div>
@@ -797,31 +855,65 @@ export default function MarginAnalysis() {
               </Grid>
             </AccordionDetails>
           </Accordion>
-          <Accordion
-            expanded={openAccordionTable}
-            onChange={(e, expanded) => setOpenAccordionTable(expanded)}
-          >
-            <AccordionSummary
-              expandIcon={<GridExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography></Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <DataTable
-                hideFooter
-                disableColumnMenu
-                tableHeight={openAccordion ? 195 : 710}
-                sx={{ margin: -2 }}
-                rowHeight={50}
-                rows={listDataAnalysis}
-                columns={columns}
-              />
-            </AccordionDetails>
-          </Accordion>
         </Grid>
       </Grid>
     </AppLayout>
+  )
+}
+
+function UploadFileDropZone(props) {
+  const onDrop = useCallback((acceptedFiles) => {
+    acceptedFiles.forEach((file) => {
+      const reader = new FileReader()
+
+      reader.onabort = () => console.log('file reading was aborted')
+      reader.onerror = () => console.log('file reading has failed')
+      reader.onload = () => {
+      // Do whatever you want with the file contents
+        const binaryStr = reader.result
+        console.log(binaryStr)
+        props.setUploadedFile(file)
+      }
+      reader.readAsArrayBuffer(file)
+      props.handleUploadFile(file)
+    })
+  }, [])
+
+
+  const {
+        getRootProps, 
+        getInputProps, 
+        open,
+        fileRejections
+      } = useDropzone({
+          noClick : true, 
+          onDrop, 
+          maxSize : 1048576, 
+          maxFiles : 1,
+          accept : {
+            'excel/xlsx': ['.xlsx']
+          }
+        })
+  const dispatch = useDispatch()
+  const isFileInvalid = fileRejections.length > 0 ? true : false
+  if(isFileInvalid) {
+    const errors = fileRejections[0].errors
+    dispatch(commonStore.actions.setErrorMessage(`${errors[0].message} ${_.isNil(errors[1]) ? "" : `or ${errors[1].message}`}`))
+    console.log(fileRejections)
+    fileRejections.splice(0, 1)
+  }
+
+  return (
+    <div {...getRootProps()}>
+      <input {...getInputProps()} />
+      <Button 
+        type="button" 
+        onClick={open}
+        variant="contained"
+        sx={{ width: "50%", height: 24 }}
+        >
+        Select file
+      </Button>
+  </div>
   )
 }
