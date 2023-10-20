@@ -52,26 +52,28 @@ public class MarginAnalystController {
      * Calculate MarginAnalystData and MarginAnalystSummary based on user's uploaded file
      */
     @PostMapping(path = "/estimateMarginAnalystData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String estimateMarginAnalystData(@RequestParam("multipartFile")MultipartFile multipartFile, Authentication authentication) throws IOException {
+    public Map<String, String> estimateMarginAnalystData(@RequestBody MultipartFile file, Authentication authentication) throws IOException {
 
         // Verify the Excel file
-        if(FileUtils.isExcelFile(multipartFile.getOriginalFilename())) {
-            String originalFileName = multipartFile.getOriginalFilename();
-            String fileUUID = marginAnalystFileUploadService.saveMarginAnalystFileUpload(multipartFile, authentication);
+        if (FileUtils.isExcelFile(file.getOriginalFilename())) {
+            String originalFileName = file.getOriginalFilename();
+            String fileUUID = marginAnalystFileUploadService.saveMarginAnalystFileUpload(file, authentication);
 
-            log.info(multipartFile.getContentType());
+            log.info(file.getContentType());
 
             IMMarginAnalystDataService.calculateMarginAnalystData(originalFileName, fileUUID);
             IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "monthly");
             IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "annually");
 
-            return fileUUID;
-        }
-        else
+            return Map.of(
+                    "fileUUID", fileUUID
+            );
+        } else
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
 
     }
-    @PostMapping (path = "/getEstimateMarginAnalystData")
+
+    @PostMapping(path = "/getEstimateMarginAnalystData")
     Map<String, Object> getIMMarginAnalystData(@RequestBody IMMarginAnalystData imMarginAnalystData) {
         List<IMMarginAnalystData> imMarginAnalystDataList =
                 IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
@@ -80,8 +82,8 @@ public class MarginAnalystController {
                 IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
 
         return Map.of(
-                "marginAnalystData", imMarginAnalystDataList,
-                "marginAnalystSummary", imMarginAnalystSummaryMap
+                "MarginAnalystData", imMarginAnalystDataList,
+                "MarginAnalystSummary", imMarginAnalystSummaryMap
         );
     }
 }
