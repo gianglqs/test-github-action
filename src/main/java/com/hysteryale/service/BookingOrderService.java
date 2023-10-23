@@ -338,7 +338,7 @@ public class BookingOrderService extends BasedService {
         //from orderId get Series
         String series = "";
         if (bookingOrder.getSeries() != null)
-            series = bookingOrder.getSeries();
+            series = bookingOrder.getSeries().substring(1);
 
         // quantity is always 1
         bookingOrder.setQuantity(1);
