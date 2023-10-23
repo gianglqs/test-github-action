@@ -2,8 +2,11 @@ package com.hysteryale.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.poi.ooxml.POIXMLDocument;
+import org.apache.poi.poifs.filesystem.FileMagic;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
-import java.io.File;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,10 +72,12 @@ public class FileUtils {
     /**
      * Verify whether the file's name is Excel file or not
      */
-    public static boolean isExcelFile(String fileName) {
-        Pattern excelPattern = Pattern.compile(".* (.)xlsx|xls");
-        Matcher matcher = excelPattern.matcher(fileName);
-        return matcher.find();
+    public static boolean isExcelFile(String filePath) throws IOException {
+        //Please note that FE should only accept file with ext is xlsx and xls so BE should only check of it is really an excel file.
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+
+        //OLE2 is XLS and OOXML is XLSX
+        return (FileMagic.valueOf(fileInputStream) == FileMagic.OLE2) || (FileMagic.valueOf(fileInputStream) == FileMagic.OOXML);
     }
 
     /**
