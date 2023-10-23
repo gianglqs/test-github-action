@@ -10,10 +10,7 @@ import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.ParseException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -59,14 +56,14 @@ public class BookingOrderService extends BasedService {
     @Resource
     ProductDimensionRepository productDimensionRepository;
 
-    private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+  //  private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
      *
      * @param row which contains columns' name
      */
-    public void getOrderColumnsName(Row row) {
+    public void getOrderColumnsName(Row row,HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         for (int i = 0; i < 13; i++) {
             String columnName = row.getCell(i).getStringCellValue();
             ORDER_COLUMNS_NAME.put(columnName, i);
@@ -80,9 +77,13 @@ public class BookingOrderService extends BasedService {
      * @param folderPath path to folder contains Booking Order
      * @return list of files' name
      */
-    public List<String> getAllFilesInFolder(String folderPath) {
-        Pattern pattern = Pattern.compile(".*Final.*(.xlsx)$");
-
+    public List<String> getAllFilesInFolder(String folderPath, boolean isBooking) {
+        Pattern pattern;
+        if(!isBooking) {
+             pattern = Pattern.compile(".*Final.*(.xlsx)$");
+        }else{
+            pattern = Pattern.compile("^01.*(.xlsx)$");
+        }
         List<String> fileList = new ArrayList<>();
         Matcher matcher;
         try {
@@ -108,7 +109,7 @@ public class BookingOrderService extends BasedService {
      * @param row which is the row contains data
      * @return new Order object
      */
-    public BookingOrder mapExcelDataIntoOrderObject(Row row) throws IllegalAccessException {
+    public BookingOrder mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) throws IllegalAccessException {
         BookingOrder bookingOrder = new BookingOrder();
         Class<? extends BookingOrder> bookingOrderClass = bookingOrder.getClass();
         Field[] fields = bookingOrderClass.getDeclaredFields();
@@ -251,22 +252,23 @@ public class BookingOrderService extends BasedService {
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.booked-order");
 
         // Get files in Folder Path
-        List<String> fileList = getAllFilesInFolder(folderPath);
+        List<String> fileList = getAllFilesInFolder(folderPath, false);
 
         for (String fileName : fileList) {
             log.info("{ Start importing file: '" + fileName + "'");
             InputStream is = new FileInputStream(folderPath + "/" + fileName);
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             List<BookingOrder> bookingOrderList = new LinkedList<>();
+            HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
             Sheet orderSheet = workbook.getSheet("NOPLDTA.NOPORDP,NOPLDTA.>Sheet1");
             int numRowName = 0;
             if (orderSheet == null){
                 orderSheet = workbook.getSheet("Input - Bookings");numRowName = 1;}
             for (Row row : orderSheet) {
-                if (row.getRowNum() == numRowName) getOrderColumnsName(row);
+                if (row.getRowNum() == numRowName) getOrderColumnsName(row,ORDER_COLUMNS_NAME);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
-                    BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row);
+                    BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row,ORDER_COLUMNS_NAME);
                     //  if (newBookingOrder.getMetaSeries() != null)
                     //             newBookingOrder = importPlant(newBookingOrder);
                     newBookingOrder = calculateOrderValues(newBookingOrder);
@@ -280,6 +282,49 @@ public class BookingOrderService extends BasedService {
             bookingOrderList.clear();
         }
     }
+
+    private BookingOrder insertMargin(BookingOrder booking, String month, String year) throws IOException, IllegalAccessException {
+        // Folder contains Excel file of Booking Order
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.booking");
+
+        // Get files in Folder Path
+        List<String> fileList = getAllFilesInFolder(folderPath, true);
+
+
+        for (String fileName : fileList) {
+            // Check year and month
+            if (fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase())) {
+                InputStream is = new FileInputStream(folderPath + "/" + fileName);
+                XSSFWorkbook workbook = new XSSFWorkbook(is);
+                Sheet sheet = workbook.getSheet("Wk - Margins");
+                HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+
+                        Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
+                        if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+
+                            Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin %"));
+                            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+                            switch (evaluator.evaluateFormulaCell(marginCell)) {
+                                case NUMERIC:
+                                    booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
+                                    break;
+                                case STRING:
+                                    booking.setMarginPercentageAfterSurCharge(Double.parseDouble(marginCell.getStringCellValue()));
+                                    break;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return booking;
+    }
+
 
 
     public List<BookingOrder> getAllBookingOrders() {
@@ -323,6 +368,11 @@ public class BookingOrderService extends BasedService {
 
         return bookingOrdersPage;
     }
+
+
+
+
+
 
     /**
      * Get number of BookingOrders returned by filters

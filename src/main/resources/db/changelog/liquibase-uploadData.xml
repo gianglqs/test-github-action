@@ -73,15 +73,15 @@
                 tableName="region">
         </loadUpdateData>
 
-        <loadUpdateData
-                encoding="UTF-8"
-                file="classpath:db/database/booking_order.csv"
-                onlyUpdate="false"
-                primaryKey="order_no"
-                quotchar="'"
-                separator=","
-                tableName="booking_order">
-        </loadUpdateData>
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/booking_order.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="order_no"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="booking_order">-->
+<!--        </loadUpdateData>-->
 
         <!--        <loadUpdateData-->
         <!--                encoding="UTF-8"-->
