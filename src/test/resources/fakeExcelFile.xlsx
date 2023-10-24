@@ -1,0 +1,97 @@
+Table Booking
+ {
+  ORDERNO varchar [primary key]
+  Currency varchar
+  REGION varchar
+  DATE varchar
+  MKTGRP varchar
+  BILLTO varchar
+  DEALERNAME varchar
+  CTRYCODE  varchar
+  ORDERTYPE varchar
+  DEALERPO varchar
+  SERIES varchar
+  MODEL varchar
+  COMMENT varchar
+  TRUCKCLASS varchar
+}
+
+Table Quote {
+  id varchar [primary key]
+  Description varchar
+  ORDERNO varchar   
+  OpportunityName  varchar
+
+}
+
+Table Part {
+  id varchar [primary key]
+  quoteID varchar
+  Description varchar
+  Quantity varchar  
+  SeriesPartNumberListPrice int 
+  Discount  varchar
+  BillTo varchar
+  DiscountPercent  varchar
+  NetPriceEach  varchar
+  DiscountToCustomerPercentage  varchar
+  CustomerPrice  varchar
+  ExtendedCustomerPrice varchar
+  OptionType varchar
+  OrderBookedDate varchar
+  OrderRequestDate  varchar
+  IncludedItems varchar
+}
+
+Table Currencies {
+ id varchar [primary key] 
+ currency varchar
+}
+
+Table Region {
+  id varchar [primary key] 
+  region varchar
+}
+
+Table SeriesPartNumberListPrice {
+ id varchar [primary key]
+ seriesCode varchar 
+ partNumber varchar
+ ListPrice  varchar
+ Description varchar
+}
+
+Table Discount {
+ id varchar [primary key]
+ seriesCode varchar
+ modelCode varchar
+ discountValue int
+}
+
+Table SegmentPlant {
+  id varchar [primary key]
+  brand varchar
+  seriesCode varchar
+  modelCode varchar
+  class varchar
+  segment varchar
+  plant varchar
+}
+
+Table PlantCostUplift {
+  id varchar [primary key]
+  plant varchar
+  costUplift int
+}
+
+Table MarginAnalys {
+  id varchar [primary key]
+
+}
+
+Ref: Quote.ORDERNO > Booking.ORDERNO 
+Ref: Quote.id < Part.quoteID 
+Ref: Part.SeriesPartNumberListPrice - SeriesPartNumberListPrice.id
+Ref: Part.Discount - Discount.id
+Ref: "Currencies"."id" < "Booking"."Currency"
+Ref: "Region"."id" < "Booking"."REGION"
