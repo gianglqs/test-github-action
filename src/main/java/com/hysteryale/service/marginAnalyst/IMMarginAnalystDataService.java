@@ -211,6 +211,12 @@ public class IMMarginAnalystDataService {
                 double dealerNet = 0.0;
                 double manufacturingCostRMB = 0.0;
 
+                double warrantyCost = 0.0;
+                double surchargeCost= 0.0;
+                double dutyCost= 0.0;
+                double totalCostWithoutFreight= 0.0;
+                double totalCostWithFreight= 0.0;
+
                 // calculate sum of the listPrice, costRMB and dealerNet
                 for(IMMarginAnalystData data : imMarginAnalystDataList) {
                     totalListPrice += data.getListPrice();
@@ -220,7 +226,18 @@ public class IMMarginAnalystDataService {
 
                 double totalCostRMB = manufacturingCostRMB * (1 + costUplift) * (1 + warranty + surcharge + duty);
                 double blendedDiscount = 1 - (dealerNet / totalListPrice);
+
                 double fullCostAOPRate = totalCostRMB * aopRate;
+                if(strCurrency.equals("AUD")) {
+                    fullCostAOPRate = (totalCostRMB * aopRate) + freight;       // AUD only
+
+                    warrantyCost = manufacturingCostRMB * warranty;
+                    surchargeCost = manufacturingCostRMB * surcharge;
+                    dutyCost = manufacturingCostRMB * duty;
+                    totalCostWithoutFreight = manufacturingCostRMB + warrantyCost + surchargeCost + dutyCost;
+                    totalCostWithFreight = totalCostWithoutFreight + freight * aopRate;
+                }
+
                 double margin = dealerNet - fullCostAOPRate;
 
                 // check whether dealerNet == 0 or not
@@ -245,6 +262,12 @@ public class IMMarginAnalystDataService {
                 imMarginAnalystSummary.setMargin(CurrencyFormatUtils.formatDoubleValue(margin, CurrencyFormatUtils.decimalFormatFourDigits));
                 imMarginAnalystSummary.setMarginAopRate(aopRate);
                 imMarginAnalystSummary.setFileUUID(fileUUID);
+
+                imMarginAnalystSummary.setWarrantyCost(warrantyCost);
+                imMarginAnalystSummary.setSurchargeCost(surchargeCost);
+                imMarginAnalystSummary.setDutyCost(dutyCost);
+                imMarginAnalystSummary.setTotalCostWithoutFreight(totalCostWithoutFreight);
+                imMarginAnalystSummary.setTotalCostWithFreight(totalCostWithFreight);
 
 
                 if(durationUnit.equals("monthly")) {

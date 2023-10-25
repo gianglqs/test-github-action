@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.filters.BookingOrderFilter;
 import com.hysteryale.service.*;
+import com.hysteryale.utils.PagingnatorUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -67,12 +68,8 @@ public class BookingOrderController {
         // Get BookingOrder
         Map<String, Object> bookingOrderPage = bookingOrderService.getBookingOrdersByFilters(bookingOrderFilter, pageNo - 1, perPage);
 
-        // totalPages for all BookingOrders based on totalItems and perPage
-        long totalPages = (long) bookingOrderPage.get("totalItems") / perPage;
-
-        // if (totalPages % perPage) != 0 then need one more page to show data
-        if ((long) bookingOrderPage.get("totalItems") % perPage != 0)
-            totalPages = ((long) bookingOrderPage.get("totalItems") / perPage) + 1;
+        // calculate total number of pages
+        int totalPages = PagingnatorUtils.calculateNumberOfPages(perPage, (int) bookingOrderPage.get("totalItems"));
 
         bookingOrderPage.put("totalPages", totalPages);
 

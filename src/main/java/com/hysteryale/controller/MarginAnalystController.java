@@ -11,12 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -52,10 +54,12 @@ public class MarginAnalystController {
      * Calculate MarginAnalystData and MarginAnalystSummary based on user's uploaded file
      */
     @PostMapping(path = "/estimateMarginAnalystData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, String> estimateMarginAnalystData(@RequestBody MultipartFile file, Authentication authentication) throws IOException {
+    public Map<String, String> estimateMarginAnalystData(@RequestBody MultipartFile file, Authentication authentication) throws Exception {
+
+        String filePath = marginAnalystFileUploadService.saveMarginFileUploadToDisk(file);
 
         // Verify the Excel file
-        if (FileUtils.isExcelFile(file.getOriginalFilename())) {
+        if (FileUtils.isExcelFile(filePath)) {
             String originalFileName = file.getOriginalFilename();
             String fileUUID = marginAnalystFileUploadService.saveMarginAnalystFileUpload(file, authentication);
 
@@ -68,8 +72,10 @@ public class MarginAnalystController {
             return Map.of(
                     "fileUUID", fileUUID
             );
-        } else
+        } else {
+            marginAnalystFileUploadService.deleteFileInDisk(filePath);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
+        }
 
     }
 
