@@ -93,15 +93,15 @@
         <!--                tableName="margin_analyst_data">-->
         <!--        </loadUpdateData>-->
 
-        <loadUpdateData
-                encoding="UTF-8"
-                file="classpath:db/database/margin_analyst_macro.csv"
-                onlyUpdate="false"
-                primaryKey="id"
-                quotchar="'"
-                separator=","
-                tableName="margin_analyst_macro">
-        </loadUpdateData>
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/margin_analyst_macro.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="id"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="margin_analyst_macro">-->
+<!--        </loadUpdateData>-->
 
         <!--        <loadUpdateData-->
         <!--                encoding="UTF-8"-->

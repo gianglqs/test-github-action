@@ -273,7 +273,6 @@ public class BookingOrderService extends BasedService {
                 }
             }
 
-
             InputStream is = new FileInputStream(folderPath + "/" + fileName);
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             List<BookingOrder> bookingOrderList = new LinkedList<>();
@@ -291,7 +290,7 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
                     //  if (newBookingOrder.getMetaSeries() != null)
                     //             newBookingOrder = importPlant(newBookingOrder);
-                    newBookingOrder = insertMargin(newBookingOrder, month, year);
+                    newBookingOrder = insertTotalCost(newBookingOrder, month, year);
 
                     newBookingOrder = calculateOrderValues(newBookingOrder);
                     bookingOrderList.add(newBookingOrder);
@@ -305,7 +304,7 @@ public class BookingOrderService extends BasedService {
         }
     }
 
-    private BookingOrder insertMargin(BookingOrder booking, String month, String year) throws IOException, IllegalAccessException {
+    private BookingOrder insertTotalCost(BookingOrder booking, String month, String year) throws IOException, IllegalAccessException {
         // Folder contains Excel file of Booking Order
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.booking");
@@ -326,20 +325,22 @@ public class BookingOrderService extends BasedService {
                     else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
 
                         Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
+
                         if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
 
-                            Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin %"));
-                            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-                            switch (evaluator.evaluateFormulaCell(marginCell)) {
-                                case NUMERIC:
-                                    booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
-                                    System.err.println("Margin %     " + marginCell.getNumericCellValue());
-                                    break;
-                                case STRING:
-                                    booking.setMarginPercentageAfterSurCharge(Double.parseDouble(marginCell.getStringCellValue()));
-                                    System.err.println("Margin %     " + marginCell.getNumericCellValue());
-                                    break;
-                            }
+                            Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
+                            booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
+//                            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+//                            switch (evaluator.evaluateFormulaCell(marginCell)) {
+//                                case NUMERIC:
+//                                    booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
+//                                    System.err.println("Margin %     " + marginCell.getNumericCellValue());
+//                                    break;
+//                                case STRING:
+//                                    booking.setMarginPercentageAfterSurCharge(Double.parseDouble(marginCell.getStringCellValue()));
+//                                    System.err.println("Margin %     " + marginCell.getNumericCellValue());
+//                                    break;
+//                            }
                             break;
                         }
                     }
@@ -444,43 +445,21 @@ public class BookingOrderService extends BasedService {
 
 
         for (Part part : newParts) {
-
             //dealer Net
             dealerNet = dealerNet + part.getNetPriceEach();
 
-            //dealerNetAfterSurCharge = (part.getNetPriceEach() - part.getDiscount());
-
-
-            // marginPercent = aopMargin.getMarginSTD();
-            // bookingOrder.setAOPMarginPercentage(marginPercent);
-
-
-//            //dealnet after surcharge
-//            double dealerNetAfterSurchage = dealerNet - (dealerNet * marginPercent);
-//            bookingOrder.setDealerNetAfterSurCharge(dealerNetAfterSurchage);
-//
-//            //margin $ after surcharge
-//            double marginAfterSurcharge =totalCost- dealerNetAfterSurchage  ;
-//            bookingOrder.setMarginAfterSurCharge(marginAfterSurcharge);
-//
-//            //margin % after surcharge
-//            double marginPercentageAfterSurcharge = marginAfterSurcharge / totalCost;
-//            bookingOrder.setMarginPercentageAfterSurCharge(marginPercentageAfterSurcharge);
-
-
         }
 
-        dealerNetAfterSurchage = dealerNet;
+        dealerNetAfterSurchage = dealerNet * 1.015;
         marginAfterSurcharge = dealerNetAfterSurchage * marginPercentageAfterSurcharge;
         totalCost = dealerNetAfterSurchage - marginAfterSurcharge;
 
         bookingOrder.setDealerNet(dealerNet);
-        bookingOrder.setTotalCost(totalCost);
         bookingOrder.setDealerNetAfterSurCharge(dealerNetAfterSurchage);
         bookingOrder.setMarginAfterSurCharge(marginAfterSurcharge);
+        bookingOrder.setTotalCost(totalCost);
 
         bookingOrder.setAOPMarginPercentage(marginPercent);
-
 
         return bookingOrder;
     }
