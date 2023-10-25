@@ -24,6 +24,7 @@ public class IMMarginAnalystSummary {
     private double manufacturingCostRMB;
     private double costUplift;
     private double addWarranty;
+    private double surcharge;
     private double duty;
     private double freight;
     private boolean liIonIncluded;
@@ -43,9 +44,11 @@ public class IMMarginAnalystSummary {
     private double marginPercentMonthlyRate;
 
     private double manufacturingCost;
-    private double warranty;
-    private double surcharge;
-    private double totalCost;
+    private double warrantyCost;
+    private double surchargeCost;
+    private double dutyCost;
+    private double totalCostWithoutFreight;
+    private double totalCostWithFreight;
 
     private double manufacturingCostAop;
     private double manufacturingCostMonthly;

@@ -60,22 +60,44 @@ public class MarginAnalystFileUploadService {
             // save information to db
             marginAnalystFileUploadRepository.save(marginAnalystFileUpload);
 
-            // save file into disk
-            String baseFolder = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
-            File file = new File(baseFolder + "/" + marginAnalystFileUpload.getFileName());
-
-            if(file.createNewFile()){
-                log.info("File " + marginAnalystFileUpload.getFileName() + " created");
-                excelFile.transferTo(file);
-            }
-            else {
-                log.info("Can not create new file: " + marginAnalystFileUpload.getFileName());
-            }
             return marginAnalystFileUpload.getUuid();
         }
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find user with email: " + uploadedByEmail);
     }
+
+    /**
+     * Save the excelFile into disk
+     * @return absolute filePath of multipartFile
+     */
+    public String saveMarginFileUploadToDisk(MultipartFile multipartFile) throws Exception {
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
+
+        Date uploadedTime = new Date();
+        String strUploadedTime = (new SimpleDateFormat("ddMMyyyyHHmmss").format(uploadedTime));
+        String hashedFileName = FileUtils.hashFileName(multipartFile.getOriginalFilename()) + "_" + strUploadedTime + ".xlsx";
+
+        File file = new File(baseFolder + "/" + hashedFileName);
+
+        if(file.createNewFile()){
+            log.info("File " + hashedFileName + " created");
+            multipartFile.transferTo(file);
+            return baseFolder + "/" + hashedFileName;
+        }
+        else {
+            log.info("Can not create new file: " + hashedFileName);
+            throw new Exception("Can not create new file: " + hashedFileName);
+        }
+    }
+
+    /**
+     * Delete a file in d disk
+     */
+    public boolean deleteFileInDisk(String filePath) {
+        File file = new File(filePath);
+        return file.delete();
+    }
+
 
     /**
      * Getting the fileName by UUID String for reading from disk
