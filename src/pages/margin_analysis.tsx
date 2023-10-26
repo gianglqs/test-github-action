@@ -119,7 +119,7 @@ export default function MarginAnalysis() {
       let token = cookies["token"]
       axios({
         method: "post",
-        url: "http://localhost:8080/estimateMarginAnalystData",
+        url: "http://192.168.1.150:8080/hysteryale/estimateMarginAnalystData",
         data: formData,
         headers: { 
           "Content-Type": "multipart/form-data",
@@ -206,22 +206,27 @@ export default function MarginAnalysis() {
           <Button
             variant="contained"
             onClick={handleFilterMarginAnalysis}
-            sx={{ width: "50%", height: 24 }}
+            sx={{ width: "100%", height: 24 }}
           >
             Filter
           </Button>
+          
         </Grid>
 
-        <Grid item xs={1.5}>
-            <UploadFileDropZone
+        <Grid item xs={1}>
+          
+        <UploadFileDropZone
               uploadedFile = {uploadedFile}
               setUploadedFile = {setUploadedFile}
               handleUploadFile = {handleUploadFile}
             />
+            
+        </Grid>
+        <Grid item xs={4}>
+        <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
         </Grid>
         
         <Grid item xs={12}>
-        <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
 
         <Accordion
             expanded={openAccordionTable}
@@ -236,7 +241,7 @@ export default function MarginAnalysis() {
             </AccordionSummary>
             <AccordionDetails>
               <DataTable
-                hideFooter
+                hideFooter 
                 disableColumnMenu
                 tableHeight={openAccordion ? 195 : 710}
                 sx={{ margin: -2 }}
@@ -260,7 +265,7 @@ export default function MarginAnalysis() {
             <AccordionDetails>
               <Grid container spacing={1}>
                 <Grid item xs={4}>
-                  <Paper elevation={3} sx={{ padding: 2, height: 220 }}>
+                  <Paper elevation={2} sx={{ padding: 2, height: 220 }}>
                     <div className="space-between-element">
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -286,8 +291,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .costUplift
+                          _.isNil(
+                              marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                              .costUplift
+                          )
+                          ? ""
+                          :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                            .costUplift* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -297,6 +310,7 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
+                          
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
                             .manufacturingCostRMB.toLocaleString()
                         }
@@ -308,8 +322,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .addWarranty
+                          _.isNil(
+                              marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                              .addWarranty
+                          )
+                          ? ""
+                          :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                            .addWarranty* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -319,8 +341,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                          _.isNil(
+                            marginAnalysisSummary?.MarginAnalystSummaryAnnually
                             .surcharge
+                        )
+                        ? ""
+                        :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                            .surcharge* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -330,8 +360,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                          _.isNil(
+                            marginAnalysisSummary?.MarginAnalystSummaryAnnually
                             .duty
+                        )
+                        ? ""
+                        :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                            .duty* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -421,8 +459,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                          _.isNil(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
                             .costUplift
+                        )
+                        ? ""
+                        :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                            .costUplift* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -443,8 +489,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                          _.isNil(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
                             .addWarranty
+                        )
+                        ? ""
+                        :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                            .addWarranty* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -454,8 +508,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                          _.isNil(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
                             .surcharge
+                        )
+                        ? ""
+                        :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                            .surcharge* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -465,8 +527,16 @@ export default function MarginAnalysis() {
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
-                          marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                          _.isNil(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
                             .duty
+                        )
+                        ? ""
+                        :
+                          `${(
+                            marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                            .duty* 100
+                          ).toFixed(2)}%`
                         }
                       </Typography>
                     </div>
@@ -739,7 +809,7 @@ export default function MarginAnalysis() {
                 </Grid>
                 <Grid item xs={4}></Grid>
                 <Grid item xs={4}>
-                  <Paper elevation={3} sx={{ padding: 2, height: 120 }}>
+                  <Paper elevation={3} sx={{ padding: 2, height: 140 }}>
                     <div className="space-between-element">
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -756,7 +826,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .manufacturingCost
+                            .manufacturingCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -767,7 +837,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .warranty
+                            .warrantyCost.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -778,25 +848,36 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .surcharge
+                            .surchargeCost.toLocaleString()
                         }
                       </Typography>
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost (USD)
+                        Total Cost Excluding Freight
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .totalCost
+                            .totalCostWithoutFreight.toLocaleString()
+                        }
+                      </Typography>
+                    </div>
+                    <div className="space-between-element">
+                      <Typography variant="body1" component="span">
+                        Total Cost With Freight
+                      </Typography>
+                      <Typography variant="body1" component="span">
+                        {
+                          marginAnalysisSummary?.MarginAnalystSummaryAnnually
+                            .totalCostWithFreight.toLocaleString()
                         }
                       </Typography>
                     </div>
                   </Paper>
                 </Grid>
                 <Grid item xs={4}>
-                  <Paper elevation={3} sx={{ padding: 2, height: 120 }}>
+                  <Paper elevation={3} sx={{ padding: 2, height: 140 }}>
                     <div className="space-between-element">
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -813,7 +894,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .manufacturingCostAop
+                            .manufacturingCostRMB.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -824,7 +905,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .warranty
+                            .warrantyCost.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -835,18 +916,29 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .surcharge
+                            .surchargeCost.toLocaleString()
                         }
                       </Typography>
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost (USD)
+                        Total Cost Without Freight
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .totalCost
+                            .totalCostWithoutFreight.toLocaleString()
+                        }
+                      </Typography>
+                    </div>
+                    <div className="space-between-element">
+                      <Typography variant="body1" component="span">
+                        Total Cost With Freight
+                      </Typography>
+                      <Typography variant="body1" component="span">
+                        {
+                          marginAnalysisSummary?.MarginAnalystSummaryMonthly
+                            .totalCostWithFreight.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -910,7 +1002,7 @@ function UploadFileDropZone(props) {
         type="button" 
         onClick={open}
         variant="contained"
-        sx={{ width: "50%", height: 24 }}
+        sx={{ width: "100%", height: 24 }}
         >
         Select file
       </Button>
