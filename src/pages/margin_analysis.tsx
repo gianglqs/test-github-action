@@ -208,7 +208,7 @@ export default function MarginAnalysis() {
             onClick={handleFilterMarginAnalysis}
             sx={{ width: "100%", height: 24 }}
           >
-            Filter
+            Calculate
           </Button>
           
         </Grid>
@@ -659,7 +659,7 @@ export default function MarginAnalysis() {
                         variant="body1"
                         component="span"
                       >
-                        Total List Price USD
+                        Total List Price
                       </Typography>
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -691,7 +691,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        DN USD
+                        DN
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -738,7 +738,7 @@ export default function MarginAnalysis() {
                         variant="body1"
                         component="span"
                       >
-                        Total List Price USD
+                        Total List Price
                       </Typography>
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -769,7 +769,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        DN USD
+                        DN
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -821,7 +821,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Manufacturing Cost (USD)
+                        Manufacturing Cost
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -832,7 +832,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Warranty (USD)
+                        Warranty
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -843,7 +843,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Surcharge (USD)
+                        Surcharge
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -889,7 +889,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Manufacturing Cost (USD)
+                        Manufacturing Cost
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -900,7 +900,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Warranty (USD)
+                        Warranty
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -911,7 +911,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Surcharge (USD)
+                        Surcharge
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
