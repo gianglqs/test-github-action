@@ -69,7 +69,7 @@ public class BookingOrderController {
         Map<String, Object> bookingOrderPage = bookingOrderService.getBookingOrdersByFilters(bookingOrderFilter, pageNo - 1, perPage);
 
         // calculate total number of pages
-        int totalPages = PagingnatorUtils.calculateNumberOfPages(perPage, (int) bookingOrderPage.get("totalItems"));
+        int totalPages = PagingnatorUtils.calculateNumberOfPages(perPage,(int) ((long) bookingOrderPage.get("totalItems")));
 
         bookingOrderPage.put("totalPages", totalPages);
 
