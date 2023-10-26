@@ -401,8 +401,8 @@ public class BookingOrderService extends BasedService {
     private BookingOrder calculateOrderValues(BookingOrder bookingOrder) {
         //from orderId get Series
         String series = "";
-        if (bookingOrder.getSeries() != null)
-            series = bookingOrder.getSeries().substring(1);
+
+        series = bookingOrder.getSeries().substring(1);
 
         // quantity is always 1
         bookingOrder.setQuantity(1);
@@ -421,10 +421,18 @@ public class BookingOrderService extends BasedService {
         //double dealerNetAfterSurCharge = 0;
 
         //get margin
-        Map<String, AOPMargin> aopMarginByYear = convertSetToMap(AOPMarginRepository.findByYear(bookingOrder.getDate().get(Calendar.YEAR)));
+//        Map<String, AOPMargin> aopMarginByYear = convertSetToMap(AOPMarginRepository.findByYear(bookingOrder.getDate().get(Calendar.YEAR)));
+//
+//        //get AOPMargin by series
+//        AOPMargin aopMargin = getAOPMargin(series, aopMarginByYear);
+        AOPMargin aopMargin = null;
+        List<AOPMargin> aopMarginList = AOPMarginRepository.findByMetaSeries(series);
+        if(aopMarginList.isEmpty()){
+            log.info("Metaseries khong co AOP"+series);
+        }else{
+            aopMargin = aopMarginList.get(0);
+        }
 
-        //get AOPMargin by series
-        AOPMargin aopMargin = getAOPMargin(series, aopMarginByYear);
         double marginPercent = 0;
         if (aopMargin != null) {
             marginPercent = aopMargin.getMarginSTD();
@@ -443,7 +451,6 @@ public class BookingOrderService extends BasedService {
             dealerNet = dealerNet + part.getNetPriceEach();
 
         }
-
 
         dealerNetAfterSurchage = dealerNet * 1.015;
 
