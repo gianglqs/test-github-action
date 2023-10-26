@@ -17,7 +17,7 @@ class HttpService<GetList = any> {
     })
     this.instance.interceptors.response.use(
       this.handleSuccessRes,
-      this.handleErrorRes
+      this.handleErrorRes   
     )
   }
 

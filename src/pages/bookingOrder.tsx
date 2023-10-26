@@ -183,7 +183,7 @@ export default function Booking() {
       flex: 1,
       headerName: "AOP Margin%",
       renderCell(params) {
-        return <span>{(params?.row.aopmarginPercentage * 100).toLocaleString(undefined, {maximumFractionDigits:10})}%</span>
+        return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>
       },
     },
   ]
