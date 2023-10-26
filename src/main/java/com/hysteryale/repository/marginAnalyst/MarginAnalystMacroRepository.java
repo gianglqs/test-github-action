@@ -19,5 +19,8 @@ public interface MarginAnalystMacroRepository extends JpaRepository<MarginAnalys
     @Query("SELECT m FROM MarginAnalystMacro m WHERE m.modelCode LIKE CONCAT ('%', ?1, '%') AND m.partNumber = ?2 AND m.currency.currency = ?3 AND m.plant = ?4 AND m.monthYear = ?5")
     List<MarginAnalystMacro> getMarginAnalystMacroByPlant(String modelCode, String partNumber, String currency, String plant, Calendar monthYear);
 
+    @Query("SELECT m FROM MarginAnalystMacro m WHERE m.modelCode LIKE CONCAT ('%', ?1, '%') AND m.partNumber = ?2 AND m.currency.currency = ?3 AND m.plant != 'SN' AND m.monthYear = ?4")
+    List<MarginAnalystMacro> getMarginAnalystMacroByHYMPlant(String modelCode, String partNumber, String currency, Calendar monthYear);
+
 
 }
