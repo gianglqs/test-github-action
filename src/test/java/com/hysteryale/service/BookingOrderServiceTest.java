@@ -54,12 +54,13 @@ public class BookingOrderServiceTest {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet orderSheet = workbook.getSheet("Input - Bookings");
+        HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
         for (Row row : orderSheet) {
             if(row.getRowNum() == 1)
-                bookingOrderService.getOrderColumnsName(row);
+                bookingOrderService.getOrderColumnsName(row, ORDER_COLUMNS_NAME);
             else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
                     && row.getRowNum() > 1) {
-                BookingOrder newBookingOrder = bookingOrderService.mapExcelDataIntoOrderObject(row);
+                BookingOrder newBookingOrder = bookingOrderService.mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
                 bookingOrderList.add(newBookingOrder);
             }
         }

@@ -147,4 +147,6 @@ public class CustomBookingOrderRepository {
         Query query = createQueryByFilters(queryString, orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
         return (long) query.getSingleResult();
     }
+
+
 }

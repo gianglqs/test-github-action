@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-public class UserControllerTest extends BasedControllerTest{
+public class UserControllerTest{// extends BasedControllerTest{
     @InjectMocks
     UserController userController;
 

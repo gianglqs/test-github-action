@@ -87,7 +87,6 @@ public class AuthWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-      //  configuration.setAllowedOrigins(List.of("http://localhost:3000")); // <-- you may change "*"
         configuration.setAllowedOrigins(Collections.singletonList("*")); // <-- you may change "*"
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
         configuration.setAllowCredentials(true);
