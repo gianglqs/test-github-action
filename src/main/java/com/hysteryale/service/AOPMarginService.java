@@ -2,7 +2,6 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.AOPMargin;
 import com.hysteryale.repository.AOPMarginRepository;
-import com.hysteryale.repository.CustomRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -99,7 +98,6 @@ public class AOPMarginService {
                 //TODO need to get year from file name, not hardcode as I did below
                 aopMargin.setYear(2023);
                 aopMarginList.add(aopMargin);
-               aopMarginList.add(aopMargin);
             }
         }
 
