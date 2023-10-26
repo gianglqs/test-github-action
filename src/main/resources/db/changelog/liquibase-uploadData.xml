@@ -33,16 +33,17 @@
                 tableName="currency">
         </loadUpdateData>
 
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/booking_order.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="order_no"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="booking_order">-->
-<!--        </loadUpdateData>-->
 
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/aopmargin.csv"
+                onlyUpdate="false"
+                primaryKey="region_series_plant"
+                quotchar="'"
+                separator=","
+                tableName="aopmargin">
+
+        </loadUpdateData>
         <loadUpdateData
                 encoding="UTF-8"
                 file="classpath:db/database/part.csv"
@@ -52,46 +53,15 @@
                 separator=","
                 tableName="part">
         </loadUpdateData>
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/margin_analyst_data.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="margin_analyst_data">-->
-<!--        </loadUpdateData>-->
-
         <loadUpdateData
                 encoding="UTF-8"
-                file="classpath:db/database/margin_analyst_macro.csv"
+                file="classpath:db/database/productdimension.csv"
                 onlyUpdate="false"
                 primaryKey="id"
                 quotchar="'"
                 separator=","
-                tableName="margin_analyst_macro">
+                tableName="productdimension">
         </loadUpdateData>
-
-        <loadUpdateData
-                encoding="UTF-8"
-                file="classpath:db/database/marginanalysisaoprate.csv"
-                onlyUpdate="false"
-                primaryKey="id"
-                quotchar="'"
-                separator=","
-                tableName="marginanalysisaoprate">
-        </loadUpdateData>
-
-
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/margin_analyst_summary.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="margin_analyst_summary">-->
-<!--        </loadUpdateData>-->
 
         <loadUpdateData
                 encoding="UTF-8"
@@ -105,23 +75,76 @@
 
 <!--        <loadUpdateData-->
 <!--                encoding="UTF-8"-->
-<!--                file="file:database/apacserial.csv"-->
+<!--                file="classpath:db/database/booking_order.csv"-->
 <!--                onlyUpdate="false"-->
-<!--                primaryKey="model"-->
+<!--                primaryKey="order_no"-->
 <!--                quotchar="'"-->
 <!--                separator=","-->
-<!--                tableName="apacserial">-->
+<!--                tableName="booking_order">-->
 <!--        </loadUpdateData>-->
+
+        <!--        <loadUpdateData-->
+        <!--                encoding="UTF-8"-->
+        <!--                file="classpath:db/database/margin_analyst_data.csv"-->
+        <!--                onlyUpdate="false"-->
+        <!--                primaryKey="id"-->
+        <!--                quotchar="'"-->
+        <!--                separator=","-->
+        <!--                tableName="margin_analyst_data">-->
+        <!--        </loadUpdateData>-->
 
 <!--        <loadUpdateData-->
 <!--                encoding="UTF-8"-->
-<!--                file="file:database/apicdealer.csv"-->
+<!--                file="classpath:db/database/margin_analyst_macro.csv"-->
 <!--                onlyUpdate="false"-->
-<!--                primaryKey="billtoCode"-->
+<!--                primaryKey="id"-->
 <!--                quotchar="'"-->
 <!--                separator=","-->
-<!--                tableName="apicdealer">-->
+<!--                tableName="margin_analyst_macro">-->
 <!--        </loadUpdateData>-->
+
+        <!--        <loadUpdateData-->
+        <!--                encoding="UTF-8"-->
+        <!--                file="classpath:db/database/marginanalysisaoprate.csv"-->
+        <!--                onlyUpdate="false"-->
+        <!--                primaryKey="id"-->
+        <!--                quotchar="'"-->
+        <!--                separator=","-->
+        <!--                tableName="marginanalysisaoprate">-->
+        <!--        </loadUpdateData>-->
+
+
+        <!--        <loadUpdateData-->
+        <!--                encoding="UTF-8"-->
+        <!--                file="classpath:db/database/margin_analyst_summary.csv"-->
+        <!--                onlyUpdate="false"-->
+        <!--                primaryKey="id"-->
+        <!--                quotchar="'"-->
+        <!--                separator=","-->
+        <!--                tableName="margin_analyst_summary">-->
+        <!--        </loadUpdateData>-->
+
+
+
+        <!--        <loadUpdateData-->
+        <!--                encoding="UTF-8"-->
+        <!--                file="file:database/apacserial.csv"-->
+        <!--                onlyUpdate="false"-->
+        <!--                primaryKey="model"-->
+        <!--                quotchar="'"-->
+        <!--                separator=","-->
+        <!--                tableName="apacserial">-->
+        <!--        </loadUpdateData>-->
+
+        <!--        <loadUpdateData-->
+        <!--                encoding="UTF-8"-->
+        <!--                file="file:database/apicdealer.csv"-->
+        <!--                onlyUpdate="false"-->
+        <!--                primaryKey="billtoCode"-->
+        <!--                quotchar="'"-->
+        <!--                separator=","-->
+        <!--                tableName="apicdealer">-->
+        <!--        </loadUpdateData>-->
 
 
     </changeSet>
