@@ -31,8 +31,10 @@ public class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandle
 
     @Override
     public void endRow(int rowNum) {
-        Row row = new Row(cellList);
-        rowList.add(row);
+        if(!cellList.isEmpty()) {
+            Row row = new Row(rowNum, cellList);
+            rowList.add(row);
+        }
     }
 
     @Override

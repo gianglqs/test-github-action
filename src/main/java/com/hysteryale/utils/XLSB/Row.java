@@ -12,5 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Row {
+    private int rowNum;
     private List<Cell> cellList;
+
+    public Cell getCell(int cellNum) {
+        return cellList.get(cellNum);
+    }
 }

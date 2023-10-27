@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
-public class XLSBUtils {
+public class XLSBWorkbook {
     XSSFBReader r;
     XSSFBSharedStringsTable sst;
     XSSFBStylesTable xssfbStylesTable;
@@ -29,7 +29,7 @@ public class XLSBUtils {
         xssfbStylesTable = r.getXSSFBStylesTable();
         it = (XSSFBReader.SheetIterator) r.getSheetsData();
     }
-    public void getSheet(String sheetName) throws IOException {
+    public Sheet getSheet(String sheetName) throws IOException {
         TestSheetHandler testSheetHandler = new TestSheetHandler();
         while (it.hasNext()) {
             InputStream is = it.next();
@@ -47,10 +47,8 @@ public class XLSBUtils {
                 );
                 sheetHandler.parse();
                 testSheetHandler.endSheet(sheetName);
-
-                Sheet sheet = testSheetHandler.getSheet();
-                log.info("" + sheet.getRowList().get(0).getCellList().get(0).getValue());
             }
         }
+        return testSheetHandler.getSheet();
     }
 }
