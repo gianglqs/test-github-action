@@ -10,7 +10,10 @@ import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.ParseException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,7 +70,7 @@ public class BookingOrderService extends BasedService {
     public void getOrderColumnsName(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         for (int i = 0; i < 50; i++) {
             if (row.getCell(i) != null) {
-                String columnName = row.getCell(i).getStringCellValue();
+                String columnName = row.getCell(i).getStringCellValue().trim();
                 ORDER_COLUMNS_NAME.put(columnName, i);
             }
         }
@@ -122,25 +126,6 @@ public class BookingOrderService extends BasedService {
             // Get the data type of the field
             String fieldType = field.getType().getName();
 
-            // Currency column is the only one which is not uppercase all character
-//            if (field.getName().equals("currency")) {
-//                hashMapKey = "Currency";
-//                Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
-//                if (cell.getCellType() == CellType.FORMULA) {
-//                    // get formula
-//                    String formula = cell.getCellFormula();
-//
-//                    //  create evaluator formula
-//                    FormulaEvaluator evaluator = row.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
-//
-//                    // evaluator formula
-//                    CellValue cellValue = evaluator.evaluate(cell);
-//                    String result = cellValue.getStringValue();
-//                    field.setAccessible(true);
-//                    field.set(bookingOrder, result);
-//                }
-//            }
-
             // allow assigning value for object's fields
             field.setAccessible(true);
             if (field.getName().equals("productDimension")) {
@@ -190,7 +175,6 @@ public class BookingOrderService extends BasedService {
                 if (index != null) {  // cell will be null when the properties are not mapped with the excel files, they are used to calculate values
 
                     Cell cell = row.getCell((Integer) index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-
 
                     if (cell != null) {
                         switch (fieldType) {
@@ -247,6 +231,28 @@ public class BookingOrderService extends BasedService {
      * @throws FileNotFoundException
      * @throws IllegalAccessException
      */
+
+
+    private Date extractDate(String fileName) {
+        String dateRegex = "\\d{2}_\\d{2}_\\d{4}";
+        Matcher m = Pattern.compile(dateRegex).matcher(fileName);
+        Date date = null;
+        try {
+            if (m.find()) {
+                date = new SimpleDateFormat("MM_dd_yyyy").parse(m.group());
+            } else {
+                log.error("Can not extract Date from File name: " + fileName);
+                rollbar.error("Can not extract Date from File name: " + fileName);
+            }
+
+        } catch (java.text.ParseException e) {
+            log.error("Can not extract Date from File name: " + fileName);
+            rollbar.error("Can not extract Date from File name: " + fileName);
+        }
+        return date;
+    }
+
+
     public void importOrder() throws IOException, IllegalAccessException {
 
         // Folder contains Excel file of Booking Order
@@ -290,9 +296,10 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
                     //  if (newBookingOrder.getMetaSeries() != null)
                     //             newBookingOrder = importPlant(newBookingOrder);
-                    newBookingOrder = insertTotalCost(newBookingOrder, month, year);
+                    newBookingOrder = insertTotalCostOrMarginPercent(newBookingOrder, month, year);
 
-                    newBookingOrder = calculateOrderValues(newBookingOrder);
+                    boolean isOldData = checkOldData(month, year);
+                    newBookingOrder = calculateOrderValues(newBookingOrder, isOldData);
                     bookingOrderList.add(newBookingOrder);
                 }
             }
@@ -304,46 +311,100 @@ public class BookingOrderService extends BasedService {
         }
     }
 
-    private BookingOrder insertTotalCost(BookingOrder booking, String month, String year) throws IOException, IllegalAccessException {
+    private BookingOrder insertTotalCostOrMarginPercent(BookingOrder booking, String month, String year) throws IOException, IllegalAccessException {
         // Folder contains Excel file of Booking Order
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
-        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.booking");
+        String targetFolder = "";
+        String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
+        List<String> listMonth = Arrays.asList(monthArr);
+        // if old data -> collect from file booking
+        if (checkOldData(month, year)) {
+            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
+            String folderPath = baseFolder + targetFolder;
 
-        // Get files in Folder Path
-        List<String> fileList = getAllFilesInFolder(folderPath, true);
+            // Get files in Folder Path
+            List<String> fileList = getAllFilesInFolder(folderPath, true);
 
+            for (String fileName : fileList) {
+                // Check year and month
+                if (fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase())) {
+                    InputStream is = new FileInputStream(folderPath + "/" + fileName);
+                    XSSFWorkbook workbook = new XSSFWorkbook(is);
+                    // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
+                    Sheet sheet = workbook.getSheet("Wk - Margins");
 
-        for (String fileName : fileList) {
-            // Check year and month
-            if (fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase())) {
-                InputStream is = new FileInputStream(folderPath + "/" + fileName);
-                XSSFWorkbook workbook = new XSSFWorkbook(is);
-                Sheet sheet = workbook.getSheet("Wk - Margins");
-                HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-                for (Row row : sheet) {
-                    if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+                    HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+                    for (Row row : sheet) {
+                        if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                        else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
 
-                        Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
+                            Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
 
-                        if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-
-                            Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
-                            if (marginCell.getCellType() == CellType.NUMERIC) {
-                                booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
+                            if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+                                Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
+                                if (marginCell.getCellType() == CellType.NUMERIC) {
+                                    booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
+                                }
+                                break;
                             }
-
-                            break;
                         }
                     }
+                    if (booking.getMarginPercentageAfterSurCharge() == 0)
+                        System.out.println("khong tim thay Margin%   " + booking.getOrderNo());
                 }
-                if (booking.getMarginPercentageAfterSurCharge() == 0)
-                    System.out.println("khong tim thay Margin%    " + booking.getOrderNo());
+            }
+
+
+        } else {// else -> collect from file total-cost
+            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
+            String folderPath = baseFolder + targetFolder;
+
+            // Get files in Folder Path
+            List<String> fileList = getAllFilesInFolder(folderPath, true);
+
+            for (String fileName : fileList) {
+                // Check year and month
+                if (checkOldData(month, year) && fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase())) {
+                    InputStream is = new FileInputStream(folderPath + "/" + fileName);
+                    XSSFWorkbook workbook = new XSSFWorkbook(is);
+                    // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
+                    Sheet sheet = workbook.getSheet("Cost Data");
+
+                    HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+                    for (Row row : sheet) {
+                        if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                        else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+
+                            Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
+
+                            if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+
+                                Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
+                                if (totalCostCell.getCellType() == CellType.NUMERIC) {
+                                    booking.setTotalCost(totalCostCell.getNumericCellValue());
+                                } else if (totalCostCell.getCellType() == CellType.STRING) {
+                                    booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if (booking.getMarginPercentageAfterSurCharge() == 0 && booking.getTotalCost() == 0)
+                        System.out.println("khong tim thay totalCost  " + booking.getOrderNo());
+                }
             }
         }
+
         return booking;
     }
 
+    private boolean checkOldData(String month, String year) {
+        if (Integer.parseInt(year) >= 2024) {
+            return false;
+        } else if (month.equals("Oct") | month.equals("Nov") | month.equals("Dec"))
+            return false;
+        return true;
+    }
 
     public List<BookingOrder> getAllBookingOrders() {
         return bookingOrderRepository.findAll();
@@ -398,38 +459,17 @@ public class BookingOrderService extends BasedService {
     /**
      * To calculate extra values of an order
      */
-    private BookingOrder calculateOrderValues(BookingOrder bookingOrder) {
-        //from orderId get Series
-        String series = "";
-
-        series = bookingOrder.getSeries().substring(1);
-
-        // quantity is always 1
-        bookingOrder.setQuantity(1);
-
-
+    private BookingOrder calculateOrderValues(BookingOrder bookingOrder, boolean isOldData) {
+        //Get All Part
         Set<Part> newParts = partRepository.getPartByOrderNumber(bookingOrder.getOrderNo());
 
-        //from orderId + Series + Part we can calculate the following
-        //      total cost
-        //      dealerNet
-        //      dealerNetAfterSurCharge
-        //      marginAfterSurCharge
-        //      marginPercentageAfterSurCharge
-        //      AOPMarginPercentage
-
-        //double dealerNetAfterSurCharge = 0;
-
-        //get margin
-//        Map<String, AOPMargin> aopMarginByYear = convertSetToMap(AOPMarginRepository.findByYear(bookingOrder.getDate().get(Calendar.YEAR)));
-//
-//        //get AOPMargin by series
-//        AOPMargin aopMargin = getAOPMargin(series, aopMarginByYear);
+        //Get AOPMargin if Exist
         AOPMargin aopMargin = null;
+        String series = bookingOrder.getSeries().substring(1);
         List<AOPMargin> aopMarginList = AOPMarginRepository.findByMetaSeries(series);
-        if(aopMarginList.isEmpty()){
-            log.info("Metaseries khong co AOP"+series);
-        }else{
+        if (aopMarginList.isEmpty()) {
+            log.info("Metaseries khong co AOP" + series);
+        } else {
             aopMargin = aopMarginList.get(0);
         }
 
@@ -437,52 +477,43 @@ public class BookingOrderService extends BasedService {
         if (aopMargin != null) {
             marginPercent = aopMargin.getMarginSTD();
         }
-        double totalCost = 0;
+
         double dealerNet = 0;
         //dealnet after surcharge
-        double dealerNetAfterSurchage = 0;
+        double dealerNetAfterSurchage;
         //margin $ after surcharge
         double marginAfterSurcharge = 0;
-        double marginPercentageAfterSurcharge = bookingOrder.getMarginPercentageAfterSurCharge();
-
+        //default   = 0
+        double surchage = 0;
+        double totalCost;
+        double marginPercentageAfterSurcharge;
 
         for (Part part : newParts) {
             //dealer Net
             dealerNet = dealerNet + part.getNetPriceEach();
-
         }
 
-        dealerNetAfterSurchage = dealerNet * 1.015;
+        // Calculate DNAfterSurchage
+        dealerNetAfterSurchage = dealerNet * (1 + surchage);
 
-        marginAfterSurcharge = dealerNetAfterSurchage * marginPercentageAfterSurcharge;
-
-        totalCost = dealerNetAfterSurchage - marginAfterSurcharge;
-
+        if (isOldData) {
+            marginPercentageAfterSurcharge = bookingOrder.getMarginPercentageAfterSurCharge();
+            marginAfterSurcharge = dealerNetAfterSurchage * marginPercentageAfterSurcharge;
+            totalCost = dealerNetAfterSurchage - marginAfterSurcharge;
+        } else {
+            totalCost = bookingOrder.getTotalCost();
+            marginAfterSurcharge = dealerNetAfterSurchage - totalCost;
+            marginPercentageAfterSurcharge = marginAfterSurcharge / dealerNetAfterSurchage;
+        }
         bookingOrder.setDealerNet(dealerNet);
         bookingOrder.setDealerNetAfterSurCharge(dealerNetAfterSurchage);
         bookingOrder.setMarginAfterSurCharge(marginAfterSurcharge);
+        bookingOrder.setMarginPercentageAfterSurCharge(marginPercentageAfterSurcharge);
         bookingOrder.setTotalCost(totalCost);
 
         bookingOrder.setAOPMarginPercentage(marginPercent);
 
         return bookingOrder;
-    }
-
-
-    private AOPMargin getAOPMargin(String series, Map<String, AOPMargin> aopMarginByYear) {
-        Set<String> setAOPMargins = aopMarginByYear.keySet();
-        for (String AOPMargin : setAOPMargins) {
-            if (AOPMargin.contains(series.substring(1))) return aopMarginByYear.get(AOPMargin);
-        }
-        return null;
-    }
-
-    private Map<String, AOPMargin> convertSetToMap(Set<AOPMargin> setMargin) {
-        Map<String, AOPMargin> result = new HashMap<>();
-        for (AOPMargin margin : setMargin) {
-            result.put(margin.getRegionSeriesPlant(), margin);
-        }
-        return result;
     }
 
     private String detachSeries(String regionSeriesPlant) {
@@ -565,12 +596,4 @@ public class BookingOrderService extends BasedService {
         return result;
     }
 
-    /**
-     * Return a collection of <Series, AOP Margin> by Year
-     *
-     * @return
-     */
-//    private Map<String, AOPMargin> getMarginPercentageSTD(int year) {
-//        return AOPMarginRepository.findByYear(year);
-//    }
 }
