@@ -54,13 +54,18 @@ public class IMMarginAnalystDataService {
 
         String modelCode = row.getCell(COLUMN_NAME.get("Model Code")).getStringCellValue();
         String partNumber = row.getCell(COLUMN_NAME.get("Part Number")).getStringCellValue();
+
+        //HYM can be Ruyi, Staxx or Maximal
+        List<MarginAnalystMacro> marginAnalystMacroList;
         if(plant.equals("HYM"))
-            plant = "Maximal";
-        List<MarginAnalystMacro> optionalMarginAnalystMacro = marginAnalystMacroService.getMarginAnalystMacroByPlant(modelCode, partNumber, strCurrency, plant, monthYear);
-        if(!optionalMarginAnalystMacro.isEmpty()) {
+            marginAnalystMacroList = marginAnalystMacroService.getMarginAnalystMacroByHYMPlant(modelCode, partNumber, strCurrency, monthYear);
+        else
+            marginAnalystMacroList = marginAnalystMacroService.getMarginAnalystMacroByPlant(modelCode, partNumber, strCurrency, plant, monthYear);
+
+        if(!marginAnalystMacroList.isEmpty()) {
             log.info(modelCode + " " + partNumber + " " + strCurrency + " " + plant + " " + monthYear.getTime());
             IMMarginAnalystData imMarginAnalystData = new IMMarginAnalystData();
-            MarginAnalystMacro marginAnalystMacro = optionalMarginAnalystMacro.get(0);
+            MarginAnalystMacro marginAnalystMacro = marginAnalystMacroList.get(0);
 
             imMarginAnalystData.setModelCode(modelCode);
             imMarginAnalystData.setOptionCode(partNumber);
