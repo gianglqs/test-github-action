@@ -317,84 +317,70 @@ public class BookingOrderService extends BasedService {
         String targetFolder = "";
         String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
         List<String> listMonth = Arrays.asList(monthArr);
-        // if old data -> collect from file booking
+        // if old data -> collect from file booking, else -> collect from file total-cost
         if (checkOldData(month, year)) {
             targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
-            String folderPath = baseFolder + targetFolder;
+        } else {
+            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
+        }
 
-            // Get files in Folder Path
-            List<String> fileList = getAllFilesInFolder(folderPath, true);
 
-            for (String fileName : fileList) {
-                // Check year and month
-                if (fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase())) {
-                    InputStream is = new FileInputStream(folderPath + "/" + fileName);
-                    XSSFWorkbook workbook = new XSSFWorkbook(is);
-                    // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
-                    Sheet sheet = workbook.getSheet("Wk - Margins");
+        String folderPath = baseFolder + targetFolder;
 
-                    HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-                    for (Row row : sheet) {
-                        if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                        else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+        // Get files in Folder Path
+        List<String> fileList = getAllFilesInFolder(folderPath, true);
 
-                            Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
+        for (String fileName : fileList) {
+            // Check year and month
+            if ((fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase()))
+                    // if data is new extract file name Cost_Data_10_09_2023_11_01_37 -> Date -> month,year
+                    || (!checkOldData(month, year) && fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase()))) {
+                InputStream is = new FileInputStream(folderPath + "/" + fileName);
+                XSSFWorkbook workbook = new XSSFWorkbook(is);
+                // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
+                Sheet sheet;
+                if (checkOldData(month, year)) {
+                    sheet = workbook.getSheet("Wk - Margins");
+                } else {
+                    sheet = workbook.getSheet("Cost Data");
+                }
+                HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
 
-                            if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+                        Cell OrderNOCell;
+                        // if old data -> select cell "Order #" or "Order" TO compare
+                        if (checkOldData(month, year)) {
+                            OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
+                        } else {
+                            OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
+                        }
+
+                        if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+
+                            if (checkOldData(month, year)) {
                                 Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
                                 if (marginCell.getCellType() == CellType.NUMERIC) {
                                     booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
                                 }
-                                break;
-                            }
-                        }
-                    }
-                    if (booking.getMarginPercentageAfterSurCharge() == 0)
-                        System.out.println("khong tim thay Margin%   " + booking.getOrderNo());
-                }
-            }
-
-
-        } else {// else -> collect from file total-cost
-            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
-            String folderPath = baseFolder + targetFolder;
-
-            // Get files in Folder Path
-            List<String> fileList = getAllFilesInFolder(folderPath, true);
-
-            for (String fileName : fileList) {
-                // Check year and month
-                if (checkOldData(month, year) && fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase())) {
-                    InputStream is = new FileInputStream(folderPath + "/" + fileName);
-                    XSSFWorkbook workbook = new XSSFWorkbook(is);
-                    // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
-                    Sheet sheet = workbook.getSheet("Cost Data");
-
-                    HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-                    for (Row row : sheet) {
-                        if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                        else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
-
-                            Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
-
-                            if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-
+                            } else {
                                 Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
                                 if (totalCostCell.getCellType() == CellType.NUMERIC) {
                                     booking.setTotalCost(totalCostCell.getNumericCellValue());
                                 } else if (totalCostCell.getCellType() == CellType.STRING) {
                                     booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
                                 }
-                                break;
                             }
+
+                            break;
                         }
                     }
-                    if (booking.getMarginPercentageAfterSurCharge() == 0 && booking.getTotalCost() == 0)
-                        System.out.println("khong tim thay totalCost  " + booking.getOrderNo());
                 }
+                if (booking.getMarginPercentageAfterSurCharge() == 0 && booking.getTotalCost() == 0)
+                    System.out.println("khong tim thay Margin% va totalCost  " + booking.getOrderNo());
             }
         }
-
         return booking;
     }
 
