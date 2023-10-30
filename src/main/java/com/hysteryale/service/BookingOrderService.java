@@ -158,7 +158,7 @@ public class BookingOrderService extends BasedService {
                     field.set(bookingOrder, cell.getStringCellValue());
 
                 } catch (Exception e) {
-                    loError(e.toString());
+                    logError(e.toString());
                 }
             } else if (field.getName().equals("region")) {
                 try {
