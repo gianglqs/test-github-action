@@ -83,12 +83,19 @@ public class BookingOrderService extends BasedService {
      * @param folderPath path to folder contains Booking Order
      * @return list of files' name
      */
-    public List<String> getAllFilesInFolder(String folderPath, boolean isBooking) {
+    public List<String> getAllFilesInFolder(String folderPath, int state) {
         Pattern pattern;
-        if (!isBooking) {
-            pattern = Pattern.compile(".*Final.*(.xlsx)$");
-        } else {
-            pattern = Pattern.compile("^01.*(.xlsx)$");
+
+        switch (state) {
+            case 1:
+                pattern = Pattern.compile(".*Final.*(.xlsx)$");
+                break;
+            case 2:
+                pattern = Pattern.compile("^01.*(.xlsx)$");
+                break;
+            default:
+                pattern = Pattern.compile("^Cost_Data.*(.xlsx)$");
+                break;
         }
         List<String> fileList = new ArrayList<>();
         Matcher matcher;
@@ -260,7 +267,7 @@ public class BookingOrderService extends BasedService {
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.booked-order");
 
         // Get files in Folder Path
-        List<String> fileList = getAllFilesInFolder(folderPath, false);
+        List<String> fileList = getAllFilesInFolder(folderPath, 1);
         String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
         List<String> listMonth = Arrays.asList(monthArr);
         String month = "", year = "";
@@ -296,9 +303,15 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
                     //  if (newBookingOrder.getMetaSeries() != null)
                     //             newBookingOrder = importPlant(newBookingOrder);
-                    newBookingOrder = insertTotalCostOrMarginPercent(newBookingOrder, month, year);
+                  //  newBookingOrder = insertTotalCostOrMarginPercent(newBookingOrder, month, year);
 
                     boolean isOldData = checkOldData(month, year);
+                    if(isOldData){
+                        newBookingOrder = insertMarginPercent(newBookingOrder, month, year);
+                    }else{
+                        newBookingOrder = insertTotalCost(newBookingOrder, month, year);
+                    }
+
                     newBookingOrder = calculateOrderValues(newBookingOrder, isOldData);
                     bookingOrderList.add(newBookingOrder);
                 }
@@ -311,6 +324,71 @@ public class BookingOrderService extends BasedService {
         }
     }
 
+    /**
+     * For New Data
+     *
+     * @param booking
+     * @param month
+     * @param year
+     * @return Booking
+     * @throws IOException
+     */
+    public BookingOrder insertTotalCost(BookingOrder booking, String month, String year) throws IOException {
+        // Folder contains Excel file of Booking Order
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String targetFolder = "";
+        String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
+        List<String> listMonth = Arrays.asList(monthArr);
+        // if old data -> collect from file booking, else -> collect from file total-cost
+        String folderPath;
+        List<String> fileList;
+
+        targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
+        folderPath = baseFolder + targetFolder;
+        // Get files in Folder Path
+        fileList = getAllFilesInFolder(folderPath, 100);
+
+
+        for (String fileName : fileList) {
+
+            // if data is new extract file name Cost_Data_10_09_2023_11_01_37 -> Date -> month,year
+            if (fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase())) {
+                InputStream is = new FileInputStream(folderPath + "/" + fileName);
+                XSSFWorkbook workbook = new XSSFWorkbook(is);
+                // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
+                Sheet sheet = workbook.getSheet("Cost Data");
+
+                HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 0) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
+
+                        Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
+
+                        if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+
+                            Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
+                            if (totalCostCell.getCellType() == CellType.NUMERIC) {
+                                booking.setTotalCost(totalCostCell.getNumericCellValue());
+                            } else if (totalCostCell.getCellType() == CellType.STRING) {
+                                booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
+                            }else{
+                                System.out.println("khong thay");
+                            }
+                            System.err.println("NEW");
+                            break;
+                        }
+
+                    }
+                }
+            }
+            if (booking.getTotalCost() == 0)
+                System.out.println("khong tim thay totalCost  " + booking.getOrderNo());
+        }
+
+        return booking;
+    }
+
     private BookingOrder insertTotalCostOrMarginPercent(BookingOrder booking, String month, String year) throws IOException, IllegalAccessException {
         // Folder contains Excel file of Booking Order
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
@@ -318,17 +396,24 @@ public class BookingOrderService extends BasedService {
         String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
         List<String> listMonth = Arrays.asList(monthArr);
         // if old data -> collect from file booking, else -> collect from file total-cost
+        String folderPath;
+        List<String> fileList;
+        int columnNameRow;
         if (checkOldData(month, year)) {
             targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
+            folderPath = baseFolder + targetFolder;
+            columnNameRow = 1;
+
+            // Get files in Folder Path
+            fileList = getAllFilesInFolder(folderPath, 2);
         } else {
             targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
+            folderPath = baseFolder + targetFolder;
+            // Get files in Folder Path
+            fileList = getAllFilesInFolder(folderPath, 100);
+            columnNameRow = 0;
         }
 
-
-        String folderPath = baseFolder + targetFolder;
-
-        // Get files in Folder Path
-        List<String> fileList = getAllFilesInFolder(folderPath, true);
 
         for (String fileName : fileList) {
             // Check year and month
@@ -346,8 +431,8 @@ public class BookingOrderService extends BasedService {
                 }
                 HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
                 for (Row row : sheet) {
-                    if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+                    if (row.getRowNum() == columnNameRow) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > columnNameRow) {
 
                         Cell OrderNOCell;
                         // if old data -> select cell "Order #" or "Order" TO compare
@@ -371,6 +456,7 @@ public class BookingOrderService extends BasedService {
                                 } else if (totalCostCell.getCellType() == CellType.STRING) {
                                     booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
                                 }
+                                System.err.println("New");
                             }
 
                             break;
@@ -384,10 +470,71 @@ public class BookingOrderService extends BasedService {
         return booking;
     }
 
+    /**
+     * For Old Data
+     *
+     * @param booking
+     * @param month
+     * @param year
+     * @return Booking
+     * @throws IOException
+     */
+    private BookingOrder insertMarginPercent(BookingOrder booking, String month, String year) throws IOException {
+        // Folder contains Excel file of Booking Order
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String targetFolder = "";
+        String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
+        List<String> listMonth = Arrays.asList(monthArr);
+        // if old data -> collect from file booking, else -> collect from file total-cost
+        String folderPath;
+        List<String> fileList;
+
+
+        targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
+        folderPath = baseFolder + targetFolder;
+
+
+        // Get files in Folder Path
+        fileList = getAllFilesInFolder(folderPath, 2);
+
+
+        for (String fileName : fileList) {
+            // Check year and month
+            if (fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase())) {
+                InputStream is = new FileInputStream(folderPath + "/" + fileName);
+                XSSFWorkbook workbook = new XSSFWorkbook(is);
+                // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
+                Sheet sheet = workbook.getSheet("Wk - Margins");
+
+                HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 1) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+
+                        Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
+
+                        if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+
+                            Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
+                            if (marginCell.getCellType() == CellType.NUMERIC) {
+                                booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
+                            }
+
+                            break;
+                        }
+                    }
+                }
+                if (booking.getMarginPercentageAfterSurCharge() == 0 && booking.getTotalCost() == 0)
+                    System.out.println("khong tim thay Margin%   " + booking.getOrderNo());
+            }
+        }
+        return booking;
+    }
+
     private boolean checkOldData(String month, String year) {
         if (Integer.parseInt(year) >= 2024) {
             return false;
-        } else if (month.equals("Oct") | month.equals("Nov") | month.equals("Dec"))
+        } else if (Integer.parseInt(year) == 2023 && (month.equals("Oct") | month.equals("Nov") | month.equals("Dec")))
             return false;
         return true;
     }
