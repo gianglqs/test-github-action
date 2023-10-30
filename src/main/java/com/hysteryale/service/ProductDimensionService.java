@@ -108,7 +108,7 @@ public class ProductDimensionService {
     public List<Map<String, String>> getAllMetaSeries() {
         List<Map<String, String>> metaSeriesMap = new ArrayList<>();
         List<String> metaSeries = productDimensionRepository.getAllMetaSeries();
-
+metaSeries.sort(String::compareTo);
         for (String m : metaSeries) {
             Map<String, String> mMap = new HashMap<>();
             mMap.put("value", m);
@@ -124,7 +124,7 @@ public class ProductDimensionService {
     public List<Map<String, String>> getAllPlants() {
         List<Map<String, String>> plantListMap = new ArrayList<>();
         List<String> plants = productDimensionRepository.getPlants();
-
+plants.sort(String::compareTo);
         for (String p : plants) {
             Map<String, String> pMap = new HashMap<>();
             pMap.put("value", p);
@@ -144,7 +144,7 @@ public class ProductDimensionService {
     public List<Map<String, String>> getAllClasses() {
         List<Map<String, String>> classMap = new ArrayList<>();
         List<String> classes = productDimensionRepository.getAllClass();
-
+classes.sort(String::compareTo);
         for (String m : classes) {
             Map<String, String> mMap = new HashMap<>();
             mMap.put("value", m);
@@ -157,7 +157,7 @@ public class ProductDimensionService {
     public List<Map<String, String>> getAllSegments() {
         List<Map<String, String>> segmentMap = new ArrayList<>();
         List<String> segments = productDimensionRepository.getAllSegments();
-
+segments.sort(String::compareTo);
         for (String m : segments) {
             Map<String, String> mMap = new HashMap<>();
             mMap.put("value", m);

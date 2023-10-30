@@ -97,6 +97,7 @@ public class BookingOrderService extends BasedService {
                 pattern = Pattern.compile("^Cost_Data.*(.xlsx)$");
                 break;
         }
+
         List<String> fileList = new ArrayList<>();
         Matcher matcher;
         try {
@@ -298,12 +299,12 @@ public class BookingOrderService extends BasedService {
                     BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
                     //  if (newBookingOrder.getMetaSeries() != null)
                     //             newBookingOrder = importPlant(newBookingOrder);
-                  //  newBookingOrder = insertTotalCostOrMarginPercent(newBookingOrder, month, year);
+                    //  newBookingOrder = insertTotalCostOrMarginPercent(newBookingOrder, month, year);
 
                     boolean isOldData = checkOldData(month, year);
-                    if(isOldData){
+                    if (isOldData) {
                         newBookingOrder = insertMarginPercent(newBookingOrder, month, year);
-                    }else{
+                    } else {
                         newBookingOrder = insertTotalCost(newBookingOrder, month, year);
                     }
 
@@ -369,7 +370,7 @@ public class BookingOrderService extends BasedService {
                                 booking.setTotalCost(totalCostCell.getNumericCellValue());
                             } else if (totalCostCell.getCellType() == CellType.STRING) {
                                 booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
-                            }else{
+                            } else {
                                 logInfo("Not found");
                             }
 
@@ -529,7 +530,7 @@ public class BookingOrderService extends BasedService {
     }
 
     private boolean checkOldData(String month, String year) {
-       return Integer.parseInt(year) <= 2023 && (month.equals("Oct") | month.equals("Nov") | month.equals("Dec"));
+        return Integer.parseInt(year) <= 2023 && (month.equals("Sep") | month.equals("Oct") | month.equals("Nov") | month.equals("Dec"));
     }
 
     public List<BookingOrder> getAllBookingOrders() {
@@ -702,6 +703,7 @@ public class BookingOrderService extends BasedService {
     public List<Map<String, String>> getAllDealerName() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> list = bookingOrderRepository.getAllDealerName();
+        list.sort(String::compareTo);
         for (String dealerName : list) {
             Map<String, String> map = new HashMap<>();
             map.put("value", dealerName);
@@ -714,6 +716,7 @@ public class BookingOrderService extends BasedService {
     public List<Map<String, String>> getAllModel() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> modelList = bookingOrderRepository.getAllModel();
+        modelList.sort(String::compareTo);
         for (String model : modelList) {
             Map<String, String> map = new HashMap<>();
             map.put("value", model);
