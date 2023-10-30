@@ -74,7 +74,7 @@ public class BookingOrderService extends BasedService {
                 ORDER_COLUMNS_NAME.put(columnName, i);
             }
         }
-        log.info("Order Columns: " + ORDER_COLUMNS_NAME);
+        logInfo("Order Columns: " + ORDER_COLUMNS_NAME);
     }
 
     /**
@@ -106,10 +106,10 @@ public class BookingOrderService extends BasedService {
                 if (matcher.matches())
                     fileList.add(path.getFileName().toString());
                 else
-                    log.error("Wrong formatted file's name: " + path.getFileName().toString());
+                    logError("Wrong formatted file's name: " + path.getFileName().toString());
             }
         } catch (Exception e) {
-            log.info(e.getMessage());
+            logInfo(e.getMessage());
 
         }
         log.info("File list: " + fileList);
@@ -141,7 +141,7 @@ public class BookingOrderService extends BasedService {
                     field.set(bookingOrder, productDimension);
                 } catch (Exception e) {
                     rollbar.error(e.toString());
-                    log.error(e.toString());
+                    logError(e.toString());
                 }
             } else if (field.getName().equals("billTo")) {
                 try {
@@ -150,8 +150,7 @@ public class BookingOrderService extends BasedService {
                     // APICDealer apicDealer = apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
                     // field.set(bookingOrder, apicDealer);
                 } catch (Exception e) {
-                    rollbar.error(e.toString());
-                    log.error(e.toString());
+                    logError(e.toString());
                 }
             } else if (field.getName().equals("model")) {
                 try {
@@ -159,8 +158,7 @@ public class BookingOrderService extends BasedService {
                     field.set(bookingOrder, cell.getStringCellValue());
 
                 } catch (Exception e) {
-                    rollbar.error(e.toString());
-                    log.error(e.toString());
+                    loError(e.toString());
                 }
             } else if (field.getName().equals("region")) {
                 try {
@@ -173,8 +171,7 @@ public class BookingOrderService extends BasedService {
                     }
 
                 } catch (Exception e) {
-                    rollbar.error(e.toString());
-                    log.error(e.toString());
+                    logError(e.toString());
                 }
             } else {
                 Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
@@ -248,13 +245,11 @@ public class BookingOrderService extends BasedService {
             if (m.find()) {
                 date = new SimpleDateFormat("MM_dd_yyyy").parse(m.group());
             } else {
-                log.error("Can not extract Date from File name: " + fileName);
-                rollbar.error("Can not extract Date from File name: " + fileName);
+                logError("Can not extract Date from File name: " + fileName);
             }
 
         } catch (java.text.ParseException e) {
-            log.error("Can not extract Date from File name: " + fileName);
-            rollbar.error("Can not extract Date from File name: " + fileName);
+            logError("Can not extract Date from File name: " + fileName);
         }
         return date;
     }
@@ -318,8 +313,10 @@ public class BookingOrderService extends BasedService {
             }
 
             bookingOrderRepository.saveAll(bookingOrderList);
-            log.info("End importing file: '" + fileName + "'");
-            log.info(bookingOrderList.size() + " Booking Order updated or newly saved }");
+
+            logInfo("End importing file: '" + fileName + "'");
+            logInfo(bookingOrderList.size() + " Booking Order updated or newly saved }");
+
             bookingOrderList.clear();
         }
     }
@@ -373,9 +370,9 @@ public class BookingOrderService extends BasedService {
                             } else if (totalCostCell.getCellType() == CellType.STRING) {
                                 booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
                             }else{
-                                System.out.println("khong thay");
+                                logInfo("Not found");
                             }
-                            System.err.println("NEW");
+
                             break;
                         }
 
@@ -383,7 +380,7 @@ public class BookingOrderService extends BasedService {
                 }
             }
             if (booking.getTotalCost() == 0)
-                System.out.println("khong tim thay totalCost  " + booking.getOrderNo());
+                logInfo("Total Cost not found " + booking.getOrderNo());
         }
 
         return booking;
@@ -464,7 +461,7 @@ public class BookingOrderService extends BasedService {
                     }
                 }
                 if (booking.getMarginPercentageAfterSurCharge() == 0 && booking.getTotalCost() == 0)
-                    System.out.println("khong tim thay Margin% va totalCost  " + booking.getOrderNo());
+                    logInfo("Margin% & totalCost not found");
             }
         }
         return booking;
@@ -525,18 +522,14 @@ public class BookingOrderService extends BasedService {
                     }
                 }
                 if (booking.getMarginPercentageAfterSurCharge() == 0 && booking.getTotalCost() == 0)
-                    System.out.println("khong tim thay Margin%   " + booking.getOrderNo());
+                    logInfo("khong tim thay Margin%   " + booking.getOrderNo());
             }
         }
         return booking;
     }
 
     private boolean checkOldData(String month, String year) {
-        if (Integer.parseInt(year) >= 2024) {
-            return false;
-        } else if (Integer.parseInt(year) == 2023 && (month.equals("Oct") | month.equals("Nov") | month.equals("Dec")))
-            return false;
-        return true;
+       return Integer.parseInt(year) <= 2023 && (month.equals("Oct") | month.equals("Nov") | month.equals("Dec"));
     }
 
     public List<BookingOrder> getAllBookingOrders() {
