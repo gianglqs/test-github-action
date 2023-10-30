@@ -703,6 +703,7 @@ public class BookingOrderService extends BasedService {
     public List<Map<String, String>> getAllDealerName() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> list = bookingOrderRepository.getAllDealerName();
+        list.sort(String::compareTo);
         for (String dealerName : list) {
             Map<String, String> map = new HashMap<>();
             map.put("value", dealerName);
@@ -715,6 +716,7 @@ public class BookingOrderService extends BasedService {
     public List<Map<String, String>> getAllModel() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> modelList = bookingOrderRepository.getAllModel();
+        modelList.sort(String::compareTo);
         for (String model : modelList) {
             Map<String, String> map = new HashMap<>();
             map.put("value", model);

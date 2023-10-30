@@ -18,6 +18,7 @@ public class RegionService {
     public List<Map<String, String>> getAllRegionForFilter() {
         List<Map<String, String>> listRegion = new ArrayList<>();
         List<String> regions = regionRepository.findAllRegion();
+        regions.sort(String::compareTo);
         for (String region : regions) {
             Map<String, String> mapRegion = new HashMap<>();
             mapRegion.put("value", region);
