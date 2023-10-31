@@ -30,6 +30,7 @@ public class EnvironmentUtils implements EnvironmentAware {
     }
 
     static {
+        System.setProperty("PORT", dotenv().get("PORT"));
         System.setProperty("DATABASE_URL", dotenv().get("DATABASE_URL"));
         System.setProperty("DATABASE_USERNAME", dotenv().get("DATABASE_USERNAME"));
         System.setProperty("DATABASE_PASSWORD", dotenv().get("DATABASE_PASSWORD"));

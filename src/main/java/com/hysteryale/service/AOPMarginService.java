@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class AOPMarginService {
+public class AOPMarginService extends BasedService{
     @Resource
     AOPMarginRepository aopMarginRepository;
     private final HashMap<String, Integer> AOP_MARGIN_COLUMNS = new HashMap<>();
@@ -81,8 +81,14 @@ public class AOPMarginService {
         String fileName = "2023 AOP DN and Margin%.xlsx";
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.aopmargin");
+        String  pathFile = folderPath + "/" + fileName;
+        //check file has been imported ?
+        if(isImported(pathFile)){
+            logWarning("file '"+fileName+"' has been imported");
+            return;
+        }
 
-        InputStream is = new FileInputStream(folderPath + "/"+fileName);
+        InputStream is = new FileInputStream(pathFile);
 
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
@@ -103,6 +109,7 @@ public class AOPMarginService {
 
         aopMarginRepository.saveAll(aopMarginList);
         log.info("AOP Margin updated or newly saved: " + aopMarginList.size());
+        updateStateImportFile(pathFile);
         aopMarginList.clear();
     }
 

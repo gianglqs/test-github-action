@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.BookingOrder;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
+import com.hysteryale.utils.PagingnatorUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
@@ -25,6 +26,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @Slf4j
@@ -108,5 +111,13 @@ public class BookingOrderServiceTest {
                 log.info("APAC Columns: " + APAC_COLUMNS);
             }
         }
+    }
+
+    @Test
+    void checkOldDate() {
+        assertEquals(true, bookingOrderService.checkOldData("Apr","2023"));
+        assertEquals(false, bookingOrderService.checkOldData("Sep","2023"));
+        assertEquals(false, bookingOrderService.checkOldData("Nov","2023"));
+
     }
 }

@@ -105,7 +105,6 @@ public class CustomBookingOrderRepository {
             query.setParameter("toDate", calendar);
         }
 
-        log.error(query.unwrap(org.hibernate.query.Query.class).getQueryString());
         log.info(queryString);
 
         return query;
