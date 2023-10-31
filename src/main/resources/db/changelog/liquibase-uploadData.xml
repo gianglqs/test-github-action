@@ -53,15 +53,15 @@
 <!--                separator=","-->
 <!--                tableName="part">-->
 <!--        </loadUpdateData>-->
-        <loadUpdateData
-                encoding="UTF-8"
-                file="classpath:db/database/productdimension.csv"
-                onlyUpdate="false"
-                primaryKey="id"
-                quotchar="'"
-                separator=","
-                tableName="productdimension">
-        </loadUpdateData>
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/productdimension.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="id"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="productdimension">-->
+<!--        </loadUpdateData>-->
 
         <loadUpdateData
                 encoding="UTF-8"

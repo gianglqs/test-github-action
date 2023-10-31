@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class PartService {
+public class PartService extends BasedService {
     @Resource
     PartRepository partRepository;
     @Resource
@@ -32,7 +32,7 @@ public class PartService {
     private static final HashMap<String, Integer> powerBIExportColumns = new HashMap<>();
 
     public void getPowerBiColumnsName(Row row) {
-        for(Cell cell : row) {
+        for (Cell cell : row) {
             String columnsName = cell.getStringCellValue();
             powerBIExportColumns.put(columnsName, cell.getColumnIndex());
         }
@@ -63,7 +63,7 @@ public class PartService {
 
         //optionType, orderBookedDate, orderRequestDate
 
-        return new Part(quoteId, quantity,orderNumber, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency);
+        return new Part(quoteId, quantity, orderNumber, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency);
     }
 
     /**
@@ -81,9 +81,16 @@ public class PartService {
 
         log.info("Files: " + files);
 
-        for(String fileName : files) {
+        for (String fileName : files) {
+            String pathFile = folderPath + "/" + fileName;
+            //check file has been imported ?
+            if (isImported(pathFile)) {
+                logWarning("file '" + fileName + "' has been imported");
+                return;
+            }
+
             log.info("==== Importing " + fileName + " ====");
-            InputStream is = new FileInputStream(folderPath + "/" + fileName);
+            InputStream is = new FileInputStream(pathFile);
             XSSFWorkbook workbook = new XSSFWorkbook(is);
 
             Sheet sheet = workbook.getSheet("Export");
@@ -95,7 +102,7 @@ public class PartService {
             Matcher matcher = pattern.matcher(fileName);
             String month = "Jan";
             int year = 2023;
-            if(matcher.find()) {
+            if (matcher.find()) {
                 month = matcher.group(1);
                 year = 2000 + Integer.parseInt(matcher.group(2));
 
@@ -104,31 +111,34 @@ public class PartService {
             Calendar recordedTime = Calendar.getInstance();
             recordedTime.set(year, DateUtils.monthMap.get(month), 1);
 
-            for(Row row : sheet) {
-                if(row.getRowNum() == 0)
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0)
                     getPowerBiColumnsName(row);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
                     Part part = mapExcelDataToPart(row);
                     part.setRecordedTime(recordedTime);
 
                     // If Part have not been imported -> then add into list
-                    if(!isPartExisted(part))
+                    if (!isPartExisted(part))
                         partList.add(part);
                 }
             }
 
             partRepository.saveAll(partList);
             log.info("New parts: " + partList.size());
-            log.info("End importing");
+            updateStateImportFile(pathFile);
         }
     }
+
     public double getNetPriceInPart(String modelCode, String currency, Calendar recordedTime, String partNumber) {
         List<Part> partList = partRepository.getNetPriceInPart(modelCode, currency, recordedTime, partNumber);
-        return !partList.isEmpty() ? partList.get(0).getNetPriceEach(): 0.0;
+        return !partList.isEmpty() ? partList.get(0).getNetPriceEach() : 0.0;
     }
+
     public List<String> getDistinctModelCodeByMonthYear(Calendar monthYear) {
         return partRepository.getDistinctModelCodeByMonthYear(monthYear);
     }
+
     public List<Part> getDistinctPart(String modelCode, Calendar monthYear, String currency) {
         return partRepository.getDistinctPart(modelCode, monthYear, currency);
     }

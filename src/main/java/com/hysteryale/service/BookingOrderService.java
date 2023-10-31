@@ -269,6 +269,13 @@ public class BookingOrderService extends BasedService {
         String month = "", year = "";
 
         for (String fileName : fileList) {
+            String  pathFile = folderPath + "/" + fileName;
+            //check file has been imported ?
+            if(isImported(pathFile)){
+                logWarning("file '"+fileName+"' has been imported");
+                return;
+            }
+
             log.info("{ Start importing file: '" + fileName + "'");
             for (String shortMonth : listMonth) {
                 String yearRegex = "\\b\\d{4}\\b";
@@ -281,8 +288,7 @@ public class BookingOrderService extends BasedService {
                     month = shortMonth;
                 }
             }
-
-            InputStream is = new FileInputStream(folderPath + "/" + fileName);
+            InputStream is = new FileInputStream(pathFile);
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             List<BookingOrder> bookingOrderList = new LinkedList<>();
             HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
@@ -315,7 +321,8 @@ public class BookingOrderService extends BasedService {
 
             bookingOrderRepository.saveAll(bookingOrderList);
 
-            logInfo("End importing file: '" + fileName + "'");
+           // logInfo("End importing file: '" + fileName + "'");
+            updateStateImportFile(pathFile);
             logInfo(bookingOrderList.size() + " Booking Order updated or newly saved }");
 
             bookingOrderList.clear();
@@ -387,86 +394,6 @@ public class BookingOrderService extends BasedService {
         return booking;
     }
 
-    private BookingOrder insertTotalCostOrMarginPercent(BookingOrder booking, String month, String year) throws IOException, IllegalAccessException {
-        // Folder contains Excel file of Booking Order
-        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
-        String targetFolder = "";
-        String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
-        List<String> listMonth = Arrays.asList(monthArr);
-        // if old data -> collect from file booking, else -> collect from file total-cost
-        String folderPath;
-        List<String> fileList;
-        int columnNameRow;
-        if (checkOldData(month, year)) {
-            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
-            folderPath = baseFolder + targetFolder;
-            columnNameRow = 1;
-
-            // Get files in Folder Path
-            fileList = getAllFilesInFolder(folderPath, 2);
-        } else {
-            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
-            folderPath = baseFolder + targetFolder;
-            // Get files in Folder Path
-            fileList = getAllFilesInFolder(folderPath, 100);
-            columnNameRow = 0;
-        }
-
-
-        for (String fileName : fileList) {
-            // Check year and month
-            if ((fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase()))
-                    // if data is new extract file name Cost_Data_10_09_2023_11_01_37 -> Date -> month,year
-                    || (!checkOldData(month, year) && fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase()))) {
-                InputStream is = new FileInputStream(folderPath + "/" + fileName);
-                XSSFWorkbook workbook = new XSSFWorkbook(is);
-                // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
-                Sheet sheet;
-                if (checkOldData(month, year)) {
-                    sheet = workbook.getSheet("Wk - Margins");
-                } else {
-                    sheet = workbook.getSheet("Cost Data");
-                }
-                HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-                for (Row row : sheet) {
-                    if (row.getRowNum() == columnNameRow) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > columnNameRow) {
-
-                        Cell OrderNOCell;
-                        // if old data -> select cell "Order #" or "Order" TO compare
-                        if (checkOldData(month, year)) {
-                            OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
-                        } else {
-                            OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
-                        }
-
-                        if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-
-                            if (checkOldData(month, year)) {
-                                Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
-                                if (marginCell.getCellType() == CellType.NUMERIC) {
-                                    booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
-                                }
-                            } else {
-                                Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
-                                if (totalCostCell.getCellType() == CellType.NUMERIC) {
-                                    booking.setTotalCost(totalCostCell.getNumericCellValue());
-                                } else if (totalCostCell.getCellType() == CellType.STRING) {
-                                    booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
-                                }
-                                System.err.println("New");
-                            }
-
-                            break;
-                        }
-                    }
-                }
-                if (booking.getMarginPercentageAfterSurCharge() == 0 && booking.getTotalCost() == 0)
-                    logInfo("Margin% & totalCost not found");
-            }
-        }
-        return booking;
-    }
 
     /**
      * For Old Data
