@@ -1,11 +1,11 @@
-import { useState } from "react"
+import { useState, useEffect } from 'react';
 
-import { useDispatch, useSelector } from "react-redux"
-import { bookingStore, commonStore } from "@/store/reducers"
+import { useDispatch, useSelector } from 'react-redux';
+import { bookingStore, commonStore } from '@/store/reducers';
 
-import Grid from "@mui/material/Grid"
-import Paper from "@mui/material/Paper"
-import { Button } from "@mui/material"
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import { Button } from '@mui/material';
 
 import {
   AppAutocomplete,
@@ -14,179 +14,175 @@ import {
   AppTextField,
   DataTable,
   DataTablePagination,
-} from "@/components"
+} from '@/components';
 
-import _ from "lodash"
-import { produce } from "immer"
+import _ from 'lodash';
+import { produce } from 'immer';
 
-import { defaultValueFilterBooking } from "@/utils/defaultValues"
+import { defaultValueFilterBooking } from '@/utils/defaultValues';
+
+type FilterValue = {
+  value: String;
+};
 
 export default function Booking() {
-  const dispatch = useDispatch()
-  const listBookingOrder = useSelector(bookingStore.selectBookingList)
-  const initDataFilter = useSelector(bookingStore.selectInitDataFilter)
+  const dispatch = useDispatch();
+  const listBookingOrder = useSelector(bookingStore.selectBookingList);
+  const initDataFilter = useSelector(bookingStore.selectInitDataFilter);
 
-  const [dataFilter, setDataFilter] = useState(defaultValueFilterBooking)
+  const [dataFilter, setDataFilter] = useState(defaultValueFilterBooking);
 
   const handleChangeDataFilter = (option, field) => {
     setDataFilter((prev) =>
       produce(prev, (draft) => {
         if (
           _.includes(
-            [
-              "orderNo",
-              "fromDate",
-              "toDate",
-              "MarginPercetage",
-              "AOPMarginPercetage",
-            ],
+            ['orderNo', 'fromDate', 'toDate', 'MarginPercetage', 'AOPMarginPercetage'],
             field
           )
         ) {
-          draft[field] = option
+          draft[field] = option;
         } else {
-          draft[field] = option.map(({ value }) => value)
+          draft[field] = option.map(({ value }) => value);
         }
       })
-    )
-  }
+    );
+  };
 
   const handleFilterOrderBooking = () => {
-    dispatch(bookingStore.actions.setDefaultValueFilterBooking(dataFilter))
-    handleChangePage(1)
-  }
+    dispatch(bookingStore.actions.setDefaultValueFilterBooking(dataFilter));
+    handleChangePage(1);
+  };
 
   const handleChangePage = (pageNo: number) => {
-    dispatch(commonStore.actions.setTableState({ pageNo }))
-    dispatch(bookingStore.sagaGetList())
-  }
+    dispatch(commonStore.actions.setTableState({ pageNo }));
+    dispatch(bookingStore.sagaGetList());
+  };
 
   const handleChangePerPage = (perPage: number) => {
-    dispatch(commonStore.actions.setTableState({ perPage }))
-    handleChangePage(1)
-  }
+    dispatch(commonStore.actions.setTableState({ perPage }));
+    handleChangePage(1);
+  };
 
-  const formatNumber = (num : number)=>{
-    return num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  }
-  const tableState = useSelector(commonStore.selectTableState)
+  const formatNumber = (num: number) => {
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+  const tableState = useSelector(commonStore.selectTableState);
 
   const columns = [
     {
-      field: "orderNo",
+      field: 'orderNo',
       flex: 0.8,
-      headerName: "Order #",
+      headerName: 'Order #',
     },
     {
-      field: "region",
+      field: 'region',
       flex: 0.8,
-      headerName: "Region",
+      headerName: 'Region',
       renderCell(params) {
-        return <span>{params.row.region.region}</span>
+        return <span>{params.row.region.region}</span>;
       },
     },
     {
-      field: "ctryCode",
+      field: 'ctryCode',
       flex: 0.8,
-      headerName: "Country",
+      headerName: 'Country',
     },
     {
-      field: "dealerName",
+      field: 'dealerName',
       flex: 1.2,
-      headerName: "Dealer Name",
-      
+      headerName: 'Dealer Name',
     },
     {
-      field: "Plant",
+      field: 'Plant',
       flex: 0.8,
-      headerName: "Plant",
+      headerName: 'Plant',
       renderCell(params) {
-        return <span>{params.row.productDimension?.plant}</span>
+        return <span>{params.row.productDimension?.plant}</span>;
       },
     },
     {
-      field: "truckClass",
+      field: 'truckClass',
       flex: 0.8,
-      headerName: "Class",
+      headerName: 'Class',
       renderCell(params) {
-        return <span>{params.row.productDimension?.clazz}</span>
+        return <span>{params.row.productDimension?.clazz}</span>;
       },
     },
     {
-      field: "series",
+      field: 'series',
       flex: 0.8,
-      headerName: "Series",
+      headerName: 'Series',
       renderCell(params) {
-        return <span>{params.row.series}</span>
+        return <span>{params.row.series}</span>;
       },
     },
     {
-      field: "model",
+      field: 'model',
       flex: 0.8,
-      headerName: "Models",
+      headerName: 'Models',
       renderCell(params) {
-        return <span>{params.row.model}</span>
+        return <span>{params.row.model}</span>;
       },
     },
     {
-      field: "quantity",
+      field: 'quantity',
       flex: 0.8,
-      headerName: "Qty",
+      headerName: 'Qty',
     },
     {
-      field: "totalCost",
+      field: 'totalCost',
       flex: 0.8,
-      headerName: "Total Cost",
+      headerName: 'Total Cost',
       renderCell(params) {
-        return <span>{formatNumber(params?.row.totalCost)}</span>
+        return <span>{formatNumber(params?.row.totalCost)}</span>;
       },
     },
     {
-      field: "dealerNet",
+      field: 'dealerNet',
       flex: 0.8,
-      headerName: "DN",
+      headerName: 'DN',
       renderCell(params) {
-        return <span>{formatNumber(params?.row.dealerNet)}</span>
+        return <span>{formatNumber(params?.row.dealerNet)}</span>;
       },
     },
     {
-      field: "dealerNetAfterSurCharge",
+      field: 'dealerNetAfterSurCharge',
       flex: 0.8,
-      headerName: "DN After Surcharge",
+      headerName: 'DN After Surcharge',
       renderCell(params) {
-        return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>
+        return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
       },
     },
     {
-      field: "marginAfterSurCharge",
+      field: 'marginAfterSurCharge',
       flex: 1,
-      headerName: "Margin $ After Surcharge",
+      headerName: 'Margin $ After Surcharge',
       renderCell(params) {
-        return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>
+        return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
       },
     },
 
     {
-      field: "marginPercentageAfterSurCharge",
+      field: 'marginPercentageAfterSurCharge',
       flex: 1,
-      headerName: "Margin % After Surcharge",
+      headerName: 'Margin % After Surcharge',
       renderCell(params) {
-        return (
-          <span>
-            {formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%
-          </span>
-        )
+        return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
       },
     },
     {
-      field: "aopmarginPercentage",
+      field: 'aopmarginPercentage',
       flex: 1,
-      headerName: "AOP Margin%",
+      headerName: 'AOP Margin%',
       renderCell(params) {
-        return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>
+        return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
       },
     },
-  ]
+  ];
 
   return (
     <>
@@ -195,9 +191,7 @@ export default function Booking() {
           <Grid item xs={4}>
             <Grid item xs={12}>
               <AppTextField
-                onChange={(e) =>
-                  handleChangeDataFilter(e.target.value, "orderNo")
-                }
+                onChange={(e) => handleChangeDataFilter(e.target.value, 'orderNo')}
                 name="orderNo"
                 label="Order #"
                 placeholder="Search order by ID"
@@ -208,7 +202,7 @@ export default function Booking() {
             <AppAutocomplete
               options={initDataFilter.regions}
               label="Region"
-              onChange={(e, option) => handleChangeDataFilter(option, "regions")}
+              onChange={(e, option) => handleChangeDataFilter(option, 'regions')}
               limitTags={2}
               disableListWrap
               primaryKeyOption="value"
@@ -223,7 +217,7 @@ export default function Booking() {
               options={initDataFilter.plants}
               label="Plant"
               sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, "plants")}
+              onChange={(e, option) => handleChangeDataFilter(option, 'plants')}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -238,9 +232,7 @@ export default function Booking() {
               options={initDataFilter.metaSeries}
               label="MetaSeries"
               sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) =>
-                handleChangeDataFilter(option, "metaSeries")
-              }
+              onChange={(e, option) => handleChangeDataFilter(option, 'metaSeries')}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -255,9 +247,7 @@ export default function Booking() {
               options={initDataFilter.dealers}
               label="Dealer"
               sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) =>
-                handleChangeDataFilter(option, "dealers")
-              }
+              onChange={(e, option) => handleChangeDataFilter(option, 'dealers')}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -273,9 +263,7 @@ export default function Booking() {
               options={initDataFilter.classes}
               label="Class"
               sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) =>
-                handleChangeDataFilter(option, "classes")
-              }
+              onChange={(e, option) => handleChangeDataFilter(option, 'classes')}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -290,7 +278,7 @@ export default function Booking() {
               options={initDataFilter.models}
               label="Model"
               sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, "models")}
+              onChange={(e, option) => handleChangeDataFilter(option, 'models')}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -305,9 +293,7 @@ export default function Booking() {
               options={initDataFilter.segments}
               label="Segment"
               sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) =>
-                handleChangeDataFilter(option, "segments")
-              }
+              onChange={(e, option) => handleChangeDataFilter(option, 'segments')}
               limitTags={1}
               disableListWrap
               primaryKeyOption="value"
@@ -323,10 +309,7 @@ export default function Booking() {
               label="AOP Margin %"
               primaryKeyOption="value"
               onChange={(e, option) =>
-                handleChangeDataFilter(
-                  _.isNil(option) ? "" : option?.value,
-                  "AOPMarginPercetage"
-                )
+                handleChangeDataFilter(_.isNil(option) ? '' : option?.value, 'AOPMarginPercetage')
               }
               disableClearable={false}
               renderOption={(prop, option) => `${option.value}`}
@@ -336,13 +319,10 @@ export default function Booking() {
           <Grid item xs={4}>
             <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
               <AppAutocomplete
-                options={initDataFilter.MarginPercetage}  
+                options={initDataFilter.MarginPercetage}
                 label="Margin %"
                 onChange={(e, option) =>
-                  handleChangeDataFilter(
-                    _.isNil(option) ? "" : option?.value,
-                    "MarginPercetage"
-                  )
+                  handleChangeDataFilter(_.isNil(option) ? '' : option?.value, 'MarginPercetage')
                 }
                 disableClearable={false}
                 primaryKeyOption="value"
@@ -356,7 +336,7 @@ export default function Booking() {
               label="From Date"
               name="from_date"
               onChange={(e, value) =>
-                handleChangeDataFilter(_.isNil(value) ? "" : value, "fromDate")
+                handleChangeDataFilter(_.isNil(value) ? '' : value, 'fromDate')
               }
               value={dataFilter?.fromDate}
             />
@@ -365,9 +345,7 @@ export default function Booking() {
             <AppDateField
               label="To Date"
               name="toDate"
-              onChange={(e, value) =>
-                handleChangeDataFilter(_.isNil(value) ? "" : value, "toDate")
-              }
+              onChange={(e, value) => handleChangeDataFilter(_.isNil(value) ? '' : value, 'toDate')}
               value={dataFilter?.toDate}
             />
           </Grid>
@@ -375,7 +353,7 @@ export default function Booking() {
             <Button
               variant="contained"
               onClick={handleFilterOrderBooking}
-              sx={{ width: "100%", height: 24 }}
+              sx={{ width: '100%', height: 24 }}
             >
               Filter
             </Button>
@@ -406,5 +384,5 @@ export default function Booking() {
         </Paper>
       </AppLayout>
     </>
-  )
+  );
 }

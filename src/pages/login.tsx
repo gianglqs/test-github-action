@@ -1,94 +1,90 @@
-import { styled, Paper, Grid } from "@mui/material"
-import { LoadingButton } from "@mui/lab"
-import FormControlledTextField from "@/components/FormController/TextField"
+import { styled, Paper, Grid } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import FormControlledTextField from '@/components/FormController/TextField';
 
-import NextHead from "next/head"
-import { useRouter } from "next/router"
-import Link from "next/link"
+import NextHead from 'next/head';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 
-import { setCookie } from "nookies"
-import axios from "axios"
-import * as yup from "yup"
+import { setCookie } from 'nookies';
+import axios from 'axios';
+import * as yup from 'yup';
 
-import { useForm } from "react-hook-form"
-import { useDispatch } from "react-redux"
-import { commonStore } from "@/store/reducers"
-import { yupResolver } from "@hookform/resolvers/yup"
-import { LoginFormValues } from "@/types/auth"
-import { AppFooter } from "@/components"
+import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { commonStore } from '@/store/reducers';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { LoginFormValues } from '@/types/auth';
+import { AppFooter } from '@/components';
 
-import Image from "next/image"
+import Image from 'next/image';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const logo = require("../public/logo.svg")
+const logo = require('../public/logo.svg');
 
-const StyledContainer = styled("div")(() => ({
+const StyledContainer = styled('div')(() => ({
   height: `calc(100vh - ${25}px)`,
-}))
+}));
 
 const StyledFormContainer = styled(Paper)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
   maxWidth: 400,
   padding: theme.spacing(3),
-}))
+}));
 
 export default function LoginPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   const validationSchema = yup.object({
-    email: yup.string().required("Email is required"),
-    password: yup.string().required("Password is required"),
-  })
+    email: yup.string().required('Email is required'),
+    password: yup.string().required('Password is required'),
+  });
 
   const loginForm = useForm({
     resolver: yupResolver(validationSchema),
     shouldUnregister: false,
-  })
+  });
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const handleSubmitLogin = loginForm.handleSubmit(
-    (formData: LoginFormValues) => {
-      const transformData = {
-        grant_type: "password",
-        username: formData?.email,
-        password: formData?.password,
-      }
+  const handleSubmitLogin = loginForm.handleSubmit((formData: LoginFormValues) => {
+    const transformData = {
+      grant_type: 'password',
+      username: formData?.email,
+      password: formData?.password,
+    };
 
-      const options = {
-        method: "POST",
-        headers: {
-          "content-type": "application/x-www-form-urlencoded",
-        },
-        auth: {
-          username: "client",
-          password: "password",
-        },
-      }
-      axios
-        .post(
-          "http://192.168.1.150:8080/hysteryale/oauth/token",
-        //  "http://localhost:8080/oauth/token",
-          transformData,
-          options
-        )
-        .then((response) => {
-          const { redirect_to, access_token } = response.data
-          setCookie(null, "token", access_token, { maxAge: 2147483647 })
-          setCookie(null, "redirect_to", redirect_to, { maxAge: 2147483647 })
-          router.push(redirect_to)
-        })
-        .catch((error) => {
-          dispatch(
-            commonStore.actions.setErrorMessage(
-              "The username or password you entered is incorrect"
-            )
-          )
-        })
-    }
-  )
+    const options = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      auth: {
+        username: 'client',
+        password: 'password',
+      },
+    };
+    axios
+      .post(
+        // 'http://192.168.1.150:8080/hysteryale/oauth/token',
+        'http://localhost:8081/oauth/token',
+        transformData,
+        options
+      )
+      .then((response) => {
+        const { redirect_to, access_token } = response.data;
+        setCookie(null, 'token', access_token, { maxAge: 2147483647 });
+        setCookie(null, 'redirect_to', redirect_to, { maxAge: 2147483647 });
+        router.push(redirect_to);
+      })
+      .catch((error) => {
+        dispatch(
+          commonStore.actions.setErrorMessage('The username or password you entered is incorrect')
+        );
+      });
+  });
 
   return (
     <>
@@ -136,5 +132,5 @@ export default function LoginPage() {
       </StyledContainer>
       <AppFooter />
     </>
-  )
+  );
 }
