@@ -8,6 +8,7 @@ import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -51,14 +52,35 @@ public class PartService extends BasedService {
         double listPrice = row.getCell(powerBIExportColumns.get("ListPrice")).getNumericCellValue();
         String modelCode = row.getCell(powerBIExportColumns.get("Model")).getStringCellValue();
 
-        double discountPercentage = row.getCell(powerBIExportColumns.get("Discount")).getNumericCellValue();
+        double discountPercentage;
+        Cell discountPercentageCell = row.getCell(powerBIExportColumns.get("Discount"));
+        if (discountPercentageCell.getCellType() == CellType.NUMERIC) {
+            discountPercentage = discountPercentageCell.getNumericCellValue();
+        } else {
+            discountPercentage = Double.parseDouble(discountPercentageCell.getStringCellValue().isEmpty() ? "0" : discountPercentageCell.getStringCellValue());
+        }
         double discount = listPrice * (1 - (discountPercentage / 100));
         String billTo = row.getCell(powerBIExportColumns.get("Dealer")).getStringCellValue();
 
         double netPriceEach = row.getCell(powerBIExportColumns.get("Net Price")).getNumericCellValue();
         // double discountToCustomerPercentage
-        double customerPrice = row.getCell(powerBIExportColumns.get("Customer Price")).getNumericCellValue();
-        double extendedCustomerPrice = row.getCell(powerBIExportColumns.get("Ext Customer Price")).getNumericCellValue();
+        double customerPrice;
+        Cell customerPriceCell = row.getCell(powerBIExportColumns.get("Customer Price"));
+
+        if (customerPriceCell.getCellType() == CellType.NUMERIC) {
+            customerPrice = customerPriceCell.getNumericCellValue();
+        } else {
+            customerPrice = Double.parseDouble(customerPriceCell.getStringCellValue().isEmpty() ? "0" : customerPriceCell.getStringCellValue());
+        }
+
+        double extendedCustomerPrice;
+        Cell extendedCustomerPriceCell = row.getCell(powerBIExportColumns.get("Ext Customer Price"));
+        if (extendedCustomerPriceCell.getCellType() == CellType.NUMERIC) {
+            extendedCustomerPrice = extendedCustomerPriceCell.getNumericCellValue();
+        } else {
+            extendedCustomerPrice = Double.parseDouble(extendedCustomerPriceCell.getStringCellValue().isEmpty() ? "0" : extendedCustomerPriceCell.getStringCellValue());
+        }
+
         String orderNumber = row.getCell(powerBIExportColumns.get("Order Number")).getStringCellValue();
 
         //optionType, orderBookedDate, orderRequestDate
@@ -86,7 +108,7 @@ public class PartService extends BasedService {
             //check file has been imported ?
             if (isImported(pathFile)) {
                 logWarning("file '" + fileName + "' has been imported");
-                return;
+                continue;
             }
 
             log.info("==== Importing " + fileName + " ====");

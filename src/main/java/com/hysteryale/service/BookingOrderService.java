@@ -269,12 +269,12 @@ public class BookingOrderService extends BasedService {
         String month = "", year = "";
 
         for (String fileName : fileList) {
-            String  pathFile = folderPath + "/" + fileName;
+            String pathFile = folderPath + "/" + fileName;
             //check file has been imported ?
-            if(isImported(pathFile)){
-                logWarning("file '"+fileName+"' has been imported");
-                return;
-            }
+//            if(isImported(pathFile)){
+//                logWarning("file '"+fileName+"' has been imported");
+//                continue;
+//            }
 
             log.info("{ Start importing file: '" + fileName + "'");
             for (String shortMonth : listMonth) {
@@ -321,8 +321,8 @@ public class BookingOrderService extends BasedService {
 
             bookingOrderRepository.saveAll(bookingOrderList);
 
-           // logInfo("End importing file: '" + fileName + "'");
-            updateStateImportFile(pathFile);
+            // logInfo("End importing file: '" + fileName + "'");
+            //    updateStateImportFile(pathFile);
             logInfo(bookingOrderList.size() + " Booking Order updated or newly saved }");
 
             bookingOrderList.clear();
@@ -456,8 +456,8 @@ public class BookingOrderService extends BasedService {
         return booking;
     }
 
-    private boolean checkOldData(String month, String year) {
-        return Integer.parseInt(year) <= 2023 && (month.equals("Sep") | month.equals("Oct") | month.equals("Nov") | month.equals("Dec"));
+    public boolean checkOldData(String month, String year) {
+        return Integer.parseInt(year) < 2023 | (Integer.parseInt(year) == 2023 && !(month.equals("Sep") | month.equals("Oct") | month.equals("Nov") | month.equals("Dec")));
     }
 
     public List<BookingOrder> getAllBookingOrders() {
