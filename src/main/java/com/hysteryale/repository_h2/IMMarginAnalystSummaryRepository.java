@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface IMMarginAnalystSummaryRepository extends JpaRepository<IMMarginAnalystSummary, Integer> {
-    @Query("SELECT m FROM IMMarginAnalystSummary m WHERE m.modelCode = ?1 and m.currency = ?2 and m.fileUUID = ?3")
-    List<IMMarginAnalystSummary> getIMMarginAnalystSummary(String modelCode, String currency, String fileUUID);
+    @Query("SELECT m FROM IMMarginAnalystSummary m WHERE m.modelCode = ?1 and m.currency = ?2 and m.fileUUID = ?3 AND m.orderNumber = ?4")
+    List<IMMarginAnalystSummary> getIMMarginAnalystSummary(String modelCode, String currency, String fileUUID, String orderNumber);
 }
