@@ -2,7 +2,6 @@ package com.hysteryale.utils;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.EnvironmentAware;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -24,13 +23,14 @@ public class EnvironmentUtils implements EnvironmentAware {
 
     public static Dotenv dotenv() {
         return Dotenv.configure()
-                .directory("/home/oem/Documents/")
+                .directory("/home/malis3-qa/Documents/")
                 .filename(".env")
                 .ignoreIfMalformed()
                 .load();
     }
 
     static {
+        System.setProperty("PORT", dotenv().get("PORT"));
         System.setProperty("DATABASE_URL", dotenv().get("DATABASE_URL"));
         System.setProperty("DATABASE_USERNAME", dotenv().get("DATABASE_USERNAME"));
         System.setProperty("DATABASE_PASSWORD", dotenv().get("DATABASE_PASSWORD"));

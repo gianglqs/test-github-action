@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.model.BookingOrder;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
+import com.hysteryale.utils.PagingnatorUtils;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
@@ -25,6 +26,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @Slf4j
@@ -54,12 +57,13 @@ public class BookingOrderServiceTest {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet orderSheet = workbook.getSheet("Input - Bookings");
+        HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
         for (Row row : orderSheet) {
             if(row.getRowNum() == 1)
-                bookingOrderService.getOrderColumnsName(row);
+                bookingOrderService.getOrderColumnsName(row, ORDER_COLUMNS_NAME);
             else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
                     && row.getRowNum() > 1) {
-                BookingOrder newBookingOrder = bookingOrderService.mapExcelDataIntoOrderObject(row);
+                BookingOrder newBookingOrder = bookingOrderService.mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
                 bookingOrderList.add(newBookingOrder);
             }
         }
@@ -107,5 +111,13 @@ public class BookingOrderServiceTest {
                 log.info("APAC Columns: " + APAC_COLUMNS);
             }
         }
+    }
+
+    @Test
+    void checkOldDate() {
+        assertEquals(true, bookingOrderService.checkOldData("Apr","2023"));
+        assertEquals(false, bookingOrderService.checkOldData("Sep","2023"));
+        assertEquals(false, bookingOrderService.checkOldData("Nov","2023"));
+
     }
 }

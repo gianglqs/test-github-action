@@ -211,7 +211,7 @@
                     <driver>org.postgresql.Driver</driver>
                     <url>jdbc:postgresql://localhost:5432/hysteryale</url>
                     <username>postgres</username>
-                    <password>password</password>
+                    <password>postgres</password>
                     <outputChangeLogFile>src/main/resources/db/changelog/liquibase-outputChangeLog.xml
                     </outputChangeLogFile>
                 </configuration>

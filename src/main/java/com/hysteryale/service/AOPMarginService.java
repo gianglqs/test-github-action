@@ -3,7 +3,6 @@ package com.hysteryale.service;
 import com.hysteryale.model.AOPMargin;
 import com.hysteryale.repository.AOPMarginRepository;
 import com.hysteryale.utils.EnvironmentUtils;
-import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -21,7 +19,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class AOPMarginService {
+public class AOPMarginService extends BasedService{
     @Resource
     AOPMarginRepository aopMarginRepository;
     private final HashMap<String, Integer> AOP_MARGIN_COLUMNS = new HashMap<>();
@@ -83,8 +81,14 @@ public class AOPMarginService {
         String fileName = "2023 AOP DN and Margin%.xlsx";
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.aopmargin");
+        String  pathFile = folderPath + "/" + fileName;
+        //check file has been imported ?
+        if(isImported(pathFile)){
+            logWarning("file '"+fileName+"' has been imported");
+            return;
+        }
 
-        InputStream is = new FileInputStream(folderPath + "/"+fileName);
+        InputStream is = new FileInputStream(pathFile);
 
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
@@ -105,6 +109,8 @@ public class AOPMarginService {
 
         aopMarginRepository.saveAll(aopMarginList);
         log.info("AOP Margin updated or newly saved: " + aopMarginList.size());
+        updateStateImportFile(pathFile);
         aopMarginList.clear();
     }
+
 }

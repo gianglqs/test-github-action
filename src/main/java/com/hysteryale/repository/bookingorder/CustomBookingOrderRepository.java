@@ -105,7 +105,6 @@ public class CustomBookingOrderRepository {
             query.setParameter("toDate", calendar);
         }
 
-        log.error(query.unwrap(org.hibernate.query.Query.class).getQueryString());
         log.info(queryString);
 
         return query;
@@ -147,4 +146,6 @@ public class CustomBookingOrderRepository {
         Query query = createQueryByFilters(queryString, orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
         return (long) query.getSingleResult();
     }
+
+
 }
