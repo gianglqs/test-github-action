@@ -74,7 +74,6 @@ public class BookingOrderService extends BasedService {
                 ORDER_COLUMNS_NAME.put(columnName, i);
             }
         }
-        logInfo("Order Columns: " + ORDER_COLUMNS_NAME);
     }
 
     /**
@@ -113,7 +112,6 @@ public class BookingOrderService extends BasedService {
             logInfo(e.getMessage());
 
         }
-        log.info("File list: " + fileList);
         return fileList;
     }
 
@@ -271,10 +269,10 @@ public class BookingOrderService extends BasedService {
         for (String fileName : fileList) {
             String pathFile = folderPath + "/" + fileName;
             //check file has been imported ?
-//            if(isImported(pathFile)){
-//                logWarning("file '"+fileName+"' has been imported");
-//                continue;
-//            }
+            if(isImported(pathFile)){
+                logWarning("file '"+fileName+"' has been imported");
+                continue;
+            }
 
             log.info("{ Start importing file: '" + fileName + "'");
             for (String shortMonth : listMonth) {
@@ -324,7 +322,7 @@ public class BookingOrderService extends BasedService {
             // logInfo("End importing file: '" + fileName + "'");
             //    updateStateImportFile(pathFile);
             logInfo(bookingOrderList.size() + " Booking Order updated or newly saved }");
-
+            updateStateImportFile(pathFile);
             bookingOrderList.clear();
         }
     }

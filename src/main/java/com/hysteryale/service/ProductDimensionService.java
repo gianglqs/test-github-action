@@ -81,8 +81,6 @@ public class ProductDimensionService extends BasedService {
         InputStream is = new FileInputStream(pathFile);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
-        List<ProductDimension> ProductDimensionList = new ArrayList<>();
-
         Sheet orderSheet = workbook.getSheet("Data");
 
         for (Row row : orderSheet) {
@@ -101,11 +99,9 @@ public class ProductDimensionService extends BasedService {
                     productDimensionRepository.save(newProductDimension);
                 }
             }
-
-            updateStateImportFile(pathFile);
-
-            ProductDimensionList.clear();
         }
+        updateStateImportFile(pathFile);
+
     }
 
     /**
