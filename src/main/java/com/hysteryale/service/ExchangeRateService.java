@@ -9,7 +9,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
@@ -84,34 +86,31 @@ public class ExchangeRateService {
         String strToCurrency = row.getCell(0).getStringCellValue().toUpperCase().strip();
         Currency toCurrency = currencyService.getCurrenciesByName(formatCurrencyInSpecialCase(strToCurrency));
 
+        for(int i = 1; i <= 31; i++) {
+            Cell cell = row.getCell(i);
 
-        for(Cell cell : row) {
-            if(!cell.getStringCellValue().isEmpty()) {
-                ExchangeRate exchangeRate = new ExchangeRate();
+            ExchangeRate exchangeRate = new ExchangeRate();
+            double rate = cell.getNumericCellValue();
+            String strFromCurrency = fromCurrenciesTitle.get(cell.getColumnIndex()).toUpperCase().strip();
 
-                if(cell.getColumnIndex() > 0) {
-                    double rate = cell.getNumericCellValue();
-                    String strFromCurrency = fromCurrenciesTitle.get(cell.getColumnIndex()).toUpperCase().strip();
+            Currency fromCurrency = currencyService.getCurrenciesByName(formatCurrencyInSpecialCase(strFromCurrency));
 
-                    Currency fromCurrency = currencyService.getCurrenciesByName(formatCurrencyInSpecialCase(strFromCurrency));
+            exchangeRate.setFrom(fromCurrency);
+            exchangeRate.setTo(toCurrency);
+            exchangeRate.setRate(rate);
+            exchangeRate.setDate(date);
 
-                    exchangeRate.setFrom(fromCurrency);
-                    exchangeRate.setTo(toCurrency);
-                    exchangeRate.setRate(rate);
-                    exchangeRate.setDate(date);
+            log.info("from: " + fromCurrency.getCurrency() + " to: " + toCurrency.getCurrency());
 
-                    log.info("from: " + fromCurrency.getCurrency() + " to: " + toCurrency.getCurrency());
-
-                    if(exchangeRateRepository.getExchangeRateByFromToCurrencyAndDate(fromCurrency.getCurrency(), toCurrency.getCurrency(), date).isEmpty())
-                        exchangeRateList.add(exchangeRate);
-                }
-            }
-        }return exchangeRateList;
+            if(exchangeRateRepository.getExchangeRateByFromToCurrencyAndDate(fromCurrency.getCurrency(), toCurrency.getCurrency(), date).isEmpty())
+                exchangeRateList.add(exchangeRate);
+        }
+        return exchangeRateList;
     }
 
     public void importExchangeRate() throws IOException {
         // Initialize folder path and file name
-        String baseFolder = EnvironmentUtils.getEnvironmentValue("import_files.base-folder");
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.currency");
         String fileName = "EXCSEP2023.xlsx";
 
@@ -136,20 +135,24 @@ public class ExchangeRateService {
         Sheet sheet = workbook.getSheet("Summary AOP");
         List<ExchangeRate> exchangeRatesList = new ArrayList<>();
 
-        for (Row row : sheet) {
-            if(row.getRowNum() == 3)
+        for(int i = 3; i <=34; i++) {
+            Row row = sheet.getRow(i);
+            if(i == 3)
                 fromCurrenciesTitle = getFromCurrencyTitle(row);
-
-            if(!row.getCell(11, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()
-                && !row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
-
+            else
                 exchangeRatesList.addAll(mapExcelDataToExchangeRate(row, date));
-
-            }
         }
 
         exchangeRateRepository.saveAll(exchangeRatesList);
         log.info("ExchangeRate are newly saved or updated: " + exchangeRatesList.size());
         exchangeRatesList.clear();
+    }
+
+    public ExchangeRate getExchangeRate(String fromCurrency, String toCurrency, Calendar monthYear) {
+        Optional<ExchangeRate> optionalExchangeRate = exchangeRateRepository.getExchangeRateByFromToCurrencyAndDate(fromCurrency, toCurrency, monthYear);
+        if(optionalExchangeRate.isPresent())
+            return optionalExchangeRate.get();
+        else
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find ExchangeRate from " + fromCurrency + " to " + toCurrency);
     }
 }
