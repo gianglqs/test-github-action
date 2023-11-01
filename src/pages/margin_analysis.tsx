@@ -22,7 +22,7 @@ import {
   Typography,
 } from "@mui/material"
 import { GridExpandMoreIcon } from "@mui/x-data-grid-pro"
-import { useCallback, useState } from "react"
+import { use, useCallback, useState } from "react"
 import marginAnalysisApi from "@/api/marginAnalysis.api"
 import { useDispatch } from "react-redux"
 import { commonStore, marginAnalysisStore } from "@/store/reducers"
@@ -54,12 +54,19 @@ export default function MarginAnalysis() {
     setValueSearch({ value: value, error: false })
   }
 
+  const [valueOrderNumber, setValueOrderNumber] = useState({value: "", error: false})
+  const handleSelectOrderNumber = (value) => {
+    setValueOrderNumber({ value: value, error: false})
+    console.log(value);
+  }
+
   const [listDataAnalysis, setListDataAnalysis] = useState([])
   const [marginAnalysisSummary, setMarginAnalysisSummary] = useState(null)
   const [openAccordion, setOpenAccordion] = useState(true)
   const [openAccordionTable, setOpenAccordionTable] = useState(true)
   const [dealer, setDealer] = useState("")
   const [uploadedFile, setUploadedFile] = useState({name: ""})
+  const [orderNumbers, setOrderNumbers] = useState([])
 
   const handleFilterMarginAnalysis = async () => {
   
@@ -71,10 +78,16 @@ export default function MarginAnalysis() {
         return
       }
 
+      if(valueOrderNumber.value === "") {
+        setValueOrderNumber({value: "", error: true})
+        return 
+      }
+
       const transformData = {
         modelCode: valueSearch.value,
         currency: valueCurrency,
         fileUUID: cookies["fileUUID"],
+        orderNumber: valueOrderNumber.value
       }
 
       const { data } = await marginAnalysisApi.getEstimateMarginAnalystData({
@@ -128,6 +141,7 @@ export default function MarginAnalysis() {
       })
         .then(function (response) {
           setCookie(null, "fileUUID", response.data.fileUUID)
+          setOrderNumbers(response.data.orderNumbers)
         })
         .catch(function (response) {
           console.log(response);
@@ -179,10 +193,27 @@ export default function MarginAnalysis() {
             onChange={(e) => handleSearch(e.target.value)}
             value={valueSearch.value}
             error={valueSearch.error}
-            helperText="Model Code # is Required"
+            helperText="Model Code # is required"
             required
           />
         </Grid>
+
+        <Grid item xs={2}>
+            <AppAutocomplete
+              options={orderNumbers}
+              label="Order Number"
+              onChange={(e) => handleSelectOrderNumber(e.target.innerHTML)}
+              limitTags={2}
+              disableListWrap
+              primaryKeyOption="value"
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+              value={valueOrderNumber.value}
+              error={valueOrderNumber.error}
+              helperText="Order Number is required"
+              required
+            />
+          </Grid>
 
         <Grid item xs={1}>
           <RadioGroup
@@ -306,7 +337,11 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Manufacturing Cost (RMB)
+                        {
+                          valueCurrency === 'USD'
+                          ? "Manufacturing Cost (RMB)"
+                          : "Manufacturing Cost (USD)"
+                        }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -402,7 +437,11 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost RMB
+                      {
+                          valueCurrency === 'USD'
+                          ? "Total Cost (RMB)"
+                          : "Total Cost (USD)"
+                        }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -417,7 +456,11 @@ export default function MarginAnalysis() {
                         variant="body1"
                         component="span"
                       >
-                        Full Cost USD @AOP Rate
+                        {
+                          valueCurrency === 'USD'
+                          ? "Full Cost USD @AOP Rate"
+                          : "Full Cost AUD @AOP Rate"
+                        }
                       </Typography>
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -474,7 +517,11 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Manufacturing Cost (RMB)
+                      {
+                          valueCurrency === 'USD'
+                          ? "Manufacturing Cost (RMB)"
+                          : "Manufacturing Cost (USD)"
+                        }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -569,7 +616,11 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost RMB
+                      {
+                          valueCurrency === 'USD'
+                          ? "Total Cost (RMB)"
+                          : "Total Cost (USD)"
+                        }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -584,7 +635,11 @@ export default function MarginAnalysis() {
                         variant="body1"
                         component="span"
                       >
-                        Full Cost USD @AOP Rate
+                        {
+                          valueCurrency === 'USD'
+                          ? "Full Cost USD @AOP Rate"
+                          : "Full Cost AUD @AOP Rate"
+                        }
                       </Typography>
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -659,7 +714,11 @@ export default function MarginAnalysis() {
                         variant="body1"
                         component="span"
                       >
-                        Total List Price
+                        {
+                          valueCurrency === 'USD'
+                          ? "Total List Price (USD)"
+                          : "Total List Price (AUD)"
+                        }
                       </Typography>
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -691,7 +750,11 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        DN
+                        {
+                          valueCurrency === 'USD'
+                          ? "DN (USD)"
+                          : "DN (AUD)"
+                        }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -738,7 +801,11 @@ export default function MarginAnalysis() {
                         variant="body1"
                         component="span"
                       >
-                        Total List Price
+                        {
+                          valueCurrency === 'USD'
+                          ? "Total List Price (USD)"
+                          : "Total List Price (AUD)"
+                        }
                       </Typography>
                       <Typography
                         sx={{ fontWeight: "bold" }}
@@ -769,7 +836,11 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        DN
+                        {
+                          valueCurrency === 'USD'
+                          ? "DN (USD)"
+                          : "DN (AUD)"
+                        }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -821,18 +892,18 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Manufacturing Cost
+                        Manufacturing Cost (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .manufacturingCostRMB.toLocaleString()
+                            .manufacturingCost.toLocaleString()
                         }
                       </Typography>
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Warranty
+                        Warranty (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -843,7 +914,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Surcharge
+                        Surcharge (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -854,7 +925,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost Excluding Freight
+                        Total Cost Excluding Freight (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -865,7 +936,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost With Freight
+                        Total Cost With Freight (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -889,18 +960,18 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Manufacturing Cost
+                        Manufacturing Cost (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .manufacturingCostRMB.toLocaleString()
+                            .manufacturingCost.toLocaleString()
                         }
                       </Typography>
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Warranty
+                        Warranty (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -911,7 +982,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Surcharge
+                        Surcharge (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -922,7 +993,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost Without Freight
+                        Total Cost Without Freight (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
@@ -933,7 +1004,7 @@ export default function MarginAnalysis() {
                     </div>
                     <div className="space-between-element">
                       <Typography variant="body1" component="span">
-                        Total Cost With Freight
+                        Total Cost With Freight (USD)
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
