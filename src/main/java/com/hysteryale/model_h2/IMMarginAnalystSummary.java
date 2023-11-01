@@ -53,5 +53,7 @@ public class IMMarginAnalystSummary {
     private double manufacturingCostAop;
     private double manufacturingCostMonthly;
 
+    private String orderNumber;
+
     private String fileUUID;
 }

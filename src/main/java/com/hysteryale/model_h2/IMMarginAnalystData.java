@@ -43,5 +43,7 @@ public class IMMarginAnalystData {
     @Column(name = "dealer_net")
     private double dealerNet;
 
+    private String orderNumber;
+
     private String fileUUID;
 }

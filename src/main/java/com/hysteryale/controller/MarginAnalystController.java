@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +56,7 @@ public class MarginAnalystController {
      * Calculate MarginAnalystData and MarginAnalystSummary based on user's uploaded file
      */
     @PostMapping(path = "/estimateMarginAnalystData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, String> estimateMarginAnalystData(@RequestBody MultipartFile file, Authentication authentication) throws Exception {
+    public Map<String, Object> estimateMarginAnalystData(@RequestBody MultipartFile file, Authentication authentication) throws Exception {
 
         String filePath = marginAnalystFileUploadService.saveMarginFileUploadToDisk(file);
 
@@ -69,8 +71,17 @@ public class MarginAnalystController {
             IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "monthly");
             IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "annually");
 
+            List<String> orderNumbers = IMMarginAnalystDataService.getDistinctOrderNumber(fileUUID);
+            List<Object> formattedOrderNumbersList = new ArrayList<>();
+            for(String orderNumber: orderNumbers) {
+                Map<String, String> orderNumbersMap = new HashMap<>();
+                orderNumbersMap.put("value", orderNumber);
+                formattedOrderNumbersList.add(orderNumbersMap);
+            }
+
             return Map.of(
-                    "fileUUID", fileUUID
+                    "fileUUID", fileUUID,
+                    "orderNumbers", formattedOrderNumbersList
             );
         } else {
             marginAnalystFileUploadService.deleteFileInDisk(filePath);
@@ -82,10 +93,10 @@ public class MarginAnalystController {
     @PostMapping(path = "/getEstimateMarginAnalystData")
     Map<String, Object> getIMMarginAnalystData(@RequestBody IMMarginAnalystData imMarginAnalystData) {
         List<IMMarginAnalystData> imMarginAnalystDataList =
-                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
+                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber());
 
         Map<String, Object> imMarginAnalystSummaryMap =
-                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
+                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber());
 
         return Map.of(
                 "MarginAnalystData", imMarginAnalystDataList,
