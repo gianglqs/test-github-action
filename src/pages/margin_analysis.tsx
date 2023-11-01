@@ -55,9 +55,8 @@ export default function MarginAnalysis() {
   }
 
   const [valueOrderNumber, setValueOrderNumber] = useState({value: "", error: false})
-  const handleSelectOrderNumber = (value) => {
-    setValueOrderNumber({ value: value, error: false})
-    console.log(value);
+  const handleSelectOrderNumber = (e, option) => {
+    setValueOrderNumber({ value: option.value, error: false})
   }
 
   const [listDataAnalysis, setListDataAnalysis] = useState([])
@@ -202,7 +201,7 @@ export default function MarginAnalysis() {
             <AppAutocomplete
               options={orderNumbers}
               label="Order Number"
-              onChange={(e) => handleSelectOrderNumber(e.target.innerHTML)}
+              onChange={handleSelectOrderNumber}
               limitTags={2}
               disableListWrap
               primaryKeyOption="value"
