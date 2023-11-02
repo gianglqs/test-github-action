@@ -23,7 +23,7 @@ public class EnvironmentUtils implements EnvironmentAware {
 
     public static Dotenv dotenv() {
         return Dotenv.configure()
-                .directory("/home/oem/Documents/")
+                .directory("/home/malis3-qa/Documents/")
                 .filename(".env")
                 .ignoreIfMalformed()
                 .ignoreIfMissing()
