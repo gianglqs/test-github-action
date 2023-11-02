@@ -2,8 +2,15 @@ import { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { bookingStore, commonStore } from '@/store/reducers';
-
-import { AppLayout, DataTablePagination, DataTable } from '@/components';
+import { Button } from '@mui/material';
+import {
+  AppLayout,
+  DataTablePagination,
+  AppDateField,
+  DataTable,
+  AppTextField,
+  AppAutocomplete,
+} from '@/components';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 
@@ -23,12 +30,34 @@ import { faker } from '@faker-js/faker';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
+import { defaultValueFilterBooking } from '@/utils/defaultValues';
+import { produce } from 'immer';
+import _ from 'lodash';
 export default function Indicators() {
   const listBookingOrder = useSelector(bookingStore.selectBookingList);
 
   const tableState = useSelector(commonStore.selectTableState);
+  const initDataFilter = useSelector(bookingStore.selectInitDataFilter);
+  const [dataFilter, setDataFilter] = useState(defaultValueFilterBooking);
 
   const dispatch = useDispatch();
+
+  const handleChangeDataFilter = (option, field) => {
+    setDataFilter((prev) =>
+      produce(prev, (draft) => {
+        if (
+          _.includes(
+            ['orderNo', 'fromDate', 'toDate', 'MarginPercetage', 'AOPMarginPercetage'],
+            field
+          )
+        ) {
+          draft[field] = option;
+        } else {
+          draft[field] = option.map(({ value }) => value);
+        }
+      })
+    );
+  };
 
   const handleChangePage = (pageNo: number) => {
     dispatch(commonStore.actions.setTableState({ pageNo }));
@@ -37,6 +66,11 @@ export default function Indicators() {
 
   const handleChangePerPage = (perPage: number) => {
     dispatch(commonStore.actions.setTableState({ perPage }));
+    handleChangePage(1);
+  };
+
+  const handleFilterOrderBooking = () => {
+    dispatch(bookingStore.actions.setDefaultValueFilterBooking(dataFilter));
     handleChangePage(1);
   };
 
@@ -284,7 +318,151 @@ export default function Indicators() {
 
   return (
     <>
-      <AppLayout entity="booking" heightBody={1010}>
+      <AppLayout entity="booking" heightBody={1100}>
+        <Grid container spacing={1}>
+          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+            <AppAutocomplete
+              options={initDataFilter.regions}
+              label="Region"
+              onChange={(e, option) => handleChangeDataFilter(option, 'regions')}
+              limitTags={2}
+              disableListWrap
+              primaryKeyOption="value"
+              multiple
+              disableCloseOnSelect
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+            <AppAutocomplete
+              options={initDataFilter.plants}
+              label="Plant"
+              sx={{ height: 25, zIndex: 10 }}
+              onChange={(e, option) => handleChangeDataFilter(option, 'plants')}
+              limitTags={1}
+              disableListWrap
+              primaryKeyOption="value"
+              multiple
+              disableCloseOnSelect
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <AppAutocomplete
+              options={initDataFilter.metaSeries}
+              label="MetaSeries"
+              sx={{ height: 25, zIndex: 10 }}
+              onChange={(e, option) => handleChangeDataFilter(option, 'metaSeries')}
+              limitTags={1}
+              disableListWrap
+              primaryKeyOption="value"
+              multiple
+              disableCloseOnSelect
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+            <AppAutocomplete
+              options={initDataFilter.dealers}
+              label="Dealer"
+              sx={{ height: 25, zIndex: 10 }}
+              onChange={(e, option) => handleChangeDataFilter(option, 'dealers')}
+              limitTags={1}
+              disableListWrap
+              primaryKeyOption="value"
+              multiple
+              disableCloseOnSelect
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+
+          <Grid item xs={2}>
+            <AppAutocomplete
+              options={initDataFilter.classes}
+              label="Class"
+              sx={{ height: 25, zIndex: 10 }}
+              onChange={(e, option) => handleChangeDataFilter(option, 'classes')}
+              limitTags={1}
+              disableListWrap
+              primaryKeyOption="value"
+              multiple
+              disableCloseOnSelect
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <AppAutocomplete
+              options={initDataFilter.models}
+              label="Model"
+              sx={{ height: 25, zIndex: 10 }}
+              onChange={(e, option) => handleChangeDataFilter(option, 'models')}
+              limitTags={1}
+              disableListWrap
+              primaryKeyOption="value"
+              multiple
+              disableCloseOnSelect
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+            <AppAutocomplete
+              options={initDataFilter.segments}
+              label="Segment"
+              sx={{ height: 25, zIndex: 10 }}
+              onChange={(e, option) => handleChangeDataFilter(option, 'segments')}
+              limitTags={1}
+              disableListWrap
+              primaryKeyOption="value"
+              multiple
+              disableCloseOnSelect
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <AppAutocomplete
+              options={initDataFilter.AOPMarginPercetage}
+              label="AOP Margin %"
+              primaryKeyOption="value"
+              onChange={(e, option) =>
+                handleChangeDataFilter(_.isNil(option) ? '' : option?.value, 'AOPMarginPercetage')
+              }
+              disableClearable={false}
+              renderOption={(prop, option) => `${option.value}`}
+              getOptionLabel={(option) => `${option.value}`}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
+              <AppAutocomplete
+                options={initDataFilter.MarginPercetage}
+                label="Margin %"
+                onChange={(e, option) =>
+                  handleChangeDataFilter(_.isNil(option) ? '' : option?.value, 'MarginPercetage')
+                }
+                disableClearable={false}
+                primaryKeyOption="value"
+                renderOption={(prop, option) => `${option.value}`}
+                getOptionLabel={(option) => `${option.value}`}
+              />
+            </Grid>
+          </Grid>
+          <Grid item xs={2}>
+            <Button
+              variant="contained"
+              onClick={handleFilterOrderBooking}
+              sx={{ width: '100%', height: 24 }}
+            >
+              Filter
+            </Button>
+          </Grid>
+        </Grid>
         <Paper elevation={1} sx={{ marginTop: 2 }}>
           <Grid container>
             <DataTable
