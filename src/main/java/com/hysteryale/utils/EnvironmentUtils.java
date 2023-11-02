@@ -39,7 +39,7 @@ public class EnvironmentUtils implements EnvironmentAware {
         System.setProperty("ROLBAR_ENVIROMENT", dotenv().get("ROLBAR_ENVIROMENT"));
         System.setProperty("ROLBAR_CODE_VERSION", dotenv().get("ROLBAR_CODE_VERSION"));
         System.setProperty("BASE_FOLDER", dotenv().get("BASE_FOLDER"));
-
+        System.setProperty("IMPORTED_FILES", dotenv().get("IMPORTED_FILES"));
     }
 
 }
