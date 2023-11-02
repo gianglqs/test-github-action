@@ -21,7 +21,9 @@ public class BookingOrder {
 
     @Temporal(TemporalType.DATE)
     private Calendar date;
-    private String currency;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "currency")
+    private Currency currency;
 
     @Column(name = "order_type")
     private String orderType;

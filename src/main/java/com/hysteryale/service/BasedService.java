@@ -1,6 +1,5 @@
 package com.hysteryale.service;
 
-import com.hysteryale.repository.ImportFileStateRepository;
 import com.hysteryale.rollbar.RollbarInitializer;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +11,6 @@ import java.io.*;
 @Slf4j
 public class BasedService extends RollbarInitializer {
 
-    @Resource
-    private ImportFileStateRepository importFileStateRepository;
 
     /**
      * To log info to console and rollbar
