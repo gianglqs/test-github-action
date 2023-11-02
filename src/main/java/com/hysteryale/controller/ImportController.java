@@ -38,6 +38,9 @@ public class ImportController {
     @Resource
     MarginAnalystMacroService marginAnalystMacroService;
 
+    @Resource
+    ImportOldCostDataService importOldCostDataService;
+
     @PostMapping(path = "/import")
     void importData() throws IOException, IllegalAccessException {
 //        metaSeriesService.importMetaSeries();
@@ -52,5 +55,10 @@ public class ImportController {
 //        costUpliftService.importCostUplift();
 //        marginAnalystMacroService.importMarginAnalystMacro();
 //        marginAnalystService.importMarginAnalystData();
+    }
+
+    @PostMapping("/import-cost-old")
+    void importCostOldData() throws IOException {
+        importOldCostDataService.importOldCost();
     }
 }
