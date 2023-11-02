@@ -74,7 +74,7 @@ public class BookingOrderService extends BasedService {
                 ORDER_COLUMNS_NAME.put(columnName, i);
             }
         }
-        logInfo("Order Columns: " + ORDER_COLUMNS_NAME);
+      //  logInfo("Order Columns: " + ORDER_COLUMNS_NAME);
     }
 
     /**
@@ -110,10 +110,10 @@ public class BookingOrderService extends BasedService {
                     logError("Wrong formatted file's name: " + path.getFileName().toString());
             }
         } catch (Exception e) {
-            logInfo(e.getMessage());
+            logError(e.getMessage());
 
         }
-        log.info("File list: " + fileList);
+      //  log.info("File list: " + fileList);
         return fileList;
     }
 

@@ -14,4 +14,5 @@ import javax.persistence.Id;
 public class ImportFileState {
     @Id
     private String id;
+
 }
