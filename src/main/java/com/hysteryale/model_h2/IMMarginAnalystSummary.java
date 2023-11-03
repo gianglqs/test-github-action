@@ -21,14 +21,14 @@ public class IMMarginAnalystSummary {
     private Calendar monthYear;
     private String currency;
 
-    private double manufacturingCostRMB;
+    private double totalManufacturingCost;
     private double costUplift;
     private double addWarranty;
     private double surcharge;
     private double duty;
     private double freight;
     private boolean liIonIncluded;
-    private double totalCostRMB;
+    private double totalCost;
 
     private double totalListPrice;
     private double blendedDiscountPercentage;
@@ -43,7 +43,7 @@ public class IMMarginAnalystSummary {
     private double fullMonthlyRate;
     private double marginPercentMonthlyRate;
 
-    private double manufacturingCost;
+    private double manufacturingCostUSD;
     private double warrantyCost;
     private double surchargeCost;
     private double dutyCost;
@@ -52,8 +52,6 @@ public class IMMarginAnalystSummary {
 
     private double manufacturingCostAop;
     private double manufacturingCostMonthly;
-
-    private String orderNumber;
 
     private String fileUUID;
 }

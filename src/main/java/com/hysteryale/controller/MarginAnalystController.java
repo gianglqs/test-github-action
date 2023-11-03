@@ -19,8 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,17 +69,8 @@ public class MarginAnalystController {
             IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "monthly");
             IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "annually");
 
-            List<String> orderNumbers = IMMarginAnalystDataService.getDistinctOrderNumber(fileUUID);
-            List<Object> formattedOrderNumbersList = new ArrayList<>();
-            for(String orderNumber: orderNumbers) {
-                Map<String, String> orderNumbersMap = new HashMap<>();
-                orderNumbersMap.put("value", orderNumber);
-                formattedOrderNumbersList.add(orderNumbersMap);
-            }
-
             return Map.of(
-                    "fileUUID", fileUUID,
-                    "orderNumbers", formattedOrderNumbersList
+                    "fileUUID", fileUUID
             );
         } else {
             marginAnalystFileUploadService.deleteFileInDisk(filePath);
@@ -93,10 +82,10 @@ public class MarginAnalystController {
     @PostMapping(path = "/getEstimateMarginAnalystData")
     Map<String, Object> getIMMarginAnalystData(@RequestBody IMMarginAnalystData imMarginAnalystData) {
         List<IMMarginAnalystData> imMarginAnalystDataList =
-                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber());
+                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
 
         Map<String, Object> imMarginAnalystSummaryMap =
-                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber());
+                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
 
         return Map.of(
                 "MarginAnalystData", imMarginAnalystDataList,
