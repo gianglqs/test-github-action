@@ -51,6 +51,9 @@ public class BookingOrderService extends BasedService {
     @Resource
     RegionRepository regionRepository;
 
+    @Resource
+    CurrencyRepository currencyRepository;
+
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
      *
