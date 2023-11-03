@@ -12,8 +12,7 @@ public class HysteryaleApplication extends RollbarInitializer {
 	public static void main(String[] args) {
 
 		SpringApplication.run(HysteryaleApplication.class, args);
-		rollbar.log("Hello, Rollbar has been installed on Server QA");
-	//	System.out.println(rollbar);
+
 	}
 
 }

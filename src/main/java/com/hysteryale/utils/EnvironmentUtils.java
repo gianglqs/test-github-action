@@ -23,9 +23,10 @@ public class EnvironmentUtils implements EnvironmentAware {
 
     public static Dotenv dotenv() {
         return Dotenv.configure()
-                .directory("/home/malis3-qa/Documents/")
+                .directory("./")
                 .filename(".env")
                 .ignoreIfMalformed()
+                .ignoreIfMissing()
                 .load();
     }
 
@@ -37,7 +38,8 @@ public class EnvironmentUtils implements EnvironmentAware {
         System.setProperty("ROLBAR_KEY", dotenv().get("ROLBAR_KEY"));
         System.setProperty("ROLBAR_ENVIROMENT", dotenv().get("ROLBAR_ENVIROMENT"));
         System.setProperty("ROLBAR_CODE_VERSION", dotenv().get("ROLBAR_CODE_VERSION"));
-
+        System.setProperty("BASE_FOLDER", dotenv().get("BASE_FOLDER"));
+        System.setProperty("IMPORTED_FILES", dotenv().get("IMPORTED_FILES"));
     }
 
 }

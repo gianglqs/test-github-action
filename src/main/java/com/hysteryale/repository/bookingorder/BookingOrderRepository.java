@@ -9,10 +9,10 @@ import java.util.Optional;
 
 public interface BookingOrderRepository extends JpaRepository<BookingOrder, String> {
 
-    @Query("SELECT DISTINCT b.dealerName FROM BookingOrder b")
+    @Query("SELECT DISTINCT b.dealerName FROM BookingOrder b ORDER BY b.dealerName")
     public List<String> getAllDealerName();
 
-    @Query("SELECT DISTINCT b.model FROM BookingOrder b") // dang bi loi
+    @Query("SELECT DISTINCT b.model FROM BookingOrder b ORDER BY b.model ASC ")
     List<String> getAllModel();
 
     @Query("SELECT b FROM BookingOrder b WHERE b.orderNo = ?1")

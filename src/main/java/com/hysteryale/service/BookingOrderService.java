@@ -3,6 +3,7 @@ package com.hysteryale.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.*;
+import com.hysteryale.model.Currency;
 import com.hysteryale.model.filters.BookingOrderFilter;
 import com.hysteryale.repository.*;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
@@ -10,10 +11,7 @@ import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.ParseException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +45,6 @@ public class BookingOrderService extends BasedService {
     @Resource
     AOPMarginRepository AOPMarginRepository;
 
-
     @Resource
     PartRepository partRepository;
 
@@ -56,11 +53,6 @@ public class BookingOrderService extends BasedService {
 
     @Resource
     CurrencyRepository currencyRepository;
-
-    @Resource
-    ProductDimensionRepository productDimensionRepository;
-
-    //  private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
@@ -71,10 +63,11 @@ public class BookingOrderService extends BasedService {
         for (int i = 0; i < 50; i++) {
             if (row.getCell(i) != null) {
                 String columnName = row.getCell(i).getStringCellValue().trim();
+                if(ORDER_COLUMNS_NAME.containsKey(columnName))
+                    continue;
                 ORDER_COLUMNS_NAME.put(columnName, i);
             }
         }
-        logInfo("Order Columns: " + ORDER_COLUMNS_NAME);
     }
 
     /**
@@ -113,7 +106,6 @@ public class BookingOrderService extends BasedService {
             logInfo(e.getMessage());
 
         }
-        log.info("File list: " + fileList);
         return fileList;
     }
 
@@ -278,10 +270,10 @@ public class BookingOrderService extends BasedService {
         for (String fileName : fileList) {
             String pathFile = folderPath + "/" + fileName;
             //check file has been imported ?
-//            if(isImported(pathFile)){
-//                logWarning("file '"+fileName+"' has been imported");
-//                continue;
-//            }
+            if (isImported(pathFile)) {
+                logWarning("file '" + fileName + "' has been imported");
+                continue;
+            }
 
             log.info("{ Start importing file: '" + fileName + "'");
             for (String shortMonth : listMonth) {
@@ -331,7 +323,7 @@ public class BookingOrderService extends BasedService {
             // logInfo("End importing file: '" + fileName + "'");
             //    updateStateImportFile(pathFile);
             logInfo(bookingOrderList.size() + " Booking Order updated or newly saved }");
-
+            updateStateImportFile(pathFile);
             bookingOrderList.clear();
         }
     }
@@ -378,7 +370,7 @@ public class BookingOrderService extends BasedService {
                         Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
 
                         if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-
+                            // get TotalCost
                             Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
                             if (totalCostCell.getCellType() == CellType.NUMERIC) {
                                 booking.setTotalCost(totalCostCell.getNumericCellValue());
@@ -386,6 +378,15 @@ public class BookingOrderService extends BasedService {
                                 booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
                             } else {
                                 logInfo("Not found");
+                            }
+
+                            //get Currency
+                            Cell currencyCell = row.getCell(ORDER_COLUMNS_NAME.get("Curr"));
+                            Optional<Currency> currency = currencyRepository.findById(currencyCell.getStringCellValue());
+                            if (currency.isPresent()) {
+                                booking.setCurrency(currency.get());
+                            } else {
+                                logError("NOT FOUND Currency with OrderNo: " + booking.getOrderNo());
                             }
 
                             break;
@@ -414,17 +415,14 @@ public class BookingOrderService extends BasedService {
     private BookingOrder insertMarginPercent(BookingOrder booking, String month, String year) throws IOException {
         // Folder contains Excel file of Booking Order
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
-        String targetFolder = "";
         String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
         List<String> listMonth = Arrays.asList(monthArr);
         // if old data -> collect from file booking, else -> collect from file total-cost
         String folderPath;
         List<String> fileList;
 
-
-        targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
+        String targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
         folderPath = baseFolder + targetFolder;
-
 
         // Get files in Folder Path
         fileList = getAllFilesInFolder(folderPath, 2);
@@ -446,10 +444,29 @@ public class BookingOrderService extends BasedService {
                         Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
 
                         if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-
+                            //get Margin%
                             Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
                             if (marginCell.getCellType() == CellType.NUMERIC) {
                                 booking.setMarginPercentageAfterSurCharge(marginCell.getNumericCellValue());
+                            }
+
+                            // get Currency
+                            Cell currencyCell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
+
+                            // if cell is FOMULA -> evaluate it
+                            if (currencyCell.getCellType() == CellType.FORMULA) {
+                                FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+                                CellType cellValue=   evaluator.evaluateFormulaCell(currencyCell);
+
+                            }
+                            String currencyValue = currencyCell.getStringCellValue();
+                            Optional<Currency> currency = currencyRepository.findById(currencyValue);
+
+                            if (currency.isPresent()) {
+                                booking.setCurrency(currency.get());
+                            } else {
+                                logError("currency value "+ currencyValue);
+                                logError("Not Found currency with ORDERNO: " + booking.getOrderNo());
                             }
 
                             break;
@@ -588,12 +605,9 @@ public class BookingOrderService extends BasedService {
         return "";
     }
 
-
     /**
-     * To create a new table OrderPart
+     * Get AOP margin Percentage
      */
-
-
     public List<Map<String, String>> getAPOMarginPercentageForFilter() {
         List<Map<String, String>> result = new ArrayList<>();
 
@@ -608,6 +622,9 @@ public class BookingOrderService extends BasedService {
         return result;
     }
 
+    /**
+     * Get margin Percentage
+     */
     public List<Map<String, String>> getMarginPercentageForFilter() {
         List<Map<String, String>> result = new ArrayList<>();
 
@@ -627,17 +644,17 @@ public class BookingOrderService extends BasedService {
         MarginAbove30.put("value", ">=30% Margin");
         result.add(MarginAbove30);
 
-//        Map<String, String> MarginVe = new HashMap<>();
-//        MarginBelow10.put("value", "<10% Margin>");
-//        result.add(MarginBelow10);
         return result;
     }
 
 
+    /**
+     * Get all dealer names
+     * @return
+     */
     public List<Map<String, String>> getAllDealerName() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> list = bookingOrderRepository.getAllDealerName();
-        list.sort(String::compareTo);
         for (String dealerName : list) {
             Map<String, String> map = new HashMap<>();
             map.put("value", dealerName);
@@ -647,10 +664,12 @@ public class BookingOrderService extends BasedService {
     }
 
 
+    /**
+     * Get all model codes
+     */
     public List<Map<String, String>> getAllModel() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> modelList = bookingOrderRepository.getAllModel();
-        modelList.sort(String::compareTo);
         for (String model : modelList) {
             Map<String, String> map = new HashMap<>();
             map.put("value", model);
