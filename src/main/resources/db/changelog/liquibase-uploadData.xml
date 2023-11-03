@@ -34,16 +34,16 @@
         </loadUpdateData>
 
 
-        <loadUpdateData
-                encoding="UTF-8"
-                file="classpath:db/database/aopmargin.csv"
-                onlyUpdate="false"
-                primaryKey="region_series_plant"
-                quotchar="'"
-                separator=","
-                tableName="aopmargin">
+<!--        <loadUpdateData-->
+<!--                encoding="UTF-8"-->
+<!--                file="classpath:db/database/aopmargin.csv"-->
+<!--                onlyUpdate="false"-->
+<!--                primaryKey="region_series_plant"-->
+<!--                quotchar="'"-->
+<!--                separator=","-->
+<!--                tableName="aopmargin">-->
 
-        </loadUpdateData>
+<!--        </loadUpdateData>-->
 <!--        <loadUpdateData-->
 <!--                encoding="UTF-8"-->
 <!--                file="classpath:db/database/part.csv"-->

@@ -106,4 +106,6 @@ public class ImportController {
     void importMarginAnalystData() throws IOException, IllegalAccessException {
         marginAnalystService.importMarginAnalystData();
     }
+
+
 }

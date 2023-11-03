@@ -4,7 +4,10 @@ import com.hysteryale.model.AOPMargin;
 import com.hysteryale.repository.AOPMarginRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +16,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
-public class AOPMarginService extends BasedService{
+public class AOPMarginService extends BasedService {
     @Resource
     AOPMarginRepository aopMarginRepository;
     private final HashMap<String, Integer> AOP_MARGIN_COLUMNS = new HashMap<>();
@@ -59,9 +61,6 @@ public class AOPMarginService extends BasedService{
                 case "plant":
                     field.set(aopMargin, row.getCell(AOP_MARGIN_COLUMNS.get("Plant")).getStringCellValue());
                     break;
-                case "region":
-                    field.set(aopMargin, row.getCell(AOP_MARGIN_COLUMNS.get("Region")).getStringCellValue());
-                    break;
                 case "series":
                     Cell cell = row.getCell(AOP_MARGIN_COLUMNS.get("Series"));
                     if (cell.getCellType() == CellType.STRING) {
@@ -81,10 +80,10 @@ public class AOPMarginService extends BasedService{
         String fileName = "2023 AOP DN and Margin%.xlsx";
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.aopmargin");
-        String  pathFile = folderPath + "/" + fileName;
+        String pathFile = folderPath + "/" + fileName;
         //check file has been imported ?
-        if(isImported(pathFile)){
-            logWarning("file '"+fileName+"' has been imported");
+        if (isImported(pathFile)) {
+            logWarning("file '" + fileName + "' has been imported");
             return;
         }
 
@@ -92,7 +91,6 @@ public class AOPMarginService extends BasedService{
 
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
-        List<AOPMargin> aopMarginList = new ArrayList<>();
 
         Sheet aopMarginSheet = workbook.getSheetAt(0);
 
@@ -103,14 +101,13 @@ public class AOPMarginService extends BasedService{
                 AOPMargin aopMargin = mapExcelToAOPMargin(row);
                 //TODO need to get year from file name, not hardcode as I did below
                 aopMargin.setYear(2023);
-                aopMarginList.add(aopMargin);
+                Optional<AOPMargin> optionalAOPMargin = aopMarginRepository.findByRegionSeriesPlant(aopMargin.getRegionSeriesPlant());
+                if (!optionalAOPMargin.isPresent()) {
+                    aopMarginRepository.save(aopMargin);
+                }
             }
         }
-
-        aopMarginRepository.saveAll(aopMarginList);
-        log.info("AOP Margin updated or newly saved: " + aopMarginList.size());
         updateStateImportFile(pathFile);
-        aopMarginList.clear();
     }
 
 }

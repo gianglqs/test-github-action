@@ -37,7 +37,6 @@ public class PartService extends BasedService {
             String columnsName = cell.getStringCellValue();
             powerBIExportColumns.put(columnsName, cell.getColumnIndex());
         }
-        log.info("PowerBI Export columns: " + powerBIExportColumns);
     }
 
     public Part mapExcelDataToPart(Row row) {
@@ -101,7 +100,7 @@ public class PartService extends BasedService {
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.bi-download");
         List<String> files = FileUtils.getAllFilesInFolder(folderPath);
 
-        log.info("Files: " + files);
+        logInfo("Files: " + files);
 
         for (String fileName : files) {
             String pathFile = folderPath + "/" + fileName;
@@ -111,7 +110,7 @@ public class PartService extends BasedService {
                 continue;
             }
 
-            log.info("==== Importing " + fileName + " ====");
+            logInfo("==== Importing " + fileName + " ====");
             InputStream is = new FileInputStream(pathFile);
             XSSFWorkbook workbook = new XSSFWorkbook(is);
 
@@ -128,7 +127,6 @@ public class PartService extends BasedService {
                 month = matcher.group(1);
                 year = 2000 + Integer.parseInt(matcher.group(2));
 
-                log.info(year + " " + month);
             }
             Calendar recordedTime = Calendar.getInstance();
             recordedTime.set(year, DateUtils.monthMap.get(month), 1);
@@ -147,7 +145,6 @@ public class PartService extends BasedService {
             }
 
             partRepository.saveAll(partList);
-            log.info("New parts: " + partList.size());
             updateStateImportFile(pathFile);
         }
     }
