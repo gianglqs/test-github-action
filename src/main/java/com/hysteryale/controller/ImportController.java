@@ -107,8 +107,5 @@ public class ImportController {
         marginAnalystService.importMarginAnalystData();
     }
 
-    @PostMapping("/import-cost-old")
-    void importCostOldData() throws IOException {
-        importOldCostDataService.importOldCost();
-    }
+
 }
