@@ -11,8 +11,6 @@ import static com.rollbar.notifier.config.ConfigBuilder.withAccessToken;
 @Configuration
 public class RollbarInitializer {
 
-//    @Autowired
-//   private Dotenv env;
     protected static Rollbar rollbar;
 
     @Value("${rollbar.secret-key}")
@@ -27,11 +25,11 @@ public class RollbarInitializer {
 
     @PostConstruct
     public void init() {
-
-      //  rollbar = Rollbar.init(withAccessToken(env.get("HYSTERYALE_ROLLBAR_SECRET_KEY"))
+        // currently I disabled rollbar because it is running out of monthly quota
         rollbar = Rollbar.init(withAccessToken(SECRET_KEY)
                 .environment(ENV)
                 .codeVersion(CODE_VERSION)
+                .enabled(false)
                 .build());
     }
 }
