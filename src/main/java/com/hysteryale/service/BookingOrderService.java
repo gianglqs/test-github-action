@@ -45,7 +45,6 @@ public class BookingOrderService extends BasedService {
     @Resource
     AOPMarginRepository AOPMarginRepository;
 
-
     @Resource
     PartRepository partRepository;
 
@@ -54,11 +53,6 @@ public class BookingOrderService extends BasedService {
 
     @Resource
     CurrencyRepository currencyRepository;
-
-    @Resource
-    ProductDimensionRepository productDimensionRepository;
-
-    //  private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
@@ -661,10 +655,8 @@ public class BookingOrderService extends BasedService {
 
 
     /**
-     * To create a new table OrderPart
+     * Get AOP margin Percentage
      */
-
-
     public List<Map<String, String>> getAPOMarginPercentageForFilter() {
         List<Map<String, String>> result = new ArrayList<>();
 
@@ -679,6 +671,9 @@ public class BookingOrderService extends BasedService {
         return result;
     }
 
+    /**
+     * Get margin Percentage
+     */
     public List<Map<String, String>> getMarginPercentageForFilter() {
         List<Map<String, String>> result = new ArrayList<>();
 
@@ -702,6 +697,10 @@ public class BookingOrderService extends BasedService {
     }
 
 
+    /**
+     * Get all dealer names
+     * @return
+     */
     public List<Map<String, String>> getAllDealerName() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> list = bookingOrderRepository.getAllDealerName();
