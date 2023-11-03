@@ -1,8 +1,6 @@
 package com.hysteryale.service;
 
 import com.hysteryale.model.BookingOrder;
-import com.hysteryale.model.ProductDimension;
-import com.hysteryale.model.Region;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +13,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +25,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class ImportOldCostDataService extends BasedService {
+public class ImportCostDataService extends BasedService {
 
     @Resource
     private BookingOrderRepository bookingOrderRepository;

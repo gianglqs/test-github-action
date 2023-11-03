@@ -16,7 +16,6 @@ public class ProductDimension {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String model;
     @Column(unique = true)
     private String metaSeries;
     private String brand;

@@ -53,8 +53,6 @@ public class ProductDimensionService extends BasedService {
                 field.set(productDimension, row.getCell(APAC_COLUMNS.get("Brand")).getStringCellValue());
             } else if (fieldName.equals("metaSeries")) {
                 field.set(productDimension, row.getCell(APAC_COLUMNS.get("Metaseries")).getStringCellValue());
-            } else if (fieldName.equals("model")) {
-                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Model")).getStringCellValue());
             } else if (fieldName.equals("plant")) {
                 field.set(productDimension, row.getCell(APAC_COLUMNS.get("Plant")).getStringCellValue());
             } else if (fieldName.equals("clazz")) {
@@ -82,7 +80,7 @@ public class ProductDimensionService extends BasedService {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet orderSheet = workbook.getSheet("Data");
-
+        List<ProductDimension> productDimensionList = new ArrayList<>();
         for (Row row : orderSheet) {
             if (row.getRowNum() == 1)
                 getAPACColumnsName(row);
@@ -90,16 +88,10 @@ public class ProductDimensionService extends BasedService {
                     && row.getRowNum() >= 2) {
 
                 ProductDimension newProductDimension = mapExcelSheetToProductDimension(row);
-                Optional<ProductDimension> getProductDimensionFromDB = productDimensionRepository.findByMetaSeries(newProductDimension.getMetaSeries());
-                if (getProductDimensionFromDB.isPresent()) {
-                    ProductDimension productDimension = getProductDimensionFromDB.get();
-                    productDimension.setModel(newProductDimension.getModel());
-                    productDimensionRepository.save(productDimension);
-                } else {
-                    productDimensionRepository.save(newProductDimension);
-                }
+                productDimensionList.add(newProductDimension);
             }
         }
+        productDimensionRepository.saveAll(productDimensionList);
         updateStateImportFile(pathFile);
 
     }
