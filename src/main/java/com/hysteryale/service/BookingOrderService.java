@@ -69,7 +69,7 @@ public class BookingOrderService extends BasedService {
         for (int i = 0; i < 50; i++) {
             if (row.getCell(i) != null) {
                 String columnName = row.getCell(i).getStringCellValue().trim();
-                if(ORDER_COLUMNS_NAME.containsKey(columnName))
+                if (ORDER_COLUMNS_NAME.containsKey(columnName))
                     continue;
                 ORDER_COLUMNS_NAME.put(columnName, i);
             }
@@ -351,51 +351,55 @@ public class BookingOrderService extends BasedService {
         // Get files in Folder Path
         fileList = getAllFilesInFolder(folderPath, 100);
 
+        //check Plant
+        String[] arrPlant = {"Greenville", "Berea", "Ramos", "Craigavon", "Nijmegen", "Masate", "Brazil"};
+        List<String> listPlant = Arrays.asList(arrPlant);
+        if (listPlant.contains(booking.getProductDimension().getPlant())) {
 
-        for (String fileName : fileList) {
+            for (String fileName : fileList) {
 
-            // if data is new extract file name Cost_Data_10_09_2023_11_01_37 -> Date -> month,year
-            if (fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase())) {
-                InputStream is = new FileInputStream(folderPath + "/" + fileName);
-                XSSFWorkbook workbook = new XSSFWorkbook(is);
-                // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
-                Sheet sheet = workbook.getSheet("Cost Data");
+                // if data is new extract file name Cost_Data_10_09_2023_11_01_37 -> Date -> month,year
+                if (fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase())) {
+                    InputStream is = new FileInputStream(folderPath + "/" + fileName);
+                    XSSFWorkbook workbook = new XSSFWorkbook(is);
+                    // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
+                    Sheet sheet = workbook.getSheet("Cost Data");
 
-                HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-                for (Row row : sheet) {
-                    if (row.getRowNum() == 0) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
+                    HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+                    for (Row row : sheet) {
+                        if (row.getRowNum() == 0) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+                        else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
 
-                        Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
+                            Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
 
-                        if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-                            // get TotalCost
-                            Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
-                            if (totalCostCell.getCellType() == CellType.NUMERIC) {
-                                booking.setTotalCost(totalCostCell.getNumericCellValue());
-                            } else if (totalCostCell.getCellType() == CellType.STRING) {
-                                booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
-                            } else {
-                                logInfo("Not found");
+                            if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
+                                // get TotalCost
+                                Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
+                                if (totalCostCell.getCellType() == CellType.NUMERIC) {
+                                    booking.setTotalCost(totalCostCell.getNumericCellValue());
+                                } else if (totalCostCell.getCellType() == CellType.STRING) {
+                                    booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
+                                } else {
+                                    logInfo("Not found");
+                                }
+
+                                //get Currency
+                                Cell currencyCell = row.getCell(ORDER_COLUMNS_NAME.get("Curr"));
+                                Optional<Currency> currency = currencyRepository.findById(currencyCell.getStringCellValue());
+                                if (currency.isPresent()) {
+                                    booking.setCurrency(currency.get());
+                                } else {
+                                    logError("NOT FOUND Currency with OrderNo: " + booking.getOrderNo());
+                                }
+
+                                break;
                             }
-
-                            //get Currency
-                            Cell currencyCell = row.getCell(ORDER_COLUMNS_NAME.get("Curr"));
-                            Optional<Currency> currency = currencyRepository.findById(currencyCell.getStringCellValue());
-                            if (currency.isPresent()) {
-                                booking.setCurrency(currency.get());
-                            } else {
-                                logError("NOT FOUND Currency with OrderNo: " + booking.getOrderNo());
-                            }
-
-                            break;
                         }
-
                     }
                 }
+                if (booking.getTotalCost() == 0)
+                    logInfo("Total Cost not found " + booking.getOrderNo());
             }
-            if (booking.getTotalCost() == 0)
-                logInfo("Total Cost not found " + booking.getOrderNo());
         }
 
         return booking;
@@ -455,7 +459,7 @@ public class BookingOrderService extends BasedService {
                             // if cell is FOMULA -> evaluate it
                             if (currencyCell.getCellType() == CellType.FORMULA) {
                                 FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-                                CellType cellValue=   evaluator.evaluateFormulaCell(currencyCell);
+                                CellType cellValue = evaluator.evaluateFormulaCell(currencyCell);
 
                             }
                             String currencyValue = currencyCell.getStringCellValue();
@@ -464,7 +468,7 @@ public class BookingOrderService extends BasedService {
                             if (currency.isPresent()) {
                                 booking.setCurrency(currency.get());
                             } else {
-                                logError("currency value "+ currencyValue);
+                                logError("currency value " + currencyValue);
                                 logError("Not Found currency with ORDERNO: " + booking.getOrderNo());
                             }
 
