@@ -305,15 +305,6 @@
             <column name="segment" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="oem (generated)" id="1698231453167-15">
-        <createTable tableName="booking_order_part">
-            <column name="id" type="BIGINT">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="booking_order_part_pkey"/>
-            </column>
-            <column name="order_no" type="VARCHAR(255)"/>
-            <column name="part" type="VARCHAR(255)"/>
-        </createTable>
-    </changeSet>
     <changeSet author="oem (generated)" id="1698231453167-16">
         <createTable tableName="user">
             <column name="id" type="INTEGER">
