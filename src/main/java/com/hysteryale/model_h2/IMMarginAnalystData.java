@@ -37,13 +37,11 @@ public class IMMarginAnalystData {
     private Calendar monthYear; // we only needs to care month and year, so the day is always 1
 
     private String currency;
-    private double costRMB;
+    private double manufacturingCost;
     private String dealer;  // equivalent with billTo in Part
 
     @Column(name = "dealer_net")
     private double dealerNet;
-
-    private String orderNumber;
 
     private String fileUUID;
 }
