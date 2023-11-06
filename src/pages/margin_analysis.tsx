@@ -54,18 +54,12 @@ export default function MarginAnalysis() {
     setValueSearch({ value: value, error: false })
   }
 
-  const [valueOrderNumber, setValueOrderNumber] = useState({value: "", error: false})
-  const handleSelectOrderNumber = (e, option) => {
-    setValueOrderNumber({ value: option.value, error: false})
-  }
-
   const [listDataAnalysis, setListDataAnalysis] = useState([])
   const [marginAnalysisSummary, setMarginAnalysisSummary] = useState(null)
   const [openAccordion, setOpenAccordion] = useState(true)
   const [openAccordionTable, setOpenAccordionTable] = useState(true)
   const [dealer, setDealer] = useState("")
   const [uploadedFile, setUploadedFile] = useState({name: ""})
-  const [orderNumbers, setOrderNumbers] = useState([])
 
   const handleFilterMarginAnalysis = async () => {
   
@@ -77,16 +71,10 @@ export default function MarginAnalysis() {
         return
       }
 
-      if(valueOrderNumber.value === "") {
-        setValueOrderNumber({value: "", error: true})
-        return 
-      }
-
       const transformData = {
         modelCode: valueSearch.value,
         currency: valueCurrency,
         fileUUID: cookies["fileUUID"],
-        orderNumber: valueOrderNumber.value
       }
 
       const { data } = await marginAnalysisApi.getEstimateMarginAnalystData({
@@ -99,7 +87,7 @@ export default function MarginAnalysis() {
       marginAnalystData.forEach(margin => {
 
         margin.listPrice = margin.listPrice.toLocaleString()
-        margin.costRMB = margin.costRMB.toLocaleString()
+        margin.manufacturingCost = margin.manufacturingCost.toLocaleString()
         margin.dealerNet = margin.dealerNet.toLocaleString()
         margin.margin_aop = margin.margin_aop.toLocaleString()
         
@@ -112,7 +100,7 @@ export default function MarginAnalysis() {
       setOpenAccordion(true)
       setOpenAccordionTable(true)
     } catch (error) {
-      dispatch(commonStore.actions.setErrorMessage("Model code does not exist"))
+      dispatch(commonStore.actions.setErrorMessage(error.message))
     }
   }
 
@@ -140,7 +128,6 @@ export default function MarginAnalysis() {
       })
         .then(function (response) {
           setCookie(null, "fileUUID", response.data.fileUUID)
-          setOrderNumbers(response.data.orderNumbers)
         })
         .catch(function (response) {
           console.log(response);
@@ -160,9 +147,9 @@ export default function MarginAnalysis() {
       headerName: "List Price",
     },
     {
-      field: "costRMB",
+      field: "manufacturingCost",
       flex: 0.8,
-      headerName: "Cost RMB",
+      headerName: "Manufacturing Cost",
     },
     {
       field: "dealerNet",
@@ -196,23 +183,6 @@ export default function MarginAnalysis() {
             required
           />
         </Grid>
-
-        <Grid item xs={2}>
-            <AppAutocomplete
-              options={orderNumbers}
-              label="Order Number"
-              onChange={handleSelectOrderNumber}
-              limitTags={2}
-              disableListWrap
-              primaryKeyOption="value"
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-              value={valueOrderNumber.value}
-              error={valueOrderNumber.error}
-              helperText="Order Number is required"
-              required
-            />
-          </Grid>
 
         <Grid item xs={1}>
           <RadioGroup
@@ -338,7 +308,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           valueCurrency === 'USD'
-                          ? "Manufacturing Cost (RMB)"
+                          ? "Manufacturing Cost (RMB) / (USD)"
                           : "Manufacturing Cost (USD)"
                         }
                       </Typography>
@@ -346,7 +316,7 @@ export default function MarginAnalysis() {
                         {
                           
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .manufacturingCostRMB.toLocaleString()
+                            .totalManufacturingCost.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -438,14 +408,14 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                       {
                           valueCurrency === 'USD'
-                          ? "Total Cost (RMB)"
+                          ? "Total Cost (RMB) / (USD)"
                           : "Total Cost (USD)"
                         }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .totalCostRMB.toLocaleString()
+                            .totalCost.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -518,14 +488,14 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                       {
                           valueCurrency === 'USD'
-                          ? "Manufacturing Cost (RMB)"
+                          ? "Manufacturing Cost (RMB) / (USD)"
                           : "Manufacturing Cost (USD)"
                         }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .manufacturingCostRMB.toLocaleString()
+                            .totalManufacturingCost.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -617,14 +587,14 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                       {
                           valueCurrency === 'USD'
-                          ? "Total Cost (RMB)"
+                          ? "Total Cost (RMB) / (USD)"
                           : "Total Cost (USD)"
                         }
                       </Typography>
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .totalCostRMB.toLocaleString()
+                            .totalCost.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -896,7 +866,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryAnnually
-                            .manufacturingCost.toLocaleString()
+                            .manufacturingCostUSD.toLocaleString()
                         }
                       </Typography>
                     </div>
@@ -964,7 +934,7 @@ export default function MarginAnalysis() {
                       <Typography variant="body1" component="span">
                         {
                           marginAnalysisSummary?.MarginAnalystSummaryMonthly
-                            .manufacturingCost.toLocaleString()
+                            .manufacturingCostUSD.toLocaleString()
                         }
                       </Typography>
                     </div>
