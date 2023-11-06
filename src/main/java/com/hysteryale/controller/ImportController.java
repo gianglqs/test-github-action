@@ -1,5 +1,6 @@
 package com.hysteryale.controller;
 
+import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.service.*;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
@@ -38,6 +39,9 @@ public class ImportController {
     @Resource
     MarginAnalystMacroService marginAnalystMacroService;
 
+    @Resource
+    ImportService importService;
+
     @PostMapping(path = "/importAllData")
     void importAllData() throws IOException, IllegalAccessException {
         importApicDealer();
@@ -50,6 +54,7 @@ public class ImportController {
         importExchangeRate();
         importMarginAnalystMacro();
         importMarginAnalystData();
+        importCompetitorPricing();
     }
 
     @PostMapping(path = "/importApicDealer")
@@ -105,6 +110,11 @@ public class ImportController {
     @PostMapping(path = "/importMarginAnalystData")
     void importMarginAnalystData() throws IOException, IllegalAccessException {
         marginAnalystService.importMarginAnalystData();
+    }
+
+    @PostMapping(path = "/importCompetitorPricing")
+    void importCompetitorPricing() throws IOException, IllegalAccessException {
+        importService.importCompetitorPricing();
     }
 
 

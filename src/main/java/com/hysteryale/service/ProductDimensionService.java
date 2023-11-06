@@ -33,7 +33,6 @@ public class ProductDimensionService extends BasedService {
             String columnName = row.getCell(i).getStringCellValue();
             APAC_COLUMNS.put(columnName, i);
         }
-        log.info("ProductDimension Columns: " + APAC_COLUMNS);
     }
 
     public ProductDimension mapExcelSheetToProductDimension(Row row) throws IllegalAccessException {
@@ -80,7 +79,6 @@ public class ProductDimensionService extends BasedService {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet orderSheet = workbook.getSheet("Data");
-        List<ProductDimension> productDimensionList = new ArrayList<>();
         for (Row row : orderSheet) {
             if (row.getRowNum() == 1)
                 getAPACColumnsName(row);
@@ -88,12 +86,19 @@ public class ProductDimensionService extends BasedService {
                     && row.getRowNum() >= 2) {
 
                 ProductDimension newProductDimension = mapExcelSheetToProductDimension(row);
-                productDimensionList.add(newProductDimension);
+                if (!checkExist(newProductDimension))
+                    productDimensionRepository.save(newProductDimension);
             }
         }
-        productDimensionRepository.saveAll(productDimensionList);
         updateStateImportFile(pathFile);
 
+    }
+
+    public boolean checkExist(ProductDimension productDimension) {
+        Optional<ProductDimension> productDimensionOptional = productDimensionRepository.findByMetaSeries(productDimension.getMetaSeries());
+        if (productDimensionOptional.isPresent())
+            return true;
+        return false;
     }
 
     /**

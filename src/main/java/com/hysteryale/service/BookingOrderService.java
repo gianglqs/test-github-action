@@ -277,7 +277,7 @@ public class BookingOrderService extends BasedService {
                 continue;
             }
 
-            log.info("{ Start importing file: '" + fileName + "'");
+            logInfo("{ Start importing file: '" + fileName + "'");
             for (String shortMonth : listMonth) {
                 String yearRegex = "\\b\\d{4}\\b";
                 Pattern pattern = Pattern.compile(yearRegex, Pattern.CASE_INSENSITIVE);
