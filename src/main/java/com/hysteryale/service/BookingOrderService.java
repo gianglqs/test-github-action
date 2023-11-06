@@ -166,6 +166,13 @@ public class BookingOrderService extends BasedService {
                 } catch (Exception e) {
                     logError(e.toString());
                 }
+            } else if (field.getName().equals("currency")) {
+                try {
+                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
+                    field.set(bookingOrder, cell.getStringCellValue());
+                } catch (Exception e) {
+                    logError(e.toString());
+                }
             } else {
                 Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
 
@@ -536,7 +543,7 @@ public class BookingOrderService extends BasedService {
 
         //Get AOPMargin if Exist
         AOPMargin aopMargin = null;
-        String series = bookingOrder.getSeries().substring(1);
+        String series = bookingOrder.getSeries().substring(3);
         List<AOPMargin> aopMarginList = AOPMarginRepository.findByMetaSeries(series);
         if (aopMarginList.isEmpty()) {
             log.info("Metaseries khong co AOP" + series);
@@ -669,6 +676,10 @@ public class BookingOrderService extends BasedService {
             result.add(map);
         }
         return result;
+    }
+
+    public List<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode, int year, int month) {
+        return bookingOrderRepository.getDistinctBookingOrderByModelCode(modelCode, year, month);
     }
 
 }
