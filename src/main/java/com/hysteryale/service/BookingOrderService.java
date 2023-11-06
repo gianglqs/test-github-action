@@ -45,7 +45,6 @@ public class BookingOrderService extends BasedService {
     @Resource
     AOPMarginRepository AOPMarginRepository;
 
-
     @Resource
     PartRepository partRepository;
 
@@ -54,11 +53,6 @@ public class BookingOrderService extends BasedService {
 
     @Resource
     CurrencyRepository currencyRepository;
-
-    @Resource
-    ProductDimensionRepository productDimensionRepository;
-
-    //  private final HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
 
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
@@ -798,12 +792,9 @@ public class BookingOrderService extends BasedService {
         return "";
     }
 
-
     /**
-     * To create a new table OrderPart
+     * Get AOP margin Percentage
      */
-
-
     public List<Map<String, String>> getAPOMarginPercentageForFilter() {
         List<Map<String, String>> result = new ArrayList<>();
 
@@ -818,6 +809,9 @@ public class BookingOrderService extends BasedService {
         return result;
     }
 
+    /**
+     * Get margin Percentage
+     */
     public List<Map<String, String>> getMarginPercentageForFilter() {
         List<Map<String, String>> result = new ArrayList<>();
 
@@ -837,17 +831,17 @@ public class BookingOrderService extends BasedService {
         MarginAbove30.put("value", ">=30% Margin");
         result.add(MarginAbove30);
 
-//        Map<String, String> MarginVe = new HashMap<>();
-//        MarginBelow10.put("value", "<10% Margin>");
-//        result.add(MarginBelow10);
         return result;
     }
 
 
+    /**
+     * Get all dealer names
+     * @return
+     */
     public List<Map<String, String>> getAllDealerName() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> list = bookingOrderRepository.getAllDealerName();
-        list.sort(String::compareTo);
         for (String dealerName : list) {
             Map<String, String> map = new HashMap<>();
             map.put("value", dealerName);
@@ -857,10 +851,12 @@ public class BookingOrderService extends BasedService {
     }
 
 
+    /**
+     * Get all model codes
+     */
     public List<Map<String, String>> getAllModel() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> modelList = bookingOrderRepository.getAllModel();
-        modelList.sort(String::compareTo);
         for (String model : modelList) {
             Map<String, String> map = new HashMap<>();
             map.put("value", model);
