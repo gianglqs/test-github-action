@@ -259,6 +259,8 @@ public class BookingOrderService extends BasedService {
         String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
         List<String> listMonth = Arrays.asList(monthArr);
         String month = "", year = "";
+        String[] arrPlant = {"Greenville", "Berea", "Ramos", "Craigavon", "Nijmegen", "Masate", "Brazil"};
+        List<String> listPlant = Arrays.asList(arrPlant);
 
         for (String fileName : fileList) {
             String pathFile = folderPath + "/" + fileName;
@@ -303,9 +305,11 @@ public class BookingOrderService extends BasedService {
                     if (isOldData) {
                         newBookingOrder = insertMarginPercent(newBookingOrder, month, year);
                     } else {
-                        if(newBookingOrder.getProductDimension().getPlant())
-
-                        newBookingOrder = insertTotalCost(newBookingOrder, month, year);
+                        if (listPlant.contains(newBookingOrder.getProductDimension().getPlant())) {
+                            newBookingOrder = importTotalCostFromCostData(newBookingOrder, month, year);
+                        } else {
+                            newBookingOrder = importTotalCostFromMarginAOPRate(newBookingOrder, month, year);
+                        }
                     }
 
                     newBookingOrder = calculateOrderValues(newBookingOrder, isOldData);
@@ -323,19 +327,10 @@ public class BookingOrderService extends BasedService {
         }
     }
 
-    /**
-     * For New Data
-     *
-     * @param booking
-     * @param month
-     * @param year
-     * @return Booking
-     * @throws IOException
-     */
-    public BookingOrder insertTotalCost(BookingOrder booking, String month, String year) throws IOException {
+    public BookingOrder importTotalCostFromCostData(BookingOrder booking, String month, String year) throws IOException {
         // Folder contains Excel file of Booking Order
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
-        String targetFolder = "";
+
         String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
         List<String> listMonth = Arrays.asList(monthArr);
         // if old data -> collect from file booking, else -> collect from file total-cost
@@ -343,130 +338,7 @@ public class BookingOrderService extends BasedService {
         List<String> fileList;
 
 
-        //check Plant
-        String[] arrPlant = {"Greenville", "Berea", "Ramos", "Craigavon", "Nijmegen", "Masate", "Brazil"};
-        List<String> listPlant = Arrays.asList(arrPlant);
-        if (listPlant.contains(booking.getProductDimension().getPlant())) {
-
-            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
-            folderPath = baseFolder + targetFolder;
-            // Get files in Folder Path
-            fileList = getAllFilesInFolder(folderPath, 100);
-
-            for (String fileName : fileList) {
-
-                // if data is new extract file name Cost_Data_10_09_2023_11_01_37 -> Date -> month,year
-                if (fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase())) {
-                    InputStream is = new FileInputStream(folderPath + "/" + fileName);
-                    XSSFWorkbook workbook = new XSSFWorkbook(is);
-                    // if old data -> colect from sheet "Wk - Margins", else -> sheet "Cost Data"
-                    Sheet sheet = workbook.getSheet("Cost Data");
-
-                    HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-                    for (Row row : sheet) {
-                        if (row.getRowNum() == 0) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                        else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
-
-                            Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
-
-                            if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-                                // get TotalCost
-                                Cell totalCostCell = row.getCell(ORDER_COLUMNS_NAME.get("TOTAL MFG COST Going-To"));
-                                if (totalCostCell.getCellType() == CellType.NUMERIC) {
-                                    booking.setTotalCost(totalCostCell.getNumericCellValue());
-                                } else if (totalCostCell.getCellType() == CellType.STRING) {
-                                    booking.setTotalCost(Double.parseDouble(totalCostCell.getStringCellValue()));
-                                } else {
-                                    logInfo("Not found");
-                                }
-
-                                //get Currency
-                                Cell currencyCell = row.getCell(ORDER_COLUMNS_NAME.get("Curr"));
-                                Optional<Currency> currency = currencyRepository.findById(currencyCell.getStringCellValue());
-                                if (currency.isPresent()) {
-                                    booking.setCurrency(currency.get());
-                                } else {
-                                    logError("NOT FOUND Currency with OrderNo: " + booking.getOrderNo());
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (booking.getTotalCost() == 0)
-                    logInfo("Total Cost not found " + booking.getOrderNo());
-            }
-        } else {
-            targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
-            folderPath = baseFolder + targetFolder;
-            // Get files in Folder Path
-            fileList = getAllFilesInFolder(folderPath, 100);
-            for (String fileName : fileList) {
-                if (fileName.contains(year) && fileName.toLowerCase().contains(month.toLowerCase())) {
-                    InputStream is = new FileInputStream(folderPath + "/" + fileName);
-                    XSSFWorkbook workbook = new XSSFWorkbook(is);
-                    //  colect from sheet "Wk - Margins"
-                    Sheet sheet = workbook.getSheet("Wk - Margins");
-
-                    HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
-                    for (Row row : sheet) {
-                        if (row.getRowNum() == 0) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-                        else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
-
-                            Cell OrderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order #"));
-
-                            if (OrderNOCell.getStringCellValue().equals(booking.getOrderNo())) {
-                                //get Margin AOP Rate %
-                                Cell marginCell = row.getCell(ORDER_COLUMNS_NAME.get("Margin @ AOP Rate"));
-                                if (marginCell.getCellType() == CellType.NUMERIC) {
-                                    double marginAOPRate = marginCell.getNumericCellValue();
-
-                                    // totalCost  = Margin AOP %    *      dealerNet
-                                    double totalCost = marginAOPRate * booking.getTotalCost();
-                                    booking.setTotalCost(totalCost);
-                                }
-
-                                // get Currency
-                                Cell currencyCell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
-
-                                // if cell is FOMULA -> evaluate it
-                                if (currencyCell.getCellType() == CellType.FORMULA) {
-                                    FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-                                    evaluator.evaluateFormulaCell(currencyCell);
-                                }
-                                String currencyValue = currencyCell.getStringCellValue();
-                                Optional<Currency> currency = currencyRepository.findById(currencyValue);
-
-                                if (currency.isPresent()) {
-                                    booking.setCurrency(currency.get());
-                                } else {
-                                    logError("currency value " + currencyValue);
-                                    logError("Not Found currency with ORDERNO: " + booking.getOrderNo());
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return booking;
-    }
-
-    public BookingOrder insertTotalCostFromCostData(BookingOrder booking, String month, String year) throws IOException {
-        // Folder contains Excel file of Booking Order
-        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
-        String targetFolder = "";
-
-        // if old data -> collect from file booking, else -> collect from file total-cost
-        String folderPath;
-        List<String> fileList;
-
-
-        targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
+        String targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
         folderPath = baseFolder + targetFolder;
         // Get files in Folder Path
         fileList = getAllFilesInFolder(folderPath, 100);
@@ -781,16 +653,6 @@ public class BookingOrderService extends BasedService {
         return bookingOrder;
     }
 
-    private String detachSeries(String regionSeriesPlant) {
-        String[] arrRegion = {"ISC", "Australia", "Pacific", "Asia", "Pacific excl AUS", "India"};
-        List<String> listRegion = Arrays.asList(arrRegion);
-        for (String region : listRegion) {
-            if (regionSeriesPlant.startsWith(region)) {
-                return regionSeriesPlant.substring(region.length(), region.length() + 3);
-            }
-        }
-        return "";
-    }
 
     /**
      * Get AOP margin Percentage
@@ -842,6 +704,7 @@ public class BookingOrderService extends BasedService {
     public List<Map<String, String>> getAllDealerName() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> list = bookingOrderRepository.getAllDealerName();
+        list.sort(String::compareTo);
         for (String dealerName : list) {
             Map<String, String> map = new HashMap<>();
             map.put("value", dealerName);
@@ -851,12 +714,10 @@ public class BookingOrderService extends BasedService {
     }
 
 
-    /**
-     * Get all model codes
-     */
     public List<Map<String, String>> getAllModel() {
         List<Map<String, String>> result = new ArrayList<>();
         List<String> modelList = bookingOrderRepository.getAllModel();
+        modelList.sort(String::compareTo);
         for (String model : modelList) {
             Map<String, String> map = new HashMap<>();
             map.put("value", model);
