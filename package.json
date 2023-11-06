@@ -27,6 +27,7 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "axios": "^1.5.0",
+    "chart.js": "^4.4.0",
     "codemirror": "^6.0.1",
     "date-fns": "^2.30.0",
     "immer": "^10.0.2",
@@ -39,9 +40,11 @@
     "next-redux-wrapper": "^8.1.0",
     "nookies": "^2.5.2",
     "pluralize": "^8.0.0",
+    "prettier": "^3.0.3",
     "querystring-es3": "^0.2.1",
     "react": "18.2.0",
     "react-beautiful-dnd": "^13.1.1",
+    "react-chartjs-2": "^5.2.0",
     "react-codemirror2": "^7.2.1",
     "react-cookie": "^6.1.0",
     "react-dom": "18.2.0",
@@ -58,5 +61,7 @@
     "typescript": "^5.2.2",
     "yup": "^1.2.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@faker-js/faker": "^8.2.0"
+  }
 }
