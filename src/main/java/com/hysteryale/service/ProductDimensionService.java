@@ -33,7 +33,6 @@ public class ProductDimensionService extends BasedService {
             String columnName = row.getCell(i).getStringCellValue();
             APAC_COLUMNS.put(columnName, i);
         }
-        log.info("ProductDimension Columns: " + APAC_COLUMNS);
     }
 
     public ProductDimension mapExcelSheetToProductDimension(Row row) throws IllegalAccessException {
@@ -59,6 +58,8 @@ public class ProductDimensionService extends BasedService {
                 field.set(productDimension, row.getCell(APAC_COLUMNS.get("Class_wBT")).getStringCellValue());
             } else if (fieldName.equals("segment")) {
                 field.set(productDimension, row.getCell(APAC_COLUMNS.get("Segment")).getStringCellValue());
+            }else if (fieldName.equals("model")) {
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Model")).getStringCellValue());
             }
         }
         return productDimension;
@@ -80,7 +81,6 @@ public class ProductDimensionService extends BasedService {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
 
         Sheet orderSheet = workbook.getSheet("Data");
-        List<ProductDimension> productDimensionList = new ArrayList<>();
         for (Row row : orderSheet) {
             if (row.getRowNum() == 1)
                 getAPACColumnsName(row);
@@ -88,12 +88,19 @@ public class ProductDimensionService extends BasedService {
                     && row.getRowNum() >= 2) {
 
                 ProductDimension newProductDimension = mapExcelSheetToProductDimension(row);
-                productDimensionList.add(newProductDimension);
+                if (!checkExist(newProductDimension))
+                    productDimensionRepository.save(newProductDimension);
             }
         }
-        productDimensionRepository.saveAll(productDimensionList);
         updateStateImportFile(pathFile);
 
+    }
+
+    public boolean checkExist(ProductDimension productDimension) {
+        Optional<ProductDimension> productDimensionOptional = productDimensionRepository.findByMetaSeries(productDimension.getMetaSeries());
+        if (productDimensionOptional.isPresent())
+            return true;
+        return false;
     }
 
     /**
@@ -125,7 +132,6 @@ public class ProductDimensionService extends BasedService {
 
             plantListMap.add(pMap);
         }
-
         return plantListMap;
     }
 
@@ -144,7 +150,6 @@ public class ProductDimensionService extends BasedService {
             mMap.put("value", m);
             classMap.add(mMap);
         }
-
         return classMap;
     }
 

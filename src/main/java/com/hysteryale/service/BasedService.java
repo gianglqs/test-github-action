@@ -37,17 +37,18 @@ public class BasedService extends RollbarInitializer {
     protected void logWarning(String message, Exception... exceptions) {
         log.warn(message, exceptions);
         rollbar.warning(message);
-
     }
 
     protected void updateStateImportFile(String pathFile) {
         //Get path of file imported-file.log
         String pathLogFile = EnvironmentUtils.getEnvironmentValue("import-files.imported");
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(pathLogFile, true));
+            File file = new File(pathLogFile);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
             bw.write(pathFile);
             bw.newLine();
             bw.close();
+            logInfo(file.getAbsolutePath());
         } catch (Exception e) {
             logError(e.getMessage());
         }

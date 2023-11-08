@@ -22,4 +22,5 @@ public class ProductDimension {
     private String plant;
     private String clazz;
     private String segment;
+    private String model;
 }
