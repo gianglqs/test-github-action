@@ -1,6 +1,8 @@
 package com.hysteryale.service;
 
 import com.hysteryale.model.CompetitorPricing;
+import com.hysteryale.model.ForeCastValue;
+import com.hysteryale.model.Region;
 import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -177,6 +179,36 @@ public class ImportService extends BasedService {
             competitorPricingRepository.saveAll(competitorPricingList);
             updateStateImportFile(pathFile);
         }
+    }
+
+    /**
+     * Find a forecast value by Region and Series, year is an option if year is empty then we get all years
+     * @param region
+     * @param series
+     * @param year
+     * @return
+     */
+    private List<ForeCastValue> findForeCastValue(Region region, String series, int... year){
+       return null;
+    }
+
+    private List<ForeCastValue> loadForecastForCompetitorPricingFromFile(){
+        List<ForeCastValue> result = new ArrayList<ForeCastValue>();
+
+        // read all workbook, add all ForeCastValue to the results
+        // extract Region
+        // extract Series
+        // extract Years // read from column H -> L
+        // extract Volume
+        ForeCastValue foreCastValue = new ForeCastValue();
+        foreCastValue.setRegion(new Region());
+        foreCastValue.setSeries("");
+        foreCastValue.setYear(2023);
+        foreCastValue.setQuantity(10);
+        
+        result.add(foreCastValue);
+
+        return result;
     }
 
     private CompetitorPricing importForcastForCompetitorPricing(CompetitorPricing competitorPricing) throws IOException {
