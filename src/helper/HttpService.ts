@@ -5,7 +5,7 @@ import type { GetServerSidePropsContext } from 'next';
 import Router from 'next/router';
 
 class HttpService<GetList = any> {
-   private instance: AxiosInstance;
+   protected instance: AxiosInstance;
 
    protected entity: string;
 
@@ -54,7 +54,7 @@ class HttpService<GetList = any> {
       return Promise.reject(formatError);
    }
 
-   private saveToken = (context: GetServerSidePropsContext = null as any) => {
+   protected saveToken = (context: GetServerSidePropsContext = null as any) => {
       let cookies = {} as Record<string, string>;
       if (context) {
          cookies = nookies.get(context);
@@ -99,7 +99,7 @@ class HttpService<GetList = any> {
       return this.instance.post<T>(endpoint, data);
    };
 
-   getListBookingOrder = <T = any>(
+   getListData = <T = any>(
       data = {} as Record<string, any>,
       params = {} as Record<string, any>,
       context: GetServerSidePropsContext = null as any,

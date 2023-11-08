@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { bookingStore, commonStore } from '@/store/reducers';
+import { indicatorStore, commonStore, bookingStore } from '@/store/reducers';
 import { Button } from '@mui/material';
 import {
    AppLayout,
@@ -14,7 +14,7 @@ import {
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 
-import { TabScrollButton } from '@mui/material';
+import LineChart from '@/components/chart/Line';
 
 import {
    Chart as ChartJS,
@@ -35,25 +35,22 @@ import _ from 'lodash';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 export default function Indicators() {
-   const listBookingOrder = useSelector(bookingStore.selectBookingList);
+   // const listIndicator = useSelector(indicatorStore.selectIndicatorList);
 
    const tableState = useSelector(commonStore.selectTableState);
 
-   const initDataFilter = useSelector(bookingStore.selectInitDataFilter);
+   const initDataFilter = useSelector(indicatorStore.selectInitDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterBooking);
+
+   console.log(initDataFilter.models);
 
    const dispatch = useDispatch();
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (
-               _.includes(
-                  ['orderNo', 'fromDate', 'toDate', 'MarginPercetage', 'AOPMarginPercetage'],
-                  field
-               )
-            ) {
+            if (_.includes(['orderNo', 'MarginPercetage', 'AOPMarginPercetage'], field)) {
                draft[field] = option;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -64,7 +61,7 @@ export default function Indicators() {
 
    const handleChangePage = (pageNo: number) => {
       dispatch(commonStore.actions.setTableState({ pageNo }));
-      dispatch(bookingStore.sagaGetList());
+      dispatch(indicatorStore.sagaGetList());
    };
 
    const handleChangePerPage = (perPage: number) => {
@@ -72,8 +69,8 @@ export default function Indicators() {
       handleChangePage(1);
    };
 
-   const handleFilterOrderBooking = () => {
-      dispatch(bookingStore.actions.setDefaultValueFilterBooking(dataFilter));
+   const handleFilterIndicator = () => {
+      dispatch(indicatorStore.actions.setDefaultValueFilterIndicator(dataFilter));
       handleChangePage(1);
    };
 
@@ -223,7 +220,7 @@ export default function Indicators() {
       datasets: [
          {
             label: 'Red dataset',
-            data: Array.from({ length: 50 }, () => ({
+            data: Array.from({ length: 10 }, () => ({
                x: faker.number.int({ min: -100, max: 100 }),
                y: faker.number.int({ min: -100, max: 100 }),
                r: faker.number.int({ min: 5, max: 20 }),
@@ -232,7 +229,7 @@ export default function Indicators() {
          },
          {
             label: 'Blue dataset',
-            data: Array.from({ length: 50 }, () => ({
+            data: Array.from({ length: 10 }, () => ({
                x: faker.number.int({ min: -100, max: 100 }),
                y: faker.number.int({ min: -100, max: 100 }),
                r: faker.number.int({ min: 5, max: 20 }),
@@ -255,7 +252,7 @@ export default function Indicators() {
       },
    };
 
-   const labels = [2022, 2023, 2024, 2025];
+   const labels = [2022, 2023, 2024];
 
    const currentDate = new Date();
 
@@ -263,10 +260,11 @@ export default function Indicators() {
 
    //create array Year use to Label, vd: 2022,2023,2024,2025,...
    const arrayYear = Array.from({ length: 5 }, (_, i) => i + year - 1);
+
    console.log(arrayYear);
 
    const dataLineChart = {
-      arrayYear,
+      labels,
       datasets: [
          {
             label: 'ASIA',
@@ -276,21 +274,21 @@ export default function Indicators() {
          },
          {
             label: 'India',
-            data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
+            data: [200, 400, 600, 800, 1000],
             borderColor: 'rgb(53, 162, 235)',
             backgroundColor: 'rgba(53, 162, 235, 0.5)',
          },
          {
-            label: 'India',
+            label: 'China',
             data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-            borderColor: 'rgb(53, 162, 235)',
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            borderColor: '#17a9a3',
+            backgroundColor: '#17a9a3',
          },
       ],
    };
 
    const dataForLineChartRegion = {
-      labels,
+      arrayYear,
       datasets: [],
    };
 
@@ -298,7 +296,7 @@ export default function Indicators() {
 
    return (
       <>
-         <AppLayout entity="booking" heightBody={1100}>
+         <AppLayout entity="indicator" heightBody={1100}>
             <Grid container spacing={1}>
                <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
                   <AppAutocomplete
@@ -306,6 +304,21 @@ export default function Indicators() {
                      label="Region"
                      onChange={(e, option) => handleChangeDataFilter(option, 'regions')}
                      limitTags={2}
+                     disableListWrap
+                     primaryKeyOption="value"
+                     multiple
+                     disableCloseOnSelect
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+               <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+                  <AppAutocomplete
+                     options={initDataFilter.dealers}
+                     label="Dealer"
+                     sx={{ height: 25, zIndex: 10 }}
+                     onChange={(e, option) => handleChangeDataFilter(option, 'dealers')}
+                     limitTags={1}
                      disableListWrap
                      primaryKeyOption="value"
                      multiple
@@ -335,21 +348,6 @@ export default function Indicators() {
                      label="MetaSeries"
                      sx={{ height: 25, zIndex: 10 }}
                      onChange={(e, option) => handleChangeDataFilter(option, 'metaSeries')}
-                     limitTags={1}
-                     disableListWrap
-                     primaryKeyOption="value"
-                     multiple
-                     disableCloseOnSelect
-                     renderOption={(prop, option) => `${option.value}`}
-                     getOptionLabel={(option) => `${option.value}`}
-                  />
-               </Grid>
-               <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
-                  <AppAutocomplete
-                     options={initDataFilter.dealers}
-                     label="Dealer"
-                     sx={{ height: 25, zIndex: 10 }}
-                     onChange={(e, option) => handleChangeDataFilter(option, 'dealers')}
                      limitTags={1}
                      disableListWrap
                      primaryKeyOption="value"
@@ -390,42 +388,12 @@ export default function Indicators() {
                      getOptionLabel={(option) => `${option.value}`}
                   />
                </Grid>
-               <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
-                  <AppAutocomplete
-                     options={initDataFilter.segments}
-                     label="Segment"
-                     sx={{ height: 25, zIndex: 10 }}
-                     onChange={(e, option) => handleChangeDataFilter(option, 'segments')}
-                     limitTags={1}
-                     disableListWrap
-                     primaryKeyOption="value"
-                     multiple
-                     disableCloseOnSelect
-                     renderOption={(prop, option) => `${option.value}`}
-                     getOptionLabel={(option) => `${option.value}`}
-                  />
-               </Grid>
-               <Grid item xs={2}>
-                  <AppAutocomplete
-                     options={initDataFilter.AOPMarginPercetage}
-                     label="AOP Margin %"
-                     primaryKeyOption="value"
-                     onChange={(e, option) =>
-                        handleChangeDataFilter(
-                           _.isNil(option) ? '' : option?.value,
-                           'AOPMarginPercetage'
-                        )
-                     }
-                     disableClearable={false}
-                     renderOption={(prop, option) => `${option.value}`}
-                     getOptionLabel={(option) => `${option.value}`}
-                  />
-               </Grid>
+
                <Grid item xs={4}>
                   <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
                      <AppAutocomplete
-                        options={initDataFilter.MarginPercetage}
-                        label="Margin %"
+                        options={initDataFilter.chineseBrands}
+                        label="Chinese Brand"
                         onChange={(e, option) =>
                            handleChangeDataFilter(
                               _.isNil(option) ? '' : option?.value,
@@ -439,10 +407,28 @@ export default function Indicators() {
                      />
                   </Grid>
                </Grid>
+
+               <Grid item xs={2}>
+                  <AppAutocomplete
+                     options={initDataFilter.marginPercentageGrouping}
+                     label="AOP Margin % Group"
+                     primaryKeyOption="value"
+                     onChange={(e, option) =>
+                        handleChangeDataFilter(
+                           _.isNil(option) ? '' : option?.value,
+                           'AOPMarginPercetage'
+                        )
+                     }
+                     disableClearable={false}
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+
                <Grid item xs={2}>
                   <Button
                      variant="contained"
-                     onClick={handleFilterOrderBooking}
+                     onClick={handleFilterIndicator}
                      sx={{ width: '100%', height: 24 }}
                   >
                      Filter
@@ -456,7 +442,7 @@ export default function Indicators() {
                      disableColumnMenu
                      tableHeight={610}
                      rowHeight={45}
-                     rows={listBookingOrder}
+                     rows={[]}
                      rowBuffer={35}
                      rowThreshold={25}
                      columns={columns}
@@ -484,7 +470,7 @@ export default function Indicators() {
                </Grid>
 
                <Grid item xs={4}>
-                  <Line options={optionsLineChart} data={dataLineChart} />
+                  <LineChart chartData={dataLineChart} />
                </Grid>
 
                <Grid item xs={4}>
