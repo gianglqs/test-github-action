@@ -58,6 +58,8 @@ public class ProductDimensionService extends BasedService {
                 field.set(productDimension, row.getCell(APAC_COLUMNS.get("Class_wBT")).getStringCellValue());
             } else if (fieldName.equals("segment")) {
                 field.set(productDimension, row.getCell(APAC_COLUMNS.get("Segment")).getStringCellValue());
+            }else if (fieldName.equals("model")) {
+                field.set(productDimension, row.getCell(APAC_COLUMNS.get("Model")).getStringCellValue());
             }
         }
         return productDimension;
@@ -130,7 +132,6 @@ public class ProductDimensionService extends BasedService {
 
             plantListMap.add(pMap);
         }
-
         return plantListMap;
     }
 
@@ -149,7 +150,6 @@ public class ProductDimensionService extends BasedService {
             mMap.put("value", m);
             classMap.add(mMap);
         }
-
         return classMap;
     }
 
