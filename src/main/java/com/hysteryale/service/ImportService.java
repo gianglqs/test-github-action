@@ -4,6 +4,7 @@ import com.hysteryale.model.CompetitorPricing;
 import com.hysteryale.model.ForeCastValue;
 import com.hysteryale.model.Region;
 import com.hysteryale.repository.CompetitorPricingRepository;
+import com.hysteryale.repository.RegionRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -19,10 +20,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +28,11 @@ import java.util.regex.Pattern;
 public class ImportService extends BasedService {
 
     @Resource
-    private CompetitorPricingRepository competitorPricingRepository;
+    CompetitorPricingRepository competitorPricingRepository;
+
+    @Resource
+    RegionRepository regionRepository;
+
 
     public void getOrderColumnsName(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         for (int i = 0; i < 50; i++) {
@@ -100,27 +102,6 @@ public class ImportService extends BasedService {
             leadTime = cellLeadTime.getNumericCellValue();
         }
 
-//        Cell cellActual = row.getCell(ORDER_COLUMNS_NAME.get("Actual"));
-//        evaluator.evaluate(cellActual);
-//        Double actual = null;
-//        if (cellActual != null && cellActual.getCellType() == CellType.FORMULA) {
-//            actual = cellActual.getNumericCellValue();
-//        }
-//
-//        Double AOPF = null;
-//        Cell cellAOPF = row.getCell(ORDER_COLUMNS_NAME.get("AOPF"));
-//        evaluator.evaluate(cellAOPF);
-//        if (cellAOPF != null && cellAOPF.getCellType() == CellType.FORMULA) {
-//            AOPF = cellAOPF.getNumericCellValue();
-//        }
-//        Double LRFF = null;
-//        Cell cellLRFF = row.getCell(ORDER_COLUMNS_NAME.get("LRFF"));
-//        evaluator.evaluate(cellLRFF);
-//        if (cellLRFF != null && cellLRFF.getCellType() == CellType.FORMULA) {
-//            LRFF = cellLRFF.getNumericCellValue();
-//        }
-
-
         String seriesString = null;
         Cell cellSeries = row.getCell(ORDER_COLUMNS_NAME.get("HYG Series"));
         if (cellSeries != null && cellSeries.getCellType() == CellType.STRING) {
@@ -183,17 +164,71 @@ public class ImportService extends BasedService {
 
     /**
      * Find a forecast value by Region and Series, year is an option if year is empty then we get all years
+     *
      * @param region
      * @param series
      * @param year
      * @return
      */
-    private List<ForeCastValue> findForeCastValue(Region region, String series, int... year){
-       return null;
+    private List<ForeCastValue> findForeCastValue(Region region, String series, int... year) {
+        return null;
     }
 
-    private List<ForeCastValue> loadForecastForCompetitorPricingFromFile(){
+    private List<ForeCastValue> loadForecastForCompetitorPricingFromFile() throws IOException, IllegalAccessException {
         List<ForeCastValue> result = new ArrayList<ForeCastValue>();
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.forecast-pricing");
+
+        Map<String, Region> mapSheetNameWithRegion = new HashMap<>();
+
+        mapSheetNameWithRegion.put("Asia_Fin", regionRepository.findByRegionId("A").get());
+        mapSheetNameWithRegion.put("Pac_Fin", regionRepository.findByRegionId("P").get());
+        mapSheetNameWithRegion.put("ISC_Fin", regionRepository.findByRegionId("I").get());
+
+
+        List<String> fileList = getAllFilesInFolder(folderPath, 3);
+        for (String fileName : fileList) {
+            String pathFile = folderPath + "/" + fileName;
+            //check file has been imported ?
+            if (isImported(pathFile)) {
+                logWarning("file '" + fileName + "' has been imported");
+                continue;
+            }
+            logInfo("{ Start loading file into memory: '" + fileName + "'");
+
+            InputStream is = new FileInputStream(pathFile);
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
+
+            //browser all sheet
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                ForeCastValue foreCastValue = new ForeCastValue();
+                // get sheetName -> region
+                String sheetName = workbook.getSheetName(i);
+                Region region = mapSheetNameWithRegion.get(sheetName);
+                HashMap<String, Integer> FORECAST_COLUMNS_NAME = new HashMap<>();
+                Sheet regionSheet = workbook.getSheet(sheetName);
+                List<ForeCastValue> listForecastValue = new ArrayList<>();
+                for (Row row : regionSheet) {
+                    if (row.getRowNum() == 1) getOrderColumnsName(row, FORECAST_COLUMNS_NAME);
+                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
+                        List<ForeCastValue> getListForeCastFromRow = mapExcelDataIntoForeCastValueObject(row, FORECAST_COLUMNS_NAME, region);
+
+                    }
+                }
+
+
+            }
+
+
+            List<CompetitorPricing> competitorPricingList = new ArrayList<>();
+
+            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
+
+            competitorPricingRepository.saveAll(competitorPricingList);
+            updateStateImportFile(pathFile);
+        }
+
 
         // read all workbook, add all ForeCastValue to the results
         // extract Region
@@ -205,7 +240,7 @@ public class ImportService extends BasedService {
         foreCastValue.setSeries("");
         foreCastValue.setYear(2023);
         foreCastValue.setQuantity(10);
-        
+
         result.add(foreCastValue);
 
         return result;
@@ -214,6 +249,7 @@ public class ImportService extends BasedService {
     private CompetitorPricing importForcastForCompetitorPricing(CompetitorPricing competitorPricing) throws IOException {
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.forecast-pricing");
+
 
         String series = competitorPricing.getSeries();
 
@@ -232,8 +268,6 @@ public class ImportService extends BasedService {
 
             InputStream is = new FileInputStream(pathFile);
             XSSFWorkbook workbook = new XSSFWorkbook(is);
-
-            
 
 
             HashMap<String, Integer> FORECAST_COLUMNS_NAME = new HashMap<>();
@@ -267,20 +301,20 @@ public class ImportService extends BasedService {
                     Cell cell2022 = row.getCell(6);
 
                     System.out.println(cell2022.getCellType());
-                  //  evaluator.evaluateFormulaCell(cell2022);
+                    //  evaluator.evaluateFormulaCell(cell2022);
                     double volume2022 = cell2022.getNumericCellValue();
                     competitorPricing.setActual(volume2022);
                     System.out.println(volume2022);
 
                     // Cell 2023
                     Cell cell2023 = row.getCell(7);
-                  //  evaluator.evaluate(cell2023);
+                    //  evaluator.evaluate(cell2023);
                     double volume2023 = cell2023.getNumericCellValue();
                     competitorPricing.setAOPF(volume2023);
 
                     // Cell 2024
                     Cell cell2024 = row.getCell(8);
-                 //   evaluator.evaluate(cell2024);
+                    //   evaluator.evaluate(cell2024);
                     double volume2024 = cell2024.getNumericCellValue();
                     competitorPricing.setLRFF(volume2024);
                     return competitorPricing;
@@ -289,6 +323,31 @@ public class ImportService extends BasedService {
         }
 
         return competitorPricing;
+    }
+
+    public List<ForeCastValue> mapExcelDataIntoForeCastValueObject(Row row, HashMap<String, Integer> FORECAST_COLUMNS_NAME, Region region) throws IllegalAccessException {
+        List<ForeCastValue> result = new ArrayList<>();
+        //get series
+        Cell metaSeriesCell = row.getCell(FORECAST_COLUMNS_NAME.get("Series /Segments"));
+        String metaSeries = metaSeriesCell.getStringCellValue();
+        // if length of metaSeries > 4 -> row is Total
+        if (metaSeries.length() > 4)
+            return null;
+
+        int startCellQuantity = 5;
+        int yearStart = 2021;
+
+        for (; startCellQuantity < 12; startCellQuantity++) {
+            //get quantity
+            Cell quantityCell = row.getCell(startCellQuantity);
+            int quantity = (int) quantityCell.getNumericCellValue();
+            //Forecast
+            ForeCastValue foreCast = new ForeCastValue(region, yearStart, metaSeries, quantity);
+            result.add(foreCast);
+            yearStart++;
+        }
+        return result;
+
     }
 
 }
