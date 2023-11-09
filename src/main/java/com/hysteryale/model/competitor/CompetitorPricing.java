@@ -40,6 +40,7 @@ public class CompetitorPricing {
     // variance % (competitor - (Dealer street + premium))
     private Double variancePercentage;
     private boolean isChineseBrand;
+    private double dealerNet;
 
     public CompetitorPricing(String region, String clazz, Double competitorLeadTime, String series) {
         this.region = region;
