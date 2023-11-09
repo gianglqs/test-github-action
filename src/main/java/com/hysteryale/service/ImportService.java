@@ -203,10 +203,7 @@ public class ImportService extends BasedService {
 
             
 
-            for(int i =0;i <100;i++){
-                XSSFSheet s =  workbook.getSheetAt(i);
-                System.out.println(s.getSheetName());
-            }
+
             HashMap<String, Integer> FORECAST_COLUMNS_NAME = new HashMap<>();
             String sheetName = null;
 
@@ -236,20 +233,22 @@ public class ImportService extends BasedService {
 
                     // Cell 2022
                     Cell cell2022 = row.getCell(6);
-                    System.out.println(cell2022.getCachedFormulaResultType());
-                    evaluator.evaluateFormulaCell(cell2022);
+
+                    System.out.println(cell2022.getCellType());
+                  //  evaluator.evaluateFormulaCell(cell2022);
                     double volume2022 = cell2022.getNumericCellValue();
                     competitorPricing.setActual(volume2022);
+                    System.out.println(volume2022);
 
                     // Cell 2023
                     Cell cell2023 = row.getCell(7);
-                    evaluator.evaluate(cell2023);
+                  //  evaluator.evaluate(cell2023);
                     double volume2023 = cell2023.getNumericCellValue();
                     competitorPricing.setAOPF(volume2023);
 
                     // Cell 2024
                     Cell cell2024 = row.getCell(8);
-                    evaluator.evaluate(cell2024);
+                 //   evaluator.evaluate(cell2024);
                     double volume2024 = cell2024.getNumericCellValue();
                     competitorPricing.setLRFF(volume2024);
                     return competitorPricing;
