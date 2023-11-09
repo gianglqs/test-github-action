@@ -1,5 +1,6 @@
 package com.hysteryale.service;
 
+import com.hysteryale.model.Region;
 import com.hysteryale.repository.RegionRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,10 @@ public class RegionService {
             listRegion.add(mapRegion);
         }
         return listRegion;
+    }
+
+    public Region getRegionByName(String strRegion) {
+        return regionRepository.getRegionByName(strRegion);
     }
 
 }
