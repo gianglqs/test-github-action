@@ -22,7 +22,7 @@ class IndicatorApi extends HttpService<any> {
    };
 
    getIndicator = (data: any, pageNo: number, perPage: number) => {
-      return this.post<any>(`indicatoraaa?pageNo=${pageNo}&perPage=${perPage}`, {
+      return this.post<any>(`indicator?pageNo=${pageNo}&perPage=${perPage}`, {
          ...data,
       });
    };

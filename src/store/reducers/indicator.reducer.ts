@@ -49,6 +49,14 @@ export const sagaGetList = createAction(`${name}/GET_LIST`);
 export const selectState = (state: RootReducerType) => state[name];
 export const selectIndicatorList = createSelector(selectState, (state) => state.indicatorList);
 export const selectInitDataFilter = createSelector(selectState, (state) => state.initDataFilter);
+export const selectDataForLineChartRegion = createSelector(
+   selectState,
+   (state) => state.initDataForLineChartRegion
+);
+export const selectDataForLineChartPLant = createSelector(
+   selectState,
+   (state) => state.initDataForLineChartPlant
+);
 
 export const selectDefaultValueFilterIndicator = createSelector(
    selectState,

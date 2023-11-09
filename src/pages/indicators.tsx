@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { indicatorStore, commonStore, bookingStore } from '@/store/reducers';
+import { indicatorStore, commonStore } from '@/store/reducers';
 import { Button } from '@mui/material';
 import {
    AppLayout,
@@ -28,7 +28,7 @@ import {
 import { Bubble, Line } from 'react-chartjs-2';
 import { faker } from '@faker-js/faker';
 
-import { defaultValueFilterBooking } from '@/utils/defaultValues';
+import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
 
@@ -39,11 +39,21 @@ export default function Indicators() {
 
    const tableState = useSelector(commonStore.selectTableState);
 
+   // select data Filter in store
    const initDataFilter = useSelector(indicatorStore.selectInitDataFilter);
+   console.log('init data filter', initDataFilter);
 
-   const [dataFilter, setDataFilter] = useState(defaultValueFilterBooking);
+   const [dataFilter, setDataFilter] = useState(defaultValueFilterIndicator);
 
-   console.log(initDataFilter.models);
+   // Select data line Chart Region in store
+   /**
+    *
+    *
+    *
+    */
+
+   const dataForLineChartRegion = useSelector(indicatorStore.selectDataForLineChartRegion);
+   console.log(dataForLineChartRegion);
 
    const dispatch = useDispatch();
 
@@ -261,8 +271,6 @@ export default function Indicators() {
    //create array Year use to Label, vd: 2022,2023,2024,2025,...
    const arrayYear = Array.from({ length: 5 }, (_, i) => i + year - 1);
 
-   console.log(arrayYear);
-
    const dataLineChart = {
       labels,
       datasets: [
@@ -284,11 +292,17 @@ export default function Indicators() {
             borderColor: '#17a9a3',
             backgroundColor: '#17a9a3',
          },
+         {
+            label: 'China',
+            data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
+            borderColor: '#17a9a3',
+            backgroundColor: '#17a9a3',
+         },
       ],
    };
 
-   const dataForLineChartRegion = {
-      arrayYear,
+   const modifyDataLineChartRegion = {
+      labels,
       datasets: [],
    };
 

@@ -19,11 +19,9 @@ function* fetchIndicator() {
       );
 
       const dataForLineChartPlant = yield* call(
-         indicatorApi.getDataLineChartRegion,
+         indicatorApi.getDataLineChartPlant,
          defaultValueFilterIndicator
       );
-
-      console.log(dataForLineChartRegion);
 
       const initDataFilter = yield* call(indicatorApi.getInitDataFilter);
 
