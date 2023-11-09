@@ -9,6 +9,9 @@ import java.util.List;
 public interface CompetitorPricingRepository extends JpaRepository<CompetitorPricing, Integer> {
 
     @Query("SELECT c.country, c.clazz, c.category, c.series FROM CompetitorPricing c GROUP BY c.country, c.clazz, c.category, c.series")
-    List<CompetitorPricing> getCompetitorGroup();
+    List<String[]> getCompetitorGroup();
+
+    @Query("SELECT c FROM CompetitorPricing c WHERE c.country = ?1 AND c.clazz = ?2 AND c.category = ?3 AND c.series = ?4")
+    List<CompetitorPricing> getListOfCompetitorInGroup(String country, String clazz, String category, String series);
 
 }

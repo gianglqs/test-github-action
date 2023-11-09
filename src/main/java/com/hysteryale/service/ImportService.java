@@ -22,10 +22,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,47 +102,55 @@ public class ImportService extends BasedService {
             leadTime = cellLeadTime.getNumericCellValue();
         }
 
-        double dealerStreetPricing = row.getCell(ORDER_COLUMNS_NAME.get("Price (USD)")).getNumericCellValue();
+        double competitorPricing = row.getCell(ORDER_COLUMNS_NAME.get("Price (USD)")).getNumericCellValue();
 
         // 2 fields below are hard-coded, will be modified later
         double percentageDealerPremium = 0.1;
         double dealerNet = 10000;
 
-        double handlingCost = dealerStreetPricing - dealerNet * (1 + percentageDealerPremium);
-        double dealerPricingPremium = dealerStreetPricing - (dealerNet + handlingCost);
-        double dealerPricingPremiumPercentage = dealerPricingPremium / dealerStreetPricing;
-
-
-
         String category = row.getCell(ORDER_COLUMNS_NAME.get("Category")).getStringCellValue();
         String country = row.getCell(ORDER_COLUMNS_NAME.get("Country"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
 
+        // assigning values for CompetitorPricing
+        CompetitorPricing cp = new CompetitorPricing();
+        cp.setCompetitorName(competitorName);
+        cp.setCategory(category);
+        cp.setCountry(country);
+        cp.setRegion(region);
+        cp.setClazz(clazz);
+        cp.setCompetitorLeadTime(leadTime);
+        cp.setDealerNet(dealerNet);
+        cp.setChineseBrand(isChineseBrand);
+
+        cp.setCompetitorPricing(competitorPricing);
+        cp.setDealerPremiumPercentage(percentageDealerPremium);
+        cp.setSeries("");
+
+        // separate seriesString (for instances: A3C4/A7S4)
         String seriesString;
         Cell cellSeries = row.getCell(ORDER_COLUMNS_NAME.get("HYG Series"));
         if (cellSeries != null && cellSeries.getCellType() == CellType.STRING) {
             seriesString = cellSeries.getStringCellValue();
             StringTokenizer stk = new StringTokenizer(seriesString, "/");
             while (stk.hasMoreTokens()) {
+                CompetitorPricing cp1 = new CompetitorPricing();
+                cp1.setCompetitorName(competitorName);
+                cp1.setCategory(category);
+                cp1.setCountry(country);
+                cp1.setRegion(region);
+                cp1.setClazz(clazz);
+                cp1.setCompetitorLeadTime(leadTime);
+                cp1.setDealerNet(dealerNet);
+                cp1.setChineseBrand(isChineseBrand);
 
-                CompetitorPricing cp = new CompetitorPricing(region, clazz, leadTime, stk.nextToken());
-                cp.setCompetitorName(competitorName);
-                cp.setDealerStreetPricing(dealerStreetPricing);
-                cp.setDealerHandlingCost(handlingCost);
-                cp.setDealerPremiumPercentage(percentageDealerPremium);
-
-                cp.setDealerHandlingCost(handlingCost);
-                cp.setDealerPricingPremium(dealerPricingPremium);
-                cp.setDealerPricingPremiumPercentage(dealerPricingPremiumPercentage);
-
-                cp.setCategory(category);
-                cp.setCountry(country);
-                competitorPricingList.add(cp);
-
+                cp1.setCompetitorPricing(competitorPricing);
+                cp1.setDealerPremiumPercentage(percentageDealerPremium);
+                cp1.setSeries(stk.nextToken());
+                competitorPricingList.add(cp1);
             }
-        } else {
-            CompetitorPricing cp = new CompetitorPricing(region, clazz, leadTime);
-            competitorPricingList.add(cp);
         }
+        else
+            competitorPricingList.add(cp);
 
         return competitorPricingList;
     }
@@ -180,24 +185,28 @@ public class ImportService extends BasedService {
                     List<CompetitorPricing> competitorPricings = mapExcelDataIntoOrderObject(row, COMPETITOR_COLUMNS_NAME);
                     for (CompetitorPricing competitorPricing : competitorPricings) {
                         // if it has series -> assign ForeCastValue
-                        if (competitorPricing.getSeries() != null) {
+                        if (!competitorPricing.getSeries().isEmpty()) {
                             String strRegion = competitorPricing.getRegion();
                             String metaSeries = competitorPricing.getSeries().substring(1); // extract metaSeries from series
 
-                            ForeCastValue foreCast2022 = findForeCastValue(foreCastValues, strRegion, metaSeries, 2022);
-                            ForeCastValue foreCast2023 = findForeCastValue(foreCastValues, strRegion, metaSeries, 2023);
-                            ForeCastValue foreCast2024 = findForeCastValue(foreCastValues, strRegion, metaSeries, 2024);
+                            Calendar time = Calendar.getInstance();
+                            int currentYear = time.get(Calendar.YEAR);
 
-                            competitorPricing.setActual(foreCast2022 == null ? 0 : foreCast2022.getQuantity());
-                            competitorPricing.setAOPF(foreCast2023 == null ? 0 : foreCast2023.getQuantity());
-                            competitorPricing.setLRFF(foreCast2024 == null ? 0 : foreCast2024.getQuantity());
-                            competitorPricing.setPlant(foreCast2024 == null ? null : foreCast2024.getPlant());
+                            ForeCastValue actualForeCast = findForeCastValue(foreCastValues, strRegion, metaSeries, currentYear - 1);
+                            ForeCastValue AOPFForeCast = findForeCastValue(foreCastValues, strRegion, metaSeries, currentYear);
+                            ForeCastValue LRFFForeCast = findForeCastValue(foreCastValues, strRegion, metaSeries, currentYear + 1);
+
+                            competitorPricing.setActual(actualForeCast == null ? 0 : actualForeCast.getQuantity());
+                            competitorPricing.setAOPF(AOPFForeCast == null ? 0 : AOPFForeCast.getQuantity());
+                            competitorPricing.setLRFF(LRFFForeCast == null ? 0 : LRFFForeCast.getQuantity());
+                            competitorPricing.setPlant(LRFFForeCast == null ? "" : LRFFForeCast.getPlant());
                         }
                         competitorPricingList.add(competitorPricing);
                     }
                 }
             }
             competitorPricingRepository.saveAll(competitorPricingList);
+            assigningCompetitorValues();
             updateStateImportFile(pathFile);
         }
     }
@@ -234,13 +243,20 @@ public class ImportService extends BasedService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
 
 
-            int[] years = {2021, 2022, 2023, 2024, 2025, 2026, 2027};
+            List<Integer> years = new ArrayList<>();
+            HashMap<Integer, Integer> YEARS_COLUMN = new HashMap<>();
             HashMap<String, Integer> FORECAST_ORDER_COLUMN = new HashMap<>();
 
             for(Sheet sheet : workbook) {
                 Region region = getRegionBySheetName(sheet.getSheetName());
                 for(Row row : sheet) {
-                    if(row.getRowNum() == 1)
+                    if(row.getRowNum() == 0)
+                    {
+                        getYearsInForeCast(YEARS_COLUMN, row, years);
+                        log.info("" + YEARS_COLUMN);
+                        log.info("" + years);
+                    }
+                    else if(row.getRowNum() == 1)
                         getOrderColumnsName(row, FORECAST_ORDER_COLUMN);
                     else if(!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() &&       // checking null
                             row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().length() == 3 &&    // checking cell is whether metaSeries or not
@@ -261,6 +277,17 @@ public class ImportService extends BasedService {
         }
         log.info("Number of ForeCastValue: " + foreCastValues.size());
         return foreCastValues;
+    }
+    private void getYearsInForeCast(HashMap<Integer, Integer> YEARS_COLUMN, Row row, List<Integer> years) {
+        for(Cell cell : row) {
+            if(cell.getCellType() == CellType.NUMERIC) {
+                int year = (int) cell.getNumericCellValue();
+                if(YEARS_COLUMN.get(year) == null) {
+                    YEARS_COLUMN.put(year, cell.getColumnIndex());
+                    years.add(year);
+                }
+            }
+        }
     }
 
     /**
@@ -312,13 +339,67 @@ public class ImportService extends BasedService {
     /**
      * Get CompetitorGroup based on country, class, category, series --> for assigning HYGLeadTime, DealerStreetPricing and calculating Variance %
      */
-    private List<CompetitorPricing> getCompetitorGroup() {
+    private List<String[]> getCompetitorGroup() {
         return competitorPricingRepository.getCompetitorGroup();
     }
 
+    /**
+     * Using {country, clazz, category, series} to specify a group of CompetitorPricing -> then can use for calculating values later
+     */
+    private List<CompetitorPricing> getListOfCompetitorInGroup(String country, String clazz, String category, String series) {
+        return competitorPricingRepository.getListOfCompetitorInGroup(country, clazz, category, series);
+    }
+
+    /**
+     * Assign hygLeadTime, averageDealerNet, dealerStreetPremium and calculating variancePercentage for CompetitorPricing
+     * after save based data into DB
+     */
     @Transactional
     private void assigningCompetitorValues() {
+        List<String[]> competitorGroups = getCompetitorGroup();
+        for(String[] competitorGroup : competitorGroups) {
+            String country = competitorGroup[0];
+            String clazz = competitorGroup[1];
+            String category = competitorGroup[2];
+            String series = competitorGroup[3];
+            log.info(country + " - " + clazz + " - " + category + " - " + series);
 
+            List<CompetitorPricing> competitorPricingList = getListOfCompetitorInGroup(country, clazz, category, series);
+            log.info("Number of elements: " + competitorPricingList.size());
+            double hygLeadTime = 0;
+            double totalDealerNet = 0;
+            double dealerStreetPricing = 0;
+            for(CompetitorPricing cp : competitorPricingList) {
+
+                // Find HYG Brand to assign hygLeadTime and dealerStreetPricing for other brand in a group {country, class, category, series}
+                String competitorName = cp.getCompetitorName();
+                if(competitorName.contains("HYG") || competitorName.contains("Hyster") || competitorName.contains("Yale") || competitorName.contains("HYM")) {
+                    hygLeadTime = cp.getCompetitorLeadTime();
+                    dealerStreetPricing = cp.getCompetitorPricing();
+                }
+                totalDealerNet += cp.getDealerNet();
+            }
+            double averageDealerNet = totalDealerNet / competitorPricingList.size();
+
+            // Assigning hygLeadTime, averageDealerNet, dealerStreetPremium
+            for(CompetitorPricing cp : competitorPricingList) {
+                cp.setHYGLeadTime(hygLeadTime);
+                cp.setDealerStreetPricing(dealerStreetPricing);
+                cp.setAverageDN(averageDealerNet);
+
+                double handlingCost = dealerStreetPricing - cp.getDealerNet() * (1 + cp.getDealerPremiumPercentage());
+                double dealerPricingPremium = dealerStreetPricing - (cp.getDealerNet() + handlingCost);
+                double dealerPricingPremiumPercentage = dealerPricingPremium / dealerStreetPricing;
+                cp.setDealerHandlingCost(handlingCost);
+                cp.setDealerPricingPremium(dealerPricingPremium);
+                cp.setDealerPricingPremiumPercentage(dealerPricingPremiumPercentage);
+
+                // calculate Variance % = competitorPricing - (dealerStreetPricing + dealerPricingPremium)
+                double variancePercentage = (cp.getCompetitorPricing() - (cp.getDealerStreetPricing() + cp.getDealerPricingPremium())) / cp.getCompetitorPricing();
+                cp.setVariancePercentage(variancePercentage);
+            }
+            competitorPricingRepository.saveAll(competitorPricingList);
+        }
     }
 
 }
