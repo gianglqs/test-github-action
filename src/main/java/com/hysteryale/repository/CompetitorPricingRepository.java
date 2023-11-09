@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface CompetitorPricingRepository extends JpaRepository<CompetitorPricing, Integer> {
 
-    public List<CompetitorPricing> findCompetitorByFilter(String region)
+    public List<CompetitorPricing> findCompetitorByFilter(String[] region, String[] dealerName, String[] plant, String[] metaSeries, String[] classes, String[] model, String AOPMarginPercentageGroup, Boolean chineseBrand );
+
 
 }
