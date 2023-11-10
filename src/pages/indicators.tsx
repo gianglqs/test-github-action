@@ -1,511 +1,445 @@
 import { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { bookingStore, commonStore } from '@/store/reducers';
+import { indicatorStore, commonStore } from '@/store/reducers';
 import { Button } from '@mui/material';
 import {
-  AppLayout,
-  DataTablePagination,
-  AppDateField,
-  DataTable,
-  AppTextField,
-  AppAutocomplete,
+   AppLayout,
+   DataTablePagination,
+   AppDateField,
+   DataTable,
+   AppTextField,
+   AppAutocomplete,
 } from '@/components';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 
-import { TabScrollButton } from '@mui/material';
+import LineChart from '@/components/chart/Line';
 
 import {
-  Chart as ChartJS,
-  LinearScale,
-  PointElement,
-  Tooltip,
-  LineElement,
-  Legend,
-  CategoryScale,
+   Chart as ChartJS,
+   LinearScale,
+   PointElement,
+   Tooltip,
+   LineElement,
+   Legend,
+   CategoryScale,
 } from 'chart.js';
 import { Bubble, Line } from 'react-chartjs-2';
 import { faker } from '@faker-js/faker';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
-
-import { defaultValueFilterBooking } from '@/utils/defaultValues';
+import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
+import { log } from 'console';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
+
 export default function Indicators() {
-  const listBookingOrder = useSelector(bookingStore.selectBookingList);
+   // const listIndicator = useSelector(indicatorStore.selectIndicatorList);
 
-  const tableState = useSelector(commonStore.selectTableState);
-  const initDataFilter = useSelector(bookingStore.selectInitDataFilter);
-  const [dataFilter, setDataFilter] = useState(defaultValueFilterBooking);
+   const tableState = useSelector(commonStore.selectTableState);
 
-  const dispatch = useDispatch();
+   // select data Filter in store
+   const initDataFilter = useSelector(indicatorStore.selectInitDataFilter);
 
-  const handleChangeDataFilter = (option, field) => {
-    setDataFilter((prev) =>
-      produce(prev, (draft) => {
-        if (
-          _.includes(
-            ['orderNo', 'fromDate', 'toDate', 'MarginPercetage', 'AOPMarginPercetage'],
-            field
-          )
-        ) {
-          draft[field] = option;
-        } else {
-          draft[field] = option.map(({ value }) => value);
-        }
-      })
-    );
-  };
+   const [dataFilter, setDataFilter] = useState(defaultValueFilterIndicator);
 
-  const handleChangePage = (pageNo: number) => {
-    dispatch(commonStore.actions.setTableState({ pageNo }));
-    dispatch(bookingStore.sagaGetList());
-  };
+   const getDataForTable = useSelector(indicatorStore.selectIndicatorList);
 
-  const handleChangePerPage = (perPage: number) => {
-    dispatch(commonStore.actions.setTableState({ perPage }));
-    handleChangePage(1);
-  };
+   // Select data line Chart Region in store
 
-  const handleFilterOrderBooking = () => {
-    dispatch(bookingStore.actions.setDefaultValueFilterBooking(dataFilter));
-    handleChangePage(1);
-  };
+   const dataForLineChartRegion = useSelector(indicatorStore.selectDataForLineChartRegion);
 
-  const formatNumber = (num: number) => {
-    return num.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  };
+   const dataForLineChartPlant = useSelector(indicatorStore.selectDataForLineChartPLant);
 
-  const columns = [
-    {
-      field: 'orderNo',
-      flex: 0.8,
-      headerName: 'Region',
-    },
-    {
-      field: 'region',
-      flex: 0.8,
-      headerName: 'Plant',
-      renderCell(params) {
-        return <span>{params.row.region.region}</span>;
-      },
-    },
-    {
-      field: 'ctryCode',
-      flex: 0.8,
-      headerName: 'Class',
-    },
-    {
-      field: 'dealerName',
-      flex: 1.2,
-      headerName: 'Series',
-    },
-    {
-      field: 'Plant',
-      flex: 0.8,
-      headerName: 'Average Dealer Net',
-      renderCell(params) {
-        return <span>{params.row.productDimension?.plant}</span>;
-      },
-    },
-    {
-      field: 'truckClass',
-      flex: 0.8,
-      headerName: '2022 Actual',
-      renderCell(params) {
-        return <span>{params.row.productDimension?.clazz}</span>;
-      },
-    },
-    {
-      field: 'series',
-      flex: 0.8,
-      headerName: '2023 AOPF',
-      renderCell(params) {
-        return <span>{params.row.series}</span>;
-      },
-    },
-    {
-      field: 'model',
-      flex: 0.8,
-      headerName: '2024 LRFF',
-      renderCell(params) {
-        return <span>{params.row.model}</span>;
-      },
-    },
-    {
-      field: 'quantity',
-      flex: 0.8,
-      headerName: 'HYG Lead Time',
-    },
-    {
-      field: 'totalCost',
-      flex: 0.8,
-      headerName: 'Competitor Lead Time',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.totalCost)}</span>;
-      },
-    },
-    {
-      field: 'dealerNet',
-      flex: 0.8,
-      headerName: 'Dealer Street Pricing(USD)',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.dealerNet)}</span>;
-      },
-    },
-    {
-      field: 'dealerNetAfterSurCharge',
-      flex: 0.8,
-      headerName: 'Dealer Handling Cost',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
-      },
-    },
-    {
-      field: 'marginAfterSurCharge',
-      flex: 1,
-      headerName: 'Dealer Pricing Premium/Margin (USD)',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
-      },
-    },
+   const dispatch = useDispatch();
 
-    {
-      field: 'marginPercentageAfterSurCharge',
-      flex: 1,
-      headerName: 'Dealer Premium / Margin %',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
-      },
-    },
-    {
-      field: 'aopmarginPercentage',
-      flex: 1,
-      headerName: 'Competition Pricing (USD)',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
-      },
-    },
-    {
-      field: 'th',
-      flex: 1,
-      headerName: 'Competitor Name',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
-      },
-    },
-    {
-      field: 'aopmarginPercthtentage',
-      flex: 1,
-      headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
-      renderCell(params) {
-        return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
-      },
-    },
-  ];
+   const handleChangeDataFilter = (option, field) => {
+      setDataFilter((prev) =>
+         produce(prev, (draft) => {
+            if (_.includes(['Chinese Brand', 'AOPMarginPercetage'], field)) {
+               draft[field] = option;
+            } else {
+               draft[field] = option.map(({ value }) => value);
+            }
+         })
+      );
+   };
 
-  const options = {
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
-  const data = {
-    datasets: [
+   const handleChangePage = (pageNo: number) => {
+      dispatch(commonStore.actions.setTableState({ pageNo }));
+      dispatch(indicatorStore.sagaGetList());
+   };
+
+   const handleChangePerPage = (perPage: number) => {
+      dispatch(commonStore.actions.setTableState({ perPage }));
+      handleChangePage(1);
+   };
+
+   const handleFilterIndicator = () => {
+      dispatch(indicatorStore.actions.setDefaultValueFilterIndicator(dataFilter));
+      handleChangePage(1);
+   };
+
+   const formatNumber = (num: number) => {
+      return num.toLocaleString(undefined, {
+         minimumFractionDigits: 2,
+         maximumFractionDigits: 2,
+      });
+   };
+
+   const columns = [
       {
-        label: 'Red dataset',
-        data: Array.from({ length: 50 }, () => ({
-          x: faker.number.int({ min: -100, max: 100 }),
-          y: faker.number.int({ min: -100, max: 100 }),
-          r: faker.number.int({ min: 5, max: 20 }),
-        })),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+         field: 'region',
+         flex: 0.8,
+         headerName: 'Region',
       },
       {
-        label: 'Blue dataset',
-        data: Array.from({ length: 50 }, () => ({
-          x: faker.number.int({ min: -100, max: 100 }),
-          y: faker.number.int({ min: -100, max: 100 }),
-          r: faker.number.int({ min: 5, max: 20 }),
-        })),
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+         field: 'plant',
+         flex: 0.8,
+         headerName: 'Plant',
+         renderCell(params) {
+            return <span>{params.row.region}</span>;
+         },
       },
-    ],
-  };
+      {
+         field: 'clazz',
+         flex: 0.8,
+         headerName: 'Class',
+      },
+      {
+         field: 'series',
+         flex: 1.2,
+         headerName: 'Series',
+      },
+      {
+         field: 'averageDN',
+         flex: 0.8,
+         headerName: 'Average Dealer Net',
+         renderCell(params) {
+            return <span>{params.row.averageDN}</span>;
+         },
+      },
+      {
+         field: 'actual',
+         flex: 0.8,
+         headerName: '2022 Actual',
+         renderCell(params) {
+            return <span>{params.row.actual}</span>;
+         },
+      },
+      {
+         field: 'aopf',
+         flex: 0.8,
+         headerName: '2023 AOPF',
+         renderCell(params) {
+            return <span>{params.row.aopf}</span>;
+         },
+      },
+      {
+         field: 'lrff',
+         flex: 0.8,
+         headerName: '2024 LRFF',
+         renderCell(params) {
+            return <span>{params.row.lrff}</span>;
+         },
+      },
+      {
+         field: 'hygleadTime',
+         flex: 0.8,
+         headerName: 'HYG Lead Time',
+      },
+      {
+         field: 'competitorLeadTime',
+         flex: 0.8,
+         headerName: 'Competitor Lead Time',
+      },
+      {
+         field: 'dealerStreetPricing',
+         flex: 0.8,
+         headerName: 'Dealer Street Pricing(USD)',
+      },
+      {
+         field: 'dealerHandlingCost',
+         flex: 0.8,
+         headerName: 'Dealer Handling Cost',
+      },
+      {
+         field: 'dealerPricingPremiumPercentage',
+         flex: 1,
+         headerName: 'Dealer Pricing Premium/Margin (USD)',
+      },
 
-  const optionsLineChart = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
+      {
+         field: 'dealerPremiumPercentage',
+         flex: 1,
+         headerName: 'Dealer Premium / Margin %',
       },
-      title: {
-        display: true,
-        text: 'Son Giang',
+      {
+         field: 'competitorPricing',
+         flex: 1,
+         headerName: 'Competition Pricing (USD)',
       },
-    },
-  };
+      {
+         field: 'competitorName',
+         flex: 1,
+         headerName: 'Competitor Name',
+      },
+      {
+         field: 'variancePercentage',
+         flex: 1,
+         headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
+      },
+   ];
 
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+   const options = {
+      scales: {
+         y: {
+            beginAtZero: true,
+         },
+      },
+   };
+   const data = {
+      datasets: [
+         {
+            label: 'Red dataset',
+            data: Array.from({ length: 10 }, () => ({
+               x: faker.number.int({ min: -100, max: 100 }),
+               y: faker.number.int({ min: -100, max: 100 }),
+               r: faker.number.int({ min: 5, max: 20 }),
+            })),
+            backgroundColor: 'rgba(88, 24, 69, 0.5)',
+         },
+         {
+            label: 'Blue dataset',
+            data: Array.from({ length: 10 }, () => ({
+               x: faker.number.int({ min: -100, max: 100 }),
+               y: faker.number.int({ min: -100, max: 100 }),
+               r: faker.number.int({ min: 5, max: 20 }),
+            })),
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+         },
+      ],
+   };
 
-  const dataLineChart = {
-    labels,
-    datasets: [
-      {
-        label: 'ASIA',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-      {
-        label: 'India',
-        data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-    ],
-  };
+   const labels = [2022, 2023, 2024];
 
-  // create scrollbar for table
+   const currentDate = new Date();
 
-  return (
-    <>
-      <AppLayout entity="booking" heightBody={1100}>
-        <Grid container spacing={1}>
-          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
-            <AppAutocomplete
-              options={initDataFilter.regions}
-              label="Region"
-              onChange={(e, option) => handleChangeDataFilter(option, 'regions')}
-              limitTags={2}
-              disableListWrap
-              primaryKeyOption="value"
-              multiple
-              disableCloseOnSelect
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
-          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
-            <AppAutocomplete
-              options={initDataFilter.plants}
-              label="Plant"
-              sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, 'plants')}
-              limitTags={1}
-              disableListWrap
-              primaryKeyOption="value"
-              multiple
-              disableCloseOnSelect
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
-          <Grid item xs={2}>
-            <AppAutocomplete
-              options={initDataFilter.metaSeries}
-              label="MetaSeries"
-              sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, 'metaSeries')}
-              limitTags={1}
-              disableListWrap
-              primaryKeyOption="value"
-              multiple
-              disableCloseOnSelect
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
-          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
-            <AppAutocomplete
-              options={initDataFilter.dealers}
-              label="Dealer"
-              sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, 'dealers')}
-              limitTags={1}
-              disableListWrap
-              primaryKeyOption="value"
-              multiple
-              disableCloseOnSelect
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
+   let year = currentDate.getFullYear();
 
-          <Grid item xs={2}>
-            <AppAutocomplete
-              options={initDataFilter.classes}
-              label="Class"
-              sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, 'classes')}
-              limitTags={1}
-              disableListWrap
-              primaryKeyOption="value"
-              multiple
-              disableCloseOnSelect
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
-          <Grid item xs={2}>
-            <AppAutocomplete
-              options={initDataFilter.models}
-              label="Model"
-              sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, 'models')}
-              limitTags={1}
-              disableListWrap
-              primaryKeyOption="value"
-              multiple
-              disableCloseOnSelect
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
-          <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
-            <AppAutocomplete
-              options={initDataFilter.segments}
-              label="Segment"
-              sx={{ height: 25, zIndex: 10 }}
-              onChange={(e, option) => handleChangeDataFilter(option, 'segments')}
-              limitTags={1}
-              disableListWrap
-              primaryKeyOption="value"
-              multiple
-              disableCloseOnSelect
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
-          <Grid item xs={2}>
-            <AppAutocomplete
-              options={initDataFilter.AOPMarginPercetage}
-              label="AOP Margin %"
-              primaryKeyOption="value"
-              onChange={(e, option) =>
-                handleChangeDataFilter(_.isNil(option) ? '' : option?.value, 'AOPMarginPercetage')
-              }
-              disableClearable={false}
-              renderOption={(prop, option) => `${option.value}`}
-              getOptionLabel={(option) => `${option.value}`}
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
-              <AppAutocomplete
-                options={initDataFilter.MarginPercetage}
-                label="Margin %"
-                onChange={(e, option) =>
-                  handleChangeDataFilter(_.isNil(option) ? '' : option?.value, 'MarginPercetage')
-                }
-                disableClearable={false}
-                primaryKeyOption="value"
-                renderOption={(prop, option) => `${option.value}`}
-                getOptionLabel={(option) => `${option.value}`}
-              />
+   //create array Year use to Label, vd: 2022,2023,2024,2025,...
+   const arrayYear = Array.from({ length: 3 }, (_, i) => i + year - 1);
+
+   const arrayColor = ['#17a9a3', '#3f0e03', '#147384', '#0048bd', '#005821', '#ec9455', '#ffafa6'];
+
+   const modifyDataLineChartRegion = {
+      labels,
+      datasets: dataForLineChartRegion.map((e, index) => ({
+         label: e.region,
+         data: [e.actual, e.aopf, e.lrff],
+         borderColor: arrayColor[index],
+         backgroundColor: arrayColor[index],
+      })),
+   };
+
+   const modifyDataLineChartPlant = {
+      labels,
+      datasets: dataForLineChartPlant.map((e, index) => ({
+         label: e.plant,
+         data: [e.actual, e.aopf, e.lrff],
+         borderColor: arrayColor[index],
+         backgroundColor: arrayColor[index],
+      })),
+   };
+
+   // create scrollbar for table
+
+   return (
+      <>
+         <AppLayout entity="indicator" heightBody={1100}>
+            <Grid container spacing={1}>
+               <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+                  <AppAutocomplete
+                     options={initDataFilter.regions}
+                     label="Region"
+                     onChange={(e, option) => handleChangeDataFilter(option, 'regions')}
+                     limitTags={2}
+                     disableListWrap
+                     primaryKeyOption="value"
+                     multiple
+                     disableCloseOnSelect
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+               <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+                  <AppAutocomplete
+                     options={initDataFilter.dealers}
+                     label="Dealer"
+                     sx={{ height: 25, zIndex: 10 }}
+                     onChange={(e, option) => handleChangeDataFilter(option, 'dealers')}
+                     limitTags={1}
+                     disableListWrap
+                     primaryKeyOption="value"
+                     multiple
+                     disableCloseOnSelect
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+               <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
+                  <AppAutocomplete
+                     options={initDataFilter.plants}
+                     label="Plant"
+                     sx={{ height: 25, zIndex: 10 }}
+                     onChange={(e, option) => handleChangeDataFilter(option, 'plants')}
+                     limitTags={1}
+                     disableListWrap
+                     primaryKeyOption="value"
+                     multiple
+                     disableCloseOnSelect
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+               <Grid item xs={2}>
+                  <AppAutocomplete
+                     options={initDataFilter.metaSeries}
+                     label="MetaSeries"
+                     sx={{ height: 25, zIndex: 10 }}
+                     onChange={(e, option) => handleChangeDataFilter(option, 'metaSeries')}
+                     limitTags={1}
+                     disableListWrap
+                     primaryKeyOption="value"
+                     multiple
+                     disableCloseOnSelect
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+
+               <Grid item xs={2}>
+                  <AppAutocomplete
+                     options={initDataFilter.classes}
+                     label="Class"
+                     sx={{ height: 25, zIndex: 10 }}
+                     onChange={(e, option) => handleChangeDataFilter(option, 'classes')}
+                     limitTags={1}
+                     disableListWrap
+                     primaryKeyOption="value"
+                     multiple
+                     disableCloseOnSelect
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+               <Grid item xs={2}>
+                  <AppAutocomplete
+                     options={initDataFilter.models}
+                     label="Model"
+                     sx={{ height: 25, zIndex: 10 }}
+                     onChange={(e, option) => handleChangeDataFilter(option, 'models')}
+                     limitTags={1}
+                     disableListWrap
+                     primaryKeyOption="value"
+                     multiple
+                     disableCloseOnSelect
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+
+               <Grid item xs={4}>
+                  <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.chineseBrands}
+                        label="Chinese Brand"
+                        onChange={(e, option) =>
+                           handleChangeDataFilter(
+                              _.isNil(option) ? '' : option?.value,
+                              'Chinese Brand'
+                           )
+                        }
+                        disableClearable={false}
+                        primaryKeyOption="value"
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                     />
+                  </Grid>
+               </Grid>
+
+               <Grid item xs={2}>
+                  <AppAutocomplete
+                     options={initDataFilter.marginPercentageGrouping}
+                     label="AOP Margin % Group"
+                     primaryKeyOption="value"
+                     onChange={(e, option) =>
+                        handleChangeDataFilter(
+                           _.isNil(option) ? '' : option?.value,
+                           'AOPMarginPercetage'
+                        )
+                     }
+                     disableClearable={false}
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+
+               <Grid item xs={2}>
+                  <Button
+                     variant="contained"
+                     onClick={handleFilterIndicator}
+                     sx={{ width: '100%', height: 24 }}
+                  >
+                     Filter
+                  </Button>
+               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={2}>
-            <Button
-              variant="contained"
-              onClick={handleFilterOrderBooking}
-              sx={{ width: '100%', height: 24 }}
+            <Paper elevation={1} sx={{ marginTop: 2 }}>
+               <Grid container>
+                  <DataTable
+                     hideFooter
+                     disableColumnMenu
+                     tableHeight={610}
+                     rowHeight={45}
+                     rows={getDataForTable}
+                     rowBuffer={35}
+                     rowThreshold={25}
+                     columns={columns}
+                     getRowId={(params) => params.id}
+                  />
+               </Grid>
+               <DataTablePagination
+                  page={tableState.pageNo}
+                  perPage={tableState.perPage}
+                  totalItems={tableState.totalItems}
+                  onChangePage={handleChangePage}
+                  onChangePerPage={handleChangePerPage}
+               />
+            </Paper>
+
+            <Grid
+               container
+               spacing={1}
+               justifyContent="center"
+               alignItems="center"
+               sx={{ margin: '20px 0' }}
             >
-              Filter
-            </Button>
-          </Grid>
-        </Grid>
-        <Paper elevation={1} sx={{ marginTop: 2 }}>
-          <Grid container>
-            <DataTable
-              hideFooter
-              disableColumnMenu
-              tableHeight={610}
-              rowHeight={45}
-              rows={listBookingOrder}
-              rowBuffer={35}
-              rowThreshold={25}
-              columns={columns}
-              getRowId={(params) => params.orderNo}
-            />
-          </Grid>
-          <DataTablePagination
-            page={tableState.pageNo}
-            perPage={tableState.perPage}
-            totalItems={tableState.totalItems}
-            onChangePage={handleChangePage}
-            onChangePerPage={handleChangePerPage}
-          />
-        </Paper>
+               <Grid item xs={4}>
+                  <Bubble options={options} data={data} />
+               </Grid>
 
-        <Grid
-          container
-          spacing={1}
-          justifyContent="center"
-          alignItems="center"
-          sx={{ margin: '20px 0' }}
-        >
-          <Grid item xs={4}>
-            <Bubble options={options} data={data} />
-          </Grid>
+               <Grid item xs={4}>
+                  <LineChart chartData={modifyDataLineChartRegion} />
+               </Grid>
 
-          <Grid item xs={4}>
-            <Line options={optionsLineChart} data={dataLineChart} />
-          </Grid>
-
-          <Grid item xs={4}>
-            <Line options={optionsLineChart} data={dataLineChart} />
-          </Grid>
-        </Grid>
-      </AppLayout>
-    </>
-  );
+               <Grid item xs={4}>
+                  <LineChart chartData={modifyDataLineChartPlant} />
+               </Grid>
+            </Grid>
+         </AppLayout>
+      </>
+   );
 }
