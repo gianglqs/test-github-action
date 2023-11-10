@@ -28,4 +28,13 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
     @Query("SELECT COUNT(c) from CompetitorPricing c")
     public int getCountAll();
 
+    @Query("SELECT DISTINCT c.series FROM CompetitorPricing c")
+    List<String> getDistinctSeries();
+
+    @Query("SELECT DISTINCT c.category FROM CompetitorPricing c")
+    List<String> getDistinctCategory();
+
+    @Query("SELECT DISTINCT c.country FROM CompetitorPricing c")
+    List<String> getDistinctCountry();
+
 }

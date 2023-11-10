@@ -36,8 +36,9 @@ public class Part {
     @Column(name = "order_number")
     private String orderNumber;
 
-    //TODO this can be grouped ?
     private String series;
+    private String clazz;
+    private String region;
 
     @Column(name = "part_number")
     private String partNumber;
@@ -81,7 +82,7 @@ public class Part {
     private Currency currency;
 
 
-    public Part(String quoteId, int quantity,String orderNumber, String modelCode, String series, String partNumber, double listPrice, double discount, double discountPercentage, String billTo, double netPriceEach, double customerPrice, double extendedCustomerPrice, Currency currency) {
+    public Part(String quoteId, int quantity,String orderNumber, String modelCode, String series, String partNumber, double listPrice, double discount, double discountPercentage, String billTo, double netPriceEach, double customerPrice, double extendedCustomerPrice, Currency currency, String clazz, String region) {
         this.quoteId = quoteId;
         this.quantity = quantity;
         this.modelCode = modelCode;
@@ -96,5 +97,7 @@ public class Part {
         this.extendedCustomerPrice = extendedCustomerPrice;
         this.currency = currency;
         this.orderNumber = orderNumber;
+        this.clazz = clazz;
+        this.region = region;
     }
 }

@@ -224,6 +224,8 @@
             <column name="quote_id" type="VARCHAR(255)"/>
             <column name="recorded_time" type="date"/>
             <column name="series" type="VARCHAR(255)"/>
+            <column name="country" type="VARCHAR(255)"/>
+            <column name="clazz" type="VARCHAR(255)"/>
             <column name="currency_currency" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>

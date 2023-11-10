@@ -43,6 +43,7 @@ public class CompetitorPricing {
     private Double variancePercentage;
     private boolean isChineseBrand;
     private double dealerNet;
+    private double marketShare;
 
 
     public CompetitorPricing(String region, long actual, long AOPF, long LRFF) {

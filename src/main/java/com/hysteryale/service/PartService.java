@@ -50,6 +50,8 @@ public class PartService extends BasedService {
         String partNumber = row.getCell(powerBIExportColumns.get("Part Number")).getStringCellValue();
         double listPrice = row.getCell(powerBIExportColumns.get("ListPrice")).getNumericCellValue();
         String modelCode = row.getCell(powerBIExportColumns.get("Model")).getStringCellValue();
+        String clazz = row.getCell(powerBIExportColumns.get("Class"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+        String region = row.getCell(powerBIExportColumns.get("Region"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
 
         double discountPercentage;
         Cell discountPercentageCell = row.getCell(powerBIExportColumns.get("Discount"));
@@ -84,7 +86,7 @@ public class PartService extends BasedService {
 
         //optionType, orderBookedDate, orderRequestDate
 
-        return new Part(quoteId, quantity, orderNumber, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency);
+        return new Part(quoteId, quantity, orderNumber, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency, clazz, region);
     }
 
     /**
@@ -160,5 +162,9 @@ public class PartService extends BasedService {
 
     public List<Part> getDistinctPart(String modelCode, Calendar monthYear, String currency) {
         return partRepository.getDistinctPart(modelCode, monthYear, currency);
+    }
+    public Double getAverageDealerNet(String region, String clazz, String series) {
+        Double averageDealerNet = partRepository.getAverageDealerNet(region, clazz, series);
+        return averageDealerNet != null ? averageDealerNet : 0;
     }
 }

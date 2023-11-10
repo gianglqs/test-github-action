@@ -1,11 +1,11 @@
 package com.hysteryale.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.filters.IndicatorFilter;
 import com.hysteryale.service.ChartsService;
 import com.hysteryale.service.FilterService;
-import net.minidev.json.parser.ParseException;
+import com.hysteryale.service.IndicatorsService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +22,23 @@ public class ChartsController {
 
     @Resource
     ChartsService chartsService;
-
     @Resource
     FilterService filterService;
+    @Resource
+    IndicatorsService indicatorsService;
+
+    @PostMapping(value = "/competitiveLandscape", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> getCompetitorPricing(@RequestBody CompetitorPricing competitorPricing) {
+        List<CompetitorPricing> competitorPricingList =
+                indicatorsService.getCompetitiveLandscape(
+                        competitorPricing.getCountry(),
+                        competitorPricing.getClazz(),
+                        competitorPricing.getCategory(),
+                        competitorPricing.getSeries());
+        return Map.of(
+                "competitiveLandscape", competitorPricingList
+        );
+    }
 
 
     @PostMapping("/lineChartRegion")
