@@ -22,5 +22,5 @@ export const defaultValueFilterIndicator = {
    models: [],
    segments: [],
    AOPMarginPercetage: '',
-   MarginPercetage: '',
+   isChinese: '',
 } as any;

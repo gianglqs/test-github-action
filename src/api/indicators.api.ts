@@ -14,17 +14,11 @@ class IndicatorApi extends HttpService<any> {
       responseType = 'default' as ResponseType
    ) => {
       this.saveToken(context);
-      return this.instance.post<T>(`charts/lineChartRegion`, data, { params, responseType });
+      return this.instance.post<T>(`charts/lineChartPlant`, data, { params, responseType });
    };
 
    getDataBubbleChart = (data: any) => {
       return this.post<any>(`bubbleChart`, { ...data });
-   };
-
-   getIndicator = (data: any, pageNo: number, perPage: number) => {
-      return this.post<any>(`indicator?pageNo=${pageNo}&perPage=${perPage}`, {
-         ...data,
-      });
    };
 
    getDataLineChartRegion = <T = any>(
@@ -35,6 +29,20 @@ class IndicatorApi extends HttpService<any> {
    ) => {
       this.saveToken(context);
       return this.instance.post<T>(`charts/lineChartRegion`, data, { params, responseType });
+   };
+
+   getIndicators = <T = any>(
+      data = {} as Record<string, any>,
+      params = {} as Record<string, any>,
+      context: GetServerSidePropsContext = null as any,
+      responseType = 'default' as ResponseType
+   ) => {
+      this.saveToken(context);
+      return this.instance.post<T>(
+         `table/indicator?pageNo=${params.pageNo}&perPage=${params.perPage}`,
+         data,
+         { params, responseType }
+      );
    };
 }
 

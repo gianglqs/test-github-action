@@ -31,6 +31,7 @@ import { faker } from '@faker-js/faker';
 import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
+import { log } from 'console';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -41,26 +42,23 @@ export default function Indicators() {
 
    // select data Filter in store
    const initDataFilter = useSelector(indicatorStore.selectInitDataFilter);
-   console.log('init data filter', initDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterIndicator);
 
+   const getDataForTable = useSelector(indicatorStore.selectIndicatorList);
+
    // Select data line Chart Region in store
-   /**
-    *
-    *
-    *
-    */
 
    const dataForLineChartRegion = useSelector(indicatorStore.selectDataForLineChartRegion);
-   console.log(dataForLineChartRegion);
+
+   const dataForLineChartPlant = useSelector(indicatorStore.selectDataForLineChartPLant);
 
    const dispatch = useDispatch();
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (_.includes(['orderNo', 'MarginPercetage', 'AOPMarginPercetage'], field)) {
+            if (_.includes(['Chinese Brand', 'AOPMarginPercetage'], field)) {
                draft[field] = option;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -93,129 +91,105 @@ export default function Indicators() {
 
    const columns = [
       {
-         field: 'orderNo',
+         field: 'region',
          flex: 0.8,
          headerName: 'Region',
       },
       {
-         field: 'region',
+         field: 'plant',
          flex: 0.8,
          headerName: 'Plant',
          renderCell(params) {
-            return <span>{params.row.region.region}</span>;
+            return <span>{params.row.region}</span>;
          },
       },
       {
-         field: 'ctryCode',
+         field: 'clazz',
          flex: 0.8,
          headerName: 'Class',
       },
       {
-         field: 'dealerName',
+         field: 'series',
          flex: 1.2,
          headerName: 'Series',
       },
       {
-         field: 'Plant',
+         field: 'averageDN',
          flex: 0.8,
          headerName: 'Average Dealer Net',
          renderCell(params) {
-            return <span>{params.row.productDimension?.plant}</span>;
+            return <span>{params.row.averageDN}</span>;
          },
       },
       {
-         field: 'truckClass',
+         field: 'actual',
          flex: 0.8,
          headerName: '2022 Actual',
          renderCell(params) {
-            return <span>{params.row.productDimension?.clazz}</span>;
+            return <span>{params.row.actual}</span>;
          },
       },
       {
-         field: 'series',
+         field: 'aopf',
          flex: 0.8,
          headerName: '2023 AOPF',
          renderCell(params) {
-            return <span>{params.row.series}</span>;
+            return <span>{params.row.aopf}</span>;
          },
       },
       {
-         field: 'model',
+         field: 'lrff',
          flex: 0.8,
          headerName: '2024 LRFF',
          renderCell(params) {
-            return <span>{params.row.model}</span>;
+            return <span>{params.row.lrff}</span>;
          },
       },
       {
-         field: 'quantity',
+         field: 'hygleadTime',
          flex: 0.8,
          headerName: 'HYG Lead Time',
       },
       {
-         field: 'totalCost',
+         field: 'competitorLeadTime',
          flex: 0.8,
          headerName: 'Competitor Lead Time',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.totalCost)}</span>;
-         },
       },
       {
-         field: 'dealerNet',
+         field: 'dealerStreetPricing',
          flex: 0.8,
          headerName: 'Dealer Street Pricing(USD)',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.dealerNet)}</span>;
-         },
       },
       {
-         field: 'dealerNetAfterSurCharge',
+         field: 'dealerHandlingCost',
          flex: 0.8,
          headerName: 'Dealer Handling Cost',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
-         },
       },
       {
-         field: 'marginAfterSurCharge',
+         field: 'dealerPricingPremiumPercentage',
          flex: 1,
          headerName: 'Dealer Pricing Premium/Margin (USD)',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
-         },
       },
 
       {
-         field: 'marginPercentageAfterSurCharge',
+         field: 'dealerPremiumPercentage',
          flex: 1,
          headerName: 'Dealer Premium / Margin %',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
-         },
       },
       {
-         field: 'aopmarginPercentage',
+         field: 'competitorPricing',
          flex: 1,
          headerName: 'Competition Pricing (USD)',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
-         },
       },
       {
-         field: 'th',
+         field: 'competitorName',
          flex: 1,
          headerName: 'Competitor Name',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
-         },
       },
       {
-         field: 'aopmarginPercthtentage',
+         field: 'variancePercentage',
          flex: 1,
          headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
-         },
       },
    ];
 
@@ -249,19 +223,6 @@ export default function Indicators() {
       ],
    };
 
-   const optionsLineChart = {
-      responsive: true,
-      plugins: {
-         legend: {
-            position: 'top' as const,
-         },
-         title: {
-            display: true,
-            text: 'Son Giang',
-         },
-      },
-   };
-
    const labels = [2022, 2023, 2024];
 
    const currentDate = new Date();
@@ -269,41 +230,28 @@ export default function Indicators() {
    let year = currentDate.getFullYear();
 
    //create array Year use to Label, vd: 2022,2023,2024,2025,...
-   const arrayYear = Array.from({ length: 5 }, (_, i) => i + year - 1);
+   const arrayYear = Array.from({ length: 3 }, (_, i) => i + year - 1);
 
-   const dataLineChart = {
-      labels,
-      datasets: [
-         {
-            label: 'ASIA',
-            data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-            borderColor: 'rgb(88, 24, 69)',
-            backgroundColor: 'rgba(88, 24, 69, 0.7)',
-         },
-         {
-            label: 'India',
-            data: [200, 400, 600, 800, 1000],
-            borderColor: 'rgb(53, 162, 235)',
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
-         },
-         {
-            label: 'China',
-            data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-            borderColor: '#17a9a3',
-            backgroundColor: '#17a9a3',
-         },
-         {
-            label: 'China',
-            data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-            borderColor: '#17a9a3',
-            backgroundColor: '#17a9a3',
-         },
-      ],
-   };
+   const arrayColor = ['#17a9a3', '#3f0e03', '#147384', '#0048bd', '#005821', '#ec9455', '#ffafa6'];
 
    const modifyDataLineChartRegion = {
       labels,
-      datasets: [],
+      datasets: dataForLineChartRegion.map((e, index) => ({
+         label: e.region,
+         data: [e.actual, e.aopf, e.lrff],
+         borderColor: arrayColor[index],
+         backgroundColor: arrayColor[index],
+      })),
+   };
+
+   const modifyDataLineChartPlant = {
+      labels,
+      datasets: dataForLineChartPlant.map((e, index) => ({
+         label: e.plant,
+         data: [e.actual, e.aopf, e.lrff],
+         borderColor: arrayColor[index],
+         backgroundColor: arrayColor[index],
+      })),
    };
 
    // create scrollbar for table
@@ -411,7 +359,7 @@ export default function Indicators() {
                         onChange={(e, option) =>
                            handleChangeDataFilter(
                               _.isNil(option) ? '' : option?.value,
-                              'MarginPercetage'
+                              'Chinese Brand'
                            )
                         }
                         disableClearable={false}
@@ -456,11 +404,11 @@ export default function Indicators() {
                      disableColumnMenu
                      tableHeight={610}
                      rowHeight={45}
-                     rows={[]}
+                     rows={getDataForTable}
                      rowBuffer={35}
                      rowThreshold={25}
                      columns={columns}
-                     getRowId={(params) => params.orderNo}
+                     getRowId={(params) => params.id}
                   />
                </Grid>
                <DataTablePagination
@@ -484,11 +432,11 @@ export default function Indicators() {
                </Grid>
 
                <Grid item xs={4}>
-                  <LineChart chartData={dataLineChart} />
+                  <LineChart chartData={modifyDataLineChartRegion} />
                </Grid>
 
                <Grid item xs={4}>
-                  <Line options={optionsLineChart} data={dataLineChart} />
+                  <LineChart chartData={modifyDataLineChartPlant} />
                </Grid>
             </Grid>
          </AppLayout>

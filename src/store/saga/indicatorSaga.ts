@@ -12,34 +12,38 @@ function* fetchIndicator() {
       const { defaultValueFilterIndicator } = yield* all({
          defaultValueFilterIndicator: select(indicatorStore.selectDefaultValueFilterIndicator),
       });
-
+      // get data for Line Chart Region
       const dataForLineChartRegion = yield* call(
          indicatorApi.getDataLineChartRegion,
          defaultValueFilterIndicator
       );
+      const lineChartRegionData = JSON.parse(String(dataForLineChartRegion.data)).lineChartRegion;
+      yield put(indicatorStore.actions.setInitDataForLineChartRegion(lineChartRegionData));
 
+      // get data for Line Chart Plant
       const dataForLineChartPlant = yield* call(
          indicatorApi.getDataLineChartPlant,
          defaultValueFilterIndicator
       );
+      const lineChartPlantData = JSON.parse(String(dataForLineChartPlant.data)).lineChartPlant;
+      yield put(indicatorStore.actions.setInitDataForLineChartPlant(lineChartPlantData));
 
+      // get data for filter
       const initDataFilter = yield* call(indicatorApi.getInitDataFilter);
-
       yield put(indicatorStore.actions.setInitDataFilter(initDataFilter.data));
 
-      // get data for Line Chart Region
-      const initDataForLineChartRegion = yield* call(indicatorApi.getDataLineChartRegion);
+      // get data for table
+      const dataListIndicator = yield* call(
+         indicatorApi.getIndicators,
+         defaultValueFilterIndicator,
+         {
+            pageNo: tableState.pageNo,
+            perPage: tableState.perPage,
+         }
+      );
 
-      const lineChartRegionData = JSON.parse(String(initDataForLineChartRegion)).lineChartRegion;
-
-      yield put(indicatorStore.actions.setInitDataForLineChartRegion(lineChartRegionData));
-
-      // get data for Line Chart Plant
-      const initDataForLineChartPLant = yield* call(indicatorApi.getDataLineChartPlant);
-
-      const lineChartPlantData = JSON.parse(String(initDataForLineChartPLant)).lineChartPlant;
-
-      yield put(indicatorStore.actions.setInitDataForLineChartPlant(lineChartPlantData));
+      const dataListIndicatorObject = JSON.parse(String(dataListIndicator.data)).listCompetitor;
+      yield put(indicatorStore.actions.setIndicatorList(dataListIndicatorObject));
 
       yield put(
          commonStore.actions.setTableState({
