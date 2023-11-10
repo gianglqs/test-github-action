@@ -39,10 +39,12 @@ public class FilterService {
         //  filters.put("T&C", getTCForCompetitorPricing());
         filters.put("regions", getAllRegions());
         filters.put("dealers", null);
+        filters.put("series", getSeries());
+        filters.put("categories", getCategories());
+        filters.put("countries", getCountries());
 
         return filters;
     }
-
 
     private List<Map<String, String>> getChineseBrandFilter() {
         List<Map<String, String>> result = new ArrayList<>();
@@ -175,5 +177,43 @@ public class FilterService {
         return listRegion;
     }
 
+    /**
+     * Get Category value for Competitive Landscape filter
+     */
+    private List<Map<String, String>> getCategories() {
+        List<Map<String, String>> listCategories = new ArrayList<>();
+        List<String> categories = competitorPricingRepository.getDistinctCategory();
+        categories.sort(String::compareTo);
+        for(String category : categories) {
+            listCategories.add(Map.of("value", category));
+        }
+        return listCategories;
+    }
+
+    /**
+     * Get Series value for Competitive Landscape filter
+     */
+    private List<Map<String, String>> getSeries() {
+        List<Map<String, String>> listSeries = new ArrayList<>();
+        List<String> series = competitorPricingRepository.getDistinctSeries();
+        series.sort(String::compareTo);
+        for(String s : series) {
+            listSeries.add(Map.of("value", s));
+        }
+        return listSeries;
+    }
+
+    /**
+     * Get Countries value for Competitive Landscape filter
+     */
+    private List<Map<String, String>> getCountries() {
+        List<Map<String, String>> listCountries = new ArrayList<>();
+        List<String> countries = competitorPricingRepository.getDistinctCountry();
+        countries.sort(String::compareTo);
+        for(String country : countries) {
+            listCountries.add(Map.of("value", country));
+        }
+        return listCountries;
+    }
 
 }
