@@ -4,7 +4,7 @@ import { ResponseType } from 'axios';
 
 class IndicatorApi extends HttpService<any> {
    getInitDataFilter = () => {
-      return this.post<any>(`filters/competitorPricing`);
+      return this.get<any>(`filters/competitorPricing`);
    };
 
    getDataLineChartPlant = <T = any>(
@@ -17,8 +17,8 @@ class IndicatorApi extends HttpService<any> {
       return this.instance.post<T>(`charts/lineChartPlant`, data, { params, responseType });
    };
 
-   getDataBubbleChart = (data: any) => {
-      return this.post<any>(`bubbleChart`, { ...data });
+   getCompetitiveLandscape = (data: any) => {
+      return this.post<any>(`charts/competitiveLandscape`, { ...data });
    };
 
    getDataLineChartRegion = <T = any>(
