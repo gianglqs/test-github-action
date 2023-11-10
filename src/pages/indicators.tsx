@@ -164,11 +164,17 @@ export default function Indicators() {
          field: 'dealerHandlingCost',
          flex: 0.8,
          headerName: 'Dealer Handling Cost',
+         renderCell(params) {
+            return <span>{formatNumber(params.row.dealerHandlingCost)}</span>;
+         },
       },
       {
          field: 'dealerPricingPremiumPercentage',
          flex: 1,
          headerName: 'Dealer Pricing Premium/Margin (USD)',
+         renderCell(params) {
+            return <span>{formatNumber(params.row.dealerPricingPremiumPercentage)}</span>;
+         },
       },
 
       {
@@ -190,6 +196,9 @@ export default function Indicators() {
          field: 'variancePercentage',
          flex: 1,
          headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
+         renderCell(params) {
+            return <span>{formatNumber(params.row.variancePercentage)}</span>;
+         },
       },
    ];
 
