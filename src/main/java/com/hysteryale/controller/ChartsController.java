@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("charts")
@@ -26,14 +28,18 @@ public class ChartsController {
 
 
     @PostMapping("/lineChartRegion")
-    public List<CompetitorPricing> getDataForLineChartRegion(@RequestBody IndicatorFilter filters)  {
-        System.out.println("yeee");
+    public Map<String, List<CompetitorPricing>> getDataForLineChartRegion(@RequestBody IndicatorFilter filters) {
+        Map<String, List<CompetitorPricing>> result = new HashMap<>();
         List<CompetitorPricing> listCompetitorPricingGroupByRegion = chartsService.getCompetitorPricingAfterFilterAndGroupByRegion(filters);
-        return listCompetitorPricingGroupByRegion;
+        result.put("lineChartRegion", listCompetitorPricingGroupByRegion);
+        return result;
     }
 
-//    @PostMapping("/lineChartPlant")
-//    public List<Object> getDataForLineChartPLant() {
-//        return null;
-//    }
+    @PostMapping("/lineChartPlant")
+    public Map<String, List<CompetitorPricing>> getDataForLineChartPlant(@RequestBody IndicatorFilter filters) {
+        Map<String, List<CompetitorPricing>> result = new HashMap<>();
+        List<CompetitorPricing> listCompetitorPricingGroupByRegion = chartsService.getCompetitorPricingAfterFilterAndGroupByPlant(filters);
+        result.put("lineChartPlant", listCompetitorPricingGroupByRegion);
+        return result;
+    }
 }

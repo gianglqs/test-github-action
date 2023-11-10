@@ -1,6 +1,7 @@
 package com.hysteryale.repository;
 
 import com.hysteryale.model.competitor.CompetitorPricing;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,7 +17,15 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
     List<CompetitorPricing> getListOfCompetitorInGroup(String country, String clazz, String category, String series);
 
     @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing(c.region, SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF)) FROM CompetitorPricing c WHERE ( :regions IS Null OR c.region IN :regions ) AND (:plants IS NULL OR c.plant IN :plants) AND (:metaSeries IS NULL OR SUBSTRING(c.series, 1,3) IN :metaSeries)  AND (:classes IS NULL OR c.clazz IN :classes) AND (:models IS NULL OR c.model IN :models) AND (:chineseBrand IS NULL OR c.chineseBrand = :chineseBrand) GROUP BY c.region")
-    public List<CompetitorPricing> findCompetitorByFilter(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
+    public List<CompetitorPricing> findCompetitorByFilterForLineChartRegion(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
 
+    @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing( SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF),c.plant) FROM CompetitorPricing c WHERE ( :regions IS Null OR c.region IN :regions ) AND (:plants IS NULL OR c.plant IN :plants) AND (:metaSeries IS NULL OR SUBSTRING(c.series, 1,3) IN :metaSeries)  AND (:classes IS NULL OR c.clazz IN :classes) AND (:models IS NULL OR c.model IN :models) AND (:chineseBrand IS NULL OR c.chineseBrand = :chineseBrand) GROUP BY c.plant")
+    public List<CompetitorPricing> findCompetitorByFilterForLineChartPlant(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
+
+    @Query("SELECT c FROM CompetitorPricing c WHERE ( :regions IS Null OR c.region IN :regions ) AND (:plants IS NULL OR c.plant IN :plants) AND (:metaSeries IS NULL OR SUBSTRING(c.series, 1,3) IN :metaSeries)  AND (:classes IS NULL OR c.clazz IN :classes) AND (:models IS NULL OR c.model IN :models) AND (:chineseBrand IS NULL OR c.chineseBrand = :chineseBrand)")
+    public List<CompetitorPricing> findCompetitorByFilterForTable(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand, Pageable pageable);
+
+    @Query("SELECT COUNT(c) from CompetitorPricing c")
+    public int getCountAll();
 
 }

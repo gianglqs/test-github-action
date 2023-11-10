@@ -19,7 +19,6 @@ public class IndicatorFilter {
     private List<String> models;
     private Boolean isChinese;
     private String AOPMarginPercentageGroup;
-    private String limit;
     private int perPage;
     private int pageNo;
 

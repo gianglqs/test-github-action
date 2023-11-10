@@ -51,4 +51,10 @@ public class CompetitorPricing {
         this.AOPF = AOPF;
         this.LRFF = LRFF;
     }
+    public CompetitorPricing( long actual, long AOPF, long LRFF,String plant) {
+        this.plant = plant;
+        this.actual = actual;
+        this.AOPF = AOPF;
+        this.LRFF = LRFF;
+    }
 }

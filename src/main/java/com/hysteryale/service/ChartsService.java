@@ -16,20 +16,24 @@ public class ChartsService {
     CompetitorPricingRepository competitorPricingRepository;
 
 
-    /**
-     *
-     */
-    public List<CompetitorPricing> lineChartRegion() {
-
-
-        return null;
-    }
 
 
     public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(IndicatorFilter indicatorFilter) {
         System.out.println(indicatorFilter.toString());
-        List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilter(
-                 indicatorFilter.getRegions(),
+        List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilterForLineChartRegion(
+                indicatorFilter.getPlants() == null || indicatorFilter.getPlants().isEmpty() ? null : indicatorFilter.getRegions(),
+                indicatorFilter.getPlants() == null || indicatorFilter.getPlants().isEmpty() ? null : indicatorFilter.getPlants(),
+                indicatorFilter.getMetaSeries() == null || indicatorFilter.getMetaSeries().isEmpty() ? null : indicatorFilter.getMetaSeries(),
+                indicatorFilter.getClasses() == null || indicatorFilter.getClasses().isEmpty() ? null : indicatorFilter.getClasses(),
+                indicatorFilter.getModels() == null || indicatorFilter.getModels().isEmpty() ? null : indicatorFilter.getModels(),
+                indicatorFilter.getIsChinese() == null ? null : indicatorFilter.getIsChinese());
+        return result;
+    }
+
+    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByPlant(IndicatorFilter indicatorFilter) {
+        System.out.println(indicatorFilter.toString());
+        List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilterForLineChartPlant(
+                indicatorFilter.getPlants() == null || indicatorFilter.getPlants().isEmpty() ? null : indicatorFilter.getRegions(),
                 indicatorFilter.getPlants() == null || indicatorFilter.getPlants().isEmpty() ? null : indicatorFilter.getPlants(),
                 indicatorFilter.getMetaSeries() == null || indicatorFilter.getMetaSeries().isEmpty() ? null : indicatorFilter.getMetaSeries(),
                 indicatorFilter.getClasses() == null || indicatorFilter.getClasses().isEmpty() ? null : indicatorFilter.getClasses(),

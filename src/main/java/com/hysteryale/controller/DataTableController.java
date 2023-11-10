@@ -1,21 +1,27 @@
 package com.hysteryale.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.hysteryale.model.competitor.CompetitorPricing;
-import net.minidev.json.parser.ParseException;
+import com.hysteryale.model.filters.IndicatorFilter;
+import com.hysteryale.service.DataTableService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.annotation.Resource;
+import java.util.Map;
 
 @RestController
 @RequestMapping("table")
 public class DataTableController {
 
+    @Resource
+    DataTableService dataTableService;
+
     @PostMapping("/indicator")
-    public List<CompetitorPricing> getDataCompetitorPricing(@RequestBody String filters,
-                                                            @RequestParam(defaultValue = "1") int pageNo,
-                                                            @RequestParam(defaultValue = "100") int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {
-        return null;
+    public Map<String, Object> getDataCompetitorPricing(@RequestBody IndicatorFilter filters,
+                                                        @RequestParam(defaultValue = "1") int pageNo,
+                                                        @RequestParam(defaultValue = "100") int perPage) {
+        filters.setPageNo(pageNo);
+        filters.setPerPage(perPage);
+
+        return dataTableService.getCompetitorPriceForTableByFilter(filters);
     }
 
 }
