@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { use, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { indicatorStore, commonStore } from '@/store/reducers';
@@ -32,6 +32,8 @@ import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
 import { log } from 'console';
+import axios from 'axios';
+import { parseCookies } from 'nookies';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -53,12 +55,115 @@ export default function Indicators() {
 
    const dataForLineChartPlant = useSelector(indicatorStore.selectDataForLineChartPLant);
 
+   const [competitiveLandscapeData, setCompetitiveLandscapeData] = useState({
+      datasets: [
+         {
+            label: 'Red',
+            data: Array.from({ length: 5 }, () => ({
+               x: faker.number.int({ min: -100, max: 100 }),
+               y: faker.number.int({ min: -100, max: 100 }),
+               r: faker.number.int({ min: 5, max: 20 }),
+            })),
+            backgroundColor: 'rgba(88, 24, 69, 0.5)',
+         },
+         {
+            label: 'Blue',
+            data: Array.from({ length: 5 }, () => ({
+               x: faker.number.int({ min: -100, max: 100 }),
+               y: faker.number.int({ min: -100, max: 100 }),
+               r: faker.number.int({ min: 5, max: 20 }),
+            })),
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+         },
+      ],
+   });
+
+   const [countryValue, setCountryValue] = useState();
+   const [competitorClassValue, setCompetitorClass] = useState();
+   const [categoryValue, setCategory] = useState();
+   const [seriesValue, setSeries] = useState();
+
+   const handleChooseCountry = (value) => {
+      setCountryValue(value.innerText);
+   };
+   const handleChooseClass = (value) => {
+      setCompetitorClass(value.innerText);
+   };
+   const handleChooseCategory = (value) => {
+      setCategory(value.innerText);
+   };
+   const handleChooseSeries = (value) => {
+      setSeries(value.innerText);
+   };
+
+   const handleFilterCompetitiveLandscape = () => {
+      let cookies = parseCookies();
+      let token = cookies['token'];
+      axios({
+         method: 'post',
+         url: 'http://localhost:8080/charts/competitiveLandscape',
+         data: {
+            country: countryValue,
+            clazz: competitorClassValue,
+            category: categoryValue,
+            series: seriesValue,
+         },
+         headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer' + token,
+         },
+      })
+         .then(function (response) {
+            const datasets = [];
+
+            const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
+
+            const data = response.data.competitiveLandscape;
+
+            data.forEach((cp) => {
+               const element = {
+                  label: cp.competitorName,
+                  data: [
+                     {
+                        x: cp.competitorLeadTime,
+                        y: cp.competitorPricing,
+                        r: cp.marketShare * 100,
+                     },
+                  ],
+                  backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
+               };
+
+               datasets.push(element);
+            });
+
+            setCompetitiveLandscapeData({
+               datasets: datasets,
+            });
+         })
+         .catch(function (response) {
+            console.log(response);
+         });
+   };
+   console.log(competitiveLandscapeData);
+
    const dispatch = useDispatch();
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (_.includes(['Chinese Brand', 'AOPMarginPercetage'], field)) {
+            if (
+               _.includes(
+                  [
+                     'Chinese Brand',
+                     'AOPMarginPercetage',
+                     'Country',
+                     'Category',
+                     'Series',
+                     'Competitor Class',
+                  ],
+                  field
+               )
+            ) {
                draft[field] = option;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -427,8 +532,72 @@ export default function Indicators() {
                alignItems="center"
                sx={{ margin: '20px 0' }}
             >
+               <Grid container spacing={1}>
+                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.countries}
+                        label="Country"
+                        onChange={(e, option) => handleChooseCountry(e.target)}
+                        limitTags={2}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        disableCloseOnSelect
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                     />
+                  </Grid>
+                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.classes}
+                        label="Competitor Class"
+                        onChange={(e, option) => handleChooseClass(e.target)}
+                        limitTags={2}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        disableCloseOnSelect
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                     />
+                  </Grid>
+                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.categories}
+                        label="Category"
+                        onChange={(e, option) => handleChooseCategory(e.target)}
+                        limitTags={2}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        disableCloseOnSelect
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                     />
+                  </Grid>
+                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.series}
+                        label="Series"
+                        onChange={(e, option) => handleChooseSeries(e.target)}
+                        limitTags={2}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        disableCloseOnSelect
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                     />
+                  </Grid>
+
+                  <Grid item xs={1}>
+                     <Button
+                        variant="contained"
+                        onClick={handleFilterCompetitiveLandscape}
+                        sx={{ width: '25%', height: 24 }}
+                     >
+                        Filter
+                     </Button>
+                  </Grid>
+               </Grid>
                <Grid item xs={4}>
-                  <Bubble options={options} data={data} />
+                  <Bubble options={options} data={competitiveLandscapeData} />
                </Grid>
 
                <Grid item xs={4}>

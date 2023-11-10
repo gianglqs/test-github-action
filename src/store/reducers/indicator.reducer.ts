@@ -12,6 +12,7 @@ export const initialState = {
    defaultValueFilterIndicator: defaultValueFilterIndicator as any,
    initDataForLineChartPlant: [] as any[],
    initDataForLineChartRegion: [] as any[],
+   initDataForCompetitiveLandscape: [] as any[],
 };
 
 const indicatorSlice = createSlice({
@@ -36,6 +37,9 @@ const indicatorSlice = createSlice({
       setInitDataForLineChartRegion(state, { payload }: PayloadAction<any[]>) {
          state.initDataForLineChartRegion = payload;
       },
+      setInitDataForCompetitiveLandscape(state, { payload }: PayloadAction<any[]>) {
+         state.initDataForCompetitiveLandscape = payload;
+      },
    },
    extraReducers: {
       [resetState.type]() {
@@ -56,6 +60,11 @@ export const selectDataForLineChartRegion = createSelector(
 export const selectDataForLineChartPLant = createSelector(
    selectState,
    (state) => state.initDataForLineChartPlant
+);
+
+export const selectDataForCompetitveLandscape = createSelector(
+   selectState,
+   (state) => state.initDataForCompetitiveLandscape
 );
 
 export const selectDefaultValueFilterIndicator = createSelector(

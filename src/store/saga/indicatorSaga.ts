@@ -30,7 +30,7 @@ function* fetchIndicator() {
 
       // get data for filter
       const initDataFilter = yield* call(indicatorApi.getInitDataFilter);
-      yield put(indicatorStore.actions.setInitDataFilter(initDataFilter.data));
+      yield put(indicatorStore.actions.setInitDataFilter(JSON.parse(initDataFilter.data)));
 
       // get data for table
       const dataListIndicator = yield* call(

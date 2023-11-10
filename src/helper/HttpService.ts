@@ -14,7 +14,7 @@ class HttpService<GetList = any> {
       axios.defaults.withCredentials = true;
       this.instance = axios.create({
          // baseURL: 'http://192.168.1.150:8080/hysteryale/',
-         baseURL: 'http://localhost:8081/',
+         baseURL: 'http://localhost:8080/',
       });
       this.instance.interceptors.response.use(this.handleSuccessRes, this.handleErrorRes);
    }
