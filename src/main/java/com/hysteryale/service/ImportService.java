@@ -34,6 +34,8 @@ public class ImportService extends BasedService {
     CompetitorPricingRepository competitorPricingRepository;
     @Resource
     RegionService regionService;
+    @Resource
+    PartService partService;
 
 
     public void getOrderColumnsName(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
@@ -103,6 +105,7 @@ public class ImportService extends BasedService {
         }
 
         double competitorPricing = row.getCell(ORDER_COLUMNS_NAME.get("Price (USD)")).getNumericCellValue();
+        double marketShare = row.getCell(ORDER_COLUMNS_NAME.get("Market Share")).getNumericCellValue();
 
         // 2 fields below are hard-coded, will be modified later
         double percentageDealerPremium = 0.1;
@@ -125,6 +128,7 @@ public class ImportService extends BasedService {
         cp.setCompetitorPricing(competitorPricing);
         cp.setDealerPremiumPercentage(percentageDealerPremium);
         cp.setSeries("");
+        cp.setMarketShare(marketShare);
 
         // separate seriesString (for instances: A3C4/A7S4)
         String seriesString;
@@ -133,6 +137,7 @@ public class ImportService extends BasedService {
             seriesString = cellSeries.getStringCellValue();
             StringTokenizer stk = new StringTokenizer(seriesString, "/");
             while (stk.hasMoreTokens()) {
+                String series = stk.nextToken();
                 CompetitorPricing cp1 = new CompetitorPricing();
                 cp1.setCompetitorName(competitorName);
                 cp1.setCategory(category);
@@ -140,12 +145,15 @@ public class ImportService extends BasedService {
                 cp1.setRegion(region);
                 cp1.setClazz(clazz);
                 cp1.setCompetitorLeadTime(leadTime);
-                cp1.setDealerNet(dealerNet);
+                cp1.setDealerNet(partService.getAverageDealerNet(region, clazz, series));
+                log.info("AVG Dealer Net: " + partService.getAverageDealerNet(region, clazz, series));
                 cp1.setChineseBrand(isChineseBrand);
 
                 cp1.setCompetitorPricing(competitorPricing);
                 cp1.setDealerPremiumPercentage(percentageDealerPremium);
-                cp1.setSeries(stk.nextToken());
+                cp1.setSeries(series);
+                cp1.setMarketShare(marketShare);
+
                 competitorPricingList.add(cp1);
             }
         } else
@@ -262,7 +270,7 @@ public class ImportService extends BasedService {
                         for (int year : years) {
                             String metaSeries = row.getCell(FORECAST_ORDER_COLUMN.get("Series /Segments")).getStringCellValue();
                             String plant = row.getCell(FORECAST_ORDER_COLUMN.get("Plant"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
-                            int quantity = getQuantity(row, year);
+                            int quantity = (int) row.getCell(YEARS_COLUMN.get(year)).getNumericCellValue();
                             // setting values
                             ForeCastValue foreCastValue = new ForeCastValue(region, year, metaSeries, quantity, plant);
                             foreCastValues.add(foreCastValue);
@@ -285,34 +293,6 @@ public class ImportService extends BasedService {
                 }
             }
         }
-    }
-
-    /**
-     * Get Quantity in Forecast Value based on year
-     */
-    private int getQuantity(Row row, int year) {
-        int cellIndex = 5;
-        switch (year) {
-            case 2022:
-                cellIndex = 6;
-                break;
-            case 2023:
-                cellIndex = 7;
-                break;
-            case 2024:
-                cellIndex = 8;
-                break;
-            case 2025:
-                cellIndex = 9;
-                break;
-            case 2026:
-                cellIndex = 10;
-                break;
-            case 2027:
-                cellIndex = 11;
-                break;
-        }
-        return (int) row.getCell(cellIndex).getNumericCellValue();
     }
 
     /**
