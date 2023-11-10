@@ -148,10 +148,8 @@ public class ImportService extends BasedService {
                 cp1.setSeries(stk.nextToken());
                 competitorPricingList.add(cp1);
             }
-        }
-        else
+        } else
             competitorPricingList.add(cp);
-
         return competitorPricingList;
     }
 
@@ -214,12 +212,12 @@ public class ImportService extends BasedService {
     /**
      * Find a forecast value by Region and Series, year is an option if year is empty then we get all years
      */
-    private ForeCastValue findForeCastValue(List<ForeCastValue> foreCastValues, String strRegion, String metaSeries, int year){
-        for(ForeCastValue foreCastValue : foreCastValues) {
-            if(foreCastValue.getRegion().getRegion().equals(strRegion) && foreCastValue.getMetaSeries().equals(metaSeries) && foreCastValue.getYear() == year)
+    private ForeCastValue findForeCastValue(List<ForeCastValue> foreCastValues, String strRegion, String metaSeries, int year) {
+        for (ForeCastValue foreCastValue : foreCastValues) {
+            if (foreCastValue.getRegion().getRegion().equals(strRegion) && foreCastValue.getMetaSeries().equals(metaSeries) && foreCastValue.getYear() == year)
                 return foreCastValue;
         }
-       return null;
+        return null;
     }
 
     private List<ForeCastValue> loadForecastForCompetitorPricingFromFile() throws IOException {
@@ -247,23 +245,21 @@ public class ImportService extends BasedService {
             HashMap<Integer, Integer> YEARS_COLUMN = new HashMap<>();
             HashMap<String, Integer> FORECAST_ORDER_COLUMN = new HashMap<>();
 
-            for(Sheet sheet : workbook) {
+            for (Sheet sheet : workbook) {
                 Region region = getRegionBySheetName(sheet.getSheetName());
-                for(Row row : sheet) {
-                    if(row.getRowNum() == 0)
-                    {
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 0) {
                         getYearsInForeCast(YEARS_COLUMN, row, years);
                         log.info("" + YEARS_COLUMN);
                         log.info("" + years);
-                    }
-                    else if(row.getRowNum() == 1)
+                    } else if (row.getRowNum() == 1)
                         getOrderColumnsName(row, FORECAST_ORDER_COLUMN);
-                    else if(!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() &&       // checking null
+                    else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() &&       // checking null
                             row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().length() == 3 &&    // checking cell is whether metaSeries or not
                             row.getRowNum() > 1) {
 
                         // get all quantity value from 2021 to 2027
-                        for(int year: years) {
+                        for (int year : years) {
                             String metaSeries = row.getCell(FORECAST_ORDER_COLUMN.get("Series /Segments")).getStringCellValue();
                             String plant = row.getCell(FORECAST_ORDER_COLUMN.get("Plant"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
                             int quantity = getQuantity(row, year);
@@ -278,11 +274,12 @@ public class ImportService extends BasedService {
         log.info("Number of ForeCastValue: " + foreCastValues.size());
         return foreCastValues;
     }
+
     private void getYearsInForeCast(HashMap<Integer, Integer> YEARS_COLUMN, Row row, List<Integer> years) {
-        for(Cell cell : row) {
-            if(cell.getCellType() == CellType.NUMERIC) {
+        for (Cell cell : row) {
+            if (cell.getCellType() == CellType.NUMERIC) {
                 int year = (int) cell.getNumericCellValue();
-                if(YEARS_COLUMN.get(year) == null) {
+                if (YEARS_COLUMN.get(year) == null) {
                     YEARS_COLUMN.put(year, cell.getColumnIndex());
                     years.add(year);
                 }
@@ -357,7 +354,7 @@ public class ImportService extends BasedService {
     @Transactional
     private void assigningCompetitorValues() {
         List<String[]> competitorGroups = getCompetitorGroup();
-        for(String[] competitorGroup : competitorGroups) {
+        for (String[] competitorGroup : competitorGroups) {
             String country = competitorGroup[0];
             String clazz = competitorGroup[1];
             String category = competitorGroup[2];
@@ -369,11 +366,11 @@ public class ImportService extends BasedService {
             double hygLeadTime = 0;
             double totalDealerNet = 0;
             double dealerStreetPricing = 0;
-            for(CompetitorPricing cp : competitorPricingList) {
+            for (CompetitorPricing cp : competitorPricingList) {
 
                 // Find HYG Brand to assign hygLeadTime and dealerStreetPricing for other brand in a group {country, class, category, series}
                 String competitorName = cp.getCompetitorName();
-                if(competitorName.contains("HYG") || competitorName.contains("Hyster") || competitorName.contains("Yale") || competitorName.contains("HYM")) {
+                if (competitorName.contains("HYG") || competitorName.contains("Hyster") || competitorName.contains("Yale") || competitorName.contains("HYM")) {
                     hygLeadTime = cp.getCompetitorLeadTime();
                     dealerStreetPricing = cp.getCompetitorPricing();
                 }
@@ -382,7 +379,7 @@ public class ImportService extends BasedService {
             double averageDealerNet = totalDealerNet / competitorPricingList.size();
 
             // Assigning hygLeadTime, averageDealerNet, dealerStreetPremium
-            for(CompetitorPricing cp : competitorPricingList) {
+            for (CompetitorPricing cp : competitorPricingList) {
                 cp.setHYGLeadTime(hygLeadTime);
                 cp.setDealerStreetPricing(dealerStreetPricing);
                 cp.setAverageDN(averageDealerNet);
@@ -400,6 +397,7 @@ public class ImportService extends BasedService {
             }
             competitorPricingRepository.saveAll(competitorPricingList);
         }
+
     }
 
 }

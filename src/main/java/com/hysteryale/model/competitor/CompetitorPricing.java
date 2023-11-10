@@ -25,9 +25,11 @@ public class CompetitorPricing {
     private String category;
     private String series;
     private Double averageDN;
-    private int actual;
-    private int AOPF;
-    private int LRFF;
+    private Boolean chineseBrand;
+    private String model;
+    private long actual;
+    private long AOPF;
+    private long LRFF;
     private Double HYGLeadTime;
     private Double competitorLeadTime;
     private Double competitorPricing;
@@ -42,18 +44,17 @@ public class CompetitorPricing {
     private boolean isChineseBrand;
     private double dealerNet;
 
-    public CompetitorPricing(String region, String clazz, Double competitorLeadTime, String series) {
+
+    public CompetitorPricing(String region, long actual, long AOPF, long LRFF) {
         this.region = region;
-        this.clazz = clazz;
-        this.series = series;
-        this.competitorLeadTime = competitorLeadTime;
+        this.actual = actual;
+        this.AOPF = AOPF;
+        this.LRFF = LRFF;
     }
-
-    public CompetitorPricing(String region, String clazz, Double competitorLeadTime) {
-        this.region = region;
-        this.clazz = clazz;
-        this.competitorLeadTime = competitorLeadTime;
+    public CompetitorPricing( long actual, long AOPF, long LRFF,String plant) {
+        this.plant = plant;
+        this.actual = actual;
+        this.AOPF = AOPF;
+        this.LRFF = LRFF;
     }
-
-
 }

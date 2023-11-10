@@ -1,15 +1,19 @@
 package com.hysteryale.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hysteryale.model.filters.BookingOrderFilter;
+import com.hysteryale.model.filters.IndicatorFilter;
 import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.repository.ProductDimensionRepository;
 import com.hysteryale.repository.RegionRepository;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class FilterService {
@@ -26,17 +30,19 @@ public class FilterService {
     public Map<String, Object> getCompetitorPricingFilter() {
 
         Map<String, Object> filters = new HashMap<>();
-        filters.put("Classes", getAllClasses());
-        filters.put("Plants", getAllPlants());
-        filters.put("MetaSeries", getAllMetaSeries());
-        filters.put("Models", getAllModels());
-        filters.put("Chinese Brands", getChineseBrandFilter());
-        filters.put("Margin % Grouping", getMarginPercentageForCompetitorPricing());
-        filters.put("T&C", getTCForCompetitorPricing());
-        filters.put("Region", getAllRegions());
+        filters.put("classes", getAllClasses());
+        filters.put("plants", getAllPlants());
+        filters.put("metaSeries", getAllMetaSeries());
+        filters.put("models", getAllModels());
+        filters.put("chineseBrands", getChineseBrandFilter());
+        filters.put("marginPercentageGrouping", getMarginPercentageForCompetitorPricing());
+        //  filters.put("T&C", getTCForCompetitorPricing());
+        filters.put("regions", getAllRegions());
+        filters.put("dealers", null);
 
         return filters;
     }
+
 
     private List<Map<String, String>> getChineseBrandFilter() {
         List<Map<String, String>> result = new ArrayList<>();
@@ -168,5 +174,6 @@ public class FilterService {
         }
         return listRegion;
     }
+
 
 }
