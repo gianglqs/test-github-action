@@ -332,7 +332,7 @@ public class ImportService extends BasedService {
      * after save based data into DB
      */
     @Transactional
-    private void assigningCompetitorValues() {
+    public void assigningCompetitorValues() {
         List<String[]> competitorGroups = getCompetitorGroup();
         for (String[] competitorGroup : competitorGroups) {
             String country = competitorGroup[0];
