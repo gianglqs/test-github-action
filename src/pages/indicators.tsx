@@ -31,7 +31,6 @@ import { faker } from '@faker-js/faker';
 import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
-import { log } from 'console';
 import axios from 'axios';
 import { parseCookies } from 'nookies';
 
