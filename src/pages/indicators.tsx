@@ -1,16 +1,9 @@
-import { use, useState } from 'react';
+import { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { indicatorStore, commonStore } from '@/store/reducers';
 import { Button } from '@mui/material';
-import {
-   AppLayout,
-   DataTablePagination,
-   AppDateField,
-   DataTable,
-   AppTextField,
-   AppAutocomplete,
-} from '@/components';
+import { AppLayout, DataTablePagination, DataTable, AppAutocomplete } from '@/components';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 
@@ -25,19 +18,18 @@ import {
    Legend,
    CategoryScale,
 } from 'chart.js';
-import { Bubble, Line } from 'react-chartjs-2';
+import { Bubble } from 'react-chartjs-2';
 import { faker } from '@faker-js/faker';
 
 import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
-import axios from 'axios';
-import { parseCookies } from 'nookies';
+import indicatorApi from '@/api/indicators.api';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 export default function Indicators() {
-   // const listIndicator = useSelector(indicatorStore.selectIndicatorList);
+   const dispatch = useDispatch();
 
    const tableState = useSelector(commonStore.selectTableState);
 
@@ -49,9 +41,7 @@ export default function Indicators() {
    const getDataForTable = useSelector(indicatorStore.selectIndicatorList);
 
    // Select data line Chart Region in store
-
    const dataForLineChartRegion = useSelector(indicatorStore.selectDataForLineChartRegion);
-
    const dataForLineChartPlant = useSelector(indicatorStore.selectDataForLineChartPLant);
 
    const [competitiveLandscapeData, setCompetitiveLandscapeData] = useState({
@@ -77,6 +67,7 @@ export default function Indicators() {
       ],
    });
 
+   // I think you can write a common function here
    const [countryValue, setCountryValue] = useState();
    const [competitorClassValue, setCompetitorClass] = useState();
    const [categoryValue, setCategory] = useState();
@@ -95,57 +86,87 @@ export default function Indicators() {
       setSeries(value.innerText);
    };
 
-   const handleFilterCompetitiveLandscape = () => {
-      let cookies = parseCookies();
-      let token = cookies['token'];
-      axios({
-         method: 'post',
-         url: 'http://localhost:8080/charts/competitiveLandscape',
-         data: {
+   const handleFilterCompetitiveLandscape = async () => {
+      try {
+         const {
+            data: { competitiveLandscape },
+         } = await indicatorApi.getCompetitiveLandscape({
             country: countryValue,
             clazz: competitorClassValue,
             category: categoryValue,
             series: seriesValue,
-         },
-         headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer' + token,
-         },
-      })
-         .then(function (response) {
-            const datasets = [];
-
-            const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
-
-            const data = response.data.competitiveLandscape;
-
-            data.forEach((cp) => {
-               const element = {
-                  label: cp.competitorName,
-                  data: [
-                     {
-                        x: cp.competitorLeadTime,
-                        y: cp.competitorPricing,
-                        r: cp.marketShare * 100,
-                     },
-                  ],
-                  backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
-               };
-
-               datasets.push(element);
-            });
-
-            setCompetitiveLandscapeData({
-               datasets: datasets,
-            });
-         })
-         .catch(function (response) {
-            console.log(response);
          });
-   };
-   console.log(competitiveLandscapeData);
+         const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
+         const datasets = competitiveLandscape.map((item) => {
+            return {
+               label: item.competitorName,
+               data: [
+                  {
+                     x: item.competitorLeadTime,
+                     y: item.competitorPricing,
+                     r: item.marketShare * 100,
+                  },
+               ],
+               backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
+            };
+         });
 
-   const dispatch = useDispatch();
+         setCompetitiveLandscapeData({
+            datasets: datasets,
+         });
+      } catch (error) {
+         dispatch(commonStore.actions.setErrorMessage(error.message));
+      }
+   };
+
+   // const handleFilterCompetitiveLandscape = () => {
+   //    let cookies = parseCookies();
+   //    let token = cookies['token'];
+   //    axios({
+   //       method: 'post',
+   //       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}charts/competitiveLandscape`,
+   //       data: {
+   //          country: countryValue,
+   //          clazz: competitorClassValue,
+   //          category: categoryValue,
+   //          series: seriesValue,
+   //       },
+   //       headers: {
+   //          'Content-Type': 'application/json',
+   //          Authorization: 'Bearer' + token,
+   //       },
+   //    })
+   //       .then(function (response) {
+   //          const datasets = [];
+
+   //          const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
+
+   //          const data = response.data.competitiveLandscape;
+
+   //          data.forEach((cp) => {
+   //             const element = {
+   //                label: cp.competitorName,
+   //                data: [
+   //                   {
+   //                      x: cp.competitorLeadTime,
+   //                      y: cp.competitorPricing,
+   //                      r: cp.marketShare * 100,
+   //                   },
+   //                ],
+   //                backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
+   //             };
+
+   //             datasets.push(element);
+   //          });
+
+   //          setCompetitiveLandscapeData({
+   //             datasets: datasets,
+   //          });
+   //       })
+   //       .catch(function (response) {
+   //          console.log(response);
+   //       });
+   // };
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
@@ -464,23 +485,21 @@ export default function Indicators() {
                   />
                </Grid>
 
-               <Grid item xs={4}>
-                  <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
-                     <AppAutocomplete
-                        options={initDataFilter.chineseBrands}
-                        label="Chinese Brand"
-                        onChange={(e, option) =>
-                           handleChangeDataFilter(
-                              _.isNil(option) ? '' : option?.value,
-                              'Chinese Brand'
-                           )
-                        }
-                        disableClearable={false}
-                        primaryKeyOption="value"
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                     />
-                  </Grid>
+               <Grid item xs={2}>
+                  <AppAutocomplete
+                     options={initDataFilter.chineseBrands}
+                     label="Chinese Brand"
+                     onChange={(e, option) =>
+                        handleChangeDataFilter(
+                           _.isNil(option) ? '' : option?.value,
+                           'Chinese Brand'
+                        )
+                     }
+                     disableClearable={false}
+                     primaryKeyOption="value"
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
                </Grid>
 
                <Grid item xs={2}>
