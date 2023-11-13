@@ -67,12 +67,7 @@ export default function LoginPage() {
          },
       };
       axios
-         .post(
-            // 'http://192.168.1.150:8080/hysteryale/oauth/token',
-            'http://localhost:8081/oauth/token',
-            transformData,
-            options
-         )
+         .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/token`, transformData, options)
          .then((response) => {
             const { redirect_to, access_token } = response.data;
             setCookie(null, 'token', access_token, { maxAge: 2147483647 });
