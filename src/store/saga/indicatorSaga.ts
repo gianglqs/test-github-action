@@ -41,7 +41,7 @@ function* fetchIndicator() {
             perPage: tableState.perPage,
          }
       );
-
+      console.log('data table ', dataListIndicator);
       const dataListIndicatorObject = JSON.parse(String(dataListIndicator.data)).listCompetitor;
       yield put(indicatorStore.actions.setIndicatorList(dataListIndicatorObject));
 
