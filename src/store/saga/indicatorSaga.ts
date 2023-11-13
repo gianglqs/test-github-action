@@ -47,7 +47,7 @@ function* fetchIndicator() {
 
       yield put(
          commonStore.actions.setTableState({
-            totalItems: JSON.parse(String()).totalItems,
+            totalItems: JSON.parse(String(dataListIndicator.data)).totalItems,
          })
       );
    } catch (error) {}
