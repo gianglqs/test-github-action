@@ -11,15 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ChartsService {
+public class ChartsService extends BasedService {
     @Resource
     CompetitorPricingRepository competitorPricingRepository;
 
 
-
-
     public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(IndicatorFilter indicatorFilter) {
-        System.out.println(indicatorFilter.toString());
+        logInfo(indicatorFilter.toString());
         List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilterForLineChartRegion(
                 indicatorFilter.getRegions() == null || indicatorFilter.getRegions().isEmpty() ? null : indicatorFilter.getRegions(),
                 indicatorFilter.getPlants() == null || indicatorFilter.getPlants().isEmpty() ? null : indicatorFilter.getPlants(),
@@ -31,7 +29,7 @@ public class ChartsService {
     }
 
     public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByPlant(IndicatorFilter indicatorFilter) {
-        System.out.println(indicatorFilter.toString());
+        logInfo(indicatorFilter.toString());
         List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilterForLineChartPlant(
                 indicatorFilter.getRegions() == null || indicatorFilter.getRegions().isEmpty() ? null : indicatorFilter.getRegions(),
                 indicatorFilter.getPlants() == null || indicatorFilter.getPlants().isEmpty() ? null : indicatorFilter.getPlants(),
