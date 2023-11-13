@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class DataTableService {
+public class DataTableService extends BasedService{
     @Resource
     CompetitorPricingRepository competitorPricingRepository;
 
     public Map<String, Object> getCompetitorPriceForTableByFilter(IndicatorFilter indicatorFilter) {
-        System.out.println(indicatorFilter.toString());
+        logInfo(indicatorFilter.toString());
         Map<String, Object> result = new HashMap<>();
         Pageable pageable = PageRequest.of(indicatorFilter.getPageNo(), indicatorFilter.getPerPage());
         List<CompetitorPricing> competitorPricingList = competitorPricingRepository.findCompetitorByFilterForTable(
