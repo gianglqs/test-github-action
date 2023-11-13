@@ -32,7 +32,7 @@ public class DataTableService {
         result.put("listCompetitor", competitorPricingList);
         //get total Recode
         int totalCompetitor = competitorPricingRepository.getCountAll();
-        result.put("total", totalCompetitor);
+        result.put("totalItems", totalCompetitor);
         return result;
     }
 }
