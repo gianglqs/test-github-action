@@ -171,20 +171,8 @@ export default function Indicators() {
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (
-               _.includes(
-                  [
-                     'Chinese Brand',
-                     'AOPMarginPercetage',
-                     'Country',
-                     'Category',
-                     'Series',
-                     'Competitor Class',
-                  ],
-                  field
-               )
-            ) {
-               draft[field] = option;
+            if (_.includes(['chineseBrand', 'AOPMarginPercetageGroup'], field)) {
+               draft[field] = option.value;
             } else {
                draft[field] = option.map(({ value }) => value);
             }
@@ -207,11 +195,15 @@ export default function Indicators() {
       handleChangePage(1);
    };
 
-   const formatNumber = (num: number) => {
-      return num.toLocaleString(undefined, {
-         minimumFractionDigits: 2,
-         maximumFractionDigits: 2,
-      });
+   const formatNumber = (num: any) => {
+      if (typeof num === 'number') {
+         return num.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+         });
+      } else {
+         return null;
+      }
    };
 
    const columns = [
@@ -224,9 +216,6 @@ export default function Indicators() {
          field: 'plant',
          flex: 0.8,
          headerName: 'Plant',
-         renderCell(params) {
-            return <span>{params.row.region}</span>;
-         },
       },
       {
          field: 'clazz',
@@ -243,7 +232,7 @@ export default function Indicators() {
          flex: 0.8,
          headerName: 'Average Dealer Net',
          renderCell(params) {
-            return <span>{params.row.averageDN}</span>;
+            return <span>{formatNumber(params.row.averageDN)}</span>;
          },
       },
       {
@@ -251,7 +240,7 @@ export default function Indicators() {
          flex: 0.8,
          headerName: '2022 Actual',
          renderCell(params) {
-            return <span>{params.row.actual}</span>;
+            return <span>{formatNumber(params.row.actual)}</span>;
          },
       },
       {
@@ -259,7 +248,7 @@ export default function Indicators() {
          flex: 0.8,
          headerName: '2023 AOPF',
          renderCell(params) {
-            return <span>{params.row.aopf}</span>;
+            return <span>{formatNumber(params.row.aopf)}</span>;
          },
       },
       {
@@ -267,7 +256,7 @@ export default function Indicators() {
          flex: 0.8,
          headerName: '2024 LRFF',
          renderCell(params) {
-            return <span>{params.row.lrff}</span>;
+            return <span>{formatNumber(params.row.lrff)}</span>;
          },
       },
       {
@@ -306,11 +295,17 @@ export default function Indicators() {
          field: 'dealerPremiumPercentage',
          flex: 1,
          headerName: 'Dealer Premium / Margin %',
+         renderCell(params) {
+            return <span>{formatNumber(params.row.dealerPremiumPercentage)}</span>;
+         },
       },
       {
          field: 'competitorPricing',
          flex: 1,
          headerName: 'Competition Pricing (USD)',
+         renderCell(params) {
+            return <span>{formatNumber(params.row.competitorPricing)}</span>;
+         },
       },
       {
          field: 'competitorName',
@@ -489,12 +484,7 @@ export default function Indicators() {
                   <AppAutocomplete
                      options={initDataFilter.chineseBrands}
                      label="Chinese Brand"
-                     onChange={(e, option) =>
-                        handleChangeDataFilter(
-                           _.isNil(option) ? '' : option?.value,
-                           'Chinese Brand'
-                        )
-                     }
+                     onChange={(e, option) => handleChangeDataFilter(option, 'chineseBrand')}
                      disableClearable={false}
                      primaryKeyOption="value"
                      renderOption={(prop, option) => `${option.value}`}
@@ -508,10 +498,7 @@ export default function Indicators() {
                      label="AOP Margin % Group"
                      primaryKeyOption="value"
                      onChange={(e, option) =>
-                        handleChangeDataFilter(
-                           _.isNil(option) ? '' : option?.value,
-                           'AOPMarginPercetage'
-                        )
+                        handleChangeDataFilter(option, 'AOPMarginPercetageGroup')
                      }
                      disableClearable={false}
                      renderOption={(prop, option) => `${option.value}`}
