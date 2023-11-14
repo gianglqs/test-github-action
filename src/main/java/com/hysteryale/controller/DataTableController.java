@@ -6,13 +6,16 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Map;
-
+// TODO Please rename to IndicatorController
 @RestController
 @RequestMapping("table")
 public class DataTableController {
 
+    // TODO Please rename to IndicatorService
     @Resource
     DataTableService dataTableService;
+
+    // TODO Please rename to getCompetitorData
 
     @PostMapping("/indicator")
     public Map<String, Object> getDataCompetitorPricing(@RequestBody IndicatorFilter filters,
