@@ -27,6 +27,7 @@ public class ChartsController {
     @Resource
     IndicatorsService indicatorsService;
 
+    //TODO  Please rename the apis to /charts/getDataForCompetitorBubbleChart
     @PostMapping(value = "/competitiveLandscape", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getCompetitorPricing(@RequestBody CompetitorPricing competitorPricing) {
         List<CompetitorPricing> competitorPricingList =
@@ -41,6 +42,7 @@ public class ChartsController {
     }
 
 
+    //TODO  Please rename the apis to /charts/getDataForRegionLineChart
     @PostMapping("/lineChartRegion")
     public Map<String, List<CompetitorPricing>> getDataForLineChartRegion(@RequestBody IndicatorFilter filters) {
         Map<String, List<CompetitorPricing>> result = new HashMap<>();
@@ -49,6 +51,7 @@ public class ChartsController {
         return result;
     }
 
+    //TODO  Please rename the apis to /charts/getDataForPlantLineChart
     @PostMapping("/lineChartPlant")
     public Map<String, List<CompetitorPricing>> getDataForLineChartPlant(@RequestBody IndicatorFilter filters) {
         Map<String, List<CompetitorPricing>> result = new HashMap<>();
