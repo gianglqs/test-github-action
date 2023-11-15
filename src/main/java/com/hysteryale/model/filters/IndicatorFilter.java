@@ -11,6 +11,7 @@ import java.util.List;
 @ToString
 public class IndicatorFilter {
 
+    private String orderNo;
     private List<String> regions;
     private List<String> dealers;
     private List<String> plants;
@@ -19,6 +20,9 @@ public class IndicatorFilter {
     private List<String> models;
     private String chineseBrand;
     private String aopMarginPercentageGroup;
+    private String marginPercentage;
+    private String fromDate;
+    private String toDate;
     private int perPage;
     private int pageNo;
 
