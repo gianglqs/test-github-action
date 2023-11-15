@@ -43,9 +43,9 @@ public class ImportController {
 
     @PostMapping(path = "/importAllData")
     void importAllData() throws IOException, IllegalAccessException {
-       // importApicDealer();
-      //  importAPACSerial();
-        //importCurrencies();
+        importApicDealer();
+        importAPACSerial();
+        importCurrencies();
         importPart();
         importAOPMargin();
         importProductDimension();
