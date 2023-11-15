@@ -1,9 +1,15 @@
 package com.hysteryale.service;
 
+import com.hysteryale.model.BookingOrder;
+import com.hysteryale.model.ProductDimension;
 import com.hysteryale.model.Region;
+import com.hysteryale.model.Shipment;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.competitor.ForeCastValue;
+import com.hysteryale.repository.AOPMarginRepository;
 import com.hysteryale.repository.CompetitorPricingRepository;
+import com.hysteryale.repository.ShipmentRepository;
+import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -37,6 +43,17 @@ public class ImportService extends BasedService {
     @Resource
     PartService partService;
 
+    @Resource
+    ShipmentRepository shipmentRepository;
+
+    @Resource
+    ProductDimensionService productDimensionService;
+
+    @Resource
+    BookingOrderRepository bookingOrderRepository;
+
+    @Resource
+    AOPMarginService aopMarginService;
 
     public void getOrderColumnsName(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         for (int i = 0; i < 50; i++) {
@@ -62,6 +79,9 @@ public class ImportService extends BasedService {
             case 3:
                 pattern = Pattern.compile("^Competitor.*(.xlsx)$");
                 break;
+            case 4:
+                pattern = Pattern.compile("^SAP.*(.xlsx)$");
+                break;
             default:
                 pattern = Pattern.compile(".*(.xlsx)$");
                 break;
@@ -85,7 +105,7 @@ public class ImportService extends BasedService {
         return fileList;
     }
 
-    public List<CompetitorPricing> mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
+    public List<CompetitorPricing> mapExcelDataIntoCompetitorObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         List<CompetitorPricing> competitorPricingList = new ArrayList<>();
 
         Cell cellRegion = row.getCell(ORDER_COLUMNS_NAME.get("Region"));
@@ -154,6 +174,8 @@ public class ImportService extends BasedService {
                 cp1.setSeries(series);
                 cp1.setMarketShare(marketShare);
 
+
+
                 competitorPricingList.add(cp1);
             }
         } else
@@ -168,6 +190,8 @@ public class ImportService extends BasedService {
 
         // Get files in Folder Path
         List<String> fileList = getAllFilesInFolder(folderPath, 3);
+        List<ForeCastValue> foreCastValues = loadForecastForCompetitorPricingFromFile();
+
         for (String fileName : fileList) {
             String pathFile = folderPath + "/" + fileName;
             //check file has been imported ?
@@ -182,13 +206,12 @@ public class ImportService extends BasedService {
             HashMap<String, Integer> COMPETITOR_COLUMNS_NAME = new HashMap<>();
             Sheet competitorSheet = workbook.getSheet("Competitor Pricing Database");
 
-            List<ForeCastValue> foreCastValues = loadForecastForCompetitorPricingFromFile();
             List<CompetitorPricing> competitorPricingList = new ArrayList<>();
 
             for (Row row : competitorSheet) {
                 if (row.getRowNum() == 0) getOrderColumnsName(row, COMPETITOR_COLUMNS_NAME);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
-                    List<CompetitorPricing> competitorPricings = mapExcelDataIntoOrderObject(row, COMPETITOR_COLUMNS_NAME);
+                    List<CompetitorPricing> competitorPricings = mapExcelDataIntoCompetitorObject(row, COMPETITOR_COLUMNS_NAME);
                     for (CompetitorPricing competitorPricing : competitorPricings) {
                         // if it has series -> assign ForeCastValue
                         if (!competitorPricing.getSeries().isEmpty()) {
@@ -206,6 +229,10 @@ public class ImportService extends BasedService {
                             competitorPricing.setAOPF(AOPFForeCast == null ? 0 : AOPFForeCast.getQuantity());
                             competitorPricing.setLRFF(LRFFForeCast == null ? 0 : LRFFForeCast.getQuantity());
                             competitorPricing.setPlant(LRFFForeCast == null ? "" : LRFFForeCast.getPlant());
+
+                            //AOPMargin
+                            Double aopMargin = aopMarginService.getAOPMargin(competitorPricing.getSeries(), competitorPricing.getRegion(), competitorPricing.getPlant());
+                            competitorPricing.setAOPMarginPercentage(aopMargin);
                         }
                         competitorPricingList.add(competitorPricing);
                     }
@@ -363,7 +390,6 @@ public class ImportService extends BasedService {
                 cp.setHYGLeadTime(hygLeadTime);
                 cp.setDealerStreetPricing(dealerStreetPricing);
                 cp.setAverageDN(averageDealerNet);
-
                 double handlingCost = dealerStreetPricing - cp.getDealerNet() * (1 + cp.getDealerPremiumPercentage());
                 double dealerPricingPremium = dealerStreetPricing - (cp.getDealerNet() + handlingCost);
                 double dealerPricingPremiumPercentage = dealerPricingPremium / dealerStreetPricing;
@@ -379,5 +405,107 @@ public class ImportService extends BasedService {
         }
 
     }
+
+    public void importShipment() throws IOException {
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.shipment");
+
+        // Get files in Folder Path
+        List<String> fileList = getAllFilesInFolder(folderPath, 4);
+        for (String fileName : fileList) {
+            String pathFile = folderPath + "/" + fileName;
+            //check file has been imported ?
+            if (isImported(pathFile)) {
+                logWarning("file '" + fileName + "' has been imported");
+                continue;
+            }
+            logInfo("{ Start importing file: '" + fileName + "'");
+
+            InputStream is = new FileInputStream(pathFile);
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
+            HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
+            Sheet competitorSheet = workbook.getSheet("Sheet1");
+            List<Shipment> shipmentList = new ArrayList<>();
+
+            for (Row row : competitorSheet) {
+                if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
+                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
+                    Shipment shipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
+                    shipmentList.add(shipment);
+                }
+            }
+            shipmentRepository.saveAll(shipmentList);
+
+            updateStateImportFile(pathFile);
+        }
+    }
+
+    private Shipment mapExcelDataIntoShipmentObject(Row row, HashMap<String, Integer> shipmentColumnsName) {
+        Shipment shipment = new Shipment();
+
+        try {
+            // Set orderNo
+            String orderNo = row.getCell(shipmentColumnsName.get("Order number")).getStringCellValue();
+            shipment.setOrderNo(orderNo);
+
+            // Set orderNo
+            String series = row.getCell(shipmentColumnsName.get("Series")).getStringCellValue();
+            shipment.setSeries(series);
+
+            //set ProductDimension to get : plant, class, model, segment, model
+            ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(row.getCell(shipmentColumnsName.get("Series"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+            shipment.setProductDimension(productDimension);
+
+            // Revenue
+            double revenue = row.getCell(shipmentColumnsName.get("Revenue")).getNumericCellValue();
+            shipment.setNetRevenue(revenue);
+
+            // dealerName
+            String dealerName = row.getCell(shipmentColumnsName.get("End Customer Name")).getStringCellValue();
+            shipment.setDealerName(dealerName);
+
+            // country
+            String country = row.getCell(shipmentColumnsName.get("Ship-to Country Code")).getStringCellValue();
+            shipment.setCtryCode(country);
+
+            // date ERROR
+            Date date = row.getCell(shipmentColumnsName.get("Created On")).getDateCellValue();
+            shipment.setDate(date);
+
+            // get data from BookingOrder
+            Optional<BookingOrder> bookingOrderOptional = bookingOrderRepository.getBookingOrderByOrderNo(orderNo);
+            if(bookingOrderOptional.isPresent()){
+                // set Region
+                shipment.setRegion(bookingOrderOptional.get().getRegion());
+
+                // set Margin Percentage After surcharge
+                shipment.setMarginPercentageAfterSurCharge(bookingOrderOptional.get().getMarginPercentageAfterSurCharge());
+
+                // Set Margin after surcharge
+                shipment.setMarginAfterSurCharge(bookingOrderOptional.get().getMarginAfterSurCharge());
+
+                // AOP Margin %
+                shipment.setAOPMarginPercentage(bookingOrderOptional.get().getAOPMarginPercentage());
+            }else{
+                logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
+            }
+
+//                    Cell cell = row.getCell(shipmentColumnsName.get("REGION"));
+//                    Optional<Region> region = regionRepository.findByRegionId(cell.getStringCellValue());
+//                    if (region.isPresent()) {
+//                        field.set(bookingOrder, region.get()/*.getRegion()*/);
+//                    } else {
+//                        throw new Exception("Not match Region with region_Id: " + cell.getStringCellValue());
+//                    }
+
+
+        } catch (Exception e) {
+            logError(e.toString());
+        }
+
+
+        return shipment;
+    }
+
 
 }
