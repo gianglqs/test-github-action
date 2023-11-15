@@ -17,8 +17,10 @@ import {
    LineElement,
    Legend,
    CategoryScale,
+   Title,
 } from 'chart.js';
 import { Bubble } from 'react-chartjs-2';
+import ChartAnnotation from 'chartjs-plugin-annotation';
 import { faker } from '@faker-js/faker';
 
 import { defaultValueFilterIndicator } from '@/utils/defaultValues';
@@ -26,7 +28,16 @@ import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
+ChartJS.register(
+   CategoryScale,
+   LinearScale,
+   PointElement,
+   LineElement,
+   Tooltip,
+   Legend,
+   Title,
+   ChartAnnotation
+);
 
 export default function Indicators() {
    const dispatch = useDispatch();
@@ -45,26 +56,7 @@ export default function Indicators() {
    const dataForLineChartPlant = useSelector(indicatorStore.selectDataForLineChartPLant);
 
    const [competitiveLandscapeData, setCompetitiveLandscapeData] = useState({
-      datasets: [
-         {
-            label: 'Red',
-            data: Array.from({ length: 5 }, () => ({
-               x: faker.number.int({ min: -100, max: 100 }),
-               y: faker.number.int({ min: -100, max: 100 }),
-               r: faker.number.int({ min: 5, max: 20 }),
-            })),
-            backgroundColor: 'rgba(88, 24, 69, 0.5)',
-         },
-         {
-            label: 'Blue',
-            data: Array.from({ length: 5 }, () => ({
-               x: faker.number.int({ min: -100, max: 100 }),
-               y: faker.number.int({ min: -100, max: 100 }),
-               r: faker.number.int({ min: 5, max: 20 }),
-            })),
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
-         },
-      ],
+      datasets: [],
    });
 
    // I think you can write a common function here
@@ -97,13 +89,18 @@ export default function Indicators() {
             series: seriesValue,
          });
          const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
+         let totalPrice = 0;
+         let totalLeadTime = 0;
          const datasets = competitiveLandscape.map((item) => {
+            totalPrice += item.competitorPricing;
+            totalLeadTime += item.competitorLeadTime;
+
             return {
                label: item.competitorName,
                data: [
                   {
-                     x: item.competitorLeadTime,
-                     y: item.competitorPricing,
+                     x: item.competitorPricing,
+                     y: item.competitorLeadTime,
                      r: item.marketShare * 100,
                   },
                ],
@@ -118,55 +115,6 @@ export default function Indicators() {
          dispatch(commonStore.actions.setErrorMessage(error.message));
       }
    };
-
-   // const handleFilterCompetitiveLandscape = () => {
-   //    let cookies = parseCookies();
-   //    let token = cookies['token'];
-   //    axios({
-   //       method: 'post',
-   //       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}charts/competitiveLandscape`,
-   //       data: {
-   //          country: countryValue,
-   //          clazz: competitorClassValue,
-   //          category: categoryValue,
-   //          series: seriesValue,
-   //       },
-   //       headers: {
-   //          'Content-Type': 'application/json',
-   //          Authorization: 'Bearer' + token,
-   //       },
-   //    })
-   //       .then(function (response) {
-   //          const datasets = [];
-
-   //          const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
-
-   //          const data = response.data.competitiveLandscape;
-
-   //          data.forEach((cp) => {
-   //             const element = {
-   //                label: cp.competitorName,
-   //                data: [
-   //                   {
-   //                      x: cp.competitorLeadTime,
-   //                      y: cp.competitorPricing,
-   //                      r: cp.marketShare * 100,
-   //                   },
-   //                ],
-   //                backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
-   //             };
-
-   //             datasets.push(element);
-   //          });
-
-   //          setCompetitiveLandscapeData({
-   //             datasets: datasets,
-   //          });
-   //       })
-   //       .catch(function (response) {
-   //          console.log(response);
-   //       });
-   // };
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
@@ -326,30 +274,44 @@ export default function Indicators() {
       scales: {
          y: {
             beginAtZero: true,
+            title: {
+               text: 'Lead Time (weeks)',
+               display: true,
+            },
+         },
+         x: {
+            title: {
+               text: 'Price $',
+               display: true,
+            },
          },
       },
-   };
-   const data = {
-      datasets: [
-         {
-            label: 'Red dataset',
-            data: Array.from({ length: 10 }, () => ({
-               x: faker.number.int({ min: -100, max: 100 }),
-               y: faker.number.int({ min: -100, max: 100 }),
-               r: faker.number.int({ min: 5, max: 20 }),
-            })),
-            backgroundColor: 'rgba(88, 24, 69, 0.5)',
+      plugins: {
+         legend: {
+            position: 'top' as const,
          },
-         {
-            label: 'Blue dataset',
-            data: Array.from({ length: 10 }, () => ({
-               x: faker.number.int({ min: -100, max: 100 }),
-               y: faker.number.int({ min: -100, max: 100 }),
-               r: faker.number.int({ min: 5, max: 20 }),
-            })),
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+         title: {
+            display: true,
+            text: 'Competitve Landscape',
+            position: 'top' as const,
          },
-      ],
+         annotation: {
+            annotations: {
+               line1: {
+                  yMax: (context) => (context.chart.scales.y.max + context.chart.scales.y.min) / 2,
+                  yMin: (context) => (context.chart.scales.y.max + context.chart.scales.y.min) / 2,
+                  borderColor: 'rgb(0, 0, 0)',
+                  borderWidth: 2,
+               },
+               line2: {
+                  xMax: (context) => (context.chart.scales.x.max + context.chart.scales.x.min) / 2,
+                  xMin: (context) => (context.chart.scales.x.max + context.chart.scales.x.min) / 2,
+                  borderColor: 'rgb(0, 0, 0)',
+                  borderWidth: 2,
+               },
+            },
+         },
+      },
    };
 
    const labels = [2022, 2023, 2024];
@@ -547,7 +509,7 @@ export default function Indicators() {
                sx={{ margin: '20px 0' }}
             >
                <Grid container spacing={1}>
-                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
                      <AppAutocomplete
                         options={initDataFilter.countries}
                         label="Country"
@@ -560,7 +522,7 @@ export default function Indicators() {
                         getOptionLabel={(option) => `${option.value}`}
                      />
                   </Grid>
-                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
                      <AppAutocomplete
                         options={initDataFilter.classes}
                         label="Competitor Class"
@@ -586,7 +548,7 @@ export default function Indicators() {
                         getOptionLabel={(option) => `${option.value}`}
                      />
                   </Grid>
-                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
                      <AppAutocomplete
                         options={initDataFilter.series}
                         label="Series"
@@ -600,7 +562,7 @@ export default function Indicators() {
                      />
                   </Grid>
 
-                  <Grid item xs={1}>
+                  <Grid item xs={0.8}>
                      <Button
                         variant="contained"
                         onClick={handleFilterCompetitiveLandscape}
