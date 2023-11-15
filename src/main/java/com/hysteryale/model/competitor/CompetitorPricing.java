@@ -39,6 +39,8 @@ public class CompetitorPricing {
     private Double dealerPricingPremiumPercentage;
     private Double dealerPricingPremium;
 
+    private Double AOPMarginPercentage;
+
     // variance % (competitor - (Dealer street + premium))
     private Double variancePercentage;
     private boolean isChineseBrand;

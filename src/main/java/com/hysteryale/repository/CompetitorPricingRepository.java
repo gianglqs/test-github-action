@@ -20,13 +20,48 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
     public List<CompetitorPricing> findCompetitorByFilterForLineChartRegion(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
 
     @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing( SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF),c.plant) FROM CompetitorPricing c WHERE c.plant IS NOT NULL AND ((:regions) IS Null OR c.region IN (:regions) ) AND ((:plants) IS NULL OR c.plant IN (:plants)) AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))  AND ((:classes) IS NULL OR c.clazz IN (:classes)) AND ((:models) IS NULL OR c.model IN (:models)) AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.plant")
-    public List<CompetitorPricing>  findCompetitorByFilterForLineChartPlant(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
+    public List<CompetitorPricing> findCompetitorByFilterForLineChartPlant(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
 
-    @Query("SELECT c FROM CompetitorPricing c WHERE ( (:regions) IS Null OR c.region IN :regions ) AND ((:plants) IS NULL OR c.plant IN (:plants)) AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))  AND ((:classes) IS NULL OR c.clazz IN (:classes)) AND ((:models) IS NULL OR c.model IN (:models)) AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
-    public List<CompetitorPricing> findCompetitorByFilterForTable(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand, Pageable pageable);
+    @Query("SELECT c FROM CompetitorPricing c WHERE " +
+            "( (:regions) IS Null OR c.region IN :regions )" +
+            " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
+            " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
+            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.AOPMarginPercentage < 0.1) OR" +
+            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.AOPMarginPercentage < 0.2) OR" +
+            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.AOPMarginPercentage < 0.3) OR" +
+            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.AOPMarginPercentage >= 0.3))" +
+            " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
+    List<CompetitorPricing> findCompetitorByFilterForTable(@Param("regions") List<String> regions,
+                                                           @Param("plants") List<String> plants,
+                                                           @Param("metaSeries") List<String> metaSeries,
+                                                           @Param("classes") List<String> classes,
+                                                           @Param("models") List<String> models,
+                                                           @Param("chineseBrand") Boolean chineseBrand,
+                                                           @Param("AOPMarginPercentageGroup") String AOPMarginPercentageGroup,
+                                                           Pageable pageable);
 
-    @Query("SELECT COUNT(c) from CompetitorPricing c")
-    public int getCountAll();
+    @Query("SELECT COUNT(c) from CompetitorPricing c WHERE " +
+            "((:regions) IS Null OR c.region IN :regions )" +
+            " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
+            " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
+            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.AOPMarginPercentage < 0.1) OR" +
+            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.AOPMarginPercentage < 0.2) OR" +
+            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.AOPMarginPercentage < 0.3) OR" +
+            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.AOPMarginPercentage >= 0.3))" +
+            " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
+     int getCountAll(@Param("regions") List<String> regions,
+                           @Param("plants") List<String> plants,
+                           @Param("metaSeries") List<String> metaSeries,
+                           @Param("classes") List<String> classes,
+                           @Param("models") List<String> models,
+                           @Param("chineseBrand") Boolean chineseBrand,
+                           @Param("AOPMarginPercentageGroup") String AOPMarginPercentageGroup);
 
     @Query("SELECT DISTINCT c.series FROM CompetitorPricing c")
     List<String> getDistinctSeries();

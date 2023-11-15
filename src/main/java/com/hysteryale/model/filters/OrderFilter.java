@@ -2,12 +2,14 @@ package com.hysteryale.model.filters;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class BookingOrderFilter {
+@Setter
+public class OrderFilter {
 
     private String orderNo;
     private List<String> regions;
@@ -21,8 +23,10 @@ public class BookingOrderFilter {
     private String strToDate;
     private String AOPMarginPercetage;
     private String MarginPercetage;
+    private int pageNo;
+    private int perPage;
 
-    public BookingOrderFilter(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate) {
+    public OrderFilter(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate) {
         this.orderNo = orderNo;
         this.regions = regions;
         this.dealers = dealers;
@@ -35,43 +39,19 @@ public class BookingOrderFilter {
         this.strToDate = strToDate;
     }
 
-    public void setOrderNo(String orderNo) {
+    public OrderFilter(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String marginPercetage) {
         this.orderNo = orderNo;
-    }
-
-    public void setRegions(List<String> regions) {
         this.regions = regions;
-    }
-
-    public void setDealers(List<String> dealers) {
         this.dealers = dealers;
-    }
-
-    public void setPlants(List<String> plants) {
         this.plants = plants;
-    }
-
-    public void setMetaSeries(List<String> metaSeries) {
         this.metaSeries = metaSeries;
-    }
-
-    public void setClasses(List<String> classes) {
         this.classes = classes;
-    }
-
-    public void setModels(List<String> models) {
         this.models = models;
-    }
-
-    public void setSegments(List<String> segments) {
         this.segments = segments;
-    }
-
-    public void setStrFromDate(String strFromDate) {
         this.strFromDate = strFromDate;
+        this.strToDate = strToDate;
+        this.AOPMarginPercetage = AOPMarginPercetage;
+        MarginPercetage = marginPercetage;
     }
 
-    public void setStrToDate(String strToDate) {
-        this.strToDate = strToDate;
-    }
 }

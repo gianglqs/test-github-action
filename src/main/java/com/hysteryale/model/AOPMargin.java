@@ -26,5 +26,6 @@ public class AOPMargin {
     private int year;
     private String plant;
     private String series;
+    private String region;
 
 }

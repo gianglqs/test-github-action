@@ -17,8 +17,8 @@ public class IndicatorFilter {
     private List<String> metaSeries;
     private List<String> classes;
     private List<String> models;
-    private Boolean isChinese;
-    private String AOPMarginPercentageGroup;
+    private String chineseBrand;
+    private String aopMarginPercentageGroup;
     private int perPage;
     private int pageNo;
 
