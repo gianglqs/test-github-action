@@ -21,4 +21,7 @@ public interface AOPMarginRepository extends JpaRepository<AOPMargin, String> {
     @Query("SELECT DISTINCT a FROM AOPMargin a WHERE a.regionSeriesPlant = :regionSeriesPlant")
     Optional<AOPMargin> findByRegionSeriesPlant(String regionSeriesPlant);
 
+    @Query("SELECT DISTINCT a FROM AOPMargin a WHERE a.region = :region AND a.plant = :plant AND a.series = :series")
+    List<AOPMargin> findByRegionPlantSeries(String region, String plant, String series);
+
 }
