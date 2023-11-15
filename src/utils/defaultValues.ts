@@ -21,6 +21,21 @@ export const defaultValueFilterIndicator = {
    classes: [],
    models: [],
    segments: [],
+   aopMarginPercentageGroup: '',
+   chineseBrand: '',
+} as any;
+
+export const defaultValueFilterShipment = {
+   orderNo: '',
+   regions: [],
+   dealers: [],
+   plants: [],
+   metaSeries: [],
+   classes: [],
+   models: [],
+   segments: [],
    AOPMarginPercetage: '',
-   isChinese: '',
+   MarginPercetage: '',
+   fromDate: '',
+   toDate: '',
 } as any;
