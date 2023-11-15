@@ -25,10 +25,10 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.AOPMarginPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.AOPMarginPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.AOPMarginPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.AOPMarginPercentage >= 0.3))" +
+            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
+            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
+            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
+            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.region")
     public List<CompetitorPricing> findCompetitorByFilterForLineChartRegion(@Param("regions") List<String> regions,
                                                                             @Param("plants") List<String> plants,
@@ -47,10 +47,10 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.AOPMarginPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.AOPMarginPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.AOPMarginPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.AOPMarginPercentage >= 0.3))" +
+            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
+            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
+            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
+            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.plant")
     public List<CompetitorPricing> findCompetitorByFilterForLineChartPlant(@Param("regions") List<String> regions,
                                                                            @Param("plants") List<String> plants,
@@ -67,10 +67,10 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.AOPMarginPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.AOPMarginPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.AOPMarginPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.AOPMarginPercentage >= 0.3))" +
+            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
+            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
+            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
+            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
     List<CompetitorPricing> findCompetitorByFilterForTable(@Param("regions") List<String> regions,
                                                            @Param("plants") List<String> plants,
@@ -88,10 +88,10 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.AOPMarginPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.AOPMarginPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.AOPMarginPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.AOPMarginPercentage >= 0.3))" +
+            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
+            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
+            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
+            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
      int getCountAll(@Param("regions") List<String> regions,
                            @Param("plants") List<String> plants,
