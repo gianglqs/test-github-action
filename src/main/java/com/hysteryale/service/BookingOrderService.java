@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.*;
 import com.hysteryale.model.Currency;
-import com.hysteryale.model.filters.BookingOrderFilter;
+import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.repository.*;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
@@ -553,28 +553,28 @@ public class BookingOrderService extends BasedService {
     /**
      * Get BookingOrder based to filters
      */
-    public Map<String, Object> getBookingOrdersByFilters(BookingOrderFilter bookingOrderFilter, int pageNo, int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {
+    public Map<String, Object> getBookingOrdersByFilters(OrderFilter orderFilter, int pageNo, int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {
 
         // Use ObjectMapper to Map JSONObject value into List<String
         ObjectMapper mapper = new ObjectMapper();
-        String orderNo = bookingOrderFilter.getOrderNo();
+        String orderNo = orderFilter.getOrderNo();
 
 
         // Parse all filters into ArrayList<String>
-        List<String> regions = bookingOrderFilter.getRegions();
-        List<String> dealers = bookingOrderFilter.getDealers();
-        List<String> plants = bookingOrderFilter.getPlants();
-        List<String> metaSeries = bookingOrderFilter.getMetaSeries();
-        List<String> classes = bookingOrderFilter.getClasses();
-        List<String> models = bookingOrderFilter.getModels();
-        List<String> segments = bookingOrderFilter.getSegments();
+        List<String> regions = orderFilter.getRegions();
+        List<String> dealers = orderFilter.getDealers();
+        List<String> plants = orderFilter.getPlants();
+        List<String> metaSeries = orderFilter.getMetaSeries();
+        List<String> classes = orderFilter.getClasses();
+        List<String> models = orderFilter.getModels();
+        List<String> segments = orderFilter.getSegments();
 
-        String AOPMarginPercetage = bookingOrderFilter.getAOPMarginPercetage();
-        String MarginPercetage = bookingOrderFilter.getMarginPercetage();
+        String AOPMarginPercetage = orderFilter.getAOPMarginPercetage();
+        String MarginPercetage = orderFilter.getMarginPercetage();
 
         // Get from DATE to DATE
-        String strFromDate = bookingOrderFilter.getStrFromDate();
-        String strToDate = bookingOrderFilter.getStrToDate();
+        String strFromDate = orderFilter.getStrFromDate();
+        String strToDate = orderFilter.getStrToDate();
 
         // offSet for pagination
         int offSet = pageNo * perPage;
@@ -614,7 +614,7 @@ public class BookingOrderService extends BasedService {
 
         //Get AOPMargin if Exist
         AOPMargin aopMargin = null;
-        String series = bookingOrder.getSeries().substring(3);
+        String series = bookingOrder.getSeries().substring(1);
         List<AOPMargin> aopMarginList = AOPMarginRepository.findByMetaSeries(series);
         if (aopMarginList.isEmpty()) {
             log.info("Metaseries khong co AOP" + series);
@@ -623,6 +623,7 @@ public class BookingOrderService extends BasedService {
         }
 
         double marginPercent = 0;
+
         if (aopMargin != null) {
             marginPercent = aopMargin.getMarginSTD();
         }

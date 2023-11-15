@@ -1,15 +1,8 @@
 package com.hysteryale.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hysteryale.model.filters.BookingOrderFilter;
-import com.hysteryale.model.filters.IndicatorFilter;
 import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.repository.ProductDimensionRepository;
 import com.hysteryale.repository.RegionRepository;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

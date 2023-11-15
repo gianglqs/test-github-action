@@ -2,7 +2,7 @@ package com.hysteryale.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hysteryale.model.filters.BookingOrderFilter;
+import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.service.*;
 import com.hysteryale.utils.PagingnatorUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -64,9 +64,9 @@ public class BookingOrderController {
                                                 @RequestParam(defaultValue = "1") int pageNo,
                                                 @RequestParam(defaultValue = "100") int perPage) throws ParseException, JsonProcessingException, java.text.ParseException {
 
-        BookingOrderFilter bookingOrderFilter = handleFilterData(filters);
+        OrderFilter orderFilter = handleFilterData(filters);
         // Get BookingOrder
-        Map<String, Object> bookingOrderPage = bookingOrderService.getBookingOrdersByFilters(bookingOrderFilter, pageNo - 1, perPage);
+        Map<String, Object> bookingOrderPage = bookingOrderService.getBookingOrdersByFilters(orderFilter, pageNo - 1, perPage);
 
         // calculate total number of pages
         int totalPages = PagingnatorUtils.calculateNumberOfPages(perPage,(int) ((long) bookingOrderPage.get("totalItems")));
@@ -80,7 +80,7 @@ public class BookingOrderController {
         return bookingOrderPage;
     }
 
-    private BookingOrderFilter handleFilterData(String rawJsonFilters) throws ParseException, JsonProcessingException {
+    private OrderFilter handleFilterData(String rawJsonFilters) throws ParseException, JsonProcessingException {
         //Parse rawJsonFilters from String to JSONObject
         JSONParser parser = new JSONParser();
         JSONObject filters = (JSONObject) parser.parse(rawJsonFilters);
@@ -105,6 +105,6 @@ public class BookingOrderController {
         String strFromDate = filters.get("fromDate").toString();
         String strToDate = filters.get("toDate").toString();
 
-        return new BookingOrderFilter(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
+        return new OrderFilter(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
     }
 }

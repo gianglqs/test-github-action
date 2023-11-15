@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,6 +61,12 @@ public class AOPMarginService extends BasedService {
                     break;
                 case "plant":
                     field.set(aopMargin, row.getCell(AOP_MARGIN_COLUMNS.get("Plant")).getStringCellValue());
+                    break;
+                case "region":
+                    String valueCellRegion = row.getCell(AOP_MARGIN_COLUMNS.get("Region")).getStringCellValue();
+                    logInfo("Region  "+valueCellRegion.split(" ")[0]);
+                    field.set(aopMargin, valueCellRegion.split(" ")[0]);
+
                     break;
                 case "series":
                     Cell cell = row.getCell(AOP_MARGIN_COLUMNS.get("Series"));
@@ -108,6 +115,11 @@ public class AOPMarginService extends BasedService {
             }
         }
         updateStateImportFile(pathFile);
+    }
+
+    public Double getAOPMargin(String series, String region, String plant) {
+        List<AOPMargin> aopMarginList = aopMarginRepository.findByRegionPlantSeries(region.substring(1), plant, series);
+        return aopMarginList.isEmpty() ? null : aopMarginList.get(0).getMarginSTD();
     }
 
 }
