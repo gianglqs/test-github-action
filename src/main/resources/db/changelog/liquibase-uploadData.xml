@@ -53,15 +53,15 @@
 <!--                separator=","-->
 <!--                tableName="part">-->
 <!--        </loadUpdateData>-->
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/productdimension.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="productdimension">-->
-<!--        </loadUpdateData>-->
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/productdimension.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="productdimension">
+        </loadUpdateData>
 
         <loadUpdateData
                 encoding="UTF-8"
@@ -83,15 +83,15 @@
 <!--                tableName="booking_order">-->
 <!--        </loadUpdateData>-->
 
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/exchange_rate.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="exchange_rate">-->
-<!--        </loadUpdateData>-->
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/exchange_rate.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="exchange_rate">
+        </loadUpdateData>
 
         <!--        <loadUpdateData-->
         <!--                encoding="UTF-8"-->
@@ -103,25 +103,25 @@
         <!--                tableName="margin_analyst_data">-->
         <!--        </loadUpdateData>-->
 
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/margin_analyst_macro.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="margin_analyst_macro">-->
-<!--        </loadUpdateData>-->
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/margin_analyst_macro.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="margin_analyst_macro">
+        </loadUpdateData>
 
-<!--        <loadUpdateData-->
-<!--                encoding="UTF-8"-->
-<!--                file="classpath:db/database/marginanalysisaoprate.csv"-->
-<!--                onlyUpdate="false"-->
-<!--                primaryKey="id"-->
-<!--                quotchar="'"-->
-<!--                separator=","-->
-<!--                tableName="marginanalysisaoprate">-->
-<!--        </loadUpdateData>-->
+        <loadUpdateData
+                encoding="UTF-8"
+                file="classpath:db/database/marginanalysisaoprate.csv"
+                onlyUpdate="false"
+                primaryKey="id"
+                quotchar="'"
+                separator=","
+                tableName="marginanalysisaoprate">
+        </loadUpdateData>
 
 
         <!--        <loadUpdateData-->

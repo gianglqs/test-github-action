@@ -382,7 +382,7 @@ public class IMMarginAnalystDataService {
             {
                 List<IMMarginAnalystData> imMarginAnalystDataList = imMarginAnalystDataRepository.getEUPlantIMMarginAnalystData(modelCode, monthYear, strCurrency);
                 if(imMarginAnalystDataList.isEmpty())
-                    imMarginAnalystDataList = calculateEUPlantMarginData(modelCode, strCurrency, totalCost, year, month);
+                    imMarginAnalystDataList = calculateEUPlantMarginData(modelCode, strCurrency, totalCost, year, month, optionalBookingOrder.get(0).getOrderNo());
                 calculateEUPlantMarginSummary(modelCode, strCurrency, monthYear, "annually");
                 calculateEUPlantMarginSummary(modelCode, strCurrency, monthYear, "monthly");
                 return imMarginAnalystDataList;
@@ -446,12 +446,22 @@ public class IMMarginAnalystDataService {
     /**
      * Calculate IMMarginAnalystData of EU plant by query Part from BookingOrder and Part
      */
-    public List<IMMarginAnalystData> calculateEUPlantMarginData(String modelCode, String strCurrency, double manufacturingCost, int year, int month) {
+    public List<IMMarginAnalystData> calculateEUPlantMarginData(String modelCode, String strCurrency, double manufacturingCost, int year, int month, String orderNo) {
         Calendar monthYear = Calendar.getInstance();
         monthYear.set(year, month - 1, 1);
 
         List<IMMarginAnalystData> imMarginAnalystDataList = new ArrayList<>();
         log.info(year + " " + month);
+
+        // calculate manufacturingCost based on orderNumber
+        double totalDealerNetOfSPED = 0.0;
+        Set<Part> partForMFGCost = partService.getPartByOrderNo(orderNo);
+        for(Part part : partForMFGCost) {
+            if(part.isSPED())
+                totalDealerNetOfSPED += part.getNetPriceEach();
+        }
+        manufacturingCost = manufacturingCost + 0.9 * totalDealerNetOfSPED;
+
 
         // For each Part in ModelCode -> calculate IMMarginAnalystData
         List<Part> partList = partService.getDistinctPart(modelCode, monthYear, strCurrency);

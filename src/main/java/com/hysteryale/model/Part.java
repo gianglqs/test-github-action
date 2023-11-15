@@ -80,9 +80,10 @@ public class Part {
     private Calendar recordedTime;
     @ManyToOne(fetch = FetchType.EAGER)
     private Currency currency;
+    private boolean isSPED;
 
 
-    public Part(String quoteId, int quantity,String orderNumber, String modelCode, String series, String partNumber, double listPrice, double discount, double discountPercentage, String billTo, double netPriceEach, double customerPrice, double extendedCustomerPrice, Currency currency, String clazz, String region) {
+    public Part(String quoteId, int quantity,String orderNumber, String modelCode, String series, String partNumber, double listPrice, double discount, double discountPercentage, String billTo, double netPriceEach, double customerPrice, double extendedCustomerPrice, Currency currency, String clazz, String region, boolean isSPED) {
         this.quoteId = quoteId;
         this.quantity = quantity;
         this.modelCode = modelCode;
@@ -99,5 +100,6 @@ public class Part {
         this.orderNumber = orderNumber;
         this.clazz = clazz;
         this.region = region;
+        this.isSPED = isSPED;
     }
 }

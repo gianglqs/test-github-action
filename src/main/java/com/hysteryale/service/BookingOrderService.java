@@ -169,7 +169,7 @@ public class BookingOrderService extends BasedService {
             } else if (field.getName().equals("currency")) {
                 try {
                     Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
-                    field.set(bookingOrder, cell.getStringCellValue());
+                    field.set(bookingOrder, currencyRepository.findById(cell.getStringCellValue()));
                 } catch (Exception e) {
                     logError(e.toString());
                 }
