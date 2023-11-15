@@ -72,7 +72,8 @@ public class IndicatorService extends BasedService {
                 indicatorFilter.getMetaSeries() == null || indicatorFilter.getMetaSeries().isEmpty() ? null : indicatorFilter.getMetaSeries(),
                 indicatorFilter.getClasses() == null || indicatorFilter.getClasses().isEmpty() ? null : indicatorFilter.getClasses(),
                 indicatorFilter.getModels() == null || indicatorFilter.getModels().isEmpty() ? null : indicatorFilter.getModels(),
-                indicatorFilter.getChineseBrand() == null ? null : (indicatorFilter.getChineseBrand().equals("Chinese Brand")));
+                indicatorFilter.getChineseBrand() == null ? null : (indicatorFilter.getChineseBrand().equals("Chinese Brand")),
+                indicatorFilter.getAopMarginPercentageGroup() == null || indicatorFilter.getAopMarginPercentageGroup().isEmpty() ? null : indicatorFilter.getAopMarginPercentageGroup());
         return result;
     }
 
@@ -84,7 +85,8 @@ public class IndicatorService extends BasedService {
                 indicatorFilter.getMetaSeries() == null || indicatorFilter.getMetaSeries().isEmpty() ? null : indicatorFilter.getMetaSeries(),
                 indicatorFilter.getClasses() == null || indicatorFilter.getClasses().isEmpty() ? null : indicatorFilter.getClasses(),
                 indicatorFilter.getModels() == null || indicatorFilter.getModels().isEmpty() ? null : indicatorFilter.getModels(),
-                indicatorFilter.getChineseBrand() == null ? null : (indicatorFilter.getChineseBrand().equals("Chinese Brand")));
+                indicatorFilter.getChineseBrand() == null ? null : (indicatorFilter.getChineseBrand().equals("Chinese Brand")),
+                indicatorFilter.getAopMarginPercentageGroup() == null || indicatorFilter.getAopMarginPercentageGroup().isEmpty() ? null : indicatorFilter.getAopMarginPercentageGroup());
         return result;
     }
 
