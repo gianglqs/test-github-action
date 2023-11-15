@@ -84,9 +84,14 @@ public class PartService extends BasedService {
 
         String orderNumber = row.getCell(powerBIExportColumns.get("Order Number")).getStringCellValue();
 
+        // specify isSPED if the description contains "
+        boolean isSPED =
+                row.getCell(powerBIExportColumns.get("Part Description: English US"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().contains("SPED") ||
+                row.getCell(powerBIExportColumns.get("Part Description: English UK"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().contains("SPED");
+
         //optionType, orderBookedDate, orderRequestDate
 
-        return new Part(quoteId, quantity, orderNumber, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency, clazz, region);
+        return new Part(quoteId, quantity, orderNumber, modelCode, series, partNumber, listPrice, discount, discountPercentage, billTo, netPriceEach, customerPrice, extendedCustomerPrice, currency, clazz, region, isSPED);
     }
 
     /**
@@ -166,5 +171,9 @@ public class PartService extends BasedService {
     public Double getAverageDealerNet(String region, String clazz, String series) {
         Double averageDealerNet = partRepository.getAverageDealerNet(region, clazz, series);
         return averageDealerNet != null ? averageDealerNet : 0;
+    }
+
+    public Set<Part> getPartByOrderNo(String orderNo) {
+        return partRepository.getPartByOrderNumber(orderNo);
     }
 }
