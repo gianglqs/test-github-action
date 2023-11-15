@@ -118,7 +118,7 @@ public class AOPMarginService extends BasedService {
     }
 
     public Double getAOPMargin(String series, String region, String plant) {
-        List<AOPMargin> aopMarginList = aopMarginRepository.findByRegionPlantSeries(region.substring(1), plant, series);
+        List<AOPMargin> aopMarginList = aopMarginRepository.findByRegionPlantSeries(series.substring(1),region, plant);
         return aopMarginList.isEmpty() ? null : aopMarginList.get(0).getMarginSTD();
     }
 
