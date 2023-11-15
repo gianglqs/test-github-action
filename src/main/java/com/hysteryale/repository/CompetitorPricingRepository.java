@@ -18,7 +18,8 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
 
     @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing(c.region, SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF))"+
             " FROM CompetitorPricing c WHERE "+
-            "((:regions) IS Null OR c.region IN (:regions))" +
+            " c.region IS NOT NULL "+
+            " AND ((:regions) IS Null OR c.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
@@ -39,7 +40,8 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
 
     @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing( SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF),c.plant)"+
             " FROM CompetitorPricing c WHERE "+
-            "((:regions) IS Null OR c.region IN (:regions))" +
+            " c.plant IS NOT NULL "+
+            " AND ((:regions) IS Null OR c.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
