@@ -13,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.swing.text.html.Option;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -164,6 +165,12 @@ public class ProductDimensionService extends BasedService {
         }
 
         return segmentMap;
+    }
+
+    public String getModelFromMetaSeries(String metaSeries){
+        Optional<String> modelOptional = productDimensionRepository.getModelByMetaSeries(metaSeries);
+        logInfo("mdoel"+modelOptional.get());
+        return modelOptional.orElse(null);
     }
 
 }

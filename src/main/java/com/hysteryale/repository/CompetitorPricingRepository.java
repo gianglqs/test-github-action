@@ -16,16 +16,16 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
     @Query("SELECT c FROM CompetitorPricing c WHERE c.country = ?1 AND c.clazz = ?2 AND c.category = ?3 AND c.series = ?4")
     List<CompetitorPricing> getListOfCompetitorInGroup(String country, String clazz, String category, String series);
 
-    @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing(c.region, SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF)) FROM CompetitorPricing c WHERE ( (:regions) IS Null OR c.region IN (:regions) ) AND ((:plants) IS NULL OR c.plant IN (:plants)) AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))  AND ((:classes) IS NULL OR c.clazz IN (:classes)) AND ((:models) IS NULL OR c.model IN (:models)) AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.region")
+    @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing(c.region, SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF)) FROM CompetitorPricing c WHERE ( (:regions) IS Null OR c.region IN (:regions) ) AND ((:plants) IS NULL OR c.plant IN (:plants)) AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))  AND ((:classes) IS NULL OR c.clazz IN (:classes)) AND ((:models) IS NULL OR c.model IN (:models)) AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.region")
     public List<CompetitorPricing> findCompetitorByFilterForLineChartRegion(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
 
-    @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing( SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF),c.plant) FROM CompetitorPricing c WHERE c.plant IS NOT NULL AND ((:regions) IS Null OR c.region IN (:regions) ) AND ((:plants) IS NULL OR c.plant IN (:plants)) AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))  AND ((:classes) IS NULL OR c.clazz IN (:classes)) AND ((:models) IS NULL OR c.model IN (:models)) AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.plant")
+    @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing( SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF),c.plant) FROM CompetitorPricing c WHERE c.plant IS NOT NULL AND ((:regions) IS Null OR c.region IN (:regions) ) AND ((:plants) IS NULL OR c.plant IN (:plants)) AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))  AND ((:classes) IS NULL OR c.clazz IN (:classes)) AND ((:models) IS NULL OR c.model IN (:models)) AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.plant")
     public List<CompetitorPricing> findCompetitorByFilterForLineChartPlant(@Param("regions") List<String> regions, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, Boolean chineseBrand);
 
     @Query("SELECT c FROM CompetitorPricing c WHERE " +
-            "( (:regions) IS Null OR c.region IN :regions )" +
+            "((:regions) IS Null OR c.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
-            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
@@ -44,9 +44,9 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                                                            Pageable pageable);
 
     @Query("SELECT COUNT(c) from CompetitorPricing c WHERE " +
-            "((:regions) IS Null OR c.region IN :regions )" +
+            "((:regions) IS Null OR c.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
-            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +

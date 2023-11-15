@@ -18,19 +18,18 @@ public class IndicatorService extends BasedService {
     CompetitorPricingRepository competitorPricingRepository;
 
 
-
     public Map<String, Object> getCompetitorPriceForTableByFilter(IndicatorFilter indicatorFilter) {
-        logInfo(indicatorFilter.getAopMarginPercentageGroup());
+        logInfo(indicatorFilter.toString());
         Map<String, Object> result = new HashMap<>();
         // String AOPMarginFilter = convertAOPMarginFilterToData(indicatorFilter.getMarginPercentageGrouping());
-        Pageable pageable = PageRequest.of(indicatorFilter.getPageNo(), indicatorFilter.getPerPage());
+        Pageable pageable = PageRequest.of(indicatorFilter.getPageNo() - 1, indicatorFilter.getPerPage());
         List<CompetitorPricing> competitorPricingList = competitorPricingRepository.findCompetitorByFilterForTable(
                 indicatorFilter.getRegions() == null || indicatorFilter.getRegions().isEmpty() ? null : indicatorFilter.getRegions(),
                 indicatorFilter.getPlants() == null || indicatorFilter.getPlants().isEmpty() ? null : indicatorFilter.getPlants(),
                 indicatorFilter.getMetaSeries() == null || indicatorFilter.getMetaSeries().isEmpty() ? null : indicatorFilter.getMetaSeries(),
                 indicatorFilter.getClasses() == null || indicatorFilter.getClasses().isEmpty() ? null : indicatorFilter.getClasses(),
                 indicatorFilter.getModels() == null || indicatorFilter.getModels().isEmpty() ? null : indicatorFilter.getModels(),
-                indicatorFilter.getChineseBrand() == null ? null : (indicatorFilter.getChineseBrand().equals("Chinese Brand")),
+                indicatorFilter.getChineseBrand() == null || indicatorFilter.getChineseBrand().isEmpty() ? null : (indicatorFilter.getChineseBrand().equals("Chinese Brand")),
                 indicatorFilter.getAopMarginPercentageGroup() == null || indicatorFilter.getAopMarginPercentageGroup().isEmpty() ? null : indicatorFilter.getAopMarginPercentageGroup()
                 , pageable);
         result.put("listCompetitor", competitorPricingList);
@@ -65,8 +64,6 @@ public class IndicatorService extends BasedService {
     }
 
 
-
-
     public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(IndicatorFilter indicatorFilter) {
         logInfo(indicatorFilter.toString());
         List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilterForLineChartRegion(
@@ -94,4 +91,5 @@ public class IndicatorService extends BasedService {
     public List<CompetitorPricing> getCompetitiveLandscape(String country, String clazz, String category, String series) {
         return competitorPricingRepository.getListOfCompetitorInGroup(country, clazz, category, series);
 
-}}
+    }
+}

@@ -173,7 +173,7 @@ public class ImportService extends BasedService {
                 cp1.setDealerPremiumPercentage(percentageDealerPremium);
                 cp1.setSeries(series);
                 cp1.setMarketShare(marketShare);
-
+                cp1.setModel(productDimensionService.getModelFromMetaSeries(series.substring(1)));
 
 
                 competitorPricingList.add(cp1);
