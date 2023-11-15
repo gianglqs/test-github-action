@@ -232,7 +232,6 @@ public class ImportService extends BasedService {
 
                             //AOPMargin
                             Double aopMargin = aopMarginService.getAOPMargin(competitorPricing.getSeries(), competitorPricing.getRegion(), competitorPricing.getPlant());
-                            competitorPricing.setAOPMarginPercentage(aopMargin);
                         }
                         competitorPricingList.add(competitorPricing);
                     }

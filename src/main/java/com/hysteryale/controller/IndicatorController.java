@@ -29,7 +29,7 @@ public class IndicatorController {
         return indicatorService.getCompetitorPriceForTableByFilter(filters);
     }
 
-    @PostMapping(value = "/getDataForCompetitorBubbleChart", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/chart/getDataForCompetitorBubbleChart", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getCompetitorPricing(@RequestBody CompetitorPricing competitorPricing) {
         List<CompetitorPricing> competitorPricingList =
                 indicatorService.getCompetitiveLandscape(
@@ -43,7 +43,7 @@ public class IndicatorController {
     }
 
 
-    @PostMapping("/getDataForRegionLineChart")
+    @PostMapping("/chart/getDataForRegionLineChart")
     public Map<String, List<CompetitorPricing>> getDataForLineChartRegion(@RequestBody IndicatorFilter filters) {
         Map<String, List<CompetitorPricing>> result = new HashMap<>();
         List<CompetitorPricing> listCompetitorPricingGroupByRegion = indicatorService.getCompetitorPricingAfterFilterAndGroupByRegion(filters);
@@ -51,7 +51,7 @@ public class IndicatorController {
         return result;
     }
 
-    @PostMapping("/getDataForPlantLineChart")
+    @PostMapping("/chart/getDataForPlantLineChart")
     public Map<String, List<CompetitorPricing>> getDataForLineChartPlant(@RequestBody IndicatorFilter filters) {
         Map<String, List<CompetitorPricing>> result = new HashMap<>();
         List<CompetitorPricing> listCompetitorPricingGroupByRegion = indicatorService.getCompetitorPricingAfterFilterAndGroupByPlant(filters);
