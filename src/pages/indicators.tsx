@@ -119,7 +119,7 @@ export default function Indicators() {
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (_.includes(['chineseBrand', 'AOPMarginPercetageGroup'], field)) {
+            if (_.includes(['chineseBrand', 'aopMarginPercentageGroup'], field)) {
                draft[field] = option.value;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -156,6 +156,11 @@ export default function Indicators() {
 
    const columns = [
       {
+         field: 'series',
+         flex: 1.2,
+         headerName: 'Series',
+      },
+      {
          field: 'region',
          flex: 0.8,
          headerName: 'Region',
@@ -169,11 +174,6 @@ export default function Indicators() {
          field: 'clazz',
          flex: 0.8,
          headerName: 'Class',
-      },
-      {
-         field: 'series',
-         flex: 1.2,
-         headerName: 'Series',
       },
       {
          field: 'averageDN',
@@ -446,7 +446,11 @@ export default function Indicators() {
                   <AppAutocomplete
                      options={initDataFilter.chineseBrands}
                      label="Chinese Brand"
-                     onChange={(e, option) => handleChangeDataFilter(option, 'chineseBrand')}
+                     onChange={
+                        (e, option) =>
+                           handleChangeDataFilter(_.isNil(option) ? '' : option, 'chineseBrand')
+                        //   handleChangeDataFilter(option, 'chineseBrand')
+                     }
                      disableClearable={false}
                      primaryKeyOption="value"
                      renderOption={(prop, option) => `${option.value}`}
@@ -459,8 +463,13 @@ export default function Indicators() {
                      options={initDataFilter.marginPercentageGrouping}
                      label="AOP Margin % Group"
                      primaryKeyOption="value"
-                     onChange={(e, option) =>
-                        handleChangeDataFilter(option, 'AOPMarginPercetageGroup')
+                     onChange={
+                        (e, option) =>
+                           handleChangeDataFilter(
+                              _.isNil(option) ? '' : option,
+                              'aopMarginPercentageGroup'
+                           )
+                        // handleChangeDataFilter(option, 'aopMarginPercentageGroup')
                      }
                      disableClearable={false}
                      renderOption={(prop, option) => `${option.value}`}
