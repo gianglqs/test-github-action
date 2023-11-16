@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createSelector, createAction } from '@reduxjs/toolkit';
 
 import type { RootReducerType } from './rootReducer';
-import { defaultValueFilterBooking } from '@/utils/defaultValues';
+import { defaultValueFilterOrder } from '@/utils/defaultValues';
 
 export const name = 'booking';
 export const resetState = createAction(`${name}/RESET_STATE`);
@@ -9,7 +9,7 @@ export const resetState = createAction(`${name}/RESET_STATE`);
 export const initialState = {
    bookingOrdersList: [] as any[],
    initDataFilter: {} as any,
-   defaultValueFilterBooking: defaultValueFilterBooking as any,
+   defaultValueFilterBooking: defaultValueFilterOrder as any,
 };
 
 const bookingSlice = createSlice({

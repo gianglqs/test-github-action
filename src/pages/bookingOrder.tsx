@@ -19,14 +19,14 @@ import {
 import _ from 'lodash';
 import { produce } from 'immer';
 
-import { defaultValueFilterBooking } from '@/utils/defaultValues';
+import { defaultValueFilterOrder } from '@/utils/defaultValues';
 
 export default function Booking() {
    const dispatch = useDispatch();
    const listBookingOrder = useSelector(bookingStore.selectBookingList);
    const initDataFilter = useSelector(bookingStore.selectInitDataFilter);
 
-   const [dataFilter, setDataFilter] = useState(defaultValueFilterBooking);
+   const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
