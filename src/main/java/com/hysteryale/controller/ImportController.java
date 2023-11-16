@@ -54,6 +54,7 @@ public class ImportController {
         importMarginAnalystMacro();
         importMarginAnalystData();
         importCompetitorPricing();
+        importShipment();
     }
 
     @PostMapping(path = "/importApicDealer")
