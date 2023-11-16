@@ -734,8 +734,8 @@ public class BookingOrderService extends BasedService {
         return result;
     }
 
-    public List<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode, int year, int month) {
-        return bookingOrderRepository.getDistinctBookingOrderByModelCode(modelCode, year, month);
+    public Optional<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode) {
+        return bookingOrderRepository.getDistinctBookingOrderByModelCode(modelCode);
     }
 
 }
