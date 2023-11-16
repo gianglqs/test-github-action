@@ -3,6 +3,7 @@ package com.hysteryale.service;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.filters.IndicatorFilter;
 import com.hysteryale.repository.CompetitorPricingRepository;
+import com.hysteryale.utils.ConvertDataFilterUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,75 +23,40 @@ public class IndicatorService extends BasedService {
         logInfo(indicatorFilter.toString());
         Map<String, Object> result = new HashMap<>();
 
-        Map<String, Object> filterMap = loadDataFilterIntoMap(indicatorFilter);
+        Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(indicatorFilter);
         List<CompetitorPricing> competitorPricingList = competitorPricingRepository.findCompetitorByFilterForTable(
-                (List<String>) filterMap.get("regionFilter"), (List<String>) filterMap.get("plantFilter"), (List<String>) filterMap.get("metaSeriesFilter"),
-                (List<String>) filterMap.get("classFilter"), (List<String>) filterMap.get("modelFilter"), (Boolean) filterMap.get("ChineseBrandFilter"),
-                (String) filterMap.get("aopMarginPercentageFilter"), (Pageable) filterMap.get("pageable"));
+                filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
+                filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
+                filterMap.get("aopMarginPercentageFilter"), (Pageable) filterMap.get("pageable"));
         result.put("listCompetitor", competitorPricingList);
 
         //get total Recode
         int totalCompetitor = competitorPricingRepository.getCountAll(
-                (List<String>) filterMap.get("regionFilter"), (List<String>) filterMap.get("plantFilter"), (List<String>) filterMap.get("metaSeriesFilter"),
-                (List<String>) filterMap.get("classFilter"), (List<String>) filterMap.get("modelFilter"), (Boolean) filterMap.get("ChineseBrandFilter"),
-                (String) filterMap.get("aopMarginPercentageFilter"));
+                filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
+                filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
+                filterMap.get("aopMarginPercentageFilter"));
         result.put("totalItems", totalCompetitor);
         return result;
     }
 
-    private Map<String, Object> loadDataFilterIntoMap(IndicatorFilter indicatorFilter) {
-        Map<String, Object> result = new HashMap<>();
-        List<String> regionFilter = checkListData(indicatorFilter.getRegions());
-        List<String> plantFilter = checkListData(indicatorFilter.getPlants());
-        List<String> metaSeriesFilter = checkListData(indicatorFilter.getMetaSeries());
-        List<String> classFilter = checkListData(indicatorFilter.getClasses());
-        List<String> modelFilter = checkListData(indicatorFilter.getModels());
-        Boolean ChineseBrandFilter = checkBooleanData(indicatorFilter.getChineseBrand());
-        String aopMarginPercentageFilter = checkStringData(indicatorFilter.getAopMarginPercentageGroup());
-        Pageable pageable = PageRequest.of(indicatorFilter.getPageNo() == 0 ? indicatorFilter.getPageNo() : indicatorFilter.getPageNo() - 1, indicatorFilter.getPerPage() == 0 ? 100 : indicatorFilter.getPerPage());
-        result.put("regionFilter", regionFilter);
-        result.put("plantFilter", plantFilter);
-        result.put("metaSeriesFilter", metaSeriesFilter);
-        result.put("classFilter", classFilter);
-        result.put("modelFilter", modelFilter);
-        result.put("ChineseBrandFilter", ChineseBrandFilter);
-        result.put("aopMarginPercentageFilter", aopMarginPercentageFilter);
-        result.put("pageable", pageable);
-        return result;
-    }
 
     public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(IndicatorFilter indicatorFilter) {
         logInfo(indicatorFilter.toString());
-        Map<String, Object> filterMap = loadDataFilterIntoMap(indicatorFilter);
-        List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilterForLineChartRegion(
-                (List<String>) filterMap.get("regionFilter"), (List<String>) filterMap.get("plantFilter"), (List<String>) filterMap.get("metaSeriesFilter"),
-                (List<String>) filterMap.get("classFilter"), (List<String>) filterMap.get("modelFilter"), (Boolean) filterMap.get("ChineseBrandFilter"),
-                (String) filterMap.get("aopMarginPercentageFilter"));
-        return result;
+        Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(indicatorFilter);
+        return competitorPricingRepository.findCompetitorByFilterForLineChartRegion(
+                filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
+                filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
+                filterMap.get("aopMarginPercentageFilter"));
     }
 
-    private List<String> checkListData(List<String> data) {
-        return data == null || data.isEmpty() ? null : data;
-    }
-
-    private String checkStringData(String data) {
-        return data == null || data.isEmpty() ? null : data;
-    }
-
-    private Boolean checkBooleanData(String data) {
-        if (data == null)
-            return null;
-        return data.equals("Chinese Brand");
-    }
 
     public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByPlant(IndicatorFilter indicatorFilter) {
         logInfo(indicatorFilter.toString());
-        Map<String, Object> filterMap = loadDataFilterIntoMap(indicatorFilter);
-        List<CompetitorPricing> result = competitorPricingRepository.findCompetitorByFilterForLineChartPlant(
-                (List<String>) filterMap.get("regionFilter"), (List<String>) filterMap.get("plantFilter"), (List<String>) filterMap.get("metaSeriesFilter"),
-                (List<String>) filterMap.get("classFilter"), (List<String>) filterMap.get("modelFilter"), (Boolean) filterMap.get("ChineseBrandFilter"),
-                (String) filterMap.get("aopMarginPercentageFilter"));
-        return result;
+        Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(indicatorFilter);
+        return competitorPricingRepository.findCompetitorByFilterForLineChartPlant(
+                filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
+                filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
+                filterMap.get("aopMarginPercentageFilter"));
     }
 
     public List<CompetitorPricing> getCompetitiveLandscape(String country, String clazz, String category, String series) {
