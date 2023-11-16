@@ -1,23 +1,30 @@
 package com.hysteryale.controller;
 
+import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.model.filters.OrderFilter;
+import com.hysteryale.service.ShipmentService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 @RestController
 public class ShipmentController {
-        @PostMapping("/shipment")
-    public Map<String, Object> getDataFinancialShipment(@RequestBody OrderFilter filters,
-                                                        @RequestParam(defaultValue = "0") int pageNo,
+
+    @Resource
+    ShipmentService shipmentService;
+
+    @PostMapping("/getShipmentData")
+    public Map<String, Object> getDataFinancialShipment(@RequestBody FilterModel filters,
+                                                        @RequestParam(defaultValue = "1") int pageNo,
                                                         @RequestParam(defaultValue = "100") int perPage) {
         filters.setPageNo(pageNo);
         filters.setPerPage(perPage);
 
-      //  return dataTableService.getShipmentByFilter(filters);
-            return null;
+        return shipmentService.getShipmentByFilter(filters);
+
     }
 }

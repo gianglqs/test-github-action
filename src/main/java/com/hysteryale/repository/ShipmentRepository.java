@@ -11,25 +11,76 @@ import java.util.List;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, String> {
 
-//    @Query("SELECT c FROM Shipment c WHERE " +
-//            "((:regions) IS Null OR c.region IN :regions )" +
-//            " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
-//            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 1,3) IN (:metaSeries))" +
-//            " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
-//            " AND ((:models) IS NULL OR c.model IN (:models))" +
-//            " AND ((:segments) IS NULL OR c.segment IN (:segments))" +
-//            " AND ((:fromDate) IS NULL OR c.date >= (:fromDate))" +
-//            " AND ((:toDate) IS NULL OR c.date <= (:toDate))" +
-//            " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
-//    public List<CompetitorPricing> findShipmentByFilterForTable(@Param("orderNo") String orderNo,
-//                                                                @Param("regions") List<String> regions,
-//                                                                @Param("plants") List<String> plants,
-//                                                                @Param("metaSeries") List<String> metaSeries,
-//                                                                @Param("classes") List<String> classes,
-//                                                                @Param("models") List<String> models,
-//                                                                @Param("segments") List<String> segments,
-//                                                                @Param("fromDate") String fromDate,
-//                                                                @Param("toDate") String toDate,
-//                                                                @Param("pageable") Pageable pageable);
+    @Query("SELECT c FROM Shipment c WHERE " +
+            "((:orderNo) IS Null OR c.orderNo = :orderNo )" +
+            " AND ((:regions) IS Null OR c.region.region IN (:regions) )" +
+            " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.productDimension.model IN (:models))" +
+            " AND ((:segments) IS NULL OR c.productDimension.segment IN (:segments))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:AOPMarginPercentage) IS NULL OR " +
+            "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
+            "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:marginPercentageAfterSurCharge = '<10% Margin' AND c.marginPercentageAfterSurCharge < 0.1) OR" +
+            "   (:marginPercentageAfterSurCharge = '<20% Margin' AND c.marginPercentageAfterSurCharge < 0.2) OR" +
+            "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +
+            "   (:marginPercentageAfterSurCharge = '>=30% Margin' AND c.marginPercentageAfterSurCharge >= 0.3))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:fromDate) IS NULL OR c.date >= (:fromDate))" +
+            " AND ((:toDate) IS NULL OR c.date <= (:toDate))"
+    )
+    List<Shipment> findShipmentByFilterForTable(@Param("orderNo") Object orderNo,
+                                                @Param("regions") Object regions,
+                                                @Param("plants") Object plants,
+                                                @Param("metaSeries") Object metaSeries,
+                                                @Param("classes") Object classes,
+                                                @Param("models") Object models,
+                                                @Param("segments") Object segments,
+                                                @Param("dealerName") Object dealerName,
+                                                @Param("AOPMarginPercentage") Object AOPMarginPercentage,
+                                                @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                                                @Param("fromDate") Object fromDate,
+                                                @Param("toDate") Object toDate,
+                                                @Param("pageable") Pageable pageable);
 
+
+    @Query("SELECT COUNT(c) FROM Shipment c WHERE " +
+            "((:orderNo) IS Null OR c.orderNo = :orderNo )" +
+            " AND ((:regions) IS Null OR c.region.region IN (:regions) )" +
+            " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.productDimension.model IN (:models))" +
+            " AND ((:segments) IS NULL OR c.productDimension.segment IN (:segments))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:AOPMarginPercentage) IS NULL OR " +
+            "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
+            "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:marginPercentageAfterSurCharge = '<10% Margin' AND c.marginPercentageAfterSurCharge < 0.1) OR" +
+            "   (:marginPercentageAfterSurCharge = '<20% Margin' AND c.marginPercentageAfterSurCharge < 0.2) OR" +
+            "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +
+            "   (:marginPercentageAfterSurCharge = '>=30% Margin' AND c.marginPercentageAfterSurCharge >= 0.3))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:fromDate) IS NULL OR c.date >= (:fromDate))" +
+            " AND ((:toDate) IS NULL OR c.date <= (:toDate))"
+    )
+    int getCount(@Param("orderNo") Object orderNo,
+                                     @Param("regions") Object regions,
+                                     @Param("plants") Object plants,
+                                     @Param("metaSeries") Object metaSeries,
+                                     @Param("classes") Object classes,
+                                     @Param("models") Object models,
+                                     @Param("segments") Object segments,
+                                     @Param("dealerName") Object dealerName,
+                                     @Param("AOPMarginPercentage") Object AOPMarginPercentage,
+                                     @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                                     @Param("fromDate") Object fromDate,
+                                     @Param("toDate") Object toDate);
+
+    @Query("SELECT s.dealerName from Shipment s ")
+    List<String> findAllClass();
 }
