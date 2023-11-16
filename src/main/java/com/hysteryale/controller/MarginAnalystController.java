@@ -65,9 +65,9 @@ public class MarginAnalystController {
 
             log.info(file.getContentType());
 
-            IMMarginAnalystDataService.calculateMarginAnalystData(originalFileName, fileUUID);
-            IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "monthly");
-            IMMarginAnalystDataService.calculateMarginAnalystSummary(fileUUID, originalFileName, "annually");
+            IMMarginAnalystDataService.calculateNonUSMarginAnalystData(originalFileName, fileUUID);
+            IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, originalFileName, "monthly");
+            IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, originalFileName, "annually");
 
             return Map.of(
                     "fileUUID", fileUUID
