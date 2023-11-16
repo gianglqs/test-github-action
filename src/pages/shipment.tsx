@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { bookingStore, commonStore } from '@/store/reducers';
+import { shipmentStore, commonStore } from '@/store/reducers';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
@@ -19,21 +19,24 @@ import {
 import _ from 'lodash';
 import { produce } from 'immer';
 
-import { defaultValueFilterOrder } from '@/utils/defaultValues';
+import { defaultValueFilterShipment } from '@/utils/defaultValues';
 
-export default function Booking() {
+export default function Shipment() {
    const dispatch = useDispatch();
-   const listBookingOrder = useSelector(bookingStore.selectBookingList);
-   const initDataFilter = useSelector(bookingStore.selectInitDataFilter);
 
-   const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
+   const listShipment = useSelector(shipmentStore.selectShipmentList);
+   console.log('data ' + listShipment);
+   const initDataFilter = useSelector(shipmentStore.selectInitDataFilter);
+
+   const [dataFilter, setDataFilter] = useState(defaultValueFilterShipment);
+   console.log('data filter ' + initDataFilter);
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
             if (
                _.includes(
-                  ['orderNo', 'fromDate', 'toDate', 'MarginPercetage', 'AOPMarginPercetage'],
+                  ['orderNo', 'fromDate', 'toDate', 'marginPercentage', 'aopMarginPercentageGroup'],
                   field
                )
             ) {
@@ -45,14 +48,14 @@ export default function Booking() {
       );
    };
 
-   const handleFilterOrderBooking = () => {
-      dispatch(bookingStore.actions.setDefaultValueFilterBooking(dataFilter));
+   const handleFilterOrderShipment = () => {
+      dispatch(shipmentStore.actions.setDefaultValueFilterShipment(dataFilter));
       handleChangePage(1);
    };
 
    const handleChangePage = (pageNo: number) => {
       dispatch(commonStore.actions.setTableState({ pageNo }));
-      dispatch(bookingStore.sagaGetList());
+      dispatch(shipmentStore.sagaGetList());
    };
 
    const handleChangePerPage = (perPage: number) => {
@@ -79,7 +82,7 @@ export default function Booking() {
          flex: 0.8,
          headerName: 'Region',
          renderCell(params) {
-            return <span>{params.row.region.region}</span>;
+            return <span>{params.row.region?.region}</span>;
          },
       },
       {
@@ -121,7 +124,7 @@ export default function Booking() {
          flex: 0.8,
          headerName: 'Models',
          renderCell(params) {
-            return <span>{params.row.model}</span>;
+            return <span>{params.row.productDimension?.model}</span>;
          },
       },
       {
@@ -129,14 +132,7 @@ export default function Booking() {
          flex: 0.8,
          headerName: 'Qty',
       },
-      {
-         field: 'totalCost',
-         flex: 0.8,
-         headerName: 'Total Cost',
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.totalCost)}</span>;
-         },
-      },
+
       {
          field: 'dealerNet',
          flex: 0.8,
@@ -151,6 +147,22 @@ export default function Booking() {
          headerName: 'DN After Surcharge',
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
+         },
+      },
+      {
+         field: 'totalCost',
+         flex: 0.8,
+         headerName: 'Total Cost',
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalCost)}</span>;
+         },
+      },
+      {
+         field: 'netRevenue',
+         flex: 0.8,
+         headerName: 'Net Revenue',
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.netRevenue)}</span>;
          },
       },
       {
@@ -182,7 +194,7 @@ export default function Booking() {
 
    return (
       <>
-         <AppLayout entity="booking">
+         <AppLayout entity="shipment">
             <Grid container spacing={1}>
                <Grid item xs={4}>
                   <Grid item xs={12}>
@@ -301,33 +313,33 @@ export default function Booking() {
                </Grid>
                <Grid item xs={2}>
                   <AppAutocomplete
-                     options={initDataFilter.AOPMarginPercetage}
-                     label="AOP Margin %"
-                     primaryKeyOption="value"
+                     options={initDataFilter.marginPercentageGroup}
+                     label="Margin %"
                      onChange={(e, option) =>
                         handleChangeDataFilter(
                            _.isNil(option) ? '' : option?.value,
-                           'AOPMarginPercetage'
+                           'marginPercentage'
                         )
                      }
                      disableClearable={false}
+                     primaryKeyOption="value"
                      renderOption={(prop, option) => `${option.value}`}
                      getOptionLabel={(option) => `${option.value}`}
                   />
                </Grid>
-               <Grid item xs={4}>
-                  <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
+               <Grid item xs={4} sx={{ paddingRight: 0.5 }}>
+                  <Grid item xs={6}>
                      <AppAutocomplete
-                        options={initDataFilter.MarginPercetage}
-                        label="Margin %"
+                        options={initDataFilter.AOPMarginPercentageGroup}
+                        label="AOP Margin %"
+                        primaryKeyOption="value"
                         onChange={(e, option) =>
                            handleChangeDataFilter(
                               _.isNil(option) ? '' : option?.value,
-                              'MarginPercetage'
+                              'aopMarginPercentageGroup'
                            )
                         }
                         disableClearable={false}
-                        primaryKeyOption="value"
                         renderOption={(prop, option) => `${option.value}`}
                         getOptionLabel={(option) => `${option.value}`}
                      />
@@ -356,7 +368,7 @@ export default function Booking() {
                <Grid item xs={2}>
                   <Button
                      variant="contained"
-                     onClick={handleFilterOrderBooking}
+                     onClick={handleFilterOrderShipment}
                      sx={{ width: '100%', height: 24 }}
                   >
                      Filter
@@ -371,7 +383,7 @@ export default function Booking() {
                      disableColumnMenu
                      tableHeight={740}
                      rowHeight={45}
-                     rows={listBookingOrder}
+                     rows={listShipment}
                      rowBuffer={35}
                      rowThreshold={25}
                      columns={columns}

@@ -1,30 +1,30 @@
 import { createSlice, PayloadAction, createSelector, createAction } from '@reduxjs/toolkit';
 
 import type { RootReducerType } from './rootReducer';
-import { defaultValueFilterOrder } from '@/utils/defaultValues';
+import { defaultValueFilterShipment } from '@/utils/defaultValues';
 
-export const name = 'booking';
+export const name = 'shipment';
 export const resetState = createAction(`${name}/RESET_STATE`);
 
 export const initialState = {
-   bookingOrdersList: [] as any[],
+   shipmentList: [] as any[],
    initDataFilter: {} as any,
-   defaultValueFilterBooking: defaultValueFilterOrder as any,
+   defaultValueFilterShipment: defaultValueFilterShipment as any,
 };
 
-const bookingSlice = createSlice({
+const shipmentSlice = createSlice({
    name,
    initialState,
    reducers: {
-      setBookingList(state, { payload }: PayloadAction<any[]>) {
-         state.bookingOrdersList = payload;
+      setShipmentList(state, { payload }: PayloadAction<any[]>) {
+         state.shipmentList = payload;
       },
       setInitDataFilter(state, { payload }: PayloadAction<any[]>) {
          state.initDataFilter = payload;
       },
-      setDefaultValueFilterBooking(state, { payload }: PayloadAction<Partial<any>>) {
-         state.defaultValueFilterBooking = {
-            ...state.defaultValueFilterBooking,
+      setDefaultValueFilterShipment(state, { payload }: PayloadAction<Partial<any>>) {
+         state.defaultValueFilterShipment = {
+            ...state.defaultValueFilterShipment,
             ...payload,
          };
       },
@@ -39,14 +39,14 @@ const bookingSlice = createSlice({
 export const sagaGetList = createAction(`${name}/GET_LIST`);
 // Selectors
 export const selectState = (state: RootReducerType) => state[name];
-export const selectBookingList = createSelector(selectState, (state) => state.bookingOrdersList);
+export const selectShipmentList = createSelector(selectState, (state) => state.shipmentList);
 export const selectInitDataFilter = createSelector(selectState, (state) => state.initDataFilter);
 
-export const selectDefaultValueFilterBooking = createSelector(
+export const selectDefaultValueFilterShipment = createSelector(
    selectState,
-   (state) => state.defaultValueFilterBooking
+   (state) => state.defaultValueFilterShipment
 );
 
-export const { actions } = bookingSlice;
+export const { actions } = shipmentSlice;
 
-export default bookingSlice;
+export default shipmentSlice;
