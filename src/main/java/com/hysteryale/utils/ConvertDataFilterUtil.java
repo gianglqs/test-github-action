@@ -1,6 +1,6 @@
 package com.hysteryale.utils;
 
-import com.hysteryale.model.filters.IndicatorFilter;
+import com.hysteryale.model.filters.FilterModel;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -10,27 +10,31 @@ import java.util.Map;
 
 public class ConvertDataFilterUtil {
 
-    public static Map<String, Object> loadDataFilterIntoMap(IndicatorFilter indicatorFilter) {
+    public static Map<String, Object> loadDataFilterIntoMap(FilterModel filterModel) {
         Map<String, Object> result = new HashMap<>();
-        String orderNoFilter = checkStringData(indicatorFilter.getOrderNo());
-        List<String> regionFilter = checkListData(indicatorFilter.getRegions());
-        List<String> plantFilter = checkListData(indicatorFilter.getPlants());
-        List<String> metaSeriesFilter = checkListData(indicatorFilter.getMetaSeries());
-        List<String> classFilter = checkListData(indicatorFilter.getClasses());
-        List<String> modelFilter = checkListData(indicatorFilter.getModels());
-        Boolean ChineseBrandFilter = checkBooleanData(indicatorFilter.getChineseBrand());
-        String aopMarginPercentageFilter = checkStringData(indicatorFilter.getAopMarginPercentageGroup());
-        String marginPercentageFilter = checkStringData(indicatorFilter.getMarginPercentage());
-        String fromDateFilter = checkStringData(indicatorFilter.getFromDate());
-        String toDateFilter = checkStringData(indicatorFilter.getToDate());
-        Pageable pageable = PageRequest.of(indicatorFilter.getPageNo() == 0 ? indicatorFilter.getPageNo() : indicatorFilter.getPageNo() - 1, indicatorFilter.getPerPage() == 0 ? 100 : indicatorFilter.getPerPage());
+        String orderNoFilter = checkStringData(filterModel.getOrderNo());
+        List<String> regionFilter = checkListData(filterModel.getRegions());
+        List<String> plantFilter = checkListData(filterModel.getPlants());
+        List<String> metaSeriesFilter = checkListData(filterModel.getMetaSeries());
+        List<String> classFilter = checkListData(filterModel.getClasses());
+        List<String> modelFilter = checkListData(filterModel.getModels());
+        List<String> dealerNameFilter = checkListData(filterModel.getDealers());
+        List<String> segmentFilter = checkListData(filterModel.getSegment());
+        Boolean ChineseBrandFilter = checkBooleanData(filterModel.getChineseBrand());
+        String aopMarginPercentageFilter = checkStringData(filterModel.getAopMarginPercentageGroup());
+        String marginPercentageFilter = checkStringData(filterModel.getMarginPercentage());
+        String fromDateFilter = checkStringData(filterModel.getFromDate());
+        String toDateFilter = checkStringData(filterModel.getToDate());
+        Pageable pageable = PageRequest.of(filterModel.getPageNo() == 0 ? filterModel.getPageNo() : filterModel.getPageNo() - 1, filterModel.getPerPage() == 0 ? 100 : filterModel.getPerPage());
 
         result.put("orderNoFilter", orderNoFilter);
         result.put("regionFilter", regionFilter);
         result.put("plantFilter", plantFilter);
+        result.put("dealerNameFilter", dealerNameFilter);
         result.put("metaSeriesFilter", metaSeriesFilter);
         result.put("classFilter", classFilter);
         result.put("modelFilter", modelFilter);
+        result.put("segmentFilter", segmentFilter);
         result.put("ChineseBrandFilter", ChineseBrandFilter);
         result.put("aopMarginPercentageFilter", aopMarginPercentageFilter);
         result.put("marginPercentageFilter", marginPercentageFilter);
