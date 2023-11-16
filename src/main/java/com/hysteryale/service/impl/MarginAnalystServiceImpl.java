@@ -167,7 +167,7 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
                 log.info(" === Model Code " + modelCode + " === ");
 
                 // parts are found by modelCode, monthYear and currency
-                List<Part> partList = partService.getDistinctPart(modelCode, monthYear, strCurrency);
+                List<Part> partList = partService.getDistinctPart(modelCode, strCurrency);
 
                 List<MarginAnalystData> marginAnalystDataList = new ArrayList<>();
                 for(Part part : partList) {
