@@ -47,6 +47,11 @@ public class Shipment {
 
     private String series;
 
+    @Column(name = "serial_number")
+    private String serialNumber;
+
+    private String model;
+
     //properties that we need to calculate based on raw data
     private int quantity = 1;
 
