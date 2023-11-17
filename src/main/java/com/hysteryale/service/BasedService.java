@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 import java.io.*;
+import io.sentry.Sentry;
 
 
 @Slf4j
@@ -16,27 +17,37 @@ public class BasedService extends RollbarInitializer {
      * To log info to console and rollbar
      *
      * @param message
-     * @param exceptions
+     * @param exception
      */
-    protected void logInfo(String message, Exception... exceptions) {
-        log.info(message, exceptions);
+    protected void logInfo(String message, Exception... exception) {
+        log.info(message, exception);
         rollbar.info(message);
+        logWithSentry(message, exception);
     }
 
-    protected void logDebug(String message, Exception... exceptions) {
-        log.debug(message, exceptions);
+    protected void logDebug(String message, Exception... exception) {
+        log.debug(message, exception);
         rollbar.debug(message);
+        logWithSentry(message, exception);
     }
 
-    protected void logError(String message, Exception... exceptions) {
-        log.error(message, exceptions);
+    protected void logError(String message, Exception... exception) {
+        log.error(message, exception);
         rollbar.error(message);
-
+        logWithSentry(message, exception);
     }
 
-    protected void logWarning(String message, Exception... exceptions) {
-        log.warn(message, exceptions);
+    protected void logWarning(String message, Exception... exception) {
+        log.warn(message, exception);
         rollbar.warning(message);
+        logWithSentry(message, exception);
+    }
+
+    private void logWithSentry(String message, Exception... exception){
+        Sentry.captureMessage(message);
+        if(exception!=null && exception.length > 0) {
+            Sentry.captureException(exception[0]);
+        }
     }
 
     protected void updateStateImportFile(String pathFile) {

@@ -284,8 +284,7 @@ public class ImportService extends BasedService {
                 for (Row row : sheet) {
                     if (row.getRowNum() == 0) {
                         getYearsInForeCast(YEARS_COLUMN, row, years);
-                        log.info("" + YEARS_COLUMN);
-                        log.info("" + years);
+
                     } else if (row.getRowNum() == 1)
                         getOrderColumnsName(row, FORECAST_ORDER_COLUMN);
                     else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() &&       // checking null
@@ -365,10 +364,8 @@ public class ImportService extends BasedService {
             String clazz = competitorGroup[1];
             String category = competitorGroup[2];
             String series = competitorGroup[3];
-            log.info(country + " - " + clazz + " - " + category + " - " + series);
 
             List<CompetitorPricing> competitorPricingList = getListOfCompetitorInGroup(country, clazz, category, series);
-            log.info("Number of elements: " + competitorPricingList.size());
             double hygLeadTime = 0;
             double totalDealerNet = 0;
             double dealerStreetPricing = 0;
@@ -447,13 +444,7 @@ public class ImportService extends BasedService {
             String orderNo = row.getCell(shipmentColumnsName.get("Order number")).getStringCellValue();
             shipment.setOrderNo(orderNo);
 
-            // Set orderNo
-            String series = row.getCell(shipmentColumnsName.get("Series")).getStringCellValue();
-            shipment.setSeries(series);
 
-            //set ProductDimension to get : plant, class, model, segment, model
-            ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(row.getCell(shipmentColumnsName.get("Series"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-            shipment.setProductDimension(productDimension);
 
             // Revenue
             double revenue = row.getCell(shipmentColumnsName.get("Revenue")).getNumericCellValue();
@@ -474,32 +465,40 @@ public class ImportService extends BasedService {
             // get data from BookingOrder
             Optional<BookingOrder> bookingOrderOptional = bookingOrderRepository.getBookingOrderByOrderNo(orderNo);
             if(bookingOrderOptional.isPresent()){
+                BookingOrder booking = bookingOrderOptional.get();
+                // set series
+                shipment.setSeries(booking.getSeries());
+
+                // set productDimension
+                shipment.setProductDimension(booking.getProductDimension());
+
                 // set Region
-                shipment.setRegion(bookingOrderOptional.get().getRegion());
+                shipment.setRegion(booking.getRegion());
+
+                // DN
+                shipment.setDealerNet(booking.getDealerNet());
+
+                //DN AfterSurcharge
+                shipment.setDealerNetAfterSurCharge(booking.getDealerNetAfterSurCharge());
+
+                // totalCost
+                shipment.setTotalCost(booking.getTotalCost());
 
                 // set Margin Percentage After surcharge
-                shipment.setMarginPercentageAfterSurCharge(bookingOrderOptional.get().getMarginPercentageAfterSurCharge());
+                shipment.setMarginPercentageAfterSurCharge(booking.getMarginPercentageAfterSurCharge());
 
                 // Set Margin after surcharge
-                shipment.setMarginAfterSurCharge(bookingOrderOptional.get().getMarginAfterSurCharge());
+                shipment.setMarginAfterSurCharge(booking.getMarginAfterSurCharge());
 
                 // AOP Margin %
-                shipment.setAOPMarginPercentage(bookingOrderOptional.get().getAOPMarginPercentage());
+                shipment.setAOPMarginPercentage(booking.getAOPMarginPercentage());
+
             }else{
-                logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
+               // logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
             }
 
-//                    Cell cell = row.getCell(shipmentColumnsName.get("REGION"));
-//                    Optional<Region> region = regionRepository.findByRegionId(cell.getStringCellValue());
-//                    if (region.isPresent()) {
-//                        field.set(bookingOrder, region.get()/*.getRegion()*/);
-//                    } else {
-//                        throw new Exception("Not match Region with region_Id: " + cell.getStringCellValue());
-//                    }
-
-
         } catch (Exception e) {
-            logError(e.toString());
+          //  logError(e.toString());
         }
 
 

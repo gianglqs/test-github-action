@@ -1,7 +1,7 @@
 package com.hysteryale.controller;
 
 import com.hysteryale.model.competitor.CompetitorPricing;
-import com.hysteryale.model.filters.IndicatorFilter;
+import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.service.IndicatorService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ public class IndicatorController {
 
 
     @PostMapping("/getCompetitorData")
-    public Map<String, Object> getCompetitorData(@RequestBody IndicatorFilter filters,
+    public Map<String, Object> getCompetitorData(@RequestBody FilterModel filters,
                                                  @RequestParam(defaultValue = "0") int pageNo,
                                                  @RequestParam(defaultValue = "100") int perPage) {
         filters.setPageNo(pageNo);
@@ -44,7 +44,7 @@ public class IndicatorController {
 
 
     @PostMapping("/chart/getDataForRegionLineChart")
-    public Map<String, List<CompetitorPricing>> getDataForLineChartRegion(@RequestBody IndicatorFilter filters) {
+    public Map<String, List<CompetitorPricing>> getDataForLineChartRegion(@RequestBody FilterModel filters) {
         Map<String, List<CompetitorPricing>> result = new HashMap<>();
         List<CompetitorPricing> listCompetitorPricingGroupByRegion = indicatorService.getCompetitorPricingAfterFilterAndGroupByRegion(filters);
         result.put("lineChartRegion", listCompetitorPricingGroupByRegion);
@@ -52,7 +52,7 @@ public class IndicatorController {
     }
 
     @PostMapping("/chart/getDataForPlantLineChart")
-    public Map<String, List<CompetitorPricing>> getDataForLineChartPlant(@RequestBody IndicatorFilter filters) {
+    public Map<String, List<CompetitorPricing>> getDataForLineChartPlant(@RequestBody FilterModel filters) {
         Map<String, List<CompetitorPricing>> result = new HashMap<>();
         List<CompetitorPricing> listCompetitorPricingGroupByRegion = indicatorService.getCompetitorPricingAfterFilterAndGroupByPlant(filters);
         result.put("lineChartPlant", listCompetitorPricingGroupByRegion);

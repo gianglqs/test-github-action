@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class IndicatorFilter {
+public class FilterModel {
 
     private String orderNo;
     private List<String> regions;
@@ -18,6 +18,7 @@ public class IndicatorFilter {
     private List<String> metaSeries;
     private List<String> classes;
     private List<String> models;
+    private List<String> segment;
     private String chineseBrand;
     private String aopMarginPercentageGroup;
     private String marginPercentage;

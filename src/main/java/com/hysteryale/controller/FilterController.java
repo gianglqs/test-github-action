@@ -19,5 +19,10 @@ public class FilterController {
         return filterService.getCompetitorPricingFilter();
     }
 
+    @GetMapping("/shipment")
+    public Map<String, Object> getShipmentFilters() {
+        return filterService.getOrderFilter();
+    }
+
 }
 

@@ -3,6 +3,7 @@ package com.hysteryale.service;
 import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.repository.ProductDimensionRepository;
 import com.hysteryale.repository.RegionRepository;
+import com.hysteryale.repository.ShipmentRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,6 +21,9 @@ public class FilterService {
     @Resource
     RegionRepository regionRepository;
 
+    @Resource
+    ShipmentRepository shipmentRepository;
+
     public Map<String, Object> getCompetitorPricingFilter() {
 
         Map<String, Object> filters = new HashMap<>();
@@ -28,16 +32,35 @@ public class FilterService {
         filters.put("metaSeries", getAllMetaSeries());
         filters.put("models", getAllModels());
         filters.put("chineseBrands", getChineseBrandFilter());
-        filters.put("marginPercentageGrouping", getMarginPercentageForCompetitorPricing());
+        filters.put("marginPercentageGrouping", getMarginPercentageGroup());
         //  filters.put("T&C", getTCForCompetitorPricing());
         filters.put("regions", getAllRegions());
-        filters.put("dealers", null);
+        filters.put("dealers", getAllDealerNames());
         filters.put("series", getSeries());
         filters.put("categories", getCategories());
         filters.put("countries", getCountries());
 
         return filters;
     }
+
+    public Map<String, Object> getOrderFilter() {
+
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("regions", getAllRegions());
+        filters.put("classes", getAllClasses());
+        filters.put("plants", getAllPlants());
+        filters.put("metaSeries", getAllMetaSeries());
+        filters.put("models", getAllModels());
+        filters.put("marginPercentageGroup", getMarginPercentageGroup());
+        filters.put("AOPMarginPercentageGroup", getAOPMarginPercentageGroup());
+        filters.put("dealers", null);
+        filters.put("series", getSeries());
+        filters.put("segments", getAllSegments());
+
+        return filters;
+    }
+
+
 
     private List<Map<String, String>> getChineseBrandFilter() {
         List<Map<String, String>> result = new ArrayList<>();
@@ -63,6 +86,18 @@ public class FilterService {
             classMap.add(mMap);
         }
         return classMap;
+    }
+
+    private List<Map<String, String>> getAllDealerNames() {
+        List<Map<String, String>> DealerNameMap = new ArrayList<>();
+        List<String> dealerNames = shipmentRepository.findAllClass();
+        dealerNames.sort(String::compareTo);
+        for (String m : dealerNames) {
+            Map<String, String> mMap = new HashMap<>();
+            mMap.put("value", m);
+            DealerNameMap.add(mMap);
+        }
+        return DealerNameMap;
     }
 
     private List<Map<String, String>> getAllPlants() {
@@ -117,7 +152,7 @@ public class FilterService {
     /**
      * Get margin Percentage
      */
-    private List<Map<String, String>> getMarginPercentageForCompetitorPricing() {
+    private List<Map<String, String>> getMarginPercentageGroup() {
         List<Map<String, String>> result = new ArrayList<>();
 
         Map<String, String> MarginBelow10 = new HashMap<>();
@@ -139,6 +174,20 @@ public class FilterService {
         Map<String, String> MarginVE = new HashMap<>();
         MarginVE.put("value", "-ve Margin %");
         result.add(MarginVE);
+
+        return result;
+    }
+
+    private List<Map<String, String>> getAOPMarginPercentageGroup() {
+        List<Map<String, String>> result = new ArrayList<>();
+
+        Map<String, String> marginBelow = new HashMap<>();
+        marginBelow.put("value", "Below AOP Margin %");
+        result.add(marginBelow);
+
+        Map<String, String> marginAbove = new HashMap<>();
+        marginAbove.put("value", "Above AOP Margin %");
+        result.add(marginAbove);
 
         return result;
     }
