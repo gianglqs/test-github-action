@@ -1,4 +1,4 @@
-export const defaultValueFilterBooking = {
+export const defaultValueFilterOrder = {
    orderNo: '',
    regions: [],
    dealers: [],
@@ -21,6 +21,21 @@ export const defaultValueFilterIndicator = {
    classes: [],
    models: [],
    segments: [],
-   AOPMarginPercetage: '',
-   isChinese: '',
+   aopMarginPercentageGroup: '',
+   chineseBrand: '',
+} as any;
+
+export const defaultValueFilterShipment = {
+   orderNo: '',
+   regions: [],
+   dealers: [],
+   plants: [],
+   metaSeries: [],
+   classes: [],
+   models: [],
+   segments: [],
+   aopMarginPercentageGroup: '',
+   marginPercentage: '',
+   fromDate: '',
+   toDate: '',
 } as any;
