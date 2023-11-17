@@ -90,11 +90,7 @@ export default function Shipment() {
          flex: 0.8,
          headerName: 'Country',
       },
-      {
-         field: 'dealerName',
-         flex: 1.2,
-         headerName: 'Dealer Name',
-      },
+
       {
          field: 'Plant',
          flex: 0.8,
@@ -110,6 +106,11 @@ export default function Shipment() {
          renderCell(params) {
             return <span>{params.row.productDimension?.clazz}</span>;
          },
+      },
+      {
+         field: 'dealerName',
+         flex: 1.2,
+         headerName: 'Dealer Name',
       },
       {
          field: 'series',
