@@ -71,12 +71,12 @@ export default function Booking() {
    const columns = [
       {
          field: 'orderNo',
-         flex: 0.8,
+         flex: 0.4,
          headerName: 'Order #',
       },
       {
          field: 'region',
-         flex: 0.8,
+         flex: 0.5,
          headerName: 'Region',
          renderCell(params) {
             return <span>{params.row.region.region}</span>;
@@ -84,17 +84,17 @@ export default function Booking() {
       },
       {
          field: 'ctryCode',
-         flex: 0.8,
+         flex: 0.3,
          headerName: 'Country',
       },
       {
          field: 'dealerName',
-         flex: 1.2,
+         flex: 1.3,
          headerName: 'Dealer Name',
       },
       {
          field: 'Plant',
-         flex: 0.8,
+         flex: 0.6,
          headerName: 'Plant',
          renderCell(params) {
             return <span>{params.row.productDimension?.plant}</span>;
@@ -102,7 +102,7 @@ export default function Booking() {
       },
       {
          field: 'truckClass',
-         flex: 0.8,
+         flex: 0.7,
          headerName: 'Class',
          renderCell(params) {
             return <span>{params.row.productDimension?.clazz}</span>;
@@ -110,7 +110,7 @@ export default function Booking() {
       },
       {
          field: 'series',
-         flex: 0.8,
+         flex: 0.4,
          headerName: 'Series',
          renderCell(params) {
             return <span>{params.row.series}</span>;
@@ -118,7 +118,7 @@ export default function Booking() {
       },
       {
          field: 'model',
-         flex: 0.8,
+         flex: 0.6,
          headerName: 'Models',
          renderCell(params) {
             return <span>{params.row.model}</span>;
@@ -126,7 +126,7 @@ export default function Booking() {
       },
       {
          field: 'quantity',
-         flex: 0.8,
+         flex: 0.3,
          headerName: 'Qty',
       },
       {
@@ -155,7 +155,7 @@ export default function Booking() {
       },
       {
          field: 'marginAfterSurCharge',
-         flex: 1,
+         flex: 0.7,
          headerName: 'Margin $ After Surcharge',
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
@@ -164,7 +164,7 @@ export default function Booking() {
 
       {
          field: 'marginPercentageAfterSurCharge',
-         flex: 1,
+         flex: 0.65,
          headerName: 'Margin % After Surcharge',
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
@@ -172,7 +172,7 @@ export default function Booking() {
       },
       {
          field: 'aopmarginPercentage',
-         flex: 1,
+         flex: 0.65,
          headerName: 'AOP Margin%',
          renderCell(params) {
             return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
