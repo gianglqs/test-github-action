@@ -157,13 +157,13 @@ export default function Indicators() {
    const columns = [
       {
          field: 'competitorName',
-         flex: 1,
+         flex: 1.5,
          headerName: 'Competitor Name',
       },
 
       {
          field: 'region',
-         flex: 0.8,
+         flex: 0.5,
          headerName: 'Region',
       },
       {
@@ -173,44 +173,37 @@ export default function Indicators() {
       },
       {
          field: 'clazz',
-         flex: 0.8,
+         flex: 1,
          headerName: 'Class',
       },
       {
          field: 'series',
-         flex: 1.2,
+         flex: 0.5,
          headerName: 'Series',
       },
-      {
-         field: 'averageDN',
-         flex: 0.8,
-         headerName: 'Average Dealer Net',
-         renderCell(params) {
-            return <span>{formatNumber(params.row.averageDN)}</span>;
-         },
-      },
+
       {
          field: 'actual',
-         flex: 0.8,
+         flex: 0.5,
          headerName: '2022 Actual',
          renderCell(params) {
-            return <span>{formatNumber(params.row.actual)}</span>;
+            return <span>{params.row.actual}</span>;
          },
       },
       {
          field: 'aopf',
-         flex: 0.8,
+         flex: 0.5,
          headerName: '2023 AOPF',
          renderCell(params) {
-            return <span>{formatNumber(params.row.aopf)}</span>;
+            return <span>{params.row.aopf}</span>;
          },
       },
       {
          field: 'lrff',
-         flex: 0.8,
+         flex: 0.5,
          headerName: '2024 LRFF',
          renderCell(params) {
-            return <span>{formatNumber(params.row.lrff)}</span>;
+            return <span>{params.row.lrff}</span>;
          },
       },
       // {
@@ -259,6 +252,14 @@ export default function Indicators() {
          headerName: 'Dealer Premium / Margin %',
          renderCell(params) {
             return <span>{formatNumber(params.row.dealerPremiumPercentage * 100)}%</span>;
+         },
+      },
+      {
+         field: 'averageDN',
+         flex: 0.8,
+         headerName: 'Average Dealer Net',
+         renderCell(params) {
+            return <span>{formatNumber(params.row.averageDN)}</span>;
          },
       },
 

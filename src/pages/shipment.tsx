@@ -74,12 +74,17 @@ export default function Shipment() {
    const columns = [
       {
          field: 'orderNo',
-         flex: 0.8,
+         flex: 0.4,
          headerName: 'Order #',
       },
       {
+         field: 'date',
+         flex: 0.5,
+         headerName: 'Create at',
+      },
+      {
          field: 'region',
-         flex: 0.8,
+         flex: 0.3,
          headerName: 'Region',
          renderCell(params) {
             return <span>{params.row.region?.region}</span>;
@@ -87,13 +92,13 @@ export default function Shipment() {
       },
       {
          field: 'ctryCode',
-         flex: 0.8,
+         flex: 0.3,
          headerName: 'Country',
       },
 
       {
          field: 'Plant',
-         flex: 0.8,
+         flex: 0.5,
          headerName: 'Plant',
          renderCell(params) {
             return <span>{params.row.productDimension?.plant}</span>;
@@ -101,7 +106,7 @@ export default function Shipment() {
       },
       {
          field: 'truckClass',
-         flex: 0.8,
+         flex: 0.7,
          headerName: 'Class',
          renderCell(params) {
             return <span>{params.row.productDimension?.clazz}</span>;
@@ -114,7 +119,7 @@ export default function Shipment() {
       },
       {
          field: 'series',
-         flex: 0.8,
+         flex: 0.4,
          headerName: 'Series',
          renderCell(params) {
             return <span>{params.row.series}</span>;
@@ -122,7 +127,7 @@ export default function Shipment() {
       },
       {
          field: 'model',
-         flex: 0.8,
+         flex: 0.6,
          headerName: 'Models',
          renderCell(params) {
             return <span>{params.row.productDimension?.model}</span>;
@@ -130,7 +135,7 @@ export default function Shipment() {
       },
       {
          field: 'quantity',
-         flex: 0.8,
+         flex: 0.2,
          headerName: 'Qty',
       },
 
@@ -168,7 +173,7 @@ export default function Shipment() {
       },
       {
          field: 'marginAfterSurCharge',
-         flex: 1,
+         flex: 0.8,
          headerName: 'Margin $ After Surcharge',
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
@@ -177,7 +182,7 @@ export default function Shipment() {
 
       {
          field: 'marginPercentageAfterSurCharge',
-         flex: 1,
+         flex: 0.6,
          headerName: 'Margin % After Surcharge',
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
@@ -185,7 +190,7 @@ export default function Shipment() {
       },
       {
          field: 'aopmarginPercentage',
-         flex: 1,
+         flex: 0.6,
          headerName: 'AOP Margin%',
          renderCell(params) {
             return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
