@@ -284,6 +284,9 @@ export default function Indicators() {
                text: 'Price $',
                display: true,
             },
+            ticks: {
+               stepSize: 2000,
+            },
          },
       },
       plugins: {
@@ -292,7 +295,7 @@ export default function Indicators() {
          },
          title: {
             display: true,
-            text: 'Competitve Landscape',
+            text: 'Competitive Landscape',
             position: 'top' as const,
          },
          annotation: {
@@ -302,6 +305,24 @@ export default function Indicators() {
                   yMin: (context) => (context.chart.scales.y.max + context.chart.scales.y.min) / 2,
                   borderColor: 'rgb(0, 0, 0)',
                   borderWidth: 2,
+                  label: {
+                     display: true,
+                     content: [
+                        'Low Price, High Lead Time   High Price, High Lead Time',
+                        '',
+                        'Low Price, Low Lead Time   High Price, Low Lead Time',
+                     ],
+                     backgroundColor: 'transparent',
+                     width: '40%',
+                     height: '40%',
+                     position: 'center',
+                     color: ['black'],
+                     font: [
+                        {
+                           size: 10,
+                        },
+                     ],
+                  },
                },
                line2: {
                   xMax: (context) => (context.chart.scales.x.max + context.chart.scales.x.min) / 2,
@@ -522,7 +543,7 @@ export default function Indicators() {
                         getOptionLabel={(option) => `${option.value}`}
                      />
                   </Grid>
-                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
+                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
                      <AppAutocomplete
                         options={initDataFilter.classes}
                         label="Competitor Class"
@@ -535,7 +556,7 @@ export default function Indicators() {
                         getOptionLabel={(option) => `${option.value}`}
                      />
                   </Grid>
-                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
                      <AppAutocomplete
                         options={initDataFilter.categories}
                         label="Category"
