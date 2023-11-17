@@ -12,7 +12,7 @@
     <artifactId>hysteryale</artifactId>
     <packaging>war</packaging>
     <name>hysteryale</name>
-    <description>Demo project for Spring Boot</description>
+    <description>HysterYale Pricing Tool</description>
     <properties>
         <java.version>11</java.version>
     </properties>
@@ -133,7 +133,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <!--			<version>2.5.6</version>-->
         </dependency>
 
         <dependency>
@@ -216,6 +215,39 @@
                     </outputChangeLogFile>
                 </configuration>
             </plugin>
+
+
+            <plugin>
+                <groupId>io.sentry</groupId>
+                <artifactId>sentry-maven-plugin</artifactId>
+                <version>0.0.5</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- for showing output of sentry-cli -->
+                    <debugSentryCli>true</debugSentryCli>
+                    <org>phoenix-software-development</org>
+                    <project>java-spring-boot</project>
+                    <!-- in case you're self hosting, provide the URL here -->
+                    <!--<url>http://localhost:8000/</url>-->
+
+                    <!-- provide your auth token via SENTRY_AUTH_TOKEN environment variable -->
+                    <!-- <authToken>${env.SENTRY_AUTH_TOKEN}</authToken> -->
+                    <authToken>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</authToken>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <!--
+                            Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
+                            This enables source context, allowing you to see your source
+                            code as part of your stack traces in Sentry.
+                            -->
+                            <goal>uploadSourceBundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
 
         <resources>
