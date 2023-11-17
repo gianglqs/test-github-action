@@ -156,10 +156,11 @@ export default function Indicators() {
 
    const columns = [
       {
-         field: 'series',
-         flex: 1.2,
-         headerName: 'Series',
+         field: 'competitorName',
+         flex: 1,
+         headerName: 'Competitor Name',
       },
+
       {
          field: 'region',
          flex: 0.8,
@@ -174,6 +175,11 @@ export default function Indicators() {
          field: 'clazz',
          flex: 0.8,
          headerName: 'Class',
+      },
+      {
+         field: 'series',
+         flex: 1.2,
+         headerName: 'Series',
       },
       {
          field: 'averageDN',
@@ -207,11 +213,11 @@ export default function Indicators() {
             return <span>{formatNumber(params.row.lrff)}</span>;
          },
       },
-      {
-         field: 'hygleadTime',
-         flex: 0.8,
-         headerName: 'HYG Lead Time',
-      },
+      // {
+      //    field: 'hygleadTime',
+      //    flex: 0.8,
+      //    headerName: 'HYG Lead Time',
+      // },
       {
          field: 'competitorLeadTime',
          flex: 0.8,
@@ -231,6 +237,14 @@ export default function Indicators() {
          },
       },
       {
+         field: 'competitorPricing',
+         flex: 1,
+         headerName: 'Competition Pricing (USD)',
+         renderCell(params) {
+            return <span>{formatNumber(params.row.competitorPricing)}</span>;
+         },
+      },
+      {
          field: 'dealerPricingPremiumPercentage',
          flex: 1,
          headerName: 'Dealer Pricing Premium/Margin (USD)',
@@ -244,28 +258,16 @@ export default function Indicators() {
          flex: 1,
          headerName: 'Dealer Premium / Margin %',
          renderCell(params) {
-            return <span>{formatNumber(params.row.dealerPremiumPercentage)}</span>;
+            return <span>{formatNumber(params.row.dealerPremiumPercentage * 100)}%</span>;
          },
       },
-      {
-         field: 'competitorPricing',
-         flex: 1,
-         headerName: 'Competition Pricing (USD)',
-         renderCell(params) {
-            return <span>{formatNumber(params.row.competitorPricing)}</span>;
-         },
-      },
-      {
-         field: 'competitorName',
-         flex: 1,
-         headerName: 'Competitor Name',
-      },
+
       {
          field: 'variancePercentage',
          flex: 1,
          headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
          renderCell(params) {
-            return <span>{formatNumber(params.row.variancePercentage)}</span>;
+            return <span>{formatNumber(params.row.variancePercentage * 100)}%</span>;
          },
       },
    ];
@@ -586,11 +588,17 @@ export default function Indicators() {
                </Grid>
 
                <Grid item xs={4}>
-                  <LineChart chartData={modifyDataLineChartRegion} />
+                  <LineChart
+                     chartData={modifyDataLineChartRegion}
+                     chartName={'Forecast Volume by Year & Region'}
+                  />
                </Grid>
 
                <Grid item xs={4}>
-                  <LineChart chartData={modifyDataLineChartPlant} />
+                  <LineChart
+                     chartData={modifyDataLineChartPlant}
+                     chartName={'Forecast Volume by Year & Plant'}
+                  />
                </Grid>
             </Grid>
          </AppLayout>
