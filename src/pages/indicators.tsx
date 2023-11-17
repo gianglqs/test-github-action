@@ -389,7 +389,7 @@ export default function Indicators() {
 
    return (
       <>
-         <AppLayout entity="indicator" heightBody={1100}>
+         <AppLayout entity="indicator" heightBody={870}>
             <Grid container spacing={1}>
                <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
                   <AppAutocomplete
@@ -532,7 +532,7 @@ export default function Indicators() {
                   <DataTable
                      hideFooter
                      disableColumnMenu
-                     tableHeight={610}
+                     tableHeight={390}
                      rowHeight={45}
                      rows={getDataForTable}
                      rowBuffer={35}
