@@ -38,8 +38,6 @@ public class BookingOrderService extends BasedService {
     @Resource
     ProductDimensionService productDimensionService;
     @Resource
-    APICDealerService apicDealerService;
-    @Resource
     CustomBookingOrderRepository customBookingOrderRepository;
 
     @Resource
@@ -737,5 +735,7 @@ public class BookingOrderService extends BasedService {
     public Optional<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode) {
         return bookingOrderRepository.getDistinctBookingOrderByModelCode(modelCode);
     }
-
+    public Optional<BookingOrder> getBookingOrderByOrderNumber(String orderNumber) {
+        return bookingOrderRepository.findById(orderNumber);
+    }
 }
