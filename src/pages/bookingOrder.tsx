@@ -75,6 +75,11 @@ export default function Booking() {
          headerName: 'Order #',
       },
       {
+         field: 'date',
+         flex: 0.5,
+         headerName: 'Create at',
+      },
+      {
          field: 'region',
          flex: 0.5,
          headerName: 'Region',
@@ -89,7 +94,7 @@ export default function Booking() {
       },
       {
          field: 'dealerName',
-         flex: 1.3,
+         flex: 1.2,
          headerName: 'Dealer Name',
       },
       {
@@ -102,7 +107,7 @@ export default function Booking() {
       },
       {
          field: 'truckClass',
-         flex: 0.7,
+         flex: 0.6,
          headerName: 'Class',
          renderCell(params) {
             return <span>{params.row.productDimension?.clazz}</span>;
@@ -164,7 +169,7 @@ export default function Booking() {
 
       {
          field: 'marginPercentageAfterSurCharge',
-         flex: 0.65,
+         flex: 0.6,
          headerName: 'Margin % After Surcharge',
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
@@ -172,7 +177,7 @@ export default function Booking() {
       },
       {
          field: 'aopmarginPercentage',
-         flex: 0.65,
+         flex: 0.6,
          headerName: 'AOP Margin%',
          renderCell(params) {
             return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
