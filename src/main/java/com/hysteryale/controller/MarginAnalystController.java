@@ -82,10 +82,10 @@ public class MarginAnalystController {
     @PostMapping(path = "/getEstimateMarginAnalystData")
     Map<String, Object> getIMMarginAnalystData(@RequestBody IMMarginAnalystData imMarginAnalystData) {
         List<IMMarginAnalystData> imMarginAnalystDataList =
-                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
+                IMMarginAnalystDataService.getIMMarginAnalystData(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber());
 
         Map<String, Object> imMarginAnalystSummaryMap =
-                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID());
+                IMMarginAnalystDataService.getIMMarginAnalystSummary(imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(), imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber());
 
         return Map.of(
                 "MarginAnalystData", imMarginAnalystDataList,
