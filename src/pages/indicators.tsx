@@ -300,7 +300,7 @@ export default function Indicators() {
          },
          title: {
             display: true,
-            text: 'Competitor Pricing Bubble Chart',
+            text: 'Competitor Swot Analysis',
             position: 'top' as const,
          },
          annotation: {
