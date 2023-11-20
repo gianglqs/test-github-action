@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { formatNumbericColumn } from '@/utils/columnProperties';
 import { useDispatch, useSelector } from 'react-redux';
 import { shipmentStore, commonStore } from '@/store/reducers';
 
@@ -137,12 +138,14 @@ export default function Shipment() {
          field: 'quantity',
          flex: 0.2,
          headerName: 'Qty',
+         ...formatNumbericColumn,
       },
 
       {
          field: 'dealerNet',
          flex: 0.8,
          headerName: 'DN',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNet)}</span>;
          },
@@ -151,6 +154,7 @@ export default function Shipment() {
          field: 'dealerNetAfterSurCharge',
          flex: 0.8,
          headerName: 'DN After Surcharge',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
          },
@@ -159,6 +163,7 @@ export default function Shipment() {
          field: 'totalCost',
          flex: 0.8,
          headerName: 'Total Cost',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.totalCost)}</span>;
          },
@@ -167,6 +172,7 @@ export default function Shipment() {
          field: 'netRevenue',
          flex: 0.8,
          headerName: 'Net Revenue',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.netRevenue)}</span>;
          },
@@ -175,6 +181,7 @@ export default function Shipment() {
          field: 'marginAfterSurCharge',
          flex: 0.8,
          headerName: 'Margin $ After Surcharge',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
          },
@@ -184,6 +191,7 @@ export default function Shipment() {
          field: 'marginPercentageAfterSurCharge',
          flex: 0.6,
          headerName: 'Margin % After Surcharge',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
          },
@@ -192,6 +200,7 @@ export default function Shipment() {
          field: 'aopmarginPercentage',
          flex: 0.6,
          headerName: 'AOP Margin%',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
          },
