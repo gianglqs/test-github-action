@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, String> {
@@ -29,8 +30,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
             "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +
             "   (:marginPercentageAfterSurCharge = '>=30% Margin' AND c.marginPercentageAfterSurCharge >= 0.3))" +
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
-            " AND ((:fromDate) IS NULL OR c.date >= (:fromDate))" +
-            " AND ((:toDate) IS NULL OR c.date <= (:toDate))"
+            " AND (cast(:fromDate as date ) IS NULL OR c.date >= :fromDate)" +
+            " AND (cast(:toDate as date) IS NULL OR c.date <= :toDate)"
     )
     List<Shipment> findShipmentByFilterForTable(@Param("orderNo") Object orderNo,
                                                 @Param("regions") Object regions,
@@ -42,8 +43,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
                                                 @Param("dealerName") Object dealerName,
                                                 @Param("AOPMarginPercentage") Object AOPMarginPercentage,
                                                 @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-                                                @Param("fromDate") Object fromDate,
-                                                @Param("toDate") Object toDate,
+                                                @Param("fromDate") Date fromDate,
+                                                @Param("toDate") Date toDate,
                                                 @Param("pageable") Pageable pageable);
 
 
@@ -65,8 +66,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
             "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +
             "   (:marginPercentageAfterSurCharge = '>=30% Margin' AND c.marginPercentageAfterSurCharge >= 0.3))" +
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
-            " AND ((:fromDate) IS NULL OR c.date >= (:fromDate))" +
-            " AND ((:toDate) IS NULL OR c.date <= (:toDate))"
+            " AND (cast(:fromDate as date) IS NULL OR c.date >= (:fromDate))" +
+            " AND (cast(:toDate as date) IS NULL OR c.date <= (:toDate))"
     )
     int getCount(@Param("orderNo") Object orderNo,
                                      @Param("regions") Object regions,
@@ -78,8 +79,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
                                      @Param("dealerName") Object dealerName,
                                      @Param("AOPMarginPercentage") Object AOPMarginPercentage,
                                      @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-                                     @Param("fromDate") Object fromDate,
-                                     @Param("toDate") Object toDate);
+                                     @Param("fromDate") Date fromDate,
+                                     @Param("toDate") Date toDate);
 
     @Query("SELECT s.dealerName from Shipment s ")
     List<String> findAllClass();
