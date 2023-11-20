@@ -464,12 +464,17 @@ public class ImportService extends BasedService {
             String country = row.getCell(shipmentColumnsName.get("Ship-to Country Code")).getStringCellValue();
             shipment.setCtryCode(country);
 
-            // date ERROR
+            // date
             Date date = row.getCell(shipmentColumnsName.get("Created On")).getDateCellValue();
             shipment.setDate(date);
 
+            //totalCost
             Double totalCost = row.getCell(shipmentColumnsName.get("Cost of Sales")).getNumericCellValue();
             shipment.setTotalCost(totalCost);
+
+            //quantity
+            int quantity =(int) row.getCell(shipmentColumnsName.get("Quantity")).getNumericCellValue();
+            shipment.setQuantity(quantity);
 
             // get data from BookingOrder
             Optional<BookingOrder> bookingOrderOptional = bookingOrderRepository.getBookingOrderByOrderNo(orderNo);
