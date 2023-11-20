@@ -165,8 +165,8 @@ public class PartService extends BasedService {
         return partRepository.getDistinctModelCodeByMonthYear(monthYear);
     }
 
-    public List<Part> getDistinctPart(String modelCode, Calendar monthYear, String currency) {
-        return partRepository.getDistinctPart(modelCode, monthYear, currency);
+    public List<Part> getDistinctPart(String modelCode, String currency) {
+        return partRepository.getDistinctPart(modelCode, currency);
     }
     public Double getAverageDealerNet(String region, String clazz, String series) {
         Double averageDealerNet = partRepository.getAverageDealerNet(region, clazz, series);

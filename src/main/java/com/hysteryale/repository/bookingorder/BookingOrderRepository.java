@@ -19,6 +19,6 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
     Optional<BookingOrder> getBookingOrderByOrderNo(String orderNo);
 
     // it is not including condition on currency due to missing currency data
-    @Query("SELECT DISTINCT b FROM BookingOrder b WHERE b.model = ?1 AND extract(year from b.date) = ?2 AND extract(month from b.date ) = ?3")
-    List<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode, int year, int month);
+    @Query(value = "SELECT * FROM booking_order WHERE model = ?1 LIMIT 1", nativeQuery = true)
+    Optional<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode);
 }
