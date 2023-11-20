@@ -25,6 +25,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
             "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
             "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
             " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:marginPercentageAfterSurCharge = '-ve Margin %' AND c.marginPercentageAfterSurCharge < 0) OR" +
             "   (:marginPercentageAfterSurCharge = '<10% Margin' AND c.marginPercentageAfterSurCharge < 0.1) OR" +
             "   (:marginPercentageAfterSurCharge = '<20% Margin' AND c.marginPercentageAfterSurCharge < 0.2) OR" +
             "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +
@@ -61,6 +62,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
             "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
             "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
             " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:marginPercentageAfterSurCharge = '-ve Margin %' AND c.marginPercentageAfterSurCharge < 0) OR" +
             "   (:marginPercentageAfterSurCharge = '<10% Margin' AND c.marginPercentageAfterSurCharge < 0.1) OR" +
             "   (:marginPercentageAfterSurCharge = '<20% Margin' AND c.marginPercentageAfterSurCharge < 0.2) OR" +
             "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +

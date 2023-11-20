@@ -25,6 +25,7 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
+            "   (:AOPMarginPercentageGroup = '-ve Margin %' AND c.dealerPricingPremiumPercentage < 0) OR" +
             "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
             "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
             "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
@@ -47,6 +48,7 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
+            "   (:AOPMarginPercentageGroup = '-ve Margin %' AND c.dealerPricingPremiumPercentage < 0) OR" +
             "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
             "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
             "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
