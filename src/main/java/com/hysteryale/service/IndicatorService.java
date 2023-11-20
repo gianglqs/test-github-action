@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class IndicatorService extends BasedService {
     CompetitorPricingRepository competitorPricingRepository;
 
 
-    public Map<String, Object> getCompetitorPriceForTableByFilter(FilterModel filterModel) {
+    public Map<String, Object> getCompetitorPriceForTableByFilter(FilterModel filterModel) throws ParseException {
         logInfo(filterModel.toString());
         Map<String, Object> result = new HashMap<>();
 
@@ -39,7 +40,7 @@ public class IndicatorService extends BasedService {
     }
 
 
-    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(FilterModel filterModel) {
+    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(FilterModel filterModel) throws ParseException {
         logInfo(filterModel.toString());
         Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(filterModel);
         return competitorPricingRepository.findCompetitorByFilterForLineChartRegion(
@@ -49,7 +50,7 @@ public class IndicatorService extends BasedService {
     }
 
 
-    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByPlant(FilterModel filterModel) {
+    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByPlant(FilterModel filterModel) throws ParseException {
         logInfo(filterModel.toString());
         Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(filterModel);
         return competitorPricingRepository.findCompetitorByFilterForLineChartPlant(

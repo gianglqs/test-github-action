@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.Date;
 
 @Entity
@@ -47,8 +45,12 @@ public class Shipment {
 
     private String series;
 
-    //properties that we need to calculate based on raw data
-    private int quantity = 1;
+    @Column(name = "serial_number")
+    private String serialNumber;
+
+    private String model;
+
+    private int quantity;
 
     private double netRevenue;
 
