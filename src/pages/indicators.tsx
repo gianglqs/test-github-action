@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { formatNumbericColumn } from '@/utils/columnProperties';
 import { useDispatch, useSelector } from 'react-redux';
 import { indicatorStore, commonStore } from '@/store/reducers';
 import { Button } from '@mui/material';
@@ -186,6 +187,7 @@ export default function Indicators() {
          field: 'actual',
          flex: 0.5,
          headerName: '2022 Actual',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{params.row.actual}</span>;
          },
@@ -194,6 +196,7 @@ export default function Indicators() {
          field: 'aopf',
          flex: 0.5,
          headerName: '2023 AOPF',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{params.row.aopf}</span>;
          },
@@ -202,6 +205,7 @@ export default function Indicators() {
          field: 'lrff',
          flex: 0.5,
          headerName: '2024 LRFF',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{params.row.lrff}</span>;
          },
@@ -215,16 +219,19 @@ export default function Indicators() {
          field: 'competitorLeadTime',
          flex: 0.8,
          headerName: 'Competitor Lead Time',
+         ...formatNumbericColumn,
       },
       {
          field: 'dealerStreetPricing',
          flex: 0.8,
          headerName: 'Dealer Street Pricing(USD)',
+         ...formatNumbericColumn,
       },
       {
          field: 'dealerHandlingCost',
          flex: 0.8,
          headerName: 'Dealer Handling Cost',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.dealerHandlingCost)}</span>;
          },
@@ -233,6 +240,7 @@ export default function Indicators() {
          field: 'competitorPricing',
          flex: 1,
          headerName: 'Competition Pricing (USD)',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.competitorPricing)}</span>;
          },
@@ -241,6 +249,7 @@ export default function Indicators() {
          field: 'dealerPricingPremiumPercentage',
          flex: 1,
          headerName: 'Dealer Pricing Premium/Margin (USD)',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.dealerPricingPremiumPercentage)}</span>;
          },
@@ -250,6 +259,7 @@ export default function Indicators() {
          field: 'dealerPremiumPercentage',
          flex: 1,
          headerName: 'Dealer Premium / Margin %',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.dealerPremiumPercentage * 100)}%</span>;
          },
@@ -258,6 +268,7 @@ export default function Indicators() {
          field: 'averageDN',
          flex: 0.8,
          headerName: 'Average Dealer Net',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.averageDN)}</span>;
          },
@@ -267,6 +278,7 @@ export default function Indicators() {
          field: 'variancePercentage',
          flex: 1,
          headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.variancePercentage * 100)}%</span>;
          },
