@@ -102,7 +102,7 @@ export default function Indicators() {
                   {
                      x: item.competitorPricing,
                      y: item.competitorLeadTime,
-                     r: item.marketShare * 100,
+                     r: (item.marketShare * 100).toLocaleString(),
                   },
                ],
                backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
@@ -207,11 +207,6 @@ export default function Indicators() {
             return <span>{params.row.lrff}</span>;
          },
       },
-      // {
-      //    field: 'hygleadTime',
-      //    flex: 0.8,
-      //    headerName: 'HYG Lead Time',
-      // },
       {
          field: 'competitorLeadTime',
          flex: 0.8,
@@ -611,8 +606,7 @@ export default function Indicators() {
                   item
                   xs={4}
                   sx={{
-                     height: 310,
-                     width: 620,
+                     height: '33vh',
                      margin: 'auto',
                      position: 'relative',
                   }}
@@ -624,8 +618,7 @@ export default function Indicators() {
                   item
                   xs={4}
                   sx={{
-                     height: 310,
-                     width: 620,
+                     height: '33vh',
                      margin: 'auto',
                      position: 'relative',
                   }}
@@ -640,8 +633,7 @@ export default function Indicators() {
                   item
                   xs={4}
                   sx={{
-                     height: 310,
-                     width: 620,
+                     height: '33vh',
                      margin: 'auto',
                      position: 'relative',
                   }}
