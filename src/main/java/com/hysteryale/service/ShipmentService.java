@@ -29,15 +29,18 @@ public class ShipmentService extends BasedService {
                 filterMap.get("orderNoFilter"), filterMap.get("regionFilter"), filterMap.get("plantFilter"),
                 filterMap.get("metaSeriesFilter"), filterMap.get("classFilter"), filterMap.get("modelFilter"),
                 filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
-                filterMap.get("marginPercentageFilter"), (Date) filterMap.get("fromDateFilter"),(Date)  filterMap.get("toDateFilter"),
-                (Pageable) filterMap.get("pageable")
-        );
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1),
+                (Date) filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"),
+                (Pageable) filterMap.get("pageable"));
         result.put("listShipment", shipmentList);
         //get total Recode
         int totalCompetitor = shipmentRepository.getCount(filterMap.get("orderNoFilter"), filterMap.get("regionFilter"), filterMap.get("plantFilter"),
                 filterMap.get("metaSeriesFilter"), filterMap.get("classFilter"), filterMap.get("modelFilter"),
                 filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
-                filterMap.get("marginPercentageFilter"),(Date)  filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"));
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1),
+                (Date) filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"));
         result.put("totalItems", totalCompetitor);
         return result;
     }

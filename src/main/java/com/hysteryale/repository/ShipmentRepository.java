@@ -1,7 +1,6 @@
 package com.hysteryale.repository;
 
 import com.hysteryale.model.Shipment;
-import com.hysteryale.model.competitor.CompetitorPricing;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,11 +24,11 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
             "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
             "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
             " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
-            "   (:marginPercentageAfterSurCharge = '-ve Margin %' AND c.marginPercentageAfterSurCharge < 0) OR" +
-            "   (:marginPercentageAfterSurCharge = '<10% Margin' AND c.marginPercentageAfterSurCharge < 0.1) OR" +
-            "   (:marginPercentageAfterSurCharge = '<20% Margin' AND c.marginPercentageAfterSurCharge < 0.2) OR" +
-            "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +
-            "   (:marginPercentageAfterSurCharge = '>=30% Margin' AND c.marginPercentageAfterSurCharge >= 0.3))" +
+            "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
             " AND (cast(:fromDate as date ) IS NULL OR c.date >= :fromDate)" +
             " AND (cast(:toDate as date) IS NULL OR c.date <= :toDate)"
@@ -43,6 +42,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
                                                 @Param("segments") Object segments,
                                                 @Param("dealerName") Object dealerName,
                                                 @Param("AOPMarginPercentage") Object AOPMarginPercentage,
+                                                @Param("comparator") Object comparator,
                                                 @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
                                                 @Param("fromDate") Date fromDate,
                                                 @Param("toDate") Date toDate,
@@ -62,27 +62,28 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
             "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
             "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
             " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
-            "   (:marginPercentageAfterSurCharge = '-ve Margin %' AND c.marginPercentageAfterSurCharge < 0) OR" +
-            "   (:marginPercentageAfterSurCharge = '<10% Margin' AND c.marginPercentageAfterSurCharge < 0.1) OR" +
-            "   (:marginPercentageAfterSurCharge = '<20% Margin' AND c.marginPercentageAfterSurCharge < 0.2) OR" +
-            "   (:marginPercentageAfterSurCharge = '<30% Margin' AND c.marginPercentageAfterSurCharge < 0.3) OR" +
-            "   (:marginPercentageAfterSurCharge = '>=30% Margin' AND c.marginPercentageAfterSurCharge >= 0.3))" +
+            "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
             " AND (cast(:fromDate as date) IS NULL OR c.date >= (:fromDate))" +
             " AND (cast(:toDate as date) IS NULL OR c.date <= (:toDate))"
     )
     int getCount(@Param("orderNo") Object orderNo,
-                                     @Param("regions") Object regions,
-                                     @Param("plants") Object plants,
-                                     @Param("metaSeries") Object metaSeries,
-                                     @Param("classes") Object classes,
-                                     @Param("models") Object models,
-                                     @Param("segments") Object segments,
-                                     @Param("dealerName") Object dealerName,
-                                     @Param("AOPMarginPercentage") Object AOPMarginPercentage,
-                                     @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-                                     @Param("fromDate") Date fromDate,
-                                     @Param("toDate") Date toDate);
+                 @Param("regions") Object regions,
+                 @Param("plants") Object plants,
+                 @Param("metaSeries") Object metaSeries,
+                 @Param("classes") Object classes,
+                 @Param("models") Object models,
+                 @Param("segments") Object segments,
+                 @Param("dealerName") Object dealerName,
+                 @Param("AOPMarginPercentage") Object AOPMarginPercentage,
+                 @Param("comparator") Object comparator,
+                 @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                 @Param("fromDate") Date fromDate,
+                 @Param("toDate") Date toDate);
 
     @Query("SELECT s.dealerName from Shipment s ")
     List<String> findAllClass();
