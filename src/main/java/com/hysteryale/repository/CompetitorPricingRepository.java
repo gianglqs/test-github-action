@@ -24,19 +24,21 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
-            " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.dealerPricingPremiumPercentage <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.dealerPricingPremiumPercentage >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.dealerPricingPremiumPercentage < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.dealerPricingPremiumPercentage > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.dealerPricingPremiumPercentage = :marginPercentageAfterSurCharge))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.region")
-    public List<CompetitorPricing> findCompetitorByFilterForLineChartRegion(@Param("regions") Object regions,
-                                                                            @Param("plants") Object plants,
-                                                                            @Param("metaSeries") Object metaSeries,
-                                                                            @Param("classes") Object classes,
-                                                                            @Param("models") Object models,
-                                                                            @Param("chineseBrand") Object chineseBrand,
-                                                                            @Param("AOPMarginPercentageGroup") Object AOPMarginPercentageGroup);
+    List<CompetitorPricing> findCompetitorByFilterForLineChartRegion(@Param("regions") Object regions,
+                                                                     @Param("plants") Object plants,
+                                                                     @Param("metaSeries") Object metaSeries,
+                                                                     @Param("classes") Object classes,
+                                                                     @Param("models") Object models,
+                                                                     @Param("chineseBrand") Object chineseBrand,
+                                                                     @Param("comparator") Object comparator,
+                                                                     @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge);
 
     @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing( SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF),c.plant)" +
             " FROM CompetitorPricing c WHERE " +
@@ -46,11 +48,12 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
-            " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.dealerPricingPremiumPercentage <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.dealerPricingPremiumPercentage >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.dealerPricingPremiumPercentage < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.dealerPricingPremiumPercentage > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.dealerPricingPremiumPercentage = :marginPercentageAfterSurCharge))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand)) GROUP BY c.plant")
     public List<CompetitorPricing> findCompetitorByFilterForLineChartPlant(@Param("regions") Object regions,
                                                                            @Param("plants") Object plants,
@@ -58,7 +61,8 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                                                                            @Param("classes") Object classes,
                                                                            @Param("models") Object models,
                                                                            @Param("chineseBrand") Object chineseBrand,
-                                                                           @Param("AOPMarginPercentageGroup") Object AOPMarginPercentageGroup);
+                                                                           @Param("comparator") Object comparator,
+                                                                           @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge);
 
     @Query("SELECT c FROM CompetitorPricing c WHERE " +
             "((:regions) IS Null OR c.region IN (:regions))" +
@@ -66,11 +70,12 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
-            " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.dealerPricingPremiumPercentage <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.dealerPricingPremiumPercentage >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.dealerPricingPremiumPercentage < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.dealerPricingPremiumPercentage > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.dealerPricingPremiumPercentage = :marginPercentageAfterSurCharge))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
     List<CompetitorPricing> findCompetitorByFilterForTable(@Param("regions") Object regions,
                                                            @Param("plants") Object plants,
@@ -78,7 +83,8 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                                                            @Param("classes") Object classes,
                                                            @Param("models") Object models,
                                                            @Param("chineseBrand") Object chineseBrand,
-                                                           @Param("AOPMarginPercentageGroup") Object AOPMarginPercentageGroup,
+                                                           @Param("comparator") Object comparator,
+                                                           @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
                                                            Pageable pageable);
 
     @Query("SELECT COUNT(c) from CompetitorPricing c WHERE " +
@@ -87,11 +93,12 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
             " AND ((:models) IS NULL OR c.model IN (:models))" +
-            " AND ((:AOPMarginPercentageGroup) IS NULL OR " +
-            "   (:AOPMarginPercentageGroup = '<10% Margin' AND c.dealerPricingPremiumPercentage < 0.1) OR" +
-            "   (:AOPMarginPercentageGroup = '<20% Margin' AND c.dealerPricingPremiumPercentage < 0.2) OR" +
-            "   (:AOPMarginPercentageGroup = '<30% Margin' AND c.dealerPricingPremiumPercentage < 0.3) OR" +
-            "   (:AOPMarginPercentageGroup = '>=30% Margin' AND c.dealerPricingPremiumPercentage >= 0.3))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.dealerPricingPremiumPercentage <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.dealerPricingPremiumPercentage >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.dealerPricingPremiumPercentage < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.dealerPricingPremiumPercentage > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.dealerPricingPremiumPercentage = :marginPercentageAfterSurCharge))" +
             " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
     int getCountAll(@Param("regions") Object regions,
                     @Param("plants") Object plants,
@@ -99,7 +106,8 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                     @Param("classes") Object classes,
                     @Param("models") Object models,
                     @Param("chineseBrand") Object chineseBrand,
-                    @Param("AOPMarginPercentageGroup") Object AOPMarginPercentageGroup);
+                    @Param("comparator") Object comparator,
+                    @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge);
 
     @Query("SELECT DISTINCT c.series FROM CompetitorPricing c")
     List<String> getDistinctSeries();
