@@ -27,6 +27,7 @@ import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
+import { relative } from 'path';
 
 ChartJS.register(
    CategoryScale,
@@ -292,13 +293,14 @@ export default function Indicators() {
             },
          },
       },
+      maintainAspectRatio: false,
       plugins: {
          legend: {
             position: 'top' as const,
          },
          title: {
             display: true,
-            text: 'Competitive Landscape',
+            text: 'Competitor Pricing Bubble Chart',
             position: 'top' as const,
          },
          annotation: {
@@ -605,18 +607,45 @@ export default function Indicators() {
                      </Button>
                   </Grid>
                </Grid>
-               <Grid item xs={4}>
+               <Grid
+                  item
+                  xs={4}
+                  sx={{
+                     height: 310,
+                     width: 620,
+                     margin: 'auto',
+                     position: 'relative',
+                  }}
+               >
                   <Bubble options={options} data={competitiveLandscapeData} />
                </Grid>
 
-               <Grid item xs={4}>
+               <Grid
+                  item
+                  xs={4}
+                  sx={{
+                     height: 310,
+                     width: 620,
+                     margin: 'auto',
+                     position: 'relative',
+                  }}
+               >
                   <LineChart
                      chartData={modifyDataLineChartRegion}
                      chartName={'Forecast Volume by Year & Region'}
                   />
                </Grid>
 
-               <Grid item xs={4}>
+               <Grid
+                  item
+                  xs={4}
+                  sx={{
+                     height: 310,
+                     width: 620,
+                     margin: 'auto',
+                     position: 'relative',
+                  }}
+               >
                   <LineChart
                      chartData={modifyDataLineChartPlant}
                      chartName={'Forecast Volume by Year & Plant'}
