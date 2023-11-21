@@ -28,6 +28,7 @@ import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
+import { relative } from 'path';
 
 ChartJS.register(
    CategoryScale,
@@ -102,7 +103,7 @@ export default function Indicators() {
                   {
                      x: item.competitorPricing,
                      y: item.competitorLeadTime,
-                     r: item.marketShare * 100,
+                     r: (item.marketShare * 100).toLocaleString(),
                   },
                ],
                backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
@@ -210,11 +211,6 @@ export default function Indicators() {
             return <span>{params.row.lrff}</span>;
          },
       },
-      // {
-      //    field: 'hygleadTime',
-      //    flex: 0.8,
-      //    headerName: 'HYG Lead Time',
-      // },
       {
          field: 'competitorLeadTime',
          flex: 0.8,
@@ -304,13 +300,14 @@ export default function Indicators() {
             },
          },
       },
+      maintainAspectRatio: false,
       plugins: {
          legend: {
             position: 'top' as const,
          },
          title: {
             display: true,
-            text: 'Competitive Landscape',
+            text: 'Competitor Swot Analysis',
             position: 'top' as const,
          },
          annotation: {
@@ -614,18 +611,42 @@ export default function Indicators() {
                      </Button>
                   </Grid>
                </Grid>
-               <Grid item xs={4}>
+               <Grid
+                  item
+                  xs={4}
+                  sx={{
+                     height: '33vh',
+                     margin: 'auto',
+                     position: 'relative',
+                  }}
+               >
                   <Bubble options={options} data={competitiveLandscapeData} />
                </Grid>
 
-               <Grid item xs={4}>
+               <Grid
+                  item
+                  xs={4}
+                  sx={{
+                     height: '33vh',
+                     margin: 'auto',
+                     position: 'relative',
+                  }}
+               >
                   <LineChart
                      chartData={modifyDataLineChartRegion}
                      chartName={'Forecast Volume by Year & Region'}
                   />
                </Grid>
 
-               <Grid item xs={4}>
+               <Grid
+                  item
+                  xs={4}
+                  sx={{
+                     height: '33vh',
+                     margin: 'auto',
+                     position: 'relative',
+                  }}
+               >
                   <LineChart
                      chartData={modifyDataLineChartPlant}
                      chartName={'Forecast Volume by Year & Plant'}
