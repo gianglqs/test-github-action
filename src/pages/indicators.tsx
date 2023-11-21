@@ -120,7 +120,7 @@ export default function Indicators() {
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (_.includes(['chineseBrand', 'aopMarginPercentageGroup'], field)) {
+            if (_.includes(['chineseBrand', 'marginPercentage'], field)) {
                draft[field] = option.value;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -497,14 +497,11 @@ export default function Indicators() {
                <Grid item xs={2}>
                   <AppAutocomplete
                      options={initDataFilter.marginPercentageGrouping}
-                     label="AOP Margin % Group"
+                     label="Margin % Group"
                      primaryKeyOption="value"
                      onChange={
                         (e, option) =>
-                           handleChangeDataFilter(
-                              _.isNil(option) ? '' : option,
-                              'aopMarginPercentageGroup'
-                           )
+                           handleChangeDataFilter(_.isNil(option) ? '' : option, 'marginPercentage')
                         // handleChangeDataFilter(option, 'aopMarginPercentageGroup')
                      }
                      disableClearable={false}
