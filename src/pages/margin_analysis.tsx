@@ -42,6 +42,11 @@ export default function MarginAnalysis() {
    const [openAccordionTable, setOpenAccordionTable] = useState(true);
    const [uploadedFile, setUploadedFile] = useState({ name: '' });
 
+   const [orderNumberValue, setOrderNumberValue] = useState({ value: '' });
+   const handleOrderNumber = (value) => {
+      setOrderNumberValue({ value: value });
+   };
+
    const handleFilterMarginAnalysis = async () => {
       try {
          const cookies = parseCookies();
@@ -55,6 +60,7 @@ export default function MarginAnalysis() {
             modelCode: valueSearch.value,
             currency: valueCurrency,
             fileUUID: cookies['fileUUID'],
+            orderNumber: orderNumberValue.value,
          };
 
          const { data } = await marginAnalysisApi.getEstimateMarginAnalystData({
@@ -140,7 +146,7 @@ export default function MarginAnalysis() {
    return (
       <AppLayout entity="margin_analysis">
          <Grid container spacing={1.1} display="flex" alignItems="center">
-            <Grid item xs={2}>
+            <Grid item xs={1}>
                <AppTextField
                   label="Model Code #"
                   onChange={(e) => handleSearch(e.target.value)}
@@ -148,6 +154,12 @@ export default function MarginAnalysis() {
                   error={valueSearch.error}
                   helperText="Model Code # is required"
                   required
+               />
+            </Grid>
+            <Grid item xs={1}>
+               <AppTextField
+                  label="Order Number #"
+                  onChange={(e) => handleOrderNumber(e.target.value)}
                />
             </Grid>
 
