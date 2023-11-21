@@ -23,4 +23,10 @@ public class ProductDimension {
     private String clazz;
     private String segment;
     private String model;
+
+    public ProductDimension(String plant, String clazz, String model) {
+        this.plant = plant;
+        this.clazz = clazz;
+        this.model = model;
+    }
 }
