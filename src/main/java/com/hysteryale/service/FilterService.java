@@ -60,6 +60,20 @@ public class FilterService {
         return filters;
     }
 
+    public Map<String, Object> getOutLierFilter() {
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("regions", getAllRegions());
+        filters.put("classes", getAllClasses());
+        filters.put("plants", getAllPlants());
+        filters.put("metaSeries", getAllMetaSeries());
+        filters.put("models", getAllModels());
+        filters.put("marginPercentageGroup", getMarginPercentageGroup());
+        filters.put("dealers", null);
+        filters.put("series", getSeries());
+
+        return filters;
+    }
+
 
 
     private List<Map<String, String>> getChineseBrandFilter() {
@@ -172,7 +186,7 @@ public class FilterService {
         result.add(MarginAbove30);
 
         Map<String, String> MarginVE = new HashMap<>();
-        MarginVE.put("value", "-ve Margin %");
+        MarginVE.put("value", "<0 Margin");
         result.add(MarginVE);
 
         return result;
@@ -257,5 +271,7 @@ public class FilterService {
         }
         return listCountries;
     }
+
+
 
 }
