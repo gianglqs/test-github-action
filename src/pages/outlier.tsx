@@ -304,7 +304,7 @@ export default function Outlier() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container>
+               <Grid container sx={{ height: 'calc(100vh - 196px)' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
