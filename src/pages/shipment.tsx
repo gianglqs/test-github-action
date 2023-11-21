@@ -21,6 +21,7 @@ import _ from 'lodash';
 import { produce } from 'immer';
 
 import { defaultValueFilterShipment } from '@/utils/defaultValues';
+import { DataGridPro } from '@mui/x-data-grid-pro';
 
 export default function Shipment() {
    const dispatch = useDispatch();
@@ -392,12 +393,12 @@ export default function Shipment() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container>
-                  <DataTable
+               <Grid container sx={{ height: 'calc(100vh - 230px)' }}>
+                  <DataGridPro
                      hideFooter
                      disableColumnMenu
-                     tableHeight={740}
-                     rowHeight={45}
+                     //tableHeight={740}
+                     rowHeight={30}
                      rows={listShipment}
                      rowBuffer={35}
                      rowThreshold={25}

@@ -26,6 +26,7 @@ import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
+import { DataGridPro } from '@mui/x-data-grid-pro';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -539,10 +540,10 @@ export default function Indicators() {
             </Grid>
             <Paper elevation={1} sx={{ marginTop: 2 }}>
                <Grid container>
-                  <DataTable
+                  <DataGridPro
                      hideFooter
                      disableColumnMenu
-                     tableHeight={390}
+                     //tableHeight={390}
                      rowHeight={45}
                      rows={getDataForTable}
                      rowBuffer={35}
