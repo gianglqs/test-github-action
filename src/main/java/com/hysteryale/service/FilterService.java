@@ -53,7 +53,7 @@ public class FilterService {
         filters.put("models", getAllModels());
         filters.put("marginPercentageGroup", getMarginPercentageGroup());
         filters.put("AOPMarginPercentageGroup", getAOPMarginPercentageGroup());
-        filters.put("dealers", null);
+        filters.put("dealers", getAllDealerNames());
         filters.put("series", getSeries());
         filters.put("segments", getAllSegments());
 
@@ -68,7 +68,7 @@ public class FilterService {
         filters.put("metaSeries", getAllMetaSeries());
         filters.put("models", getAllModels());
         filters.put("marginPercentageGroup", getMarginPercentageGroup());
-        filters.put("dealers", null);
+        filters.put("dealers", getAllDealerNames());
         filters.put("series", getSeries());
 
         return filters;
@@ -104,7 +104,7 @@ public class FilterService {
 
     private List<Map<String, String>> getAllDealerNames() {
         List<Map<String, String>> DealerNameMap = new ArrayList<>();
-        List<String> dealerNames = shipmentRepository.findAllClass();
+        List<String> dealerNames = shipmentRepository.findAllDealerName();
         dealerNames.sort(String::compareTo);
         for (String m : dealerNames) {
             Map<String, String> mMap = new HashMap<>();

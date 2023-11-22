@@ -31,7 +31,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
             "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
             " AND (cast(:fromDate as date ) IS NULL OR c.date >= :fromDate)" +
-            " AND (cast(:toDate as date) IS NULL OR c.date <= :toDate)"
+            " AND (cast(:toDate as date) IS NULL OR c.date <= :toDate) ORDER BY c.orderNo"
     )
     List<Shipment> findShipmentByFilterForTable(@Param("orderNo") Object orderNo,
                                                 @Param("regions") Object regions,
@@ -85,6 +85,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
                  @Param("fromDate") Date fromDate,
                  @Param("toDate") Date toDate);
 
-    @Query("SELECT s.dealerName from Shipment s ")
-    List<String> findAllClass();
+    @Query("SELECT DISTINCT s.dealerName from Shipment s ")
+    List<String> findAllDealerName();
+
+
 }
