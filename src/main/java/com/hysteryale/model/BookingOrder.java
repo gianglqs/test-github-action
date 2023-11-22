@@ -56,7 +56,7 @@ public class BookingOrder {
     private String truckClass;
 
     //properties that we need to calculate based on raw data
-    private int quantity = 1;
+    private long  quantity = 1;
 
     @Column(name = "total_cost")
     private double totalCost;
@@ -75,5 +75,19 @@ public class BookingOrder {
 
     @Column(name = "aopmargin_percentage")
     private double AOPMarginPercentage;
+
+    public BookingOrder(String region, String plant, String clazz, String series, String model, long quantity, double totalCost,double dealerNet, double dealerNetAfterSurCharge, double marginAfterSurCharge){
+
+        ProductDimension p = new ProductDimension(plant, clazz, model);
+        Region r = new Region(region);
+        this.region = r;
+        this.productDimension = p;
+        this.series = series;
+        this.quantity = quantity;
+        this.totalCost = totalCost;
+        this.dealerNet = dealerNet;
+        this.dealerNetAfterSurCharge = dealerNetAfterSurCharge;
+        this.marginAfterSurCharge = marginAfterSurCharge;
+    }
 
 }
