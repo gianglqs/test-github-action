@@ -93,7 +93,7 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
          <Grid
             container
             style={{
-               height: heightBody || 'calc(100vh -90px)',
+               height: heightBody,
                width: '100%',
                maxHeight: 1200,
             }}
