@@ -2,7 +2,8 @@ import { useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { useDispatch, useSelector } from 'react-redux';
-import { shipmentStore, commonStore } from '@/store/reducers';
+import { outlierStore, commonStore } from '@/store/reducers';
+import { DataGrid } from '@mui/x-data-grid';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
@@ -21,26 +22,19 @@ import _ from 'lodash';
 import { produce } from 'immer';
 
 import { defaultValueFilterShipment } from '@/utils/defaultValues';
+import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 
-export default function Shipment() {
+export default function Outlier() {
    const dispatch = useDispatch();
-
-   const listShipment = useSelector(shipmentStore.selectShipmentList);
-   console.log('data ' + listShipment);
-   const initDataFilter = useSelector(shipmentStore.selectInitDataFilter);
+   const listOutlier = useSelector(outlierStore.selectOutlierList);
+   const initDataFilter = useSelector(outlierStore.selectInitDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterShipment);
-   console.log('data filter ' + initDataFilter);
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (
-               _.includes(
-                  ['orderNo', 'fromDate', 'toDate', 'marginPercentage', 'aopMarginPercentageGroup'],
-                  field
-               )
-            ) {
+            if (_.includes(['fromDate', 'toDate', 'MarginPercetage'], field)) {
                draft[field] = option;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -49,14 +43,14 @@ export default function Shipment() {
       );
    };
 
-   const handleFilterOrderShipment = () => {
-      dispatch(shipmentStore.actions.setDefaultValueFilterShipment(dataFilter));
+   const handleFilterOrderBooking = () => {
+      dispatch(outlierStore.actions.setDefaultValueFilterOutlier(dataFilter));
       handleChangePage(1);
    };
 
    const handleChangePage = (pageNo: number) => {
       dispatch(commonStore.actions.setTableState({ pageNo }));
-      dispatch(shipmentStore.sagaGetList());
+      dispatch(outlierStore.sagaGetList());
    };
 
    const handleChangePerPage = (perPage: number) => {
@@ -74,32 +68,16 @@ export default function Shipment() {
 
    const columns = [
       {
-         field: 'orderNo',
-         flex: 0.4,
-         headerName: 'Order #',
-      },
-      {
-         field: 'date',
-         flex: 0.5,
-         headerName: 'Create at',
-      },
-      {
          field: 'region',
-         flex: 0.3,
+         flex: 0.5,
          headerName: 'Region',
          renderCell(params) {
-            return <span>{params.row.region?.region}</span>;
+            return <span>{params.row.region.region}</span>;
          },
       },
       {
-         field: 'ctryCode',
-         flex: 0.3,
-         headerName: 'Country',
-      },
-
-      {
          field: 'Plant',
-         flex: 0.5,
+         flex: 0.6,
          headerName: 'Plant',
          renderCell(params) {
             return <span>{params.row.productDimension?.plant}</span>;
@@ -107,16 +85,11 @@ export default function Shipment() {
       },
       {
          field: 'truckClass',
-         flex: 0.7,
+         flex: 0.6,
          headerName: 'Class',
          renderCell(params) {
             return <span>{params.row.productDimension?.clazz}</span>;
          },
-      },
-      {
-         field: 'dealerName',
-         flex: 1.2,
-         headerName: 'Dealer Name',
       },
       {
          field: 'series',
@@ -131,16 +104,24 @@ export default function Shipment() {
          flex: 0.6,
          headerName: 'Models',
          renderCell(params) {
-            return <span>{params.row.productDimension?.model}</span>;
+            return <span>{params.row.productDimension.model}</span>;
          },
       },
       {
          field: 'quantity',
-         flex: 0.2,
+         flex: 0.3,
          headerName: 'Qty',
          ...formatNumbericColumn,
       },
-
+      {
+         field: 'totalCost',
+         flex: 0.8,
+         headerName: 'Total Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalCost)}</span>;
+         },
+      },
       {
          field: 'dealerNet',
          flex: 0.8,
@@ -160,26 +141,8 @@ export default function Shipment() {
          },
       },
       {
-         field: 'totalCost',
-         flex: 0.8,
-         headerName: 'Total Cost',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.totalCost)}</span>;
-         },
-      },
-      {
-         field: 'netRevenue',
-         flex: 0.8,
-         headerName: 'Net Revenue',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.netRevenue)}</span>;
-         },
-      },
-      {
          field: 'marginAfterSurCharge',
-         flex: 0.8,
+         flex: 0.7,
          headerName: 'Margin $ After Surcharge',
          ...formatNumbericColumn,
          renderCell(params) {
@@ -196,31 +159,12 @@ export default function Shipment() {
             return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
          },
       },
-      {
-         field: 'aopmarginPercentage',
-         flex: 0.6,
-         headerName: 'AOP Margin%',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
-         },
-      },
    ];
 
    return (
       <>
-         <AppLayout entity="shipment">
+         <AppLayout entity="outlier">
             <Grid container spacing={1}>
-               <Grid item xs={4}>
-                  <Grid item xs={12}>
-                     <AppTextField
-                        onChange={(e) => handleChangeDataFilter(e.target.value, 'orderNo')}
-                        name="orderNo"
-                        label="Order #"
-                        placeholder="Search order by ID"
-                     />
-                  </Grid>
-               </Grid>
                <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
                   <AppAutocomplete
                      options={initDataFilter.regions}
@@ -311,29 +255,15 @@ export default function Shipment() {
                      getOptionLabel={(option) => `${option.value}`}
                   />
                </Grid>
-               <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
-                  <AppAutocomplete
-                     options={initDataFilter.segments}
-                     label="Segment"
-                     sx={{ height: 25, zIndex: 10 }}
-                     onChange={(e, option) => handleChangeDataFilter(option, 'segments')}
-                     limitTags={1}
-                     disableListWrap
-                     primaryKeyOption="value"
-                     multiple
-                     disableCloseOnSelect
-                     renderOption={(prop, option) => `${option.value}`}
-                     getOptionLabel={(option) => `${option.value}`}
-                  />
-               </Grid>
+
                <Grid item xs={2}>
                   <AppAutocomplete
-                     options={initDataFilter.marginPercentageGroup}
+                     options={initDataFilter.MarginPercetage}
                      label="Margin %"
                      onChange={(e, option) =>
                         handleChangeDataFilter(
                            _.isNil(option) ? '' : option?.value,
-                           'marginPercentage'
+                           'MarginPercetage'
                         )
                      }
                      disableClearable={false}
@@ -341,24 +271,6 @@ export default function Shipment() {
                      renderOption={(prop, option) => `${option.value}`}
                      getOptionLabel={(option) => `${option.value}`}
                   />
-               </Grid>
-               <Grid item xs={4} sx={{ paddingRight: 0.5 }}>
-                  <Grid item xs={6}>
-                     <AppAutocomplete
-                        options={initDataFilter.AOPMarginPercentageGroup}
-                        label="AOP Margin %"
-                        primaryKeyOption="value"
-                        onChange={(e, option) =>
-                           handleChangeDataFilter(
-                              _.isNil(option) ? '' : option?.value,
-                              'aopMarginPercentageGroup'
-                           )
-                        }
-                        disableClearable={false}
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                     />
-                  </Grid>
                </Grid>
                <Grid item xs={2}>
                   <AppDateField
@@ -383,7 +295,7 @@ export default function Shipment() {
                <Grid item xs={2}>
                   <Button
                      variant="contained"
-                     onClick={handleFilterOrderShipment}
+                     onClick={handleFilterOrderBooking}
                      sx={{ width: '100%', height: 24 }}
                   >
                      Filter
@@ -393,12 +305,15 @@ export default function Shipment() {
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
                <Grid container>
-                  <DataTable
+                  <DataGridPro
                      hideFooter
                      disableColumnMenu
-                     tableHeight={740}
-                     rowHeight={45}
-                     rows={listShipment}
+                     // tableHeight={740}
+                     rowHeight={35}
+                     rows={listOutlier}
+                     slots={{
+                        toolbar: GridToolbar,
+                     }}
                      rowBuffer={35}
                      rowThreshold={25}
                      columns={columns}

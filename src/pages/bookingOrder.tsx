@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { formatNumbericColumn } from '@/utils/columnProperties';
 import { useDispatch, useSelector } from 'react-redux';
 import { bookingStore, commonStore } from '@/store/reducers';
 
@@ -133,11 +134,13 @@ export default function Booking() {
          field: 'quantity',
          flex: 0.3,
          headerName: 'Qty',
+         ...formatNumbericColumn,
       },
       {
          field: 'totalCost',
          flex: 0.8,
          headerName: 'Total Cost',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.totalCost)}</span>;
          },
@@ -146,6 +149,7 @@ export default function Booking() {
          field: 'dealerNet',
          flex: 0.8,
          headerName: 'DN',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNet)}</span>;
          },
@@ -154,6 +158,7 @@ export default function Booking() {
          field: 'dealerNetAfterSurCharge',
          flex: 0.8,
          headerName: 'DN After Surcharge',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
          },
@@ -162,6 +167,7 @@ export default function Booking() {
          field: 'marginAfterSurCharge',
          flex: 0.7,
          headerName: 'Margin $ After Surcharge',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
          },
@@ -171,6 +177,7 @@ export default function Booking() {
          field: 'marginPercentageAfterSurCharge',
          flex: 0.6,
          headerName: 'Margin % After Surcharge',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
          },
@@ -179,6 +186,7 @@ export default function Booking() {
          field: 'aopmarginPercentage',
          flex: 0.6,
          headerName: 'AOP Margin%',
+         ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
          },
