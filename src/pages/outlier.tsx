@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +23,30 @@ import { produce } from 'immer';
 
 import { defaultValueFilterShipment } from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+
+import {
+   Chart as ChartJS,
+   LinearScale,
+   PointElement,
+   Tooltip,
+   LineElement,
+   Legend,
+   CategoryScale,
+   Title,
+} from 'chart.js';
+import { Scatter } from 'react-chartjs-2';
+import ChartAnnotation from 'chartjs-plugin-annotation';
+import outlierApi from '@/api/outlier.api';
+ChartJS.register(
+   CategoryScale,
+   LinearScale,
+   PointElement,
+   LineElement,
+   Tooltip,
+   Legend,
+   Title,
+   ChartAnnotation
+);
 
 export default function Outlier() {
    const dispatch = useDispatch();
@@ -160,6 +184,83 @@ export default function Outlier() {
          },
       },
    ];
+
+   const options = {
+      scales: {
+         x: {
+            beginAtZero: true,
+            title: {
+               text: 'Margin % After Surcharge',
+               display: true,
+            },
+            ticks: {
+               stepSize: 2,
+            },
+         },
+         y: {
+            title: {
+               text: 'Dealer Net $',
+               display: true,
+            },
+         },
+      },
+      maintainAspectRatio: false,
+      plugins: {
+         title: {
+            display: true,
+            text: 'Outliers Discussion',
+            position: 'top' as const,
+         },
+      },
+      elements: {
+         point: {
+            radius: 7,
+         },
+      },
+   };
+
+   const [chartOutliersData, setChartOutliersData] = useState({
+      datasets: [],
+   });
+
+   useEffect(() => {
+      getOutliersDataForChart();
+      console.log('Outliers', chartOutliersData);
+   }, [listOutlier]);
+
+   const getOutliersDataForChart = async () => {
+      try {
+         let {
+            data: { chartOutliersData },
+         } = await outlierApi.getOutliersForChart(dataFilter);
+
+         const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
+
+         chartOutliersData = chartOutliersData.filter((item) => item[0]?.region != null);
+
+         const datasets = chartOutliersData.map((item) => {
+            if (item[0]?.region != null) {
+               const regionData = item.map((obj) => {
+                  return {
+                     x: (obj.marginPercentageAfterSurcharge * 100).toLocaleString(),
+                     y: obj.dealerNet,
+                  };
+               });
+
+               return {
+                  label: item[0]?.region,
+                  data: regionData.map((item) => item),
+                  backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
+               };
+            }
+         });
+         setChartOutliersData({
+            datasets: datasets,
+         });
+      } catch (e) {
+         console.log(e);
+      }
+   };
 
    return (
       <>
@@ -303,8 +404,16 @@ export default function Outlier() {
                </Grid>
             </Grid>
 
+            <Grid
+               sx={{
+                  height: '38vh',
+               }}
+            >
+               <Scatter options={options} data={chartOutliersData} />
+            </Grid>
+
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(100vh - 196px)' }}>
+               <Grid container sx={{ height: 'calc(60vh - 196px)' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu

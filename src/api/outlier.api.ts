@@ -17,6 +17,10 @@ class OutlierApi extends HttpService<any> {
       return this.instance.post<T>(`table/getOutlierTable`, data, { params, responseType });
    };
 
+   getOutliersForChart = <T = any>(data = {} as Record<string, any>) => {
+      return this.instance.post<T>(`chart/getOutliers`, data);
+   };
+
    //insert link api
    // getDataForChart = <T = any>(
    //    data = {} as Record<string, any>,
