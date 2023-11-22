@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class IndicatorService extends BasedService {
     CompetitorPricingRepository competitorPricingRepository;
 
 
-    public Map<String, Object> getCompetitorPriceForTableByFilter(FilterModel filterModel) {
+    public Map<String, Object> getCompetitorPriceForTableByFilter(FilterModel filterModel) throws ParseException {
         logInfo(filterModel.toString());
         Map<String, Object> result = new HashMap<>();
 
@@ -26,36 +27,40 @@ public class IndicatorService extends BasedService {
         List<CompetitorPricing> competitorPricingList = competitorPricingRepository.findCompetitorByFilterForTable(
                 filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
                 filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
-                filterMap.get("aopMarginPercentageFilter"), (Pageable) filterMap.get("pageable"));
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1), (Pageable) filterMap.get("pageable"));
         result.put("listCompetitor", competitorPricingList);
 
         //get total Recode
         int totalCompetitor = competitorPricingRepository.getCountAll(
                 filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
                 filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
-                filterMap.get("aopMarginPercentageFilter"));
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1));
         result.put("totalItems", totalCompetitor);
         return result;
     }
 
 
-    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(FilterModel filterModel) {
+    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByRegion(FilterModel filterModel) throws ParseException {
         logInfo(filterModel.toString());
         Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(filterModel);
         return competitorPricingRepository.findCompetitorByFilterForLineChartRegion(
                 filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
                 filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
-                filterMap.get("aopMarginPercentageFilter"));
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1));
     }
 
 
-    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByPlant(FilterModel filterModel) {
+    public List<CompetitorPricing> getCompetitorPricingAfterFilterAndGroupByPlant(FilterModel filterModel) throws ParseException {
         logInfo(filterModel.toString());
         Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(filterModel);
         return competitorPricingRepository.findCompetitorByFilterForLineChartPlant(
                 filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
                 filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
-                filterMap.get("aopMarginPercentageFilter"));
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1));
     }
 
     public List<CompetitorPricing> getCompetitiveLandscape(String country, String clazz, String category, String series) {

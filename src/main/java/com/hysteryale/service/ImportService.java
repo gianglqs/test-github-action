@@ -444,7 +444,13 @@ public class ImportService extends BasedService {
             String orderNo = row.getCell(shipmentColumnsName.get("Order number")).getStringCellValue();
             shipment.setOrderNo(orderNo);
 
+            // Set serialNUmber
+            String serialNumber = row.getCell(shipmentColumnsName.get("Serial Number")).getStringCellValue();
+            shipment.setSerialNumber(serialNumber);
 
+            // Set model
+            String model = row.getCell(shipmentColumnsName.get("Model")).getStringCellValue();
+            shipment.setModel(model);
 
             // Revenue
             double revenue = row.getCell(shipmentColumnsName.get("Revenue")).getNumericCellValue();
@@ -458,9 +464,17 @@ public class ImportService extends BasedService {
             String country = row.getCell(shipmentColumnsName.get("Ship-to Country Code")).getStringCellValue();
             shipment.setCtryCode(country);
 
-            // date ERROR
+            // date
             Date date = row.getCell(shipmentColumnsName.get("Created On")).getDateCellValue();
             shipment.setDate(date);
+
+            //totalCost
+            Double totalCost = row.getCell(shipmentColumnsName.get("Cost of Sales")).getNumericCellValue();
+            shipment.setTotalCost(totalCost);
+
+            //quantity
+            int quantity =(int) row.getCell(shipmentColumnsName.get("Quantity")).getNumericCellValue();
+            shipment.setQuantity(quantity);
 
             // get data from BookingOrder
             Optional<BookingOrder> bookingOrderOptional = bookingOrderRepository.getBookingOrderByOrderNo(orderNo);
@@ -479,16 +493,17 @@ public class ImportService extends BasedService {
                 shipment.setDealerNet(booking.getDealerNet());
 
                 //DN AfterSurcharge
-                shipment.setDealerNetAfterSurCharge(booking.getDealerNetAfterSurCharge());
+                double dealerNetAfterSurcharge = booking.getDealerNetAfterSurCharge();
+                shipment.setDealerNetAfterSurCharge(dealerNetAfterSurcharge);
 
-                // totalCost
-                shipment.setTotalCost(booking.getTotalCost());
+                double marginAfterSurcharge = dealerNetAfterSurcharge - totalCost;
+                double marginPercentageAfterSurcharge = marginAfterSurcharge / dealerNetAfterSurcharge;
 
                 // set Margin Percentage After surcharge
-                shipment.setMarginPercentageAfterSurCharge(booking.getMarginPercentageAfterSurCharge());
+                shipment.setMarginPercentageAfterSurCharge(marginPercentageAfterSurcharge);
 
                 // Set Margin after surcharge
-                shipment.setMarginAfterSurCharge(booking.getMarginAfterSurCharge());
+                shipment.setMarginAfterSurCharge(marginAfterSurcharge);
 
                 // AOP Margin %
                 shipment.setAOPMarginPercentage(booking.getAOPMarginPercentage());
