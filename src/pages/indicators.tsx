@@ -29,7 +29,7 @@ import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
 import { relative } from 'path';
-import { DataGridPro } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 
 ChartJS.register(
    CategoryScale,
@@ -524,6 +524,9 @@ export default function Indicators() {
                      hideFooter
                      disableColumnMenu
                      // tableHeight={390}
+                     slots={{
+                        toolbar: GridToolbar,
+                     }}
                      rowHeight={35}
                      rows={getDataForTable}
                      rowBuffer={35}
