@@ -55,4 +55,5 @@ public class IMMarginAnalystSummary {
 
     private String fileUUID;
     private String orderNumber;
+    private String plant;
 }

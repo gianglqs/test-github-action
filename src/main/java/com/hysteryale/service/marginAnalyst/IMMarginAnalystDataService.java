@@ -309,6 +309,7 @@ public class IMMarginAnalystDataService {
                 imMarginAnalystSummary.setMargin(CurrencyFormatUtils.formatDoubleValue(margin, CurrencyFormatUtils.decimalFormatFourDigits));
                 imMarginAnalystSummary.setMarginAopRate(aopRate);
                 imMarginAnalystSummary.setFileUUID(fileUUID);
+                imMarginAnalystSummary.setPlant(plant);
 
                 imMarginAnalystSummary.setWarrantyCost(warrantyCost);
                 imMarginAnalystSummary.setSurchargeCost(surchargeCost);
