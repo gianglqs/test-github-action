@@ -198,6 +198,17 @@ export default function Shipment() {
          },
       },
       {
+         field: 'bookingMarginPercentageAfterSurCharge',
+         flex: 0.6,
+         headerName: 'Booking Margin %',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return (
+               <span>{formatNumber(params?.row.bookingMarginPercentageAfterSurCharge * 100)}%</span>
+            );
+         },
+      },
+      {
          field: 'aopmarginPercentage',
          flex: 0.6,
          headerName: 'AOP Margin%',
