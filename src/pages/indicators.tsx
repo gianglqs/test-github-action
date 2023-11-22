@@ -29,6 +29,7 @@ import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
 import { relative } from 'path';
+import { DataGridPro } from '@mui/x-data-grid-pro';
 
 ChartJS.register(
    CategoryScale,
@@ -518,7 +519,7 @@ export default function Indicators() {
                </Grid>
             </Grid>
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container>
+               <Grid container /**sx={{ height: 'calc(100vh - 196px - 350px)' }} */>
                   <DataTable
                      hideFooter
                      disableColumnMenu

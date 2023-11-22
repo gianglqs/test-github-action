@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { useDispatch, useSelector } from 'react-redux';
 import { bookingStore, commonStore } from '@/store/reducers';
+import { DataGrid } from '@mui/x-data-grid';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
@@ -21,6 +22,7 @@ import _ from 'lodash';
 import { produce } from 'immer';
 
 import { defaultValueFilterOrder } from '@/utils/defaultValues';
+import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 
 export default function Booking() {
    const dispatch = useDispatch();
@@ -378,12 +380,15 @@ export default function Booking() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container>
-                  <DataTable
+               <Grid container sx={{ height: 'calc(100vh - 230px)' }}>
+                  <DataGridPro
                      hideFooter
                      disableColumnMenu
-                     tableHeight={740}
-                     rowHeight={45}
+                     //tableHeight={740}
+                     rowHeight={30}
+                     slots={{
+                        toolbar: GridToolbar,
+                     }}
                      rows={listBookingOrder}
                      rowBuffer={35}
                      rowThreshold={25}
