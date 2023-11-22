@@ -21,15 +21,18 @@ public class IMMarginAnalystData {
 
     @Column(name = "price_list_region")
     private String priceListRegion;
-    private String class_;
+    private String clazz;
 
     @Column(name = "option_code")
     private String optionCode;
+
+    @Column(name = "std_otp")
     private String std_opt;
     private String description;
 
     @Column(name = "list_price")
     private double listPrice;
+    @Column(name = "margin_aop")
     private double margin_aop;
 
     @Temporal(TemporalType.DATE)
@@ -44,4 +47,6 @@ public class IMMarginAnalystData {
     private double dealerNet;
 
     private String fileUUID;
+    private String orderNumber;
+    private boolean isSPED;
 }
