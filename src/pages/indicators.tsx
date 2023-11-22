@@ -383,7 +383,7 @@ export default function Indicators() {
 
    return (
       <>
-         <AppLayout entity="indicator" heightBody={870}>
+         <AppLayout entity="indicator">
             <Grid container spacing={1}>
                <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
                   <AppAutocomplete
@@ -519,12 +519,12 @@ export default function Indicators() {
                </Grid>
             </Grid>
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container /**sx={{ height: 'calc(100vh - 196px - 350px)' }} */>
-                  <DataTable
+               <Grid container sx={{ height: 'calc(67vh - 235px)', minHeight: '200px' }}>
+                  <DataGridPro
                      hideFooter
                      disableColumnMenu
-                     tableHeight={390}
-                     rowHeight={45}
+                     // tableHeight={390}
+                     rowHeight={35}
                      rows={getDataForTable}
                      rowBuffer={35}
                      rowThreshold={25}

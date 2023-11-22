@@ -393,7 +393,7 @@ export default function Shipment() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(100vh - 230px)' }}>
+               <Grid container sx={{ height: 'calc(100vh - 229px)' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
