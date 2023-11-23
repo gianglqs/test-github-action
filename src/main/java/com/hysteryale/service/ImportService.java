@@ -55,6 +55,9 @@ public class ImportService extends BasedService {
     @Resource
     AOPMarginService aopMarginService;
 
+    @Resource
+    ShipmentService shipmentService;
+
     public void getOrderColumnsName(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         for (int i = 0; i < 50; i++) {
             if (row.getCell(i) != null) {
@@ -421,20 +424,38 @@ public class ImportService extends BasedService {
             XSSFWorkbook workbook = new XSSFWorkbook(is);
             HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
             Sheet competitorSheet = workbook.getSheet("Sheet1");
-            List<Shipment> shipmentList = new ArrayList<>();
+
 
             for (Row row : competitorSheet) {
                 if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
-                    Shipment shipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
-                    shipmentList.add(shipment);
+                    Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
+                    Shipment getShipmentInDB = shipmentService.getShipmentByOrderNo(newShipment.getOrderNo());
+                    if (getShipmentInDB != null) {
+                        shipmentRepository.save(updateShipment(getShipmentInDB, newShipment));
+                    } else {
+                        shipmentRepository.save(newShipment);
+                    }
                 }
             }
-            shipmentRepository.saveAll(shipmentList);
 
             updateStateImportFile(pathFile);
         }
     }
+
+    /**
+     * reset revenue, totalCost, Margin$, Margin%
+     */
+    private Shipment updateShipment(Shipment s1, Shipment s2) {
+        s1.setNetRevenue(s1.getNetRevenue() + s2.getNetRevenue());
+        s1.setTotalCost(s1.getTotalCost() + s2.getTotalCost());
+        Double margin = s1.getDealerNetAfterSurCharge() - s1.getTotalCost();
+        Double marginPercentage = margin / s1.getDealerNetAfterSurCharge();
+        s1.setMarginAfterSurCharge(margin);
+        s1.setMarginPercentageAfterSurCharge(marginPercentage);
+        return s1;
+    }
+
 
     private Shipment mapExcelDataIntoShipmentObject(Row row, HashMap<String, Integer> shipmentColumnsName) {
         Shipment shipment = new Shipment();
@@ -452,9 +473,11 @@ public class ImportService extends BasedService {
             String model = row.getCell(shipmentColumnsName.get("Model")).getStringCellValue();
             shipment.setModel(model);
 
-            // Revenue
+            // netRevenue
             double revenue = row.getCell(shipmentColumnsName.get("Revenue")).getNumericCellValue();
-            shipment.setNetRevenue(revenue);
+            double discount = row.getCell(shipmentColumnsName.get("Discounts")).getNumericCellValue();
+            double netRevenue = revenue - discount;
+            shipment.setNetRevenue(netRevenue);
 
             // dealerName
             String dealerName = row.getCell(shipmentColumnsName.get("End Customer Name")).getStringCellValue();
@@ -469,16 +492,18 @@ public class ImportService extends BasedService {
             shipment.setDate(date);
 
             //totalCost
-            Double totalCost = row.getCell(shipmentColumnsName.get("Cost of Sales")).getNumericCellValue();
+            Double costOfSales = row.getCell(shipmentColumnsName.get("Cost of Sales")).getNumericCellValue();
+            Double warranty = row.getCell(shipmentColumnsName.get("Warranty")).getNumericCellValue();
+            double totalCost = costOfSales - warranty;
             shipment.setTotalCost(totalCost);
 
             //quantity
-            int quantity =(int) row.getCell(shipmentColumnsName.get("Quantity")).getNumericCellValue();
+            int quantity = (int) row.getCell(shipmentColumnsName.get("Quantity")).getNumericCellValue();
             shipment.setQuantity(quantity);
 
             // get data from BookingOrder
             Optional<BookingOrder> bookingOrderOptional = bookingOrderRepository.getBookingOrderByOrderNo(orderNo);
-            if(bookingOrderOptional.isPresent()){
+            if (bookingOrderOptional.isPresent()) {
                 BookingOrder booking = bookingOrderOptional.get();
                 // set series
                 shipment.setSeries(booking.getSeries());
@@ -505,15 +530,18 @@ public class ImportService extends BasedService {
                 // Set Margin after surcharge
                 shipment.setMarginAfterSurCharge(marginAfterSurcharge);
 
+                // set Booking margin percentage
+                shipment.setBookingMarginPercentageAfterSurCharge(booking.getMarginPercentageAfterSurCharge());
+
                 // AOP Margin %
                 shipment.setAOPMarginPercentage(booking.getAOPMarginPercentage());
 
-            }else{
-               // logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
+            } else {
+                // logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
             }
 
         } catch (Exception e) {
-          //  logError(e.toString());
+            //  logError(e.toString());
         }
 
 
