@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
+import { formatNumber, formatNumberPercentage } from '@/utils/formatNumbericCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { indicatorStore, commonStore } from '@/store/reducers';
 import { Button } from '@mui/material';
@@ -144,29 +145,6 @@ export default function Indicators() {
    const handleFilterIndicator = () => {
       dispatch(indicatorStore.actions.setDefaultValueFilterIndicator(dataFilter));
       handleChangePage(1);
-   };
-
-   const formatNumber = (num: any) => {
-      if (typeof num === 'number' && num != Infinity && num != -Infinity) {
-         return num.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-         });
-      } else {
-         return null;
-      }
-   };
-   const formatNumberPercentage = (num: any) => {
-      if (typeof num === 'number' && num != Infinity && num != -Infinity) {
-         return (
-            num.toLocaleString(undefined, {
-               minimumFractionDigits: 2,
-               maximumFractionDigits: 2,
-            }) + '%'
-         );
-      } else {
-         return null;
-      }
    };
 
    const columns = [
