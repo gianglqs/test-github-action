@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
-import { formatNumber, formatNumberPercentage } from '@/utils/formatNumbericCell';
+import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { bookingStore, commonStore } from '@/store/reducers';
 import { DataGrid } from '@mui/x-data-grid';
@@ -76,6 +76,9 @@ export default function Booking() {
          field: 'date',
          flex: 0.5,
          headerName: 'Create at',
+         renderCell(params) {
+            return <span>{formatDate(params.row.date)}</span>;
+         },
       },
       {
          field: 'region',

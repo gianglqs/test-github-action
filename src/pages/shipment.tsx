@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
-import { formatNumber, formatNumberPercentage } from '@/utils/formatNumbericCell';
+import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { shipmentStore, commonStore } from '@/store/reducers';
 
@@ -78,6 +78,9 @@ export default function Shipment() {
          field: 'date',
          flex: 0.5,
          headerName: 'Create at',
+         renderCell(params) {
+            return <span>{formatDate(params.row.date)}</span>;
+         },
       },
       {
          field: 'region',

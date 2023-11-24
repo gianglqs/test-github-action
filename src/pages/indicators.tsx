@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
-import { formatNumber, formatNumberPercentage } from '@/utils/formatNumbericCell';
+import { formatNumber, formatNumberPercentage } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { indicatorStore, commonStore } from '@/store/reducers';
 import { Button } from '@mui/material';

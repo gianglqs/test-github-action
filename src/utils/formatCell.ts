@@ -20,3 +20,7 @@ export const formatNumberPercentage = (num: any) => {
       return null;
    }
 };
+
+export const formatDate = (calendar: String) => {
+   return calendar.substring(0, 10);
+};
