@@ -59,38 +59,8 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
                                           @Param("toDate") Date toDate,
                                           @Param("toDate") Pageable pageable);
 
-//    @Query("SELECT COUNT(distinct (c.region.regionShortName || c.productDimension.plant || c.productDimension.clazz || c.series || c.productDimension.model) )" +
-//            " FROM BookingOrder c WHERE " +
-//            " ((:regions) IS Null OR c.region.region IN (:regions) )" +
-//            " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
-//            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
-//            " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
-//            " AND ((:models) IS NULL OR c.productDimension.model IN (:models))" +
-//            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
-//            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
-//            "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
-//            "   (:comparator = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurCharge) OR" +
-//            "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
-//            "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
-//            "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
-//            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
-//            " AND (cast(:fromDate as date) IS NULL OR c.date >= (:fromDate))" +
-//            " AND (cast(:toDate as date) IS NULL OR c.date <= (:toDate))"
-//    )
-//    long countAll(@Param("regions") Object regions,
-//                                          @Param("plants") Object plants,
-//                                          @Param("metaSeries") Object metaSeries,
-//                                          @Param("classes") Object classes,
-//                                          @Param("models") Object models,
-//                                          @Param("dealerName") Object dealerName,
-//                                          @Param("comparator") Object comparator,
-//                                          @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-//                                          @Param("fromDate") Date fromDate,
-//                                          @Param("toDate") Date toDate);
-
-    @Query("SELECT new BookingOrder(c.region.region, c.productDimension.plant, c.productDimension.clazz," +
-            " c.series, c.productDimension.model, sum(c.quantity), sum(c.totalCost), sum(c.dealerNet), " +
-            " sum(c.dealerNetAfterSurCharge), sum(c.marginAfterSurCharge)) " +
+    //   @Query("SELECT COUNT(distinct (c.region.regionShortName || c.productDimension.plant || c.productDimension.clazz || c.series || c.productDimension.model) )" +
+    @Query("SELECT COUNT(c)" +
             " FROM BookingOrder c WHERE " +
             " ((:regions) IS Null OR c.region.region IN (:regions) )" +
             " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
@@ -109,16 +79,17 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             " AND (cast(:toDate as date) IS NULL OR c.date <= (:toDate))" +
             " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.productDimension.model"
     )
-    List<BookingOrder> getAllForOutlier(@Param("regions") Object regions,
-                                        @Param("plants") Object plants,
-                                        @Param("metaSeries") Object metaSeries,
-                                        @Param("classes") Object classes,
-                                        @Param("models") Object models,
-                                        @Param("dealerName") Object dealerName,
-                                        @Param("comparator") Object comparator,
-                                        @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-                                        @Param("fromDate") Date fromDate,
-                                        @Param("toDate") Date toDate);
+    List<Integer> countAll(@Param("regions") Object regions,
+                  @Param("plants") Object plants,
+                  @Param("metaSeries") Object metaSeries,
+                  @Param("classes") Object classes,
+                  @Param("models") Object models,
+                  @Param("dealerName") Object dealerName,
+                  @Param("comparator") Object comparator,
+                  @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                  @Param("fromDate") Date fromDate,
+                  @Param("toDate") Date toDate);
+
 
     @Query(value = "SELECT * FROM booking_order WHERE model = ?1 LIMIT 1", nativeQuery = true)
     Optional<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode);
