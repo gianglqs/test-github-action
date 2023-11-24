@@ -16,9 +16,6 @@ import java.util.Date;
 @Table(name = "shipment")
 public class Shipment {
     @Id
-    @GeneratedValue
-    private int id;
-
     @Column(name = "order_no")
     private String orderNo;
 
@@ -68,6 +65,9 @@ public class Shipment {
 
     @Column(name = "margin_percentage_after_sur_charge")
     private double marginPercentageAfterSurCharge;
+
+    @Column(name = "booking_margin_percentage_after_sur_charge")
+    private double bookingMarginPercentageAfterSurCharge;
 
     @Column(name = "aopmargin_percentage")
     private double AOPMarginPercentage;

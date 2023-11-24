@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, String> {
 
@@ -89,4 +90,6 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
     List<String> findAllDealerName();
 
 
+    @Query("SELECT s from Shipment s WHERE s.orderNo = :orderNo ")
+    Optional<Shipment> findShipmentByOrderNo(String orderNo);
 }
