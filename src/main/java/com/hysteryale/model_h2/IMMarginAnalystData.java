@@ -1,6 +1,8 @@
 package com.hysteryale.model_h2;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,6 +11,8 @@ import java.util.Calendar;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class IMMarginAnalystData {
 
     @Id
@@ -49,4 +53,15 @@ public class IMMarginAnalystData {
     private String fileUUID;
     private String orderNumber;
     private boolean isSPED;
+
+    public IMMarginAnalystData(String plant, String modelCode, String optionCode, String description, double listPrice, Calendar monthYear, String currency, double dealerNet) {
+        this.plant = plant;
+        this.modelCode = modelCode;
+        this.optionCode = optionCode;
+        this.description = description;
+        this.listPrice = listPrice;
+        this.monthYear = monthYear;
+        this.currency = currency;
+        this.dealerNet = dealerNet;
+    }
 }
