@@ -63,12 +63,29 @@ export default function Booking() {
       handleChangePage(1);
    };
 
-   const formatNumber = (num: number) => {
-      return num.toLocaleString(undefined, {
-         minimumFractionDigits: 2,
-         maximumFractionDigits: 2,
-      });
+   const formatNumber = (num: any) => {
+      if (typeof num === 'number' && num != Infinity && num != -Infinity && !isNaN(num)) {
+         return num.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+         });
+      } else {
+         return null;
+      }
    };
+   const formatNumberPercentage = (num: any) => {
+      if (typeof num === 'number' && num != Infinity && num != -Infinity && !isNaN(num)) {
+         return (
+            num.toLocaleString(undefined, {
+               minimumFractionDigits: 2,
+               maximumFractionDigits: 2,
+            }) + '%'
+         );
+      } else {
+         return null;
+      }
+   };
+
    const tableState = useSelector(commonStore.selectTableState);
 
    const columns = [
@@ -181,7 +198,11 @@ export default function Booking() {
          headerName: 'Margin % After Surcharge',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
+               </span>
+            );
          },
       },
       {
@@ -190,7 +211,7 @@ export default function Booking() {
          headerName: 'AOP Margin%',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
+            return <span>{formatNumberPercentage(params?.row.aopmarginPercentage * 100)}</span>;
          },
       },
    ];

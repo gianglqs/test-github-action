@@ -147,11 +147,23 @@ export default function Indicators() {
    };
 
    const formatNumber = (num: any) => {
-      if (typeof num === 'number') {
+      if (typeof num === 'number' && num != Infinity && num != -Infinity) {
          return num.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
          });
+      } else {
+         return null;
+      }
+   };
+   const formatNumberPercentage = (num: any) => {
+      if (typeof num === 'number' && num != Infinity && num != -Infinity) {
+         return (
+            num.toLocaleString(undefined, {
+               minimumFractionDigits: 2,
+               maximumFractionDigits: 2,
+            }) + '%'
+         );
       } else {
          return null;
       }
@@ -258,7 +270,7 @@ export default function Indicators() {
          headerName: 'Dealer Premium / Margin %',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params.row.dealerPremiumPercentage * 100)}%</span>;
+            return <span>{formatNumberPercentage(params.row.dealerPremiumPercentage * 100)}</span>;
          },
       },
       {
@@ -277,7 +289,7 @@ export default function Indicators() {
          headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params.row.variancePercentage * 100)}%</span>;
+            return <span>{formatNumberPercentage(params.row.variancePercentage * 100)}</span>;
          },
       },
    ];
