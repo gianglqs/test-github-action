@@ -32,20 +32,14 @@ public class OutlierService extends BasedService {
                 (Date) filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"),
                 (Pageable) filterMap.get("pageable"));
 
-
         // count
-//        long countAll = bookingOrderRepository.countAll(filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
-//                filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("dealerNameFilter"),
-//                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
-//                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
-//                (Date) filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"));
-        List<BookingOrder> listAllOrder = bookingOrderRepository.getAllForOutlier(
-                filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
+        List<Integer> countAll = bookingOrderRepository.countAll(filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
                 filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("dealerNameFilter"),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
                 (Date) filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"));
-        result.put("totalItems", listAllOrder.size());
+
+        result.put("totalItems", countAll.size());
         result.put("listOutlier", setIdForData(listOrder));
         return result;
     }
