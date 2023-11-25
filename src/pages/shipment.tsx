@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
+import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { shipmentStore, commonStore } from '@/store/reducers';
 
@@ -65,12 +66,6 @@ export default function Shipment() {
       handleChangePage(1);
    };
 
-   const formatNumber = (num: number) => {
-      return num.toLocaleString(undefined, {
-         minimumFractionDigits: 2,
-         maximumFractionDigits: 2,
-      });
-   };
    const tableState = useSelector(commonStore.selectTableState);
 
    const columns = [
@@ -83,6 +78,9 @@ export default function Shipment() {
          field: 'date',
          flex: 0.5,
          headerName: 'Create at',
+         renderCell(params) {
+            return <span>{formatDate(params.row.date)}</span>;
+         },
       },
       {
          field: 'region',
@@ -132,7 +130,7 @@ export default function Shipment() {
          flex: 0.6,
          headerName: 'Models',
          renderCell(params) {
-            return <span>{params.row.productDimension?.model}</span>;
+            return <span>{params.row.model}</span>;
          },
       },
       {
@@ -194,7 +192,11 @@ export default function Shipment() {
          headerName: 'Margin % After Surcharge',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
+               </span>
+            );
          },
       },
       {
@@ -204,7 +206,9 @@ export default function Shipment() {
          ...formatNumbericColumn,
          renderCell(params) {
             return (
-               <span>{formatNumber(params?.row.bookingMarginPercentageAfterSurCharge * 100)}%</span>
+               <span>
+                  {formatNumberPercentage(params?.row.bookingMarginPercentageAfterSurCharge * 100)}
+               </span>
             );
          },
       },
@@ -214,7 +218,7 @@ export default function Shipment() {
          headerName: 'AOP Margin%',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
+            return <span>{formatNumberPercentage(params?.row.aopmarginPercentage * 100)}</span>;
          },
       },
    ];

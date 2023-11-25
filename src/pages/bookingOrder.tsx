@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
+import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { bookingStore, commonStore } from '@/store/reducers';
 import { DataGrid } from '@mui/x-data-grid';
@@ -63,12 +64,6 @@ export default function Booking() {
       handleChangePage(1);
    };
 
-   const formatNumber = (num: number) => {
-      return num.toLocaleString(undefined, {
-         minimumFractionDigits: 2,
-         maximumFractionDigits: 2,
-      });
-   };
    const tableState = useSelector(commonStore.selectTableState);
 
    const columns = [
@@ -81,6 +76,9 @@ export default function Booking() {
          field: 'date',
          flex: 0.5,
          headerName: 'Create at',
+         renderCell(params) {
+            return <span>{formatDate(params.row.date)}</span>;
+         },
       },
       {
          field: 'region',
@@ -181,7 +179,11 @@ export default function Booking() {
          headerName: 'Margin % After Surcharge',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
+               </span>
+            );
          },
       },
       {
@@ -190,7 +192,7 @@ export default function Booking() {
          headerName: 'AOP Margin%',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.aopmarginPercentage * 100)}%</span>;
+            return <span>{formatNumberPercentage(params?.row.aopmarginPercentage * 100)}</span>;
          },
       },
    ];
