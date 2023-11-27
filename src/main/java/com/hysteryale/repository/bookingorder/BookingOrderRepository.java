@@ -93,4 +93,6 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
 
     @Query(value = "SELECT * FROM booking_order WHERE model = ?1 LIMIT 1", nativeQuery = true)
     Optional<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode);
+
+    List<BookingOrder> getAllForOutlier(Object regionFilter, Object plantFilter, Object metaSeriesFilter, Object classFilter, Object modelFilter, Object dealerNameFilter, Object o, Object o1, Date fromDateFilter, Date toDateFilter);
 }
