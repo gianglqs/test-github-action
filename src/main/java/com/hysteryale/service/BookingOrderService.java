@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.*;
 import com.hysteryale.model.Currency;
 import com.hysteryale.model.filters.OrderFilter;
+import com.hysteryale.model.marginAnalyst.MarginAnalystMacro;
 import com.hysteryale.repository.*;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
+import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
+import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.EnvironmentUtils;
+import com.hysteryale.utils.PlantUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.ParseException;
 import org.apache.poi.ss.usermodel.*;
@@ -20,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,6 +55,18 @@ public class BookingOrderService extends BasedService {
     @Resource
     CurrencyRepository currencyRepository;
 
+    @Resource
+    MarginAnalystMacroService marginAnalystMacroService;
+
+    @Resource
+    PartService partService;
+
+    @Resource
+    ExchangeRateService exchangeRateService;
+
+    @Resource
+    RegionService regionService;
+
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
      *
@@ -61,8 +76,7 @@ public class BookingOrderService extends BasedService {
         for (int i = 0; i < 50; i++) {
             if (row.getCell(i) != null) {
                 String columnName = row.getCell(i).getStringCellValue().trim();
-                if (ORDER_COLUMNS_NAME.containsKey(columnName))
-                    continue;
+                if (ORDER_COLUMNS_NAME.containsKey(columnName)) continue;
                 ORDER_COLUMNS_NAME.put(columnName, i);
             }
         }
@@ -95,10 +109,8 @@ public class BookingOrderService extends BasedService {
             DirectoryStream<Path> folder = Files.newDirectoryStream(Paths.get(folderPath));
             for (Path path : folder) {
                 matcher = pattern.matcher(path.getFileName().toString());
-                if (matcher.matches())
-                    fileList.add(path.getFileName().toString());
-                else
-                    logError("Wrong formatted file's name: " + path.getFileName().toString());
+                if (matcher.matches()) fileList.add(path.getFileName().toString());
+                else logError("Wrong formatted file's name: " + path.getFileName().toString());
             }
         } catch (Exception e) {
             logInfo(e.getMessage());
@@ -107,133 +119,71 @@ public class BookingOrderService extends BasedService {
         return fileList;
     }
 
-    /**
-     * Map data in Excel file into each Order object
-     *
-     * @param row which is the row contains data
-     * @return new Order object
-     */
-    public BookingOrder mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) throws IllegalAccessException {
+
+    private BookingOrder mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         BookingOrder bookingOrder = new BookingOrder();
-        Class<? extends BookingOrder> bookingOrderClass = bookingOrder.getClass();
-        Field[] fields = bookingOrderClass.getDeclaredFields();
 
-        for (Field field : fields) {
-            // String key of column's name
-            String hashMapKey = field.getName().toUpperCase();
-            // Get the data type of the field
-            String fieldType = field.getType().getName();
+        //set OrderNo
+        Cell orderNoCell = row.getCell(ORDER_COLUMNS_NAME.get("ORDERNO"));
+        bookingOrder.setOrderNo(orderNoCell.getStringCellValue());
 
-            // allow assigning value for object's fields
-            field.setAccessible(true);
-            if (field.getName().equals("productDimension")) {
-                try {
-                    ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(row.getCell(ORDER_COLUMNS_NAME.get("SERIES"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                    field.set(bookingOrder, productDimension);
-                } catch (Exception e) {
-                    rollbar.error(e.toString());
-                    logError(e.toString());
-                }
-            } else if (field.getName().equals("billTo")) {
-                try {
-                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
-                    field.set(bookingOrder, cell.getStringCellValue());
-                    // APICDealer apicDealer = apicDealerService.getAPICDealerByBillToCode(row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                    // field.set(bookingOrder, apicDealer);
-                } catch (Exception e) {
-                    logError(e.toString());
-                }
-            } else if (field.getName().equals("model")) {
-                try {
-                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
-                    field.set(bookingOrder, cell.getStringCellValue());
-
-                } catch (Exception e) {
-                    logError(e.toString());
-                }
-            } else if (field.getName().equals("region")) {
-                try {
-                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
-                    Optional<Region> region = regionRepository.findByRegionId(cell.getStringCellValue());
-                    if (region.isPresent()) {
-                        field.set(bookingOrder, region.get()/*.getRegion()*/);
-                    } else {
-                        throw new Exception("Not match Region with region_Id: " + cell.getStringCellValue());
-                    }
-
-                } catch (Exception e) {
-                    logError(e.toString());
-                }
-            } else if (field.getName().equals("currency")) {
-                try {
-                    Cell cell = row.getCell(ORDER_COLUMNS_NAME.get("Currency"));
-                    field.set(bookingOrder, currencyRepository.findById(cell.getStringCellValue()));
-                } catch (Exception e) {
-                    logError(e.toString());
-                }
-            } else {
-                Object index = ORDER_COLUMNS_NAME.get(hashMapKey);
-
-                if (index != null) {  // cell will be null when the properties are not mapped with the excel files, they are used to calculate values
-
-                    Cell cell = row.getCell((Integer) index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-
-                    if (cell != null) {
-                        switch (fieldType) {
-                            case "java.lang.String":
-                                //log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
-                                if (cell.getCellType() == CellType.STRING) {
-                                    field.set(bookingOrder, cell.getStringCellValue());
-                                } else if (cell.getCellType() == CellType.NUMERIC) {
-                                    field.set(bookingOrder, cell.getNumericCellValue() + "");
-                                }
-                                break;
-                            case "int":
-                                if (cell.getCellType().equals(CellType.STRING.getCode())) {
-                                    //   log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
-                                    field.set(bookingOrder, Integer.parseInt(cell.getStringCellValue()));
-                                } else if (cell.getCellType().equals(CellType.NUMERIC.getCode())) {
-                                    //  log.info("Cell column " + cell.getColumnIndex() + " row " + cell.getRowIndex() + " " + cell.getStringCellValue());
-                                    field.set(bookingOrder, (int) cell.getNumericCellValue());
-                                }
-
-                                break;
-                            case "java.util.Calendar":
-
-                                String strDate = String.valueOf(row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getNumericCellValue());
-                                // Cast into GregorianCalendar
-                                // Create matcher with pattern {(1)_year(2)_month(2)_day(2)} as 1230404
-                                Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
-                                Matcher matcher = pattern.matcher(strDate);
-                                int year, month, day;
-
-                                if (matcher.find()) {
-                                    year = Integer.parseInt(matcher.group(1)) + 2000;
-                                    month = Integer.parseInt(matcher.group(2));
-                                    day = Integer.parseInt(matcher.group(3));
-
-                                    GregorianCalendar orderDate = new GregorianCalendar();
-
-                                    // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
-                                    orderDate.set(year, month - 1, day);
-                                    field.set(bookingOrder, orderDate);
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
+        //set ProductDimension
+        ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(row.getCell(ORDER_COLUMNS_NAME.get("SERIES"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+        if (productDimension != null) {
+            bookingOrder.setProductDimension(productDimension);
+        } else {
+            logWarning("Not found ProductDimension with OrderNo" + bookingOrder.getOrderNo());
         }
+
+        // set billToCost
+        Cell billtoCell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
+        bookingOrder.setBillTo(billtoCell.getStringCellValue());
+
+        //set model
+        Cell modelCell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
+        bookingOrder.setModel(modelCell.getStringCellValue());
+
+        //set region
+        Cell regionCell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
+        Region region = regionService.getRegionByShortName(regionCell.getStringCellValue());
+        if (region != null) {
+            bookingOrder.setRegion(region);
+        } else {
+            logWarning("Not found Region with OrderNo" + bookingOrder.getOrderNo());
+        }
+
+        //set date
+        String strDate = String.valueOf(row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getNumericCellValue());
+        Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
+        Matcher matcher = pattern.matcher(strDate);
+        int year, month, day;
+
+        if (matcher.find()) {
+            year = Integer.parseInt(matcher.group(1)) + 2000;
+            month = Integer.parseInt(matcher.group(2));
+            day = Integer.parseInt(matcher.group(3));
+
+            GregorianCalendar orderDate = new GregorianCalendar();
+
+            // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
+            orderDate.set(year, month - 1, day);
+            bookingOrder.setDate(orderDate);
+        }
+
+        // dealerName
+        Cell dealerNameCell = row.getCell(ORDER_COLUMNS_NAME.get("DEALERNAME"));
+        bookingOrder.setDealerName(dealerNameCell.getStringCellValue());
+
+        // country code
+        Cell ctryCodeCell = row.getCell(ORDER_COLUMNS_NAME.get("CTRYCODE"));
+        bookingOrder.setCtryCode(ctryCodeCell.getStringCellValue());
+
+        // Series
+        Cell seriesCell = row.getCell(ORDER_COLUMNS_NAME.get("SERIES"));
+        bookingOrder.setSeries(seriesCell.getStringCellValue());
+
         return bookingOrder;
     }
-
-    /**
-     * Read booking data in Excel files then import to the database
-     *
-     * @throws FileNotFoundException
-     * @throws IllegalAccessException
-     */
-
 
     private Date extractDate(String fileName) {
         String dateRegex = "\\d{2}_\\d{2}_\\d{4}";
@@ -242,6 +192,7 @@ public class BookingOrderService extends BasedService {
         try {
             if (m.find()) {
                 date = new SimpleDateFormat("MM_dd_yyyy").parse(m.group());
+                date.setMonth(date.getMonth()-1); //TODO recheck month of file
             } else {
                 logError("Can not extract Date from File name: " + fileName);
             }
@@ -261,11 +212,10 @@ public class BookingOrderService extends BasedService {
 
         // Get files in Folder Path
         List<String> fileList = getAllFilesInFolder(folderPath, 1);
-        String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
-        List<String> listMonth = Arrays.asList(monthArr);
+        List<String> listMonth = DateUtils.monthList();
+
         String month = "", year = "";
-        String[] arrPlant = {"Greenville", "Berea", "Ramos", "Craigavon", "Nijmegen", "Masate", "Brazil"};
-        List<String> listPlant = Arrays.asList(arrPlant);
+        List<String> USPlant = PlantUtil.getUSPlant();
 
         for (String fileName : fileList) {
             String pathFile = folderPath + "/" + fileName;
@@ -305,15 +255,16 @@ public class BookingOrderService extends BasedService {
                     //  if (newBookingOrder.getMetaSeries() != null)
                     //             newBookingOrder = importPlant(newBookingOrder);
                     //  newBookingOrder = insertTotalCostOrMarginPercent(newBookingOrder, month, year);
-                    newBookingOrder = importPart(newBookingOrder);
+                    newBookingOrder = importDealerNet(newBookingOrder);
                     boolean isOldData = checkOldData(month, year);
                     if (isOldData) {
                         newBookingOrder = insertMarginPercent(newBookingOrder, month, year);
                     } else {
-                        if (listPlant.contains(newBookingOrder.getProductDimension().getPlant())) {
+                        if (USPlant.contains(newBookingOrder.getProductDimension().getPlant())) {
                             newBookingOrder = importTotalCostFromCostData(newBookingOrder, month, year);
+                            logInfo("US Plant");
                         } else {
-                            newBookingOrder = importTotalCostFromMarginAOPRate(newBookingOrder, month, year);
+                            newBookingOrder = importCostRMBOfEachParts(newBookingOrder);
                         }
                     }
 
@@ -324,20 +275,58 @@ public class BookingOrderService extends BasedService {
 
             bookingOrderRepository.saveAll(bookingOrderList);
 
-            // logInfo("End importing file: '" + fileName + "'");
-            //    updateStateImportFile(pathFile);
             logInfo(bookingOrderList.size() + " Booking Order updated or newly saved }");
             updateStateImportFile(pathFile);
             bookingOrderList.clear();
         }
     }
 
+
+    public BookingOrder importCostRMBOfEachParts(BookingOrder bookingOrder) {
+        List<String> listPartNumber = partService.getPartNumberByOrderNo(bookingOrder.getOrderNo());
+        Currency currency = partService.getCurrencyByOrderNo(bookingOrder.getOrderNo());
+
+
+        Calendar date = bookingOrder.getDate();
+        date.set(date.get(Calendar.YEAR), date.get(Calendar.MONTH), 1);
+
+        if (currency == null)
+            return bookingOrder;
+        bookingOrder.setCurrency(currency);
+        logInfo(bookingOrder.getOrderNo() + "   " + currency.getCurrency());
+        double totalCost = 0;
+        if (!bookingOrder.getProductDimension().getPlant().equals("SN")) {
+            List<MarginAnalystMacro> marginAnalystMacroList = marginAnalystMacroService.getMarginAnalystMacroByHYMPlantAndListPartNumber(
+                    bookingOrder.getModel(), listPartNumber, bookingOrder.getCurrency().getCurrency(), date);
+            for (MarginAnalystMacro marginAnalystMacro : marginAnalystMacroList) {
+                totalCost += marginAnalystMacro.getCostRMB();
+            }
+        } else {
+            List<MarginAnalystMacro> marginAnalystMacroList = marginAnalystMacroService.getMarginAnalystMacroByPlantAndListPartNumber(
+                    bookingOrder.getModel(), listPartNumber, bookingOrder.getCurrency().getCurrency(),
+                    bookingOrder.getProductDimension().getPlant(), date);
+
+            for (MarginAnalystMacro marginAnalystMacro : marginAnalystMacroList) {
+                totalCost += marginAnalystMacro.getCostRMB();
+            }
+        }
+
+        // exchange rate
+        ExchangeRate exchangeRate = exchangeRateService.getExchangeRate("CNY", bookingOrder.getCurrency().getCurrency(), date);
+        if (exchangeRate != null)
+            totalCost *= exchangeRate.getRate();
+        bookingOrder.setTotalCost(totalCost);
+        logInfo(bookingOrder.getTotalCost() + "");
+        return bookingOrder;
+    }
+
+
+    //TODO determine 10_9_2023 is SEPT or OCT
     public BookingOrder importTotalCostFromCostData(BookingOrder booking, String month, String year) throws IOException {
         // Folder contains Excel file of Booking Order
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
 
-        String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
-        List<String> listMonth = Arrays.asList(monthArr);
+        List<String> listMonth = DateUtils.monthList();
         // if old data -> collect from file booking, else -> collect from file total-cost
         String folderPath;
         List<String> fileList;
@@ -390,8 +379,7 @@ public class BookingOrderService extends BasedService {
                 }
             }
 
-            if (booking.getTotalCost() == 0)
-                logInfo("Total Cost not found " + booking.getOrderNo());
+            if (booking.getTotalCost() == 0) logInfo("Total Cost not found " + booking.getOrderNo());
         }
 
         return booking;
@@ -401,9 +389,6 @@ public class BookingOrderService extends BasedService {
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         List<String> fileList;
 
-        //check Plant
-        String[] arrPlant = {"Greenville", "Berea", "Ramos", "Craigavon", "Nijmegen", "Masate", "Brazil"};
-        List<String> listPlant = Arrays.asList(arrPlant);
 
         String targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.booking");
         String folderPath = baseFolder + targetFolder;
@@ -594,7 +579,7 @@ public class BookingOrderService extends BasedService {
         return customBookingOrderRepository.getNumberOfBookingOrderByFilters(orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
     }
 
-    public BookingOrder importPart(BookingOrder booking) {
+    public BookingOrder importDealerNet(BookingOrder booking) {
         Set<Part> newParts = partRepository.getPartByOrderNumber(booking.getOrderNo());
         double dealerNet = 0;
         for (Part part : newParts) {
@@ -632,23 +617,23 @@ public class BookingOrderService extends BasedService {
         //margin $ after surcharge
         double marginAfterSurcharge = 0;
         //default   = 0
-        double surchage = 0;
+        double surcharge = 0;
         double totalCost;
         double marginPercentageAfterSurcharge;
 
 
         // Calculate DNAfterSurchage
-        dealerNetAfterSurchage = dealerNet * (1 + surchage);
+        dealerNetAfterSurchage = dealerNet * (1 + surcharge);
 
         if (isOldData) {
             marginPercentageAfterSurcharge = bookingOrder.getMarginPercentageAfterSurCharge();
             marginAfterSurcharge = dealerNetAfterSurchage * marginPercentageAfterSurcharge;
             totalCost = dealerNetAfterSurchage - marginAfterSurcharge;
         } else {
-            totalCost = bookingOrder.getTotalCost();
-            marginAfterSurcharge = dealerNetAfterSurchage - totalCost;
-            marginPercentageAfterSurcharge = marginAfterSurcharge / dealerNetAfterSurchage;
-        }
+        totalCost = bookingOrder.getTotalCost();
+        marginAfterSurcharge = dealerNetAfterSurchage - totalCost;
+        marginPercentageAfterSurcharge = marginAfterSurcharge / dealerNetAfterSurchage;
+       }
         bookingOrder.setDealerNetAfterSurCharge(dealerNetAfterSurchage);
         bookingOrder.setMarginAfterSurCharge(marginAfterSurcharge);
         bookingOrder.setMarginPercentageAfterSurCharge(marginPercentageAfterSurcharge);
@@ -705,6 +690,7 @@ public class BookingOrderService extends BasedService {
 
     /**
      * Get all dealer names
+     *
      * @return
      */
     public List<Map<String, String>> getAllDealerName() {
@@ -735,6 +721,7 @@ public class BookingOrderService extends BasedService {
     public Optional<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode) {
         return bookingOrderRepository.getDistinctBookingOrderByModelCode(modelCode);
     }
+
     public Optional<BookingOrder> getBookingOrderByOrderNumber(String orderNumber) {
         return bookingOrderRepository.findById(orderNumber);
     }

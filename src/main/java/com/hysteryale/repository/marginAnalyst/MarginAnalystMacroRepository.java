@@ -4,7 +4,6 @@ import com.hysteryale.model.marginAnalyst.MarginAnalystMacro;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 
 import java.util.Calendar;
 import java.util.List;
@@ -32,5 +31,11 @@ public interface MarginAnalystMacroRepository extends JpaRepository<MarginAnalys
             "AND m.month_year = :monthYear LIMIT 1", nativeQuery = true)
     Double getManufacturingCost(@Param("modelCode") String modelCode, @Param("partNumber") String partNumber, @Param("currency") String strCurrency,
                                 @Param("plants") List<String> plants, @Param("monthYear") Calendar monthYear);
+    @Query("SELECT m FROM MarginAnalystMacro m WHERE m.modelCode LIKE CONCAT ('%', ?1, '%') AND m.partNumber IN (?2) AND m.currency.currency = ?3 AND m.plant = ?4 AND m.monthYear = ?5")
+    List<MarginAnalystMacro> getMarginAnalystMacroByPlantAndListPartNumber(String modelCode, List<String> partNumber, String currency, String plant, Calendar monthYear);
+
+    @Query("SELECT m FROM MarginAnalystMacro m WHERE m.modelCode LIKE CONCAT ('%', ?1, '%') AND m.partNumber IN ?2 AND m.currency.currency = ?3  AND m.monthYear = ?4")
+    List<MarginAnalystMacro> getMarginAnalystMacroByHYMPlantAndListPartNumber(String modelCode, List<String> partNumber, String currency, Calendar monthYear);
+
 
 }
