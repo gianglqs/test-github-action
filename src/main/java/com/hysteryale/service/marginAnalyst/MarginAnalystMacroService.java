@@ -240,4 +240,11 @@ public class MarginAnalystMacroService {
     public List<MarginAnalystMacro> getMarginAnalystMacroByHYMPlant(String modelCode, String partNumber, String currency, Calendar monthYear) {
         return marginAnalystMacroRepository.getMarginAnalystMacroByHYMPlant(modelCode, partNumber, currency, monthYear);
     }
+
+    public List<MarginAnalystMacro> getMarginAnalystMacroByPlantAndListPartNumber(String modelCode, List<String> partNumber, String strCurrency, String plant, Calendar monthYear) {
+        return marginAnalystMacroRepository.getMarginAnalystMacroByPlantAndListPartNumber(modelCode, partNumber, strCurrency, plant, monthYear);
+    }
+    public List<MarginAnalystMacro> getMarginAnalystMacroByHYMPlantAndListPartNumber(String modelCode, List<String> partNumber, String currency, Calendar monthYear) {
+        return marginAnalystMacroRepository.getMarginAnalystMacroByHYMPlantAndListPartNumber(modelCode, partNumber, currency, monthYear);
+    }
 }

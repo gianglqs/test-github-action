@@ -1,12 +1,10 @@
 package com.hysteryale.service;
 
 import com.hysteryale.model.BookingOrder;
-import com.hysteryale.model.ProductDimension;
 import com.hysteryale.model.Region;
 import com.hysteryale.model.Shipment;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.competitor.ForeCastValue;
-import com.hysteryale.repository.AOPMarginRepository;
 import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.repository.ShipmentRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
@@ -537,13 +535,12 @@ public class ImportService extends BasedService {
                 shipment.setAOPMarginPercentage(booking.getAOPMarginPercentage());
 
             } else {
-                // logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
+                 logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
             }
 
         } catch (Exception e) {
             //  logError(e.toString());
         }
-
 
         return shipment;
     }
