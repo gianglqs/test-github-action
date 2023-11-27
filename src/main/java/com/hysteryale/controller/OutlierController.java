@@ -26,4 +26,10 @@ public class OutlierController {
         return outlierService.getDataForTable(filters);
 
     }
+
+    @PostMapping("/chart/getOutliers")
+    public Map<String, Object> getOutliersForChart(@RequestBody FilterModel filters) throws ParseException {
+        return outlierService.getDataForChart(filters);
+    }
+
 }
