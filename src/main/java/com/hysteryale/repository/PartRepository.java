@@ -17,8 +17,9 @@ public interface PartRepository extends JpaRepository<Part, String> {
     @Query("SELECT DISTINCT p FROM Part p WHERE p.orderNumber = ?1 ")
     public Set<Part> getPartByOrderNumber(String orderNumber) ;
 
-    @Query("SELECT DISTINCT p FROM Part p WHERE p.modelCode = ?1 AND p.partNumber = ?2 AND p.orderNumber = ?3 AND p.recordedTime = ?4 AND p.currency.currency = ?5")
-    Optional<Part> getPartForCheckingExisted(String modelCode, String partNumber, String orderNumber, Calendar recordedTime, String currency);
+    @Query("SELECT CASE WHEN (COUNT(p) > 0) THEN 1 ELSE 0 END " +
+            "FROM Part p WHERE p.modelCode = ?1 AND p.partNumber = ?2 AND p.orderNumber = ?3 AND p.recordedTime = ?4 and p.currency.currency = ?5")
+    Integer isPartExisted(String modelCode, String partNumber, String orderNumber, Calendar recordedTime, String currency);
 
     @Query("SELECT p FROM Part p WHERE p.modelCode = ?1 AND p.currency.currency = ?2 AND p.recordedTime = ?3 AND p.partNumber = ?4")
     List<Part> getNetPriceInPart(String modelCode, String currency, Calendar recordedTime, String partNumber);
