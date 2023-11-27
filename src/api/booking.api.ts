@@ -3,7 +3,7 @@ import type { GetServerSidePropsContext } from 'next';
 
 class BookingApi extends HttpService<any> {
    getInitDataFilter = () => {
-      return this.get<any>(`filters`);
+      return this.get<any>(`filters/booking`);
    };
 }
 

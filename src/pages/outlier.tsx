@@ -21,7 +21,7 @@ import {
 import _ from 'lodash';
 import { produce } from 'immer';
 
-import { defaultValueFilterShipment } from '@/utils/defaultValues';
+import { defaultValueFilterOrder } from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 
 export default function Outlier() {
@@ -29,7 +29,7 @@ export default function Outlier() {
    const listOutlier = useSelector(outlierStore.selectOutlierList);
    const initDataFilter = useSelector(outlierStore.selectInitDataFilter);
 
-   const [dataFilter, setDataFilter] = useState(defaultValueFilterShipment);
+   const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>

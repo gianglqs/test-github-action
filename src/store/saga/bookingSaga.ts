@@ -20,7 +20,7 @@ function* fetchBooking() {
 
       const initDataFilter = yield* call(bookingApi.getInitDataFilter);
 
-      const dataBooking = JSON.parse(String(data)).bookingOrdersList;
+      const dataBooking = JSON.parse(String(data)).listBookingOrder;
 
       yield put(bookingStore.actions.setInitDataFilter(JSON.parse(String(initDataFilter.data))));
       yield put(bookingStore.actions.setBookingList(dataBooking));

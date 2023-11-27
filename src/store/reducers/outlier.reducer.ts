@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createSelector, createAction } from '@reduxjs/toolkit';
 
 import type { RootReducerType } from './rootReducer';
-import { defaultValueFilterShipment } from '@/utils/defaultValues';
+import { defaultValueFilterOrder } from '@/utils/defaultValues';
 
 export const name = 'outlier';
 export const resetState = createAction(`${name}/RESET_STATE`);
@@ -9,7 +9,7 @@ export const resetState = createAction(`${name}/RESET_STATE`);
 export const initialState = {
    outlierList: [] as any[],
    initDataFilter: {} as any,
-   defaultValueFilterOutlier: defaultValueFilterShipment as any,
+   defaultValueFilterOutlier: defaultValueFilterOrder as any,
 };
 
 const outlierSlice = createSlice({
