@@ -25,8 +25,8 @@ public class ConvertDataFilterUtil {
         Boolean ChineseBrandFilter = checkBooleanData(filterModel.getChineseBrand());
         String aopMarginPercentageFilter = checkStringData(filterModel.getAopMarginPercentageGroup());
         List<Object> marginPercentageFilter = checkComparator(filterModel.getMarginPercentage());
-        Date fromDateFilter = checkDateData(filterModel.getFromDate());
-        Date toDateFilter = checkDateData(filterModel.getToDate());
+        Calendar fromDateFilter = checkDateData(filterModel.getFromDate());
+        Calendar toDateFilter = checkDateData(filterModel.getToDate());
         Pageable pageable = PageRequest.of(filterModel.getPageNo() == 0 ? filterModel.getPageNo() : filterModel.getPageNo() - 1, filterModel.getPerPage() == 0 ? 100 : filterModel.getPerPage());
 
         result.put("orderNoFilter", orderNoFilter);
@@ -61,11 +61,15 @@ public class ConvertDataFilterUtil {
         return data.equals("Chinese Brand");
     }
 
-    private static Date checkDateData(String data) throws ParseException {
+    private static Calendar checkDateData(String data) throws ParseException {
         if (data == null || data.isEmpty())
             return null;
+        Calendar cal = Calendar.getInstance();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        return formatter.parse(data);
+        cal.setTime(formatter.parse(data));
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        return cal;
+        //  return formatter.parse(data);
     }
 
     /**
@@ -73,7 +77,7 @@ public class ConvertDataFilterUtil {
      */
     private static List<Object> checkComparator(String data) {
         List<Object> result = new ArrayList<>();
-        if (data !=null) {
+        if (data != null) {
             String patternString = "([<>]=?|=)\\s*([0-9]+(?:\\.[0-9]+)?)\\s*%?";
             Pattern pattern = Pattern.compile(patternString);
             Matcher matcher = pattern.matcher(data);

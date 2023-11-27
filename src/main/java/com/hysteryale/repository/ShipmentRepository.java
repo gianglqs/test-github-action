@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +46,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
                                                 @Param("AOPMarginPercentage") Object AOPMarginPercentage,
                                                 @Param("comparator") Object comparator,
                                                 @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-                                                @Param("fromDate") Date fromDate,
-                                                @Param("toDate") Date toDate,
+                                                @Param("fromDate") Calendar fromDate,
+                                                @Param("toDate") Calendar toDate,
                                                 @Param("pageable") Pageable pageable);
 
 
@@ -83,13 +84,13 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
                  @Param("AOPMarginPercentage") Object AOPMarginPercentage,
                  @Param("comparator") Object comparator,
                  @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-                 @Param("fromDate") Date fromDate,
-                 @Param("toDate") Date toDate);
+                 @Param("fromDate") Calendar fromDate,
+                 @Param("toDate") Calendar toDate);
 
     @Query("SELECT DISTINCT s.dealerName from Shipment s ")
     List<String> findAllDealerName();
 
 
-    @Query("SELECT s from Shipment s WHERE s.orderNo = :orderNo ")
+    @Query("SELECT s FROM Shipment s WHERE s.orderNo = :orderNo")
     Optional<Shipment> findShipmentByOrderNo(String orderNo);
 }

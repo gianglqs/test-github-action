@@ -4,6 +4,7 @@ import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.repository.ProductDimensionRepository;
 import com.hysteryale.repository.RegionRepository;
 import com.hysteryale.repository.ShipmentRepository;
+import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -23,6 +24,9 @@ public class FilterService {
 
     @Resource
     ShipmentRepository shipmentRepository;
+    
+    @Resource
+    BookingOrderRepository bookingOrderRepository;
 
     public Map<String, Object> getCompetitorPricingFilter() {
 
@@ -141,7 +145,7 @@ public class FilterService {
 
     private List<Map<String, String>> getAllModels() {
         List<Map<String, String>> result = new ArrayList<>();
-        List<String> modelList = productDimensionRepository.getAllModel();
+        List<String> modelList = bookingOrderRepository.getAllModel();
         modelList.sort(String::compareTo);
         for (String model : modelList) {
             Map<String, String> map = new HashMap<>();
