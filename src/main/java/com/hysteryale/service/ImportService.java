@@ -487,7 +487,9 @@ public class ImportService extends BasedService {
 
             // date
             Date date = row.getCell(shipmentColumnsName.get("Created On")).getDateCellValue();
-            shipment.setDate(date);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            shipment.setDate(calendar);
 
             //totalCost
             Double costOfSales = row.getCell(shipmentColumnsName.get("Cost of Sales")).getNumericCellValue();
