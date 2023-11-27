@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class ExchangeRateService {
+public class ExchangeRateService extends BasedService {
     @Resource
     ExchangeRateRepository exchangeRateRepository;
     @Resource
@@ -153,6 +153,6 @@ public class ExchangeRateService {
         if(optionalExchangeRate.isPresent())
             return optionalExchangeRate.get();
         else
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find ExchangeRate from " + fromCurrency + " to " + toCurrency);
+            return null;
     }
 }

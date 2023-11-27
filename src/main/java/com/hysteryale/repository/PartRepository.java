@@ -1,5 +1,6 @@
 package com.hysteryale.repository;
 
+import com.hysteryale.model.Currency;
 import com.hysteryale.model.Part;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -45,6 +46,13 @@ public interface PartRepository extends JpaRepository<Part, String> {
 
     @Query("SELECT AVG(p.netPriceEach) FROM Part p WHERE p.region = ?1 AND p.clazz = ?2 AND p.series = ?3")
     Double getAverageDealerNet(String region, String clazz, String series);
+
+    @Query("SELECT p.partNumber FROM Part p WHERE p.orderNumber = ?1 ")
+    List<String> getPartNumberByOrderNo(String orderNo);
+
+    @Query("SELECT DISTINCT p.currency FROM Part p WHERE p.orderNumber = ?1 ")
+    Currency getCurrencyByOrderNo(String orderNo);
+
 
 //    @Query("SELECT p FROM Part p WHERE p.partNumber = :partNumber AND p.series = :series " +
 //            "AND EXTRACT(MONTH FROM p.recordedTime) = :month " +

@@ -16,4 +16,7 @@ public interface RegionRepository extends JpaRepository<Region, String> {
 
     @Query("SELECT r FROM Region r WHERE r.region = ?1")
     Region getRegionByName(String strRegion);
+
+    @Query("SELECT r FROM Region r WHERE r.regionShortName = ?1")
+    Region getRegionByShortName(String shortName);
 }

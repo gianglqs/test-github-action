@@ -1,6 +1,8 @@
 package com.hysteryale.utils;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DateUtils {
@@ -18,4 +20,10 @@ public class DateUtils {
         put("Nov", 10);
         put("Dec", 11);
     }};
+
+    public static List<String> monthList(){
+        String[] monthArr = {"Apr", "Feb", "Jan", "May", "Aug", "Jul", "Jun", "Mar", "Sep", "Oct", "Nov", "Dec"};
+        List<String> listMonth = Arrays.asList(monthArr);
+        return listMonth;
+    }
 }

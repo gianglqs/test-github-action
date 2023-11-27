@@ -32,4 +32,8 @@ public class RegionService {
         return regionRepository.getRegionByName(strRegion);
     }
 
+    public Region getRegionByShortName(String shortName) {
+        return regionRepository.getRegionByShortName(shortName);
+    }
+
 }
