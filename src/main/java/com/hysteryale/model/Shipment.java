@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity
@@ -27,7 +28,7 @@ public class Shipment {
     private String dealerName;
 
     @Temporal(TemporalType.DATE)
-    private Date date;
+    private Calendar date;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "currency")

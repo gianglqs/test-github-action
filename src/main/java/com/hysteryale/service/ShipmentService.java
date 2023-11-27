@@ -28,7 +28,7 @@ public class ShipmentService extends BasedService {
                 filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
-                (Date) filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"),
+                (Calendar) filterMap.get("fromDateFilter"), (Calendar) filterMap.get("toDateFilter"),
                 (Pageable) filterMap.get("pageable"));
         result.put("listShipment", shipmentList);
         //get total Recode
@@ -37,7 +37,7 @@ public class ShipmentService extends BasedService {
                 filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
-                (Date) filterMap.get("fromDateFilter"), (Date) filterMap.get("toDateFilter"));
+                (Calendar) filterMap.get("fromDateFilter"), (Calendar) filterMap.get("toDateFilter"));
         result.put("totalItems", totalCompetitor);
         return result;
     }
