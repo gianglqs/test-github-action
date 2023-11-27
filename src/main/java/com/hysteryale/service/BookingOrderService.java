@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.*;
 import com.hysteryale.model.Currency;
+import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.model.marginAnalyst.MarginAnalystMacro;
 import com.hysteryale.repository.*;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
+import com.hysteryale.utils.ConvertDataFilterUtil;
 import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.PlantUtil;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.ParseException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -120,7 +123,7 @@ public class BookingOrderService extends BasedService {
     }
 
 
-    private BookingOrder mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
+    BookingOrder mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         BookingOrder bookingOrder = new BookingOrder();
 
         //set OrderNo
@@ -724,5 +727,31 @@ public class BookingOrderService extends BasedService {
 
     public Optional<BookingOrder> getBookingOrderByOrderNumber(String orderNumber) {
         return bookingOrderRepository.findById(orderNumber);
+    }
+
+    public Map<String, Object> getBookingByFilter(FilterModel filterModel) throws java.text.ParseException {
+        Map<String, Object> result = new HashMap<>();
+        //Get FilterData
+        Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(filterModel);
+        logInfo(filterMap.toString());
+
+        List<BookingOrder> bookingOrderList = bookingOrderRepository.selectAllForBookingOrder(
+                filterMap.get("orderNoFilter"), filterMap.get("regionFilter"), filterMap.get("plantFilter"),
+                filterMap.get("metaSeriesFilter"), filterMap.get("classFilter"), filterMap.get("modelFilter"),
+                filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
+                (Calendar) filterMap.get("fromDateFilter"), (Calendar) filterMap.get("toDateFilter"),
+                (Pageable) filterMap.get("pageable"));
+        result.put("listBookingOrder", bookingOrderList);
+        //get total Recode
+        int totalCompetitor = bookingOrderRepository.getCount(filterMap.get("orderNoFilter"), filterMap.get("regionFilter"), filterMap.get("plantFilter"),
+                filterMap.get("metaSeriesFilter"), filterMap.get("classFilter"), filterMap.get("modelFilter"),
+                filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
+                (Calendar) filterMap.get("fromDateFilter"), (Calendar) filterMap.get("toDateFilter"));
+        result.put("totalItems", totalCompetitor);
+        return result;
     }
 }
