@@ -97,9 +97,9 @@ public class PartService extends BasedService {
     /**
      * Verify if Part is existed or not
      */
-    public boolean isPartExisted(Part part) {
-        Optional<Part> optionalPart = partRepository.getPartForCheckingExisted(part.getModelCode(), part.getPartNumber(), part.getOrderNumber(), part.getRecordedTime(), part.getCurrency().getCurrency());
-        return optionalPart.isPresent();
+    public boolean isPartExisted(String modelCode, String partNumber, String orderNumber, Calendar recordedTime, String strCurrency) {
+        int isPartExisted = partRepository.isPartExisted(modelCode, partNumber, orderNumber, recordedTime, strCurrency);
+        return isPartExisted == 1;
     }
 
     public void importPart() throws IOException {
@@ -142,16 +142,23 @@ public class PartService extends BasedService {
                 if (row.getRowNum() == 0)
                     getPowerBiColumnsName(row);
                 else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
-                    Part part = mapExcelDataToPart(row);
-                    part.setRecordedTime(recordedTime);
+                    String modelCode = row.getCell(powerBIExportColumns.get("Model")).getStringCellValue();
+                    String partNumber = row.getCell(powerBIExportColumns.get("Part Number")).getStringCellValue();
+                    String orderNumber = row.getCell(powerBIExportColumns.get("Order Number")).getStringCellValue();
+                    String strCurrency = row.getCell(powerBIExportColumns.get("Currency")).getStringCellValue().strip();
 
-                    // If Part have not been imported -> then add into list
-                    if (!isPartExisted(part))
+                    if(!isPartExisted(modelCode, partNumber, orderNumber, recordedTime, strCurrency)) {
+                        Part part = mapExcelDataToPart(row);
+                        part.setRecordedTime(recordedTime);
+
+                        //  if Part is not existed then add to list for saving later
                         partList.add(part);
+                    }
                 }
             }
-
+            log.info("Number of Part in " + month + "-" + year + " save: " + partList.size());
             partRepository.saveAll(partList);
+            partList.clear();
             updateStateImportFile(pathFile);
         }
     }

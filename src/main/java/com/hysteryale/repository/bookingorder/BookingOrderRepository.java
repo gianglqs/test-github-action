@@ -170,4 +170,6 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
 
 
     //List<BookingOrder> getAllForOutlier(Object regionFilter, Object plantFilter, Object metaSeriesFilter, Object classFilter, Object modelFilter, Object dealerNameFilter, Object o, Object o1, Date fromDateFilter, Date toDateFilter);
+
+    List<BookingOrder> getAllForOutlier(Object regionFilter, Object plantFilter, Object metaSeriesFilter, Object classFilter, Object modelFilter, Object dealerNameFilter, Object o, Object o1, Date fromDateFilter, Date toDateFilter);
 }

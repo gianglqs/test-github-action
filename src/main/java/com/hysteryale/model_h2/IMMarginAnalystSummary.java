@@ -1,14 +1,20 @@
 package com.hysteryale.model_h2;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.Calendar;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class IMMarginAnalystSummary {
 
     @Id
@@ -17,8 +23,7 @@ public class IMMarginAnalystSummary {
 
     private String modelCode;
 
-    @Temporal(TemporalType.DATE)
-    private Calendar monthYear;
+    private String durationUnit;
     private String currency;
 
     private double totalManufacturingCost;
@@ -56,4 +61,30 @@ public class IMMarginAnalystSummary {
     private String fileUUID;
     private String orderNumber;
     private String plant;
+
+    public IMMarginAnalystSummary(String modelCode, String currency, double totalManufacturingCost, double costUplift, double addWarranty, double surcharge, double duty, double freight, boolean liIonIncluded, double totalCost, double totalListPrice, double blendedDiscountPercentage, double dealerNet, double margin, double marginAopRate, double manufacturingCostUSD, double warrantyCost, double surchargeCost, double dutyCost, double totalCostWithoutFreight, double totalCostWithFreight, String fileUUID, String plant) {
+        this.modelCode = modelCode;
+        this.currency = currency;
+        this.totalManufacturingCost = totalManufacturingCost;
+        this.costUplift = costUplift;
+        this.addWarranty = addWarranty;
+        this.surcharge = surcharge;
+        this.duty = duty;
+        this.freight = freight;
+        this.liIonIncluded = liIonIncluded;
+        this.totalCost = totalCost;
+        this.totalListPrice = totalListPrice;
+        this.blendedDiscountPercentage = blendedDiscountPercentage;
+        this.dealerNet = dealerNet;
+        this.margin = margin;
+        this.marginAopRate = marginAopRate;
+        this.manufacturingCostUSD = manufacturingCostUSD;
+        this.warrantyCost = warrantyCost;
+        this.surchargeCost = surchargeCost;
+        this.dutyCost = dutyCost;
+        this.totalCostWithoutFreight = totalCostWithoutFreight;
+        this.totalCostWithFreight = totalCostWithFreight;
+        this.fileUUID = fileUUID;
+        this.plant = plant;
+    }
 }

@@ -234,6 +234,10 @@ public class MarginAnalystMacroService {
         return marginAnalystMacroRepository.getMarginAnalystMacro(modelCode, partNumber, strCurrency);
     }
 
+    public Double getManufacturingCost(String modelCode, String partNumber, String strCurrency, List<String> plants, Calendar monthYear) {
+        return marginAnalystMacroRepository.getManufacturingCost(modelCode, partNumber, strCurrency, plants, monthYear);
+    }
+
     public List<MarginAnalystMacro> getMarginAnalystMacroByPlant(String modelCode, String partNumber, String strCurrency, String plant, Calendar monthYear) {
         return marginAnalystMacroRepository.getMarginAnalystMacroByPlant(modelCode, partNumber, strCurrency, plant, monthYear);
     }
