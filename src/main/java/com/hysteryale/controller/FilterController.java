@@ -23,6 +23,12 @@ public class FilterController {
     public Map<String, Object> getShipmentFilters() {
         return filterService.getOrderFilter();
     }
+
+    @GetMapping("/booking")
+    public Map<String, Object> getBookingFilters() {
+        return filterService.getOrderFilter();
+    }
+
     @GetMapping("/outlier")
     public Map<String, Object> getOutlierFilters() {
         return filterService.getOutLierFilter();
