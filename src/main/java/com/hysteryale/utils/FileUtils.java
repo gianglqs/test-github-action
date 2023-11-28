@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.poi.poifs.filesystem.FileMagic;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -77,6 +74,13 @@ public class FileUtils {
         //Please note that FE should only accept file with ext is xlsx and xls so BE should only check of it is really an excel file.
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(filePath));
 //        FileInputStream fileInputStream = new FileInputStream(filePath);
+
+        //OLE2 is XLS and OOXML is XLSX
+        return (FileMagic.valueOf(bis) == FileMagic.OLE2) || (FileMagic.valueOf(bis) == FileMagic.OOXML);
+    }
+
+    public static boolean isExcelFile( InputStream is) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(is);
 
         //OLE2 is XLS and OOXML is XLSX
         return (FileMagic.valueOf(bis) == FileMagic.OLE2) || (FileMagic.valueOf(bis) == FileMagic.OOXML);

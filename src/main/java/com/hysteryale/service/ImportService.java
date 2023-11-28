@@ -403,6 +403,63 @@ public class ImportService extends BasedService {
 
     }
 
+//    public void importShipment() throws IOException {
+//        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+//        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.shipment");
+//
+//        // Get files in Folder Path
+//        List<String> fileList = getAllFilesInFolder(folderPath, 4);
+//        for (String fileName : fileList) {
+//            String pathFile = folderPath + "/" + fileName;
+//            //check file has been imported ?
+//            if (isImported(pathFile)) {
+//                logWarning("file '" + fileName + "' has been imported");
+//                continue;
+//            }
+//            logInfo("{ Start importing file: '" + fileName + "'");
+//
+//            InputStream is = new FileInputStream(pathFile);
+//            XSSFWorkbook workbook = new XSSFWorkbook(is);
+//            HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
+//            Sheet competitorSheet = workbook.getSheet("Sheet1");
+//
+//
+//            for (Row row : competitorSheet) {
+//                if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
+//                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
+//                    Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
+//                    Shipment getShipmentInDB = shipmentService.getShipmentByOrderNo(newShipment.getOrderNo());
+//                    if (getShipmentInDB != null) {
+//                        shipmentRepository.save(updateShipment(getShipmentInDB, newShipment));
+//                    } else {
+//                        shipmentRepository.save(newShipment);
+//                    }
+//                }
+//            }
+//
+//            updateStateImportFile(pathFile);
+//        }
+//    }
+
+    public void importShipmentFileOneByOne(InputStream is) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
+        HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
+        Sheet competitorSheet = workbook.getSheet("Sheet1");
+
+        for (Row row : competitorSheet) {
+            if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
+            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
+                Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
+                Shipment getShipmentInDB = shipmentService.getShipmentByOrderNo(newShipment.getOrderNo());
+                if (getShipmentInDB != null) {
+                    shipmentRepository.save(updateShipment(getShipmentInDB, newShipment));
+                } else {
+                    shipmentRepository.save(newShipment);
+                }
+            }
+        }
+    }
+
     public void importShipment() throws IOException {
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.shipment");
@@ -419,27 +476,12 @@ public class ImportService extends BasedService {
             logInfo("{ Start importing file: '" + fileName + "'");
 
             InputStream is = new FileInputStream(pathFile);
-            XSSFWorkbook workbook = new XSSFWorkbook(is);
-            HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
-            Sheet competitorSheet = workbook.getSheet("Sheet1");
-
-
-            for (Row row : competitorSheet) {
-                if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
-                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
-                    Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
-                    Shipment getShipmentInDB = shipmentService.getShipmentByOrderNo(newShipment.getOrderNo());
-                    if (getShipmentInDB != null) {
-                        shipmentRepository.save(updateShipment(getShipmentInDB, newShipment));
-                    } else {
-                        shipmentRepository.save(newShipment);
-                    }
-                }
-            }
+            importShipmentFileOneByOne(is);
 
             updateStateImportFile(pathFile);
         }
     }
+
 
     /**
      * reset revenue, totalCost, Margin$, Margin%
@@ -537,7 +579,7 @@ public class ImportService extends BasedService {
                 shipment.setAOPMarginPercentage(booking.getAOPMarginPercentage());
 
             } else {
-                 logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
+                logWarning("Not found BookingOrder with OrderNo:  " + orderNo);
             }
 
         } catch (Exception e) {
