@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
@@ -7,7 +7,9 @@ import { shipmentStore, commonStore } from '@/store/reducers';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Button } from '@mui/material';
+import { Button, TextField, Typography } from '@mui/material';
+import { useDropzone } from 'react-dropzone';
+import { parseCookies, setCookie } from 'nookies';
 
 import {
    AppAutocomplete,
@@ -23,16 +25,19 @@ import { produce } from 'immer';
 
 import { defaultValueFilterOrder } from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+import axios from 'axios';
 
 export default function Shipment() {
    const dispatch = useDispatch();
 
    const listShipment = useSelector(shipmentStore.selectShipmentList);
-   console.log('data ' + listShipment);
    const initDataFilter = useSelector(shipmentStore.selectInitDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
-   console.log('data filter ' + initDataFilter);
+
+   const [fileSelected, setFileSelected] = useState<File | null>(null);
+
+   const [uploadedFile, setUploadedFile] = useState({ name: '' });
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
@@ -223,6 +228,29 @@ export default function Shipment() {
       },
    ];
 
+   const handleUploadFile = async (file) => {
+      let formData = new FormData();
+      formData.append('file', file);
+
+      let cookies = parseCookies();
+      let token = cookies['token'];
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importNewShipment`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer' + token,
+         },
+      })
+         .then(function (response) {
+            setCookie(null, 'fileUUID', response.data.fileUUID);
+         })
+         .catch(function (response) {
+            console.log(response);
+         });
+   };
+
    return (
       <>
          <AppLayout entity="shipment">
@@ -405,6 +433,26 @@ export default function Shipment() {
                      Filter
                   </Button>
                </Grid>
+               <Grid item xs={1}>
+                  <Button
+                     variant="contained"
+                     //onClick={handleFilterMarginAnalysis}
+                     sx={{ width: '100%', height: 24 }}
+                  >
+                     Import
+                  </Button>
+               </Grid>
+
+               <Grid item xs={1}>
+                  <UploadFileDropZone
+                     uploadedFile={uploadedFile}
+                     setUploadedFile={setUploadedFile}
+                     handleUploadFile={handleUploadFile}
+                  />
+               </Grid>
+               <Grid item xs={4}>
+                  <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
+               </Grid>
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
@@ -434,5 +482,62 @@ export default function Shipment() {
             </Paper>
          </AppLayout>
       </>
+   );
+}
+
+// open file and check list column is exit
+//function checkColumn();
+
+function UploadFileDropZone(props) {
+   const onDrop = useCallback((acceptedFiles) => {
+      acceptedFiles.forEach((file) => {
+         const reader = new FileReader();
+
+         reader.onabort = () => console.log('file reading was aborted');
+         reader.onerror = () => console.log('file reading has failed');
+         reader.onload = () => {
+            // Do whatever you want with the file contents
+            const binaryStr = reader.result;
+            console.log('binaryStr', binaryStr);
+            props.setUploadedFile(file);
+         };
+         reader.readAsArrayBuffer(file);
+         props.handleUploadFile(file);
+      });
+   }, []);
+
+   const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
+      noClick: true,
+      onDrop,
+      maxSize: 3145728, // < 1MB
+      maxFiles: 1,
+      accept: {
+         'excel/xlsx': ['.xlsx'],
+      },
+   });
+   const dispatch = useDispatch();
+   const isFileInvalid = fileRejections.length > 0 ? true : false;
+   if (isFileInvalid) {
+      const errors = fileRejections[0].errors;
+      dispatch(
+         commonStore.actions.setErrorMessage(
+            `${errors[0].message} ${_.isNil(errors[1]) ? '' : `or ${errors[1].message}`}`
+         )
+      );
+      fileRejections.splice(0, 1);
+   }
+
+   return (
+      <div {...getRootProps()}>
+         <input {...getInputProps()} />
+         <Button
+            type="button"
+            onClick={open}
+            variant="contained"
+            sx={{ width: '100%', height: 24 }}
+         >
+            Select file
+         </Button>
+      </div>
    );
 }
