@@ -195,6 +195,9 @@ export default function Outlier() {
             },
             ticks: {
                stepSize: 2,
+               callback: function (value) {
+                  return value + '%';
+               },
             },
          },
          y: {
@@ -202,14 +205,86 @@ export default function Outlier() {
                text: 'Dealer Net $',
                display: true,
             },
+            ticks: {
+               callback: function (value) {
+                  return '$' + value.toLocaleString();
+               },
+            },
          },
       },
       maintainAspectRatio: false,
+
       plugins: {
          title: {
             display: true,
             text: 'Outliers Discussion',
             position: 'top' as const,
+         },
+         tooltip: {
+            interaction: {
+               intersect: true,
+               mode: 'nearest',
+            },
+            callbacks: {
+               label: (context) => {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                     label += ': ';
+                  }
+
+                  label += `($ ${context.parsed.y.toLocaleString()}, ${context.parsed.x.toLocaleString()}%, ${
+                     context.raw.modelCode
+                  })`;
+
+                  return label;
+               },
+            },
+         },
+         annotation: {
+            annotations: {
+               line1: {
+                  xMax: (context) => context.chart.scales.x.max * 0.25,
+                  xMin: (context) => context.chart.scales.x.max * 0.25,
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  label: {
+                     display: true,
+                     content: (context) =>
+                        '25%: ' + (context.chart.scales.x.max * 0.25).toLocaleString() + '%',
+                     backgroundColor: 'transparent',
+                     position: 'end',
+                     color: ['black'],
+                     xAdjust: -10,
+                     rotation: -90,
+                     font: [
+                        {
+                           size: 12,
+                        },
+                     ],
+                  },
+               },
+               line2: {
+                  xMax: (context) => context.chart.scales.x.max * 0.75,
+                  xMin: (context) => context.chart.scales.x.max * 0.75,
+                  borderDash: [5, 5],
+                  borderWidth: 2,
+                  label: {
+                     display: true,
+                     content: (context) =>
+                        '75%: ' + (context.chart.scales.x.max * 0.75).toLocaleString() + '%',
+                     backgroundColor: 'transparent',
+                     position: 'end',
+                     color: ['black'],
+                     xAdjust: -10,
+                     rotation: -90,
+                     font: [
+                        {
+                           size: 12,
+                        },
+                     ],
+                  },
+               },
+            },
          },
       },
       elements: {
@@ -244,6 +319,7 @@ export default function Outlier() {
                   return {
                      x: (obj.marginPercentageAfterSurcharge * 100).toLocaleString(),
                      y: obj.dealerNet,
+                     modelCode: obj.modelCode,
                   };
                });
 
