@@ -16,6 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -33,6 +36,8 @@ public class UserController {
     public UserService userService;
     @Resource
     EmailServiceImpl emailService;
+    @Resource(name = "tokenServices")
+    DefaultTokenServices tokenServices;
 
     /**
      * Get user's details by userId
@@ -145,5 +150,13 @@ public class UserController {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Revoke the access_token for logging user out
+     */
+    @PostMapping(path = "/oauth/revokeAccessToken")
+    public void testAuthentication(@RequestHeader("Authorization") String accessToken) {
+        tokenServices.revokeToken(accessToken.substring(6));
     }
 }
