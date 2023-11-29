@@ -7,7 +7,7 @@ import { shipmentStore, commonStore } from '@/store/reducers';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Button, TextField, Typography } from '@mui/material';
+import { Alert, Button, CircularProgress, TextField, Typography, colors } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { parseCookies, setCookie } from 'nookies';
 
@@ -31,13 +31,17 @@ export default function Shipment() {
    const dispatch = useDispatch();
 
    const listShipment = useSelector(shipmentStore.selectShipmentList);
+
    const initDataFilter = useSelector(shipmentStore.selectInitDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
-   const [fileSelected, setFileSelected] = useState<File | null>(null);
-
    const [uploadedFile, setUploadedFile] = useState({ name: '' });
+
+   // use importing to control spiner
+   const [loading, setLoading] = useState(false);
+
+   const [message, setMessage] = useState(null);
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
@@ -244,16 +248,63 @@ export default function Shipment() {
          },
       })
          .then(function (response) {
+            setLoading(false);
             setCookie(null, 'fileUUID', response.data.fileUUID);
+            handleWhenImportSuccessfully(response);
          })
          .catch(function (response) {
-            console.log(response);
+            // show message in screen
+            setLoading(false);
+            showMessage('error', 'Import data error');
          });
+   };
+
+   const handleWhenImportSuccessfully = (res) => {
+      //show message
+      showMessage('success', res.data.message);
+
+      // update list data in store -> auto reload table
+      dispatch(shipmentStore.actions.setShipmentList(res.data.data.listShipment));
+
+      // update paging
+      dispatch(commonStore.actions.setTableState(res.data.data.totalItems));
+   };
+
+   const handleImport = () => {
+      if (uploadedFile.name) {
+         // resert message
+         setMessage(null);
+         setLoading(true);
+         handleUploadFile(uploadedFile);
+      } else {
+         showMessage('warning', 'No file choosed');
+      }
+   };
+
+   const showMessage = (type, text) => {
+      setMessage({ type, text });
    };
 
    return (
       <>
          <AppLayout entity="shipment">
+            {message && (
+               <Alert
+                  severity={message.type}
+                  onClose={() => setMessage(null)}
+                  sx={{
+                     width: '20%',
+                     position: 'absolute',
+                     right: 0,
+                     top: '20px',
+                     zIndex: 1000,
+                     minWidth: '250px',
+                     maxWidth: '400px',
+                  }}
+               >
+                  {message.text}
+               </Alert>
+            )}
             <Grid container spacing={1}>
                <Grid item xs={4}>
                   <Grid item xs={12}>
@@ -436,7 +487,7 @@ export default function Shipment() {
                <Grid item xs={1}>
                   <Button
                      variant="contained"
-                     //onClick={handleFilterMarginAnalysis}
+                     onClick={handleImport}
                      sx={{ width: '100%', height: 24 }}
                   >
                      Import
@@ -471,6 +522,30 @@ export default function Shipment() {
                      columns={columns}
                      getRowId={(params) => params.orderNo}
                   />
+                  {loading ? (
+                     <div
+                        style={{
+                           top: 0,
+                           left: 0,
+                           right: 0,
+                           bottom: 0,
+                           backgroundColor: 'rgba(0,0,0, 0.3)',
+                           position: 'absolute',
+                           display: 'flex',
+                           justifyContent: 'center',
+                           alignItems: 'center',
+                           zIndex: 1001,
+                        }}
+                     >
+                        <CircularProgress
+                           color="info"
+                           size={60}
+                           sx={{
+                              position: 'relative',
+                           }}
+                        />
+                     </div>
+                  ) : null}
                </Grid>
                <DataTablePagination
                   page={tableState.pageNo}
@@ -502,14 +577,13 @@ function UploadFileDropZone(props) {
             props.setUploadedFile(file);
          };
          reader.readAsArrayBuffer(file);
-         props.handleUploadFile(file);
       });
    }, []);
 
    const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
       noClick: true,
       onDrop,
-      maxSize: 3145728, // < 1MB
+      maxSize: 10485760, // < 10MB
       maxFiles: 1,
       accept: {
          'excel/xlsx': ['.xlsx'],
