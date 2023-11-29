@@ -10,10 +10,10 @@ import com.hysteryale.repository.ShipmentRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -403,61 +403,43 @@ public class ImportService extends BasedService {
 
     }
 
-//    public void importShipment() throws IOException {
-//        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
-//        String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.shipment");
-//
-//        // Get files in Folder Path
-//        List<String> fileList = getAllFilesInFolder(folderPath, 4);
-//        for (String fileName : fileList) {
-//            String pathFile = folderPath + "/" + fileName;
-//            //check file has been imported ?
-//            if (isImported(pathFile)) {
-//                logWarning("file '" + fileName + "' has been imported");
-//                continue;
-//            }
-//            logInfo("{ Start importing file: '" + fileName + "'");
-//
-//            InputStream is = new FileInputStream(pathFile);
-//            XSSFWorkbook workbook = new XSSFWorkbook(is);
-//            HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
-//            Sheet competitorSheet = workbook.getSheet("Sheet1");
-//
-//
-//            for (Row row : competitorSheet) {
-//                if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
-//                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
-//                    Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
-//                    Shipment getShipmentInDB = shipmentService.getShipmentByOrderNo(newShipment.getOrderNo());
-//                    if (getShipmentInDB != null) {
-//                        shipmentRepository.save(updateShipment(getShipmentInDB, newShipment));
-//                    } else {
-//                        shipmentRepository.save(newShipment);
-//                    }
-//                }
-//            }
-//
-//            updateStateImportFile(pathFile);
-//        }
-//    }
-
     public void importShipmentFileOneByOne(InputStream is) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
-        Sheet competitorSheet = workbook.getSheet("Sheet1");
-
+        XSSFSheet competitorSheet = workbook.getSheet("Sheet1");
+        logInfo("import shipment");
+        List<Shipment> shipmentList = new ArrayList<>();
         for (Row row : competitorSheet) {
             if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
             else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
                 Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
-                Shipment getShipmentInDB = shipmentService.getShipmentByOrderNo(newShipment.getOrderNo());
-                if (getShipmentInDB != null) {
-                    shipmentRepository.save(updateShipment(getShipmentInDB, newShipment));
-                } else {
-                    shipmentRepository.save(newShipment);
-                }
+                shipmentList.add(newShipment);
             }
         }
+
+        List<Shipment> shipmentListAfterCalculate = new ArrayList<>();
+
+        for (Shipment shipment : shipmentList) {
+            // check orderNo is existed in shipmentListAfterCalculate\
+            Shipment s = checkExistOrderNo(shipmentListAfterCalculate, shipment.getOrderNo());
+            if (s != null) {
+                updateShipment(s, shipment);
+            } else {
+                shipmentListAfterCalculate.add(shipment);
+            }
+        }
+
+        shipmentRepository.saveAll(shipmentListAfterCalculate);
+
+        logInfo("import shipment successfully");
+    }
+
+    private Shipment checkExistOrderNo(List<Shipment> list, String orderNo) {
+        for (Shipment s : list) {
+            if (s.getOrderNo().equals(orderNo))
+                return s;
+        }
+        return null;
     }
 
     public void importShipment() throws IOException {
@@ -476,6 +458,7 @@ public class ImportService extends BasedService {
             logInfo("{ Start importing file: '" + fileName + "'");
 
             InputStream is = new FileInputStream(pathFile);
+
             importShipmentFileOneByOne(is);
 
             updateStateImportFile(pathFile);

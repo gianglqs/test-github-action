@@ -2,11 +2,14 @@ package com.hysteryale.controller;
 
 import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.model.filters.OrderFilter;
+import com.hysteryale.response.ResponseObject;
 import com.hysteryale.service.ImportService;
 import com.hysteryale.service.ShipmentService;
+import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.FileUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,9 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -29,6 +35,8 @@ public class ShipmentController {
     @Resource
     ImportService importService;
 
+    private FilterModel filters;
+
     @PostMapping("/getShipmentData")
     public Map<String, Object> getDataFinancialShipment(@RequestBody FilterModel filters,
                                                         @RequestParam(defaultValue = "1") int pageNo,
@@ -36,19 +44,29 @@ public class ShipmentController {
         filters.setPageNo(pageNo);
         filters.setPerPage(perPage);
 
+        this.filters = filters;
+
         return shipmentService.getShipmentByFilter(filters);
 
     }
 
     @PostMapping(path = "/importNewShipment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void importNewDataShipment(@RequestBody MultipartFile file) throws IOException {
-
+    public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file) throws IOException, ParseException {
         InputStream is = file.getInputStream();
-        if (FileUtils.isExcelFile(is)) {
-            importService.importShipmentFileOneByOne(is);
 
+        if (FileUtils.isExcelFile(is)) {
+            // save file in folder tmp
+            String folderPath = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
+            FileUtils.saveFile(file, folderPath);
+
+            // open file to import
+            String pathFile = FileUtils.getPath(folderPath, file.getOriginalFilename());
+            InputStream inputStream = new FileInputStream(pathFile);
+
+            importService.importShipmentFileOneByOne(inputStream);
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import data successfully", shipmentService.getShipmentByFilter(filters)));
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Uploaded file is not an Excel file", null));
         }
     }
 }

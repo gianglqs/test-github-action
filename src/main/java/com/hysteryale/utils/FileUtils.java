@@ -3,6 +3,7 @@ package com.hysteryale.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.poi.poifs.filesystem.FileMagic;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -98,5 +99,24 @@ public class FileUtils {
             originalFileName = matcher.group(1);
         }
         return DigestUtils.md5Hex(originalFileName);
+    }
+
+    public static void saveFile(MultipartFile multipartFile, String uploadDirectory) throws IOException {
+        String filePath = getPath(uploadDirectory, multipartFile.getOriginalFilename());
+        // Ensure the directory exists
+        File directory = new File(uploadDirectory);
+        if (!directory.exists()) {
+            directory.mkdirs(); // Create the directory and any necessary parent directories
+        }
+        multipartFile.transferTo(new File(filePath));
+    }
+
+    /**
+     * @param baseFolder
+     * @param file or folder target
+     * @return path of file or folder
+     */
+    public static String getPath(String baseFolder, String file){
+        return baseFolder + File.separator + file;
     }
 }

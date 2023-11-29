@@ -59,7 +59,6 @@ public class BasedService extends RollbarInitializer {
             bw.write(pathFile);
             bw.newLine();
             bw.close();
-            logInfo(file.getAbsolutePath());
         } catch (Exception e) {
             logError(e.getMessage());
         }
