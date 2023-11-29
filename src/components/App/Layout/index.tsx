@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import useStyles from './styles';
 
-import { useRouter } from 'next/router';
+import { Router, useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import _ from 'lodash';
@@ -14,6 +14,8 @@ import { AppBar, Grid, Popover, Typography } from '@mui/material';
 import { usePopupState, bindPopover, bindTrigger } from 'material-ui-popup-state/hooks';
 import { AppLayoutProps } from './type';
 import AppFooter from '../Footer';
+import authApi from '@/api/auth.api';
+import { destroyCookie } from 'nookies';
 
 const AppLayout: React.FC<AppLayoutProps> = (props) => {
    const { children, entity, heightBody } = props;
@@ -73,6 +75,17 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
          </Link>
       ));
    };
+
+   const handleLogOut = () => {
+      try {
+         authApi.logOut();
+         destroyCookie(null, 'token');
+         router.push('/login');
+      } catch (err) {
+         console.log(err);
+      }
+   };
+
    return (
       <>
          <Head>
@@ -114,11 +127,11 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
          >
             <Typography
                style={{ margin: 10, cursor: 'pointer' }}
-               onClick={() => {}}
+               onClick={handleLogOut}
                data-testid="user-item-testid"
                id="logout__testid"
             >
-               Logout
+               Log out
             </Typography>
          </Popover>
          <AppFooter />
