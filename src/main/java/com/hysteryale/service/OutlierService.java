@@ -79,9 +79,10 @@ public class OutlierService extends BasedService {
             ChartOutlier chartOutlier = new ChartOutlier(
                     order.getRegion().getRegion(),
                     order.getDealerNet(),
-                    order.getDealerNetAfterSurCharge() == 0 ? 0 : order.getMarginAfterSurCharge() / order.getDealerNetAfterSurCharge()
+                    order.getDealerNetAfterSurCharge() == 0 ? 0 : order.getMarginAfterSurCharge() / order.getDealerNetAfterSurCharge(),
+                    order.getModel()
             );
-            switch (chartOutlier.getRegion()) {
+            switch (order.getRegion().getRegion()) {
                 case "Asia":
                     asiachartOutlierList.add(chartOutlier);
                     break;
