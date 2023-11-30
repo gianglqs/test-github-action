@@ -156,7 +156,7 @@ public class UserController {
      * Revoke the access_token for logging user out
      */
     @PostMapping(path = "/oauth/revokeAccessToken")
-    public void testAuthentication(@RequestHeader("Authorization") String accessToken) {
+    public void revokeAccessToken(@RequestHeader("Authorization") String accessToken) {
         tokenServices.revokeToken(accessToken.substring(6));
     }
 }
