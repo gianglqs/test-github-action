@@ -6,6 +6,7 @@ import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.response.ResponseObject;
 import com.hysteryale.service.*;
+import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.FileUtils;
 import com.hysteryale.utils.PagingnatorUtils;
@@ -23,10 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @Slf4j
@@ -51,8 +49,8 @@ public class BookingOrderController {
 
     @PostMapping(path = "/bookingOrders", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getDataBooking(@RequestBody FilterModel filters,
-                                                        @RequestParam(defaultValue = "1") int pageNo,
-                                                        @RequestParam(defaultValue = "100") int perPage) throws java.text.ParseException {
+                                              @RequestParam(defaultValue = "1") int pageNo,
+                                              @RequestParam(defaultValue = "100") int perPage) throws java.text.ParseException {
         filters.setPageNo(pageNo);
         filters.setPerPage(perPage);
         this.filters = filters;
@@ -61,7 +59,21 @@ public class BookingOrderController {
     }
 
     @PostMapping(path = "/importNewBooking", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseObject> importNewDataBooking(@RequestBody MultipartFile file) throws IOException, ParseException {
+    public ResponseEntity<ResponseObject> importNewDataBooking(@RequestBody List<MultipartFile> fileList) throws IOException, ParseException {
+        MultipartFile bookedFile = null;
+        MultipartFile costDataFile = null;
+        MultipartFile macroFile = null;
+        for (MultipartFile file : fileList) {
+            if (file.getOriginalFilename().toLowerCase().contains("booked")) {
+                bookedFile = file;
+            } else if (file.getOriginalFilename().toLowerCase().contains("cost_data")) {
+                costDataFile = file;
+            } else if (file.getOriginalFilename().toLowerCase().contains("macro")) {
+                macroFile = file;
+            }
+
+        }
+
         InputStream is = file.getInputStream();
 
         if (FileUtils.isExcelFile(is)) {
@@ -70,10 +82,17 @@ public class BookingOrderController {
             FileUtils.saveFile(file, folderPath);
 
             // open file to import
-            String pathFile = FileUtils.getPath(folderPath, file.getOriginalFilename());
+            String fileName = file.getOriginalFilename();
+            String pathFile = FileUtils.getPath(folderPath, fileName);
             InputStream inputStream = new FileInputStream(pathFile);
+            // extract date
+            Date date = DateUtils.extractDate(fileName);
+            List<String> listMonth = DateUtils.monthList();
 
-            importService.importBookingFileOneByOne(inputStream);
+            //TODO: get list totalCost
+
+            // bookingOrderService.importNewBookingFileByFile(inputStream, listTotalCost);
+
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import data successfully", bookingOrderService.getBookingByFilter(filters)));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Uploaded file is not an Excel file", null));
