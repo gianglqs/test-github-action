@@ -76,6 +76,10 @@ public class MarginAnalystController {
             marginAnalystFileUploadService.deleteFileInDisk(filePath);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
         }
+    }
+
+    @PostMapping(path = "/importMacroFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void importMacroFile(@RequestBody MultipartFile file, Authentication authentication) {
 
     }
 

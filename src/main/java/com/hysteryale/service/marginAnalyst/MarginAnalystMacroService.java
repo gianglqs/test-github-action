@@ -10,16 +10,17 @@ import com.hysteryale.utils.CurrencyFormatUtils;
 import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.FileUtils;
+import com.hysteryale.utils.XLSB.Cell;
+import com.hysteryale.utils.XLSB.Row;
+import com.hysteryale.utils.XLSB.Sheet;
+import com.hysteryale.utils.XLSB.XLSBWorkbook;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,14 +35,13 @@ public class MarginAnalystMacroService {
     @Resource
     MarginAnalysisAOPRateRepository marginAnalysisAOPRateRepository;
 
-    static HashMap<String, Integer> MACRO_COLUMNS = new HashMap<>();
+    static HashMap<String, String> MACRO_COLUMNS = new HashMap<>();
 
     private void getMacroColumns(Row row) {
-        for(int i = 1; i <= 19; i++) {
-            String columnName = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
-            MACRO_COLUMNS.put(columnName, i);
+        for(Cell cell : row.getCellList()) {
+            MACRO_COLUMNS.put(cell.getValue(), cell.getCellColumn());
         }
-        log.info("Macro Columns: " + MACRO_COLUMNS);
+        log.info(MACRO_COLUMNS + "");
     }
 
     private MarginAnalystMacro mapExcelDataToMarginAnalystMacro(Row row, String strCurrency, Calendar monthYear, String plant) {
@@ -52,28 +52,29 @@ public class MarginAnalystMacroService {
         // Assign values based on plant (due to 2 different format of HYM and SN sheets)
         if(plant.equals("SN")){
             marginAnalystMacro.setPlant(plant);
-            marginAnalystMacro.setSeriesCode(row.getCell(MACRO_COLUMNS.get("Series")).getStringCellValue());
+            marginAnalystMacro.setSeriesCode(row.getCell(MACRO_COLUMNS.get("Series")).getValue());
 
-            marginAnalystMacro.setClazz(row.getCell(MACRO_COLUMNS.get("Class")).getStringCellValue());
-            try {
-                marginAnalystMacro.setModelCode(row.getCell(MACRO_COLUMNS.get("MODEL CD    (inc \"-\")")).getStringCellValue());
-            } catch (Exception e) {
-                marginAnalystMacro.setModelCode(row.getCell(MACRO_COLUMNS.get("MODEL CD (incl \"-\")")).getStringCellValue());
-            }
-            marginAnalystMacro.setPartNumber(row.getCell(MACRO_COLUMNS.get("Option Code")).getStringCellValue());
-            marginAnalystMacro.setDescription(row.getCell(MACRO_COLUMNS.get("DESCRIPTION"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+            marginAnalystMacro.setClazz(row.getCell(MACRO_COLUMNS.get("Class")).getValue());
+
+            String modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD    (inc \"-\")")).getValue();
+            if(modelCode.isEmpty())
+                modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD (incl \"-\")")).getValue();
+            marginAnalystMacro.setModelCode(modelCode);
+
+            marginAnalystMacro.setPartNumber(row.getCell(MACRO_COLUMNS.get("Option Code")).getValue());
+            marginAnalystMacro.setDescription(row.getCell(MACRO_COLUMNS.get("DESCRIPTION")).getValue());
             marginAnalystMacro.setMonthYear(monthYear);
 
             costRMB = CurrencyFormatUtils.formatDoubleValue(row.getCell(MACRO_COLUMNS.get("TP USD")).getNumericCellValue(), CurrencyFormatUtils.decimalFormatFourDigits);
         }
         else {
-            marginAnalystMacro.setPlant(row.getCell(MACRO_COLUMNS.get("Plant")).getStringCellValue());
-            marginAnalystMacro.setSeriesCode(row.getCell(MACRO_COLUMNS.get("Series Code")).getStringCellValue());
-            marginAnalystMacro.setPriceListRegion(row.getCell(MACRO_COLUMNS.get("Price List Region")).getStringCellValue());
-            marginAnalystMacro.setClazz(row.getCell(MACRO_COLUMNS.get("Class")).getStringCellValue());
-            marginAnalystMacro.setModelCode(row.getCell(MACRO_COLUMNS.get("Model Code")).getStringCellValue());
-            marginAnalystMacro.setPartNumber(row.getCell(MACRO_COLUMNS.get("Option Code")).getStringCellValue());
-            marginAnalystMacro.setDescription(row.getCell(MACRO_COLUMNS.get("Description"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+            marginAnalystMacro.setPlant(row.getCell(MACRO_COLUMNS.get("Plant")).getValue());
+            marginAnalystMacro.setSeriesCode(row.getCell(MACRO_COLUMNS.get("Series Code")).getValue());
+            marginAnalystMacro.setPriceListRegion(row.getCell(MACRO_COLUMNS.get("Price List Region")).getValue());
+            marginAnalystMacro.setClazz(row.getCell(MACRO_COLUMNS.get("Class")).getValue());
+            marginAnalystMacro.setModelCode(row.getCell(MACRO_COLUMNS.get("Model Code")).getValue());
+            marginAnalystMacro.setPartNumber(row.getCell(MACRO_COLUMNS.get("Option Code")).getValue());
+            marginAnalystMacro.setDescription(row.getCell(MACRO_COLUMNS.get("Description")).getValue());
             marginAnalystMacro.setMonthYear(monthYear);
 
             costRMB = CurrencyFormatUtils.formatDoubleValue(row.getCell(MACRO_COLUMNS.get("Add on Cost RMB")).getNumericCellValue(), CurrencyFormatUtils.decimalFormatFourDigits);
@@ -81,10 +82,8 @@ public class MarginAnalystMacroService {
 
 
         try {
-            marginAnalystMacro.setStdOpt(row.getCell(MACRO_COLUMNS.get("STD/OPT"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+            marginAnalystMacro.setStdOpt(row.getCell(MACRO_COLUMNS.get("STD/OPT")).getValue());
         } catch (Exception e) {
-            log.error("Error on row: " + row.getRowNum());
-            log.error(e.getMessage());
             marginAnalystMacro.setStdOpt("");
         }
 
@@ -98,50 +97,46 @@ public class MarginAnalystMacroService {
         return marginAnalystMacro;
     }
 
-    public void importMarginAnalystMacro() throws IOException {
-        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
-        String folderPath = EnvironmentUtils.getEnvironmentValue("import-files.margin_macro");
+    public void importMarginAnalystMacro() {
+        String folderPath = EnvironmentUtils.getEnvironmentValue("import-files.base-folder") + EnvironmentUtils.getEnvironmentValue("import-files.margin_macro");
 
-        List<String> files = FileUtils.getAllFilesInFolder(baseFolder + folderPath);
+        List<String> files = FileUtils.getAllFilesInFolder(folderPath);
         for(String fileName : files) {
+            // Extract monthYear from fileName pattern
+            Pattern pattern = Pattern.compile(".* Macro_(\\w{3}) .*");
+            Matcher matcher = pattern.matcher(fileName);
+            String month = "Jan";
+            int year = 2023;
+            if(matcher.find()) {
+                month = matcher.group(1);
+            }
+            Calendar monthYear = Calendar.getInstance();
+            monthYear.set(year, DateUtils.monthMap.get(month) -1, 1);
 
-            try {
-                InputStream is = new FileInputStream( baseFolder + folderPath + "/" + fileName);
-                log.info("Reading " + fileName);
-                XSSFWorkbook workbook = new XSSFWorkbook(is);
+            log.info("Reading " + fileName);
+            XLSBWorkbook workbook = new XLSBWorkbook();
 
-                // Extract monthYear from fileName pattern
-                Pattern pattern = Pattern.compile(".* Macro_(\\w{3}) .*");
-                Matcher matcher = pattern.matcher(fileName);
-                String month = "Jan";
-                int year = 2023;
-                if(matcher.find()) {
-                    month = matcher.group(1);
-                }
-                Calendar monthYear = Calendar.getInstance();
-                monthYear.set(year, DateUtils.monthMap.get(month) -1, 1);
+            String[] macroSheets = {"AUD HYM Ruyi Staxx", "USD HYM Ruyi Staxx", "SN USD Asia Template", "SN USD Pacific Template", "SN AUD Template"};
+            for(String macroSheet : macroSheets) {
+                log.info("Importing " + macroSheet);
 
-                String[] macroSheets = {"USD HYM Ruyi Staxx", "AUD HYM Ruyi Staxx", "SN USD Asia Template", "SN USD Pacific Template", "SN AUD Template"};
-                for(String macroSheet : macroSheets) {
-                    log.info("Importing " + macroSheet);
+                String currency = macroSheet.contains("USD") ? "USD" : "AUD";
+                String plant  = macroSheet.contains("SN") ? "SN" : "HYM";
+                int columnNameRow = plant.equals("SN") ? 8 : 0;
 
-                    String currency = macroSheet.contains("USD") ? "USD" : "AUD";
-                    String plant  = macroSheet.contains("SN") ? "SN" : "HYM";
-                    int columnNameRow = plant.equals("SN") ? 8 : 0;
-
+                try {
+                    workbook.openFile(folderPath + "/" + fileName);
                     Sheet sheet = workbook.getSheet(macroSheet);
 
                     List<MarginAnalystMacro> marginAnalystMacroList = new ArrayList<>();
-                    for(Row row : sheet) {
+                    log.info("Num of rows: " + sheet.getRowList().size());
+                    for(Row row : sheet.getRowList()) {
                         if(row.getRowNum() == columnNameRow) {
                             log.info("Column name row: " + columnNameRow);
                             MACRO_COLUMNS.clear();
                             getMacroColumns(row);
                         }
-                        else if(!row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > columnNameRow) {
-                            if(row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
-                                log.info("End: " + row.getRowNum());
-                            }
+                        else if(row.getRowNum() > columnNameRow) {
                             if(!isMacroExisted(row, plant, currency, monthYear)) {
                                 MarginAnalystMacro marginAnalystMacro = mapExcelDataToMarginAnalystMacro(row, currency, monthYear, plant);
                                 marginAnalystMacroList.add(marginAnalystMacro);
@@ -154,28 +149,33 @@ public class MarginAnalystMacroService {
                     marginAnalystMacroRepository.saveAll(marginAnalystMacroList);
                     marginAnalystMacroList.clear();
 
-                    // Save MarginAnalysisAOPRate
-                    saveMarginAnalysisAOPRate(sheet, currency, monthYear, "monthly");
-                    saveMarginAnalysisAOPRate(sheet, currency, monthYear, "annually");
+                } catch (Exception e) {
+                    log.error(e.getMessage());
                 }
-            } catch (Exception e) {
-                log.error(e.getMessage());
             }
         }
     }
 
+    // Save MarginAnalysisAOPRate
+//                    saveMarginAnalysisAOPRate(sheet, currency, monthYear, "monthly");
+//                    saveMarginAnalysisAOPRate(sheet, currency, monthYear, "annually");
+
     private boolean isMacroExisted(Row row, String plant, String currency, Calendar monthYear) {
         String modelCode;
-        String partNumber = row.getCell(MACRO_COLUMNS.get("Option Code"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+        String partNumber = row.getCell(MACRO_COLUMNS.get("Option Code")).getValue();
 
         if(plant.equals("HYM"))
-            modelCode = row.getCell(MACRO_COLUMNS.get("Model Code"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+            modelCode = row.getCell(MACRO_COLUMNS.get("Model Code")).getValue();
         else {
-            try {
-                modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD    (inc \"-\")")).getStringCellValue();
-            } catch (Exception e) {
-                modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD (incl \"-\")")).getStringCellValue();
-            }
+            modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD    (inc \"-\")")).getValue();
+            if(modelCode.isEmpty())
+                modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD (incl \"-\")")).getValue();
+        }
+
+        Optional<MarginAnalystMacro> optionalMacro = marginAnalystMacroRepository.getMarginAnalystMacroByMonthYear(modelCode, partNumber, currency, monthYear);
+        if(optionalMacro.isPresent()) {
+            MarginAnalystMacro marginAnalystMacro = optionalMacro.get();
+
         }
 
         return marginAnalystMacroRepository.isMacroExisted(modelCode, partNumber, currency, monthYear) == 1;
@@ -221,12 +221,12 @@ public class MarginAnalystMacroService {
                 addWarranty = 0;
             }
             try {
-                duty = sheet.getRow(rowIndex + 5).getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue();
+                duty = sheet.getRow(rowIndex + 5).getCell(cellIndex).getNumericCellValue();
             } catch (Exception e) {
                 duty = 0;
             }
             try {
-                freight = sheet.getRow(rowIndex + 6).getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue();
+                freight = sheet.getRow(rowIndex + 6).getCell(cellIndex).getNumericCellValue();
             } catch (Exception e) {
                 freight = 0;
             }
