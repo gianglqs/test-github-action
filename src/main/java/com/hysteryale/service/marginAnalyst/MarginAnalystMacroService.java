@@ -83,6 +83,7 @@ public class MarginAnalystMacroService {
         try {
             marginAnalystMacro.setStdOpt(row.getCell(MACRO_COLUMNS.get("STD/OPT"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
         } catch (Exception e) {
+            log.error("Error on row: " + row.getRowNum());
             log.error(e.getMessage());
             marginAnalystMacro.setStdOpt("");
         }
@@ -106,6 +107,7 @@ public class MarginAnalystMacroService {
 
             try {
                 InputStream is = new FileInputStream( baseFolder + folderPath + "/" + fileName);
+                log.info("Reading " + fileName);
                 XSSFWorkbook workbook = new XSSFWorkbook(is);
 
                 // Extract monthYear from fileName pattern
@@ -140,8 +142,10 @@ public class MarginAnalystMacroService {
                             if(row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
                                 log.info("End: " + row.getRowNum());
                             }
-                            MarginAnalystMacro marginAnalystMacro = mapExcelDataToMarginAnalystMacro(row, currency, monthYear, plant);
-                            marginAnalystMacroList.add(marginAnalystMacro);
+                            if(!isMacroExisted(row, plant, currency, monthYear)) {
+                                MarginAnalystMacro marginAnalystMacro = mapExcelDataToMarginAnalystMacro(row, currency, monthYear, plant);
+                                marginAnalystMacroList.add(marginAnalystMacro);
+                            }
                         }
                     }
 
@@ -159,6 +163,24 @@ public class MarginAnalystMacroService {
             }
         }
     }
+
+    private boolean isMacroExisted(Row row, String plant, String currency, Calendar monthYear) {
+        String modelCode;
+        String partNumber = row.getCell(MACRO_COLUMNS.get("Option Code"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+
+        if(plant.equals("HYM"))
+            modelCode = row.getCell(MACRO_COLUMNS.get("Model Code"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+        else {
+            try {
+                modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD    (inc \"-\")")).getStringCellValue();
+            } catch (Exception e) {
+                modelCode = row.getCell(MACRO_COLUMNS.get("MODEL CD (incl \"-\")")).getStringCellValue();
+            }
+        }
+
+        return marginAnalystMacroRepository.isMacroExisted(modelCode, partNumber, currency, monthYear) == 1;
+    }
+
 
     /**
      * Get Margin Analysis @ AOP Rate from Excel sheet: 'USD HYM Ruyi Staxx', 'SN AUD Template' and 'AUD HYM Ruyi Staxx'

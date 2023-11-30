@@ -37,5 +37,8 @@ public interface MarginAnalystMacroRepository extends JpaRepository<MarginAnalys
     @Query("SELECT m FROM MarginAnalystMacro m WHERE m.modelCode LIKE CONCAT ('%', ?1, '%') AND m.partNumber IN ?2 AND m.currency.currency = ?3  AND m.monthYear = ?4")
     List<MarginAnalystMacro> getMarginAnalystMacroByHYMPlantAndListPartNumber(String modelCode, List<String> partNumber, String currency, Calendar monthYear);
 
+    @Query("SELECT CASE WHEN(COUNT(m) > 0) THEN 1 ELSE 0 END FROM MarginAnalystMacro m WHERE m.modelCode = ?1 AND m.partNumber = ?2 AND m.currency.currency = ?3 AND m.monthYear = ?4")
+    Integer isMacroExisted(String modelCode, String partNumber, String currency, Calendar monthYear);
+
 
 }
