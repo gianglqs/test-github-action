@@ -8,7 +8,7 @@ import { useDropzone } from 'react-dropzone';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Button, CircularProgress, Typography } from '@mui/material';
+import { Button, CircularProgress, ListItem, Typography } from '@mui/material';
 
 import {
    AppAutocomplete,
@@ -25,6 +25,8 @@ import { defaultValueFilterOrder } from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import { parseCookies, setCookie } from 'nookies';
+
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface FileChoosed {
    name: string;
@@ -211,8 +213,6 @@ export default function Booking() {
       },
    ];
 
-   console.log(' file name: ', uploadedFile);
-
    const handleUploadFile = async (file) => {
       let formData = new FormData();
       formData.append('file', file);
@@ -256,6 +256,11 @@ export default function Booking() {
       } else {
          dispatch(commonStore.actions.setErrorMessage('No file choosed'));
       }
+   };
+
+   const handleRemove = (fileName) => {
+      const updateUploaded = uploadedFile.filter((file) => file.name != fileName);
+      setUploadedFile(updateUploaded);
    };
 
    return (
@@ -461,7 +466,24 @@ export default function Booking() {
                <Grid item xs={4}>
                   {uploadedFile &&
                      uploadedFile.map((file) => (
-                        <Typography fontSize={13}>File uploaded: {file.name}</Typography>
+                        //<Typography fontSize={13}>File uploaded: {file.name}</Typography>
+                        <ListItem
+                           sx={{
+                              padding: 0,
+                              backgroundColor: '#c9c9c9',
+                              width: '75%',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              paddingLeft: '10px',
+                              borderRadius: '3px',
+                              marginBottom: '2px',
+                           }}
+                        >
+                           <span>{file.name}</span>
+                           <Button onClick={() => handleRemove(file.name)} sx={{ width: '20px' }}>
+                              <ClearIcon />
+                           </Button>
+                        </ListItem>
                      ))}
                </Grid>
             </Grid>
@@ -521,28 +543,31 @@ export default function Booking() {
 }
 
 function UploadFileDropZone(props) {
-   const onDrop = useCallback((acceptedFiles) => {
-      props.resetUploadFile([]);
-      acceptedFiles.forEach((file) => {
-         const reader = new FileReader();
+   const onDrop = useCallback(
+      (acceptedFiles) => {
+         acceptedFiles.forEach((file) => {
+            const reader = new FileReader();
 
-         reader.onabort = () => console.log('file reading was aborted');
-         reader.onerror = () => console.log('file reading has failed');
-         reader.onload = () => {
-            // Do whatever you want with the file contents
-            //  const binaryStr = reader.result;
-            //console.log('binaryStr', binaryStr);
-            props.setUploadedFile(file);
-         };
-         reader.readAsArrayBuffer(file);
-      });
-   }, []);
+            reader.onabort = () => console.log('file reading was aborted');
+            reader.onerror = () => console.log('file reading has failed');
+            reader.onload = () => {
+               if (props.uploadedFile.length >= 2) {
+                  dispatch(commonStore.actions.setErrorMessage('Too many files'));
+               } else {
+                  props.setUploadedFile(file);
+               }
+            };
+            reader.readAsArrayBuffer(file);
+         });
+      },
+      [props.uploadedFile, props.setUploadedFile]
+   );
 
    const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
       noClick: true,
       onDrop,
       maxSize: 10485760, // < 10MB
-      maxFiles: 3,
+      maxFiles: 2,
       accept: {
          'excel/xlsx': ['.xlsx'],
       },
