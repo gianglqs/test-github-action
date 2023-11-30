@@ -3,11 +3,9 @@ package com.hysteryale.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.poi.poifs.filesystem.FileMagic;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,6 +80,13 @@ public class FileUtils {
         return (FileMagic.valueOf(bis) == FileMagic.OLE2) || (FileMagic.valueOf(bis) == FileMagic.OOXML);
     }
 
+    public static boolean isExcelFile( InputStream is) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(is);
+
+        //OLE2 is XLS and OOXML is XLSX
+        return (FileMagic.valueOf(bis) == FileMagic.OLE2) || (FileMagic.valueOf(bis) == FileMagic.OOXML);
+    }
+
     /**
      * Hash the file's name for avoiding SQL Injection using MD5
      */
@@ -94,5 +99,24 @@ public class FileUtils {
             originalFileName = matcher.group(1);
         }
         return DigestUtils.md5Hex(originalFileName);
+    }
+
+    public static void saveFile(MultipartFile multipartFile, String uploadDirectory) throws IOException {
+        String filePath = getPath(uploadDirectory, multipartFile.getOriginalFilename());
+        // Ensure the directory exists
+        File directory = new File(uploadDirectory);
+        if (!directory.exists()) {
+            directory.mkdirs(); // Create the directory and any necessary parent directories
+        }
+        multipartFile.transferTo(new File(filePath));
+    }
+
+    /**
+     * @param baseFolder
+     * @param file or folder target
+     * @return path of file or folder
+     */
+    public static String getPath(String baseFolder, String file){
+        return baseFolder + File.separator + file;
     }
 }
