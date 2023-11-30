@@ -70,6 +70,9 @@ public class BookingOrderService extends BasedService {
     @Resource
     RegionService regionService;
 
+    @Resource
+    CurrencyService currencyService;
+
     /**
      * Get Columns' name in Booking Excel file, then store them (columns' name) respectively with the index into HashMap
      *
@@ -284,7 +287,7 @@ public class BookingOrderService extends BasedService {
         }
     }
 
-    public void importNewBookingFileByFile(InputStream is) throws IOException {
+    public void importNewBookingFileByFile(InputStream is, String month, String year) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         List<BookingOrder> bookingOrderList = new LinkedList<>();
         HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
@@ -296,6 +299,9 @@ public class BookingOrderService extends BasedService {
             orderSheet = workbook.getSheet("Input - Bookings");
             numRowName = 1;
         }
+        //get list cost data from month and year
+        List<CostDataFile> getListCostDataByMonthAndYear = getListCostDataByMonthAndYear(month, year);
+
         for (Row row : orderSheet) {
             if (row.getRowNum() == numRowName) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
             else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
@@ -304,7 +310,8 @@ public class BookingOrderService extends BasedService {
                 newBookingOrder = importDealerNet(newBookingOrder);
 
                 if (USPlant.contains(newBookingOrder.getProductDimension().getPlant())) {
-                    newBookingOrder = importTotalCostFromCostData(newBookingOrder, month, year);
+                    //newBookingOrder = importTotalCostFromCostData(newBookingOrder, month, year);
+                    newBookingOrder = setTotalCostAndCurrency(newBookingOrder, getListCostDataByMonthAndYear);
                     logInfo("US Plant");
                 } else {
                     newBookingOrder = importCostRMBOfEachParts(newBookingOrder);
@@ -318,6 +325,16 @@ public class BookingOrderService extends BasedService {
 
         bookingOrderRepository.saveAll(bookingOrderList);
 
+    }
+
+    public BookingOrder setTotalCostAndCurrency(BookingOrder booking, List<CostDataFile> costDataFileList){
+        for(CostDataFile costDataFile : costDataFileList){
+            if(costDataFile.orderNo.equals(booking.getOrderNo())){
+                booking.setTotalCost(costDataFile.totalCost);
+                Currency currency = currencyService.getCurrenciesByName(costDataFile.currency);
+                booking.setCurrency(currency);
+            }
+        }
     }
 
 
@@ -424,6 +441,8 @@ public class BookingOrderService extends BasedService {
         return booking;
     }
 
+
+
     private List<CostDataFile> getListCostDataByMonthAndYear(String month, String year) throws IOException {
         List<CostDataFile> result = new ArrayList<>();
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
@@ -451,6 +470,8 @@ public class BookingOrderService extends BasedService {
 
                         // create CostDataFile
                         CostDataFile costDataFile = new CostDataFile();
+
+                        // get orderNo
                         Cell orderNOCell = row.getCell(ORDER_COLUMNS_NAME.get("Order"));
                         costDataFile.orderNo = orderNOCell.getStringCellValue();
 
@@ -475,7 +496,7 @@ public class BookingOrderService extends BasedService {
     }
 
 
-    private static class CostDataFile {
+    private class CostDataFile {
         String orderNo;
         double totalCost;
         String currency;
@@ -624,6 +645,18 @@ public class BookingOrderService extends BasedService {
         }
         booking.setDealerNet(dealerNet);
         return booking;
+    }
+
+
+    private BookingOrder calculateMargin(BookingOrder booking){
+        //need : DNAfterSurcharge, totalCost
+        double dealerNet
+
+
+    }
+
+    private BookingOrder calculateTotalCost(BookingOrder booking){
+
     }
 
     /**
