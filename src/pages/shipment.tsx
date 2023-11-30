@@ -21,7 +21,7 @@ import {
 import _ from 'lodash';
 import { produce } from 'immer';
 
-import { defaultValueFilterShipment } from '@/utils/defaultValues';
+import { defaultValueFilterOrder } from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 
 export default function Shipment() {
@@ -31,7 +31,7 @@ export default function Shipment() {
    console.log('data ' + listShipment);
    const initDataFilter = useSelector(shipmentStore.selectInitDataFilter);
 
-   const [dataFilter, setDataFilter] = useState(defaultValueFilterShipment);
+   const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
    console.log('data filter ' + initDataFilter);
 
    const handleChangeDataFilter = (option, field) => {
@@ -52,7 +52,7 @@ export default function Shipment() {
    };
 
    const handleFilterOrderShipment = () => {
-      dispatch(shipmentStore.actions.setDefaultValueFilterShipment(dataFilter));
+      dispatch(shipmentStore.actions.setDefaultValueFilterOrder(dataFilter));
       handleChangePage(1);
    };
 

@@ -9,12 +9,12 @@ function* fetchShipment() {
          tableState: select(commonStore.selectTableState),
       });
 
-      const { defaultValueFilterShipment } = yield* all({
-         defaultValueFilterShipment: select(shipmentStore.selectDefaultValueFilterShipment),
+      const { defaultValueFilterOrder } = yield* all({
+         defaultValueFilterOrder: select(shipmentStore.selectDefaultValueFilterOrder),
       });
       const initDataFilter = yield* call(shipmentApi.getInitDataFilter);
 
-      const { data } = yield* call(shipmentApi.getShipments, defaultValueFilterShipment, {
+      const { data } = yield* call(shipmentApi.getShipments, defaultValueFilterOrder, {
          pageNo: tableState.pageNo,
          perPage: tableState.perPage,
       });

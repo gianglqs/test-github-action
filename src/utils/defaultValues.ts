@@ -1,18 +1,3 @@
-export const defaultValueFilterOrder = {
-   orderNo: '',
-   regions: [],
-   dealers: [],
-   plants: [],
-   metaSeries: [],
-   classes: [],
-   models: [],
-   segments: [],
-   AOPMarginPercetage: '',
-   MarginPercetage: '',
-   fromDate: '',
-   toDate: '',
-} as any;
-
 export const defaultValueFilterIndicator = {
    regions: [],
    dealers: [],
@@ -25,7 +10,7 @@ export const defaultValueFilterIndicator = {
    chineseBrand: '',
 } as any;
 
-export const defaultValueFilterShipment = {
+export const defaultValueFilterOrder = {
    orderNo: '',
    regions: [],
    dealers: [],

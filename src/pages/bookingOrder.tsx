@@ -37,7 +37,7 @@ export default function Booking() {
          produce(prev, (draft) => {
             if (
                _.includes(
-                  ['orderNo', 'fromDate', 'toDate', 'MarginPercetage', 'AOPMarginPercetage'],
+                  ['orderNo', 'fromDate', 'toDate', 'marginPercentage', 'aopMarginPercentageGroup'],
                   field
                )
             ) {
@@ -136,15 +136,7 @@ export default function Booking() {
          headerName: 'Qty',
          ...formatNumbericColumn,
       },
-      {
-         field: 'totalCost',
-         flex: 0.8,
-         headerName: 'Total Cost',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.totalCost)}</span>;
-         },
-      },
+
       {
          field: 'dealerNet',
          flex: 0.8,
@@ -161,6 +153,15 @@ export default function Booking() {
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
+         },
+      },
+      {
+         field: 'totalCost',
+         flex: 0.8,
+         headerName: 'Total Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalCost)}</span>;
          },
       },
       {
@@ -318,13 +319,13 @@ export default function Booking() {
                </Grid>
                <Grid item xs={2}>
                   <AppAutocomplete
-                     options={initDataFilter.AOPMarginPercetage}
+                     options={initDataFilter.aopMarginPercentageGroup}
                      label="AOP Margin %"
                      primaryKeyOption="value"
                      onChange={(e, option) =>
                         handleChangeDataFilter(
                            _.isNil(option) ? '' : option?.value,
-                           'AOPMarginPercetage'
+                           'aopMarginPercentageGroup'
                         )
                      }
                      disableClearable={false}
@@ -335,12 +336,12 @@ export default function Booking() {
                <Grid item xs={4}>
                   <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
                      <AppAutocomplete
-                        options={initDataFilter.MarginPercetage}
+                        options={initDataFilter.marginPercentage}
                         label="Margin %"
                         onChange={(e, option) =>
                            handleChangeDataFilter(
                               _.isNil(option) ? '' : option?.value,
-                              'MarginPercetage'
+                              'marginPercentage'
                            )
                         }
                         disableClearable={false}
