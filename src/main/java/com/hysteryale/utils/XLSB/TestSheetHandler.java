@@ -4,9 +4,12 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.springframework.security.core.parameters.P;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
@@ -15,6 +18,7 @@ public class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandle
     private final Sheet sheet  = new Sheet();
     private List<Row> rowList;
     private List<Cell> cellList;
+    private int index;
 
     public void startSheet() {
         rowList = new ArrayList<>();
@@ -39,8 +43,10 @@ public class TestSheetHandler implements XSSFSheetXMLHandler.SheetContentsHandle
 
     @Override
     public void cell(String cell, String formattedValue, XSSFComment comment) {
-        formattedValue = (formattedValue == null) ? "" : formattedValue;
-        Cell xlsbCell = new Cell(formattedValue);
+        String cellColumn = cell.replaceAll("\\d", "");
+
+        formattedValue = (formattedValue.isEmpty()) ? "N/A" : formattedValue;
+        Cell xlsbCell = new Cell(cellColumn, formattedValue);
         cellList.add(xlsbCell);
     }
 

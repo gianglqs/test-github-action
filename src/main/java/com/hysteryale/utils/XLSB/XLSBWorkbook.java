@@ -29,12 +29,14 @@ public class XLSBWorkbook {
         xssfbStylesTable = r.getXSSFBStylesTable();
         it = (XSSFBReader.SheetIterator) r.getSheetsData();
     }
+
     public Sheet getSheet(String sheetName) throws IOException {
         TestSheetHandler testSheetHandler = new TestSheetHandler();
         while (it.hasNext()) {
             InputStream is = it.next();
             if(it.getSheetName().equals(sheetName))
             {
+                log.info("Found sheet: " + sheetName);
                 testSheetHandler.startSheet();
                 XSSFBSheetHandler sheetHandler = new XSSFBSheetHandler(
                         is,
