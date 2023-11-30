@@ -168,7 +168,4 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
                                                 @Param("toDate") Calendar toDate,
                                                 @Param("pageable") Pageable pageable);
 
-
-    //List<BookingOrder> getAllForOutlier(Object regionFilter, Object plantFilter, Object metaSeriesFilter, Object classFilter, Object modelFilter, Object dealerNameFilter, Object o, Object o1, Date fromDateFilter, Date toDateFilter);
-
 }
