@@ -12,4 +12,5 @@ public class ChartOutlier {
     private String region;
     private double dealerNet;
     private double marginPercentageAfterSurcharge;
+    private String modelCode;
 }

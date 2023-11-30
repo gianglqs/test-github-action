@@ -88,6 +88,7 @@ public class BookingOrder {
         this.dealerNet = dealerNet;
         this.dealerNetAfterSurCharge = dealerNetAfterSurCharge;
         this.marginAfterSurCharge = marginAfterSurCharge;
+        this.model = model;
     }
 
 }

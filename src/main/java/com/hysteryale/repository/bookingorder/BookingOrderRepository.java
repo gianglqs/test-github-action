@@ -27,14 +27,14 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
     List<BookingOrder> getDistinctBookingOrderByModelCode(String modelCode, int year, int month);
 
     @Query("SELECT new BookingOrder(c.region.region, c.productDimension.plant, c.productDimension.clazz," +
-            " c.series, c.productDimension.model, sum(c.quantity), sum(c.totalCost), sum(c.dealerNet), " +
+            " c.series, c.model, sum(c.quantity), sum(c.totalCost), sum(c.dealerNet), " +
             " sum(c.dealerNetAfterSurCharge), sum(c.marginAfterSurCharge)) " +
             " FROM BookingOrder c WHERE " +
             " ((:regions) IS Null OR c.region.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
-            " AND ((:models) IS NULL OR c.productDimension.model IN (:models))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
             " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
             "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
@@ -45,7 +45,7 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
             " AND (cast(:fromDate as date) IS NULL OR c.date >= (:fromDate))" +
             " AND (cast(:toDate as date) IS NULL OR c.date <= (:toDate))" +
-            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.productDimension.model" +
+            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model" +
             " ORDER BY c.region.region"
     )
     List<BookingOrder> getOrderForOutline(@Param("regions") Object regions,
@@ -67,7 +67,7 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
-            " AND ((:models) IS NULL OR c.productDimension.model IN (:models))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
             " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
             "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
@@ -78,7 +78,7 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
             " AND (cast(:fromDate as date) IS NULL OR c.date >= (:fromDate))" +
             " AND (cast(:toDate as date) IS NULL OR c.date <= (:toDate))" +
-            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.productDimension.model"
+            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model"
     )
     List<Integer> countAllForOutline(@Param("regions") Object regions,
                   @Param("plants") Object plants,
@@ -168,8 +168,4 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
                                                 @Param("toDate") Calendar toDate,
                                                 @Param("pageable") Pageable pageable);
 
-
-    //List<BookingOrder> getAllForOutlier(Object regionFilter, Object plantFilter, Object metaSeriesFilter, Object classFilter, Object modelFilter, Object dealerNameFilter, Object o, Object o1, Date fromDateFilter, Date toDateFilter);
-
-    List<BookingOrder> getAllForOutlier(Object regionFilter, Object plantFilter, Object metaSeriesFilter, Object classFilter, Object modelFilter, Object dealerNameFilter, Object o, Object o1, Date fromDateFilter, Date toDateFilter);
 }
