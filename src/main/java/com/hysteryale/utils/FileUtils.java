@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -118,5 +119,16 @@ public class FileUtils {
      */
     public static String getPath(String baseFolder, String file){
         return baseFolder + File.separator + file;
+    }
+
+    public static String encoding(String fileName) {
+        //use encoding base64
+        return Base64.getEncoder().encodeToString(fileName.getBytes());
+    }
+
+    public static String decoding(String encodedString) {
+        //use encoding base64
+        byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+        return new String(decodedBytes);
     }
 }
