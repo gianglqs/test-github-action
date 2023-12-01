@@ -556,7 +556,7 @@ function UploadFileDropZone(props) {
       noClick: true,
       onDrop,
       maxSize: 10485760, // < 10MB
-      maxFiles: 2,
+      maxFiles: 1,
       accept: {
          'excel/xlsx': ['.xlsx'],
       },
