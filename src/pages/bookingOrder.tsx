@@ -213,9 +213,12 @@ export default function Booking() {
       },
    ];
 
-   const handleUploadFile = async (file) => {
+   const handleUploadFile = async (files) => {
       let formData = new FormData();
-      formData.append('file', file);
+      files.map((file) => {
+         formData.append('files', file);
+         console.log(formData);
+      });
 
       let cookies = parseCookies();
       let token = cookies['token'];
@@ -460,7 +463,6 @@ export default function Booking() {
                      uploadedFile={uploadedFile}
                      setUploadedFile={appendFileIntoList}
                      handleUploadFile={handleUploadFile}
-                     resetUploadFile={setUploadedFile}
                   />
                </Grid>
                <Grid item xs={4}>
@@ -470,7 +472,7 @@ export default function Booking() {
                         <ListItem
                            sx={{
                               padding: 0,
-                              backgroundColor: '#c9c9c9',
+                              backgroundColor: '#e3e3e3',
                               width: '75%',
                               display: 'flex',
                               justifyContent: 'space-between',
