@@ -217,7 +217,6 @@ export default function Booking() {
       let formData = new FormData();
       files.map((file) => {
          formData.append('files', file);
-         console.log(formData);
       });
 
       let cookies = parseCookies();
@@ -237,17 +236,17 @@ export default function Booking() {
             handleWhenImportSuccessfully(response);
          })
          .catch(function (response) {
-            // show message in screen
+            // stop spiner
             setLoading(false);
             //show message
-            dispatch(commonStore.actions.setErrorMessage('Import data error!'));
+            dispatch(commonStore.actions.setErrorMessage(response.response.data.message));
          });
    };
 
    const handleWhenImportSuccessfully = (res) => {
       //show message
       dispatch(commonStore.actions.setSuccessMessage(res.data.message));
-
+      //refresh data table and paging
       dispatch(bookingStore.sagaGetList());
    };
 
@@ -468,7 +467,6 @@ export default function Booking() {
                <Grid item xs={4}>
                   {uploadedFile &&
                      uploadedFile.map((file) => (
-                        //<Typography fontSize={13}>File uploaded: {file.name}</Typography>
                         <ListItem
                            sx={{
                               padding: 0,
@@ -547,13 +545,14 @@ export default function Booking() {
 function UploadFileDropZone(props) {
    const onDrop = useCallback(
       (acceptedFiles) => {
+         console.log('accessfile', acceptedFiles.length);
          acceptedFiles.forEach((file) => {
             const reader = new FileReader();
 
             reader.onabort = () => console.log('file reading was aborted');
             reader.onerror = () => console.log('file reading has failed');
             reader.onload = () => {
-               if (props.uploadedFile.length >= 2) {
+               if (props.uploadedFile.length + acceptedFiles.length >= 3) {
                   dispatch(commonStore.actions.setErrorMessage('Too many files'));
                } else {
                   props.setUploadedFile(file);
