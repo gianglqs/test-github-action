@@ -7,7 +7,7 @@ import { shipmentStore, commonStore } from '@/store/reducers';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Alert, Button, CircularProgress, TextField, Typography, colors } from '@mui/material';
+import { Button, CircularProgress, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { parseCookies, setCookie } from 'nookies';
 
@@ -16,7 +16,6 @@ import {
    AppDateField,
    AppLayout,
    AppTextField,
-   DataTable,
    DataTablePagination,
 } from '@/components';
 
@@ -40,8 +39,6 @@ export default function Shipment() {
 
    // use importing to control spiner
    const [loading, setLoading] = useState(false);
-
-   const [message, setMessage] = useState(null);
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
@@ -255,56 +252,31 @@ export default function Shipment() {
          .catch(function (response) {
             // show message in screen
             setLoading(false);
-            showMessage('error', 'Import data error');
+            //show message
+            dispatch(commonStore.actions.setErrorMessage('Import data error!'));
          });
    };
 
    const handleWhenImportSuccessfully = (res) => {
       //show message
-      showMessage('success', res.data.message);
+      dispatch(commonStore.actions.setSuccessMessage(res.data.message));
 
-      // update list data in store -> auto reload table
-      dispatch(shipmentStore.actions.setShipmentList(res.data.data.listShipment));
-
-      // update paging
-      dispatch(commonStore.actions.setTableState(res.data.data.totalItems));
+      dispatch(shipmentStore.sagaGetList());
    };
 
    const handleImport = () => {
       if (uploadedFile.name) {
          // resert message
-         setMessage(null);
          setLoading(true);
          handleUploadFile(uploadedFile);
       } else {
-         showMessage('warning', 'No file choosed');
+         dispatch(commonStore.actions.setErrorMessage('No file choosed'));
       }
-   };
-
-   const showMessage = (type, text) => {
-      setMessage({ type, text });
    };
 
    return (
       <>
          <AppLayout entity="shipment">
-            {message && (
-               <Alert
-                  severity={message.type}
-                  onClose={() => setMessage(null)}
-                  sx={{
-                     width: '20%',
-                     position: 'absolute',
-                     right: 0,
-                     top: '20px',
-                     zIndex: 1000,
-                     minWidth: '250px',
-                     maxWidth: '400px',
-                  }}
-               >
-                  {message.text}
-               </Alert>
-            )}
             <Grid container spacing={1}>
                <Grid item xs={4}>
                   <Grid item xs={12}>
