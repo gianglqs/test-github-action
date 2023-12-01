@@ -23,9 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -226,21 +224,21 @@ public class BookingOrderService extends BasedService {
                 }
             }
 
-            InputStream is = new FileInputStream(pathFile);
 
             boolean isOldData = checkOldData(month, year);
             if (isOldData) {
 
-                importOldBookingFileByFile(is, month, year);
+                importOldBookingFileByFile(pathFile, month, year);
             } else {
                 InputStream getListCostDataByMonthAndYear = getInputStreamForCostData(month, year);
-                importNewBookingFileByFile(is, getListCostDataByMonthAndYear);
+                importNewBookingFileByFile(pathFile, getListCostDataByMonthAndYear);
             }
             updateStateImportFile(pathFile);
         }
     }
 
-    public void importNewBookingFileByFile(InputStream is, InputStream isListCostData) throws IOException {
+    public void importNewBookingFileByFile(String filePath, InputStream isListCostData) throws IOException {
+        InputStream is = new FileInputStream(filePath);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         List<BookingOrder> bookingOrderList = new LinkedList<>();
         HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
@@ -278,11 +276,68 @@ public class BookingOrderService extends BasedService {
 
     }
 
+    public void importNewBookingFileByFile(String filePath) throws IOException {
 
-    public void importOldBookingFileByFile(InputStream is, String month, String year) throws IOException {
+        InputStream is = new FileInputStream(filePath);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
+        List<BookingOrder> bookingOrderList = new LinkedList<>();
+        HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+        List<String> USPlant = PlantUtil.getUSPlant();
+        Sheet orderSheet = workbook.getSheet("NOPLDTA.NOPORDP,NOPLDTA.>Sheet1");
+        int numRowName = 0;
+        if (orderSheet == null) {
+            orderSheet = workbook.getSheet("Input - Bookings");
+            numRowName = 1;
+        }
+
+        for (Row row : orderSheet) {
+            if (row.getRowNum() == numRowName) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+                BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
+                // import DN, DNAfterSurcharge
+                newBookingOrder = importDNAndDNAfterSurcharge(newBookingOrder);
+
+                if (USPlant.contains(newBookingOrder.getProductDimension().getPlant())) {
+                    logInfo("US Plant");
+                    // import totalCost when import file totalCost
+
+                    Optional<BookingOrder> orderExisted = bookingOrderRepository.getBookingOrderByOrderNo(newBookingOrder.getOrderNo());
+                    if (orderExisted.isPresent()) {
+                        BookingOrder oldBooking = orderExisted.get();
+                        newBookingOrder.setCurrency(oldBooking.getCurrency());
+                        newBookingOrder.setAOPMarginPercentage(oldBooking.getAOPMarginPercentage());
+                        newBookingOrder.setMarginPercentageAfterSurCharge(oldBooking.getMarginPercentageAfterSurCharge());
+                        newBookingOrder.setMarginAfterSurCharge(oldBooking.getMarginAfterSurCharge());
+                        newBookingOrder.setTotalCost(oldBooking.getTotalCost());
+                    }
+                } else {
+                    newBookingOrder = importCostRMBOfEachParts(newBookingOrder);
+                }
+
+                newBookingOrder = calculateMargin(newBookingOrder);
+                newBookingOrder = importAOPMargin(newBookingOrder);
+                bookingOrderList.add(newBookingOrder);
+            }
+        }
+        logInfo("list booked"+bookingOrderList.size());
+        bookingOrderRepository.saveAll(bookingOrderList);
+
+    }
+
+    //get Booking Exist
+    private List<BookingOrder> getListBookingExist(List<BookingOrder> booking) {
+        List<String> listOrderNo = new ArrayList<>();
+        booking.forEach(b -> listOrderNo.add(b.getOrderNo()));
+        return bookingOrderRepository.getListBookingExist(listOrderNo);
+    }
+
+
+
+    public void importOldBookingFileByFile(String pathFile, String month, String year) throws IOException {
         //step 1: import fact data from booking-register file
         //step 2: import Margin data from booking-register file
         //step 3: calculate totalCost
+        InputStream is = new FileInputStream(pathFile);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         List<BookingOrder> bookingOrderList = new LinkedList<>();
         HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
@@ -490,6 +545,26 @@ public class BookingOrderService extends BasedService {
             }
         }
         return result;
+    }
+
+    public void importCostData(String filePath) throws IOException {
+        InputStream is = new FileInputStream(filePath);
+        List<CostDataFile> costDataList = getListCostDataByMonthAndYear(is);
+        List<String> listOrderNo = new ArrayList<>();
+        costDataList.forEach(c -> listOrderNo.add(c.orderNo));
+        List<BookingOrder> listBookingExisted = bookingOrderRepository.getListBookingExist(listOrderNo);
+        for (BookingOrder bookingOrder : listBookingExisted) {
+            for (CostDataFile costData : costDataList) {
+                if (bookingOrder.getOrderNo().equals(costData.orderNo)) {
+                    bookingOrder.setTotalCost(costData.totalCost);
+                    Currency currency = currencyService.getCurrencies(costData.currency);
+                    bookingOrder.setCurrency(currency);
+                    bookingOrder = calculateMargin(bookingOrder);
+
+                }
+            }
+        }
+        bookingOrderRepository.saveAll(listBookingExisted);
     }
 
 
