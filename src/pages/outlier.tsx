@@ -37,6 +37,7 @@ import {
 import { Scatter } from 'react-chartjs-2';
 import ChartAnnotation from 'chartjs-plugin-annotation';
 import outlierApi from '@/api/outlier.api';
+import { formatNumberPercentage } from '@/utils/formatCell';
 ChartJS.register(
    CategoryScale,
    LinearScale,
@@ -180,7 +181,11 @@ export default function Outlier() {
          headerName: 'Margin % After Surcharge',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
+               </span>
+            );
          },
       },
    ];
