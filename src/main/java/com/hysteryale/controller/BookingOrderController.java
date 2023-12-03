@@ -2,18 +2,23 @@ package com.hysteryale.controller;
 
 import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.response.ResponseObject;
-import com.hysteryale.service.*;
+import com.hysteryale.service.BookingOrderService;
+import com.hysteryale.service.FileUploadService;
 import com.hysteryale.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -51,6 +56,7 @@ public class BookingOrderController {
     public ResponseEntity<ResponseObject> importNewDataBooking(@RequestParam("files") List<MultipartFile> fileList, Authentication authentication) throws Exception {
         String pathFileBooking = "";
         String pathFileCostData = "";
+        boolean invalid = false;
         for (MultipartFile file : fileList) {
 
             //save file on disk
@@ -67,10 +73,16 @@ public class BookingOrderController {
 
         }
         // import
-        if (!pathFileBooking.isEmpty())
+        if (!pathFileBooking.isEmpty()) {
             bookingOrderService.importNewBookingFileByFile(pathFileBooking);
-        if (!pathFileCostData.isEmpty())
+            invalid = true;
+        }
+        if (!pathFileCostData.isEmpty()) {
             bookingOrderService.importCostData(pathFileCostData);
+            invalid = true;
+        }
+        if(!invalid)
+            throw new Exception("No valid file found");
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import successfully!", null));
     }
 
