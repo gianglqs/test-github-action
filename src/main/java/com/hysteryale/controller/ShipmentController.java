@@ -1,5 +1,6 @@
 package com.hysteryale.controller;
 
+import com.hysteryale.exception.MissingColumnException;
 import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.response.ResponseObject;
@@ -51,7 +52,7 @@ public class ShipmentController {
     }
 
     @PostMapping(path = "/importNewShipment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file) throws IOException, ParseException {
+    public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file) throws IOException, ParseException, MissingColumnException {
         InputStream is = file.getInputStream();
 
         if (FileUtils.isExcelFile(is)) {
