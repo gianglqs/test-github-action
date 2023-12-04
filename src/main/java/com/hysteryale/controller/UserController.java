@@ -61,6 +61,7 @@ public class UserController {
 
     /**
      * Add new User and send informing email to registered email
+     *
      * @param user mapping from JSON format
      */
     @PostMapping(path = "/users", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -73,7 +74,7 @@ public class UserController {
 
         try {
             emailService.sendRegistrationEmail(user.getUserName(), password, user.getEmail());
-        } catch (MailjetSocketTimeoutException | MailjetException e){
+        } catch (MailjetSocketTimeoutException | MailjetException e) {
             log.error(e.toString());
         }
     }
@@ -113,21 +114,21 @@ public class UserController {
 
     /**
      * Change user's password, {userId, password} passed from JSON format
+     *
      * @param changedPasswordUser contains {userId, password}
      */
     @PostMapping(path = "/users/changePassword/{userId}")
     public ResponseEntity<?> changePassword(@RequestBody User changedPasswordUser, @PathVariable int userId) {
         User dbUser = userService.getUserById(userId);
 
-        if(StringUtils.checkPasswordStreng(changedPasswordUser.getPassword()))
+        if (StringUtils.checkPasswordStreng(changedPasswordUser.getPassword()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must consist of at least 12 characters and has at least\n" +
                     "\n" +
                     "    one Uppercase character,\n" +
                     "    one Lowercase character,\n" +
                     "    a Digit and\n" +
                     "    a Special character or Symbol.");
-        else
-        {
+        else {
             userService.changeUserPassword(dbUser, changedPasswordUser.getPassword());
             return ResponseEntity.ok("Password has been changed successfully");
         }
@@ -135,10 +136,11 @@ public class UserController {
 
     /**
      * Reset user's password specified by email (if email is existed), then send informing email for user.
+     *
      * @param email get from front-end
      */
     @PostMapping(path = "/users/resetPassword")
-    public void resetPassword(@RequestBody String email){
+    public void resetPassword(@RequestBody String email) {
         JSONParser parser = new JSONParser();
         try {
             JSONObject jsonObject = (JSONObject) parser.parse(email);
@@ -159,4 +161,9 @@ public class UserController {
     public void revokeAccessToken(@RequestHeader("Authorization") String accessToken) {
         tokenServices.revokeToken(accessToken.substring(6));
     }
+
+    @PostMapping(path = "/oauth/checkToken")
+    public void checkToken() {}
+
+
 }
