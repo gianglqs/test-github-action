@@ -12,7 +12,9 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
@@ -102,6 +104,55 @@ public class PartService extends BasedService {
         return isPartExisted == 1;
     }
 
+    public void importPartFromFile(String fileName, String filePath) throws IOException {
+        logInfo("==== Importing " + fileName + " ====");
+        InputStream is = new FileInputStream(filePath);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
+
+        Sheet sheet = workbook.getSheet("Export");
+        List<Part> partList = new ArrayList<>();
+
+        // get recordedTime for Part
+        // fileName pattern: power bi Aug 23
+        Pattern pattern = Pattern.compile("\\w{5} \\w{2} (\\w{3}) (\\d{2}).xlsx");
+        Matcher matcher = pattern.matcher(fileName);
+        String month;
+        int year;
+        if (matcher.find()) {
+            month = matcher.group(1);
+            year = 2000 + Integer.parseInt(matcher.group(2));
+        }
+        else
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File name is not in appropriate format");
+        Calendar recordedTime = Calendar.getInstance();
+        recordedTime.set(year, DateUtils.monthMap.get(month), 1);
+
+        for (Row row : sheet) {
+            if (row.getRowNum() == 0)
+                getPowerBiColumnsName(row);
+            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
+                String modelCode = row.getCell(powerBIExportColumns.get("Model")).getStringCellValue();
+                String partNumber = row.getCell(powerBIExportColumns.get("Part Number")).getStringCellValue();
+                String orderNumber = row.getCell(powerBIExportColumns.get("Order Number")).getStringCellValue();
+                String strCurrency = row.getCell(powerBIExportColumns.get("Currency")).getStringCellValue().strip();
+
+                Part part = mapExcelDataToPart(row);
+                if(!isPartExisted(modelCode, partNumber, orderNumber, recordedTime, strCurrency)) {
+                    part.setRecordedTime(recordedTime);
+                }
+                else {
+                    part.setRecordedTime(recordedTime);
+                    updatePart(getPart(modelCode, partNumber, orderNumber, recordedTime, strCurrency), part);
+                }
+                partList.add(part);
+            }
+        }
+        log.info("Number of Part in " + month + "-" + year + " save: " + partList.size());
+        partRepository.saveAll(partList);
+        partList.clear();
+        updateStateImportFile(filePath);
+    }
+
     public void importPart() throws IOException {
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.bi-download");
@@ -110,62 +161,23 @@ public class PartService extends BasedService {
         logInfo("Files: " + files);
 
         for (String fileName : files) {
-            String pathFile = folderPath + "/" + fileName;
+            String filePath = folderPath + "/" + fileName;
             //check file has been imported ?
-            if (isImported(pathFile)) {
+            if (isImported(filePath)) {
                 logWarning("file '" + fileName + "' has been imported");
                 continue;
             }
-
-            logInfo("==== Importing " + fileName + " ====");
-            InputStream is = new FileInputStream(pathFile);
-            XSSFWorkbook workbook = new XSSFWorkbook(is);
-
-            Sheet sheet = workbook.getSheet("Export");
-            List<Part> partList = new ArrayList<>();
-
-            // get recordedTime for Part
-            // fileName pattern: power bi Aug 23
-            Pattern pattern = Pattern.compile("\\w{4} \\w{2} (\\w{3}) (\\d{2}).xlsx");
-            Matcher matcher = pattern.matcher(fileName);
-            String month = "Jan";
-            int year = 2023;
-            if (matcher.find()) {
-                month = matcher.group(1);
-                year = 2000 + Integer.parseInt(matcher.group(2));
-
-            }
-            Calendar recordedTime = Calendar.getInstance();
-            recordedTime.set(year, DateUtils.monthMap.get(month), 1);
-
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0)
-                    getPowerBiColumnsName(row);
-                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty()) {
-                    String modelCode = row.getCell(powerBIExportColumns.get("Model")).getStringCellValue();
-                    String partNumber = row.getCell(powerBIExportColumns.get("Part Number")).getStringCellValue();
-                    String orderNumber = row.getCell(powerBIExportColumns.get("Order Number")).getStringCellValue();
-                    String strCurrency = row.getCell(powerBIExportColumns.get("Currency")).getStringCellValue().strip();
-
-                    if(!isPartExisted(modelCode, partNumber, orderNumber, recordedTime, strCurrency)) {
-                        Part part = mapExcelDataToPart(row);
-                        part.setRecordedTime(recordedTime);
-
-                        //  if Part is not existed then add to list for saving later
-                        partList.add(part);
-                    }
-                }
-            }
-            log.info("Number of Part in " + month + "-" + year + " save: " + partList.size());
-            partRepository.saveAll(partList);
-            partList.clear();
-            updateStateImportFile(pathFile);
+            importPartFromFile(fileName, filePath);
         }
     }
 
-    public double getNetPriceInPart(String modelCode, String currency, Calendar recordedTime, String partNumber) {
-        List<Part> partList = partRepository.getNetPriceInPart(modelCode, currency, recordedTime, partNumber);
-        return !partList.isEmpty() ? partList.get(0).getNetPriceEach() : 0.0;
+    public Part getPart(String modelCode, String partNumber, String orderNumber, Calendar recordedTime, String strCurrency) {
+        Optional<Part> optionalPart = partRepository.getPart(modelCode, partNumber, orderNumber, recordedTime, strCurrency);
+        return optionalPart.orElse(null);
+    }
+
+    private void updatePart(Part dbPart, Part filePart) {
+        filePart.setId(dbPart.getId());
     }
 
     public List<String> getDistinctModelCodeByMonthYear(Calendar monthYear) {
@@ -187,9 +199,5 @@ public class PartService extends BasedService {
 
     public Currency getCurrencyByOrderNo(String orderNo){
         return partRepository.getCurrencyByOrderNo(orderNo);
-    }
-
-    public Set<Part> getPartByOrderNo(String orderNo) {
-        return partRepository.getPartByOrderNumber(orderNo);
     }
 }

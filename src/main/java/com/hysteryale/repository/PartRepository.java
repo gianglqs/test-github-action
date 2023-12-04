@@ -54,14 +54,10 @@ public interface PartRepository extends JpaRepository<Part, String> {
     @Query("SELECT DISTINCT p.currency FROM Part p WHERE p.orderNumber = ?1 ")
     Currency getCurrencyByOrderNo(String orderNo);
 
+    @Query(value = "SELECT * FROM Part p WHERE " +
+            "p.model_code = :modelCode AND p.part_number = :partNumber AND p.order_number = :orderNumber " +
+            "AND p.recorded_time = :recordedTime AND p.currency_currency = :currency LIMIT 1", nativeQuery = true)
+    Optional<Part> getPart(@Param("modelCode") String modelCode, @Param("partNumber") String partNumber,
+                           @Param("orderNumber") String orderNumber, @Param("recordedTime") Calendar recordedTime, @Param("currency") String currency);
 
-//    @Query("SELECT p FROM Part p WHERE p.partNumber = :partNumber AND p.series = :series " +
-//            "AND EXTRACT(MONTH FROM p.recordedTime) = :month " +
-//            "AND EXTRACT(YEAR FROM p.recordedTime) = :year")
-//    List<Part> findPartsByPartNumberAndSeriesAndMonthAndYear(
-//            @Param("partNumber") String partNumber,
-//            @Param("series") String series,
-//            @Param("month") int month,
-//            @Param("year") int year
-//    );
 }
