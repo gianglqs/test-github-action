@@ -1,21 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { bookingStore, commonStore } from '@/store/reducers';
-import { DataGrid } from '@mui/x-data-grid';
+import { useDropzone } from 'react-dropzone';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Button } from '@mui/material';
+import { Button, CircularProgress, ListItem, Typography } from '@mui/material';
 
 import {
    AppAutocomplete,
    AppDateField,
    AppLayout,
    AppTextField,
-   DataTable,
    DataTablePagination,
 } from '@/components';
 
@@ -24,6 +23,45 @@ import { produce } from 'immer';
 
 import { defaultValueFilterOrder } from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+import axios from 'axios';
+import { parseCookies, setCookie } from 'nookies';
+
+import ClearIcon from '@mui/icons-material/Clear';
+
+export async function getServerSideProps(context) {
+   try {
+      let cookies = parseCookies(context);
+      let token = cookies['token'];
+      const response = await axios.post(
+         `${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/checkToken`,
+         null,
+         {
+            headers: {
+               Authorization: 'Bearer ' + token,
+            },
+         }
+      );
+
+      console.log('Token hợp lệ');
+
+      return {
+         props: {},
+      };
+   } catch (error) {
+      console.error('token error', error);
+
+      return {
+         redirect: {
+            destination: '/login',
+            permanent: false,
+         },
+      };
+   }
+}
+
+interface FileChoosed {
+   name: string;
+}
 
 export default function Booking() {
    const dispatch = useDispatch();
@@ -32,12 +70,20 @@ export default function Booking() {
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
+   const [loading, setLoading] = useState(false);
+
+   const [uploadedFile, setUploadedFile] = useState<FileChoosed[]>([]);
+
+   const appendFileIntoList = (file) => {
+      setUploadedFile((prevFiles) => [...prevFiles, file]);
+   };
+
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
             if (
                _.includes(
-                  ['orderNo', 'fromDate', 'toDate', 'MarginPercetage', 'AOPMarginPercetage'],
+                  ['orderNo', 'fromDate', 'toDate', 'marginPercentage', 'aopMarginPercentageGroup'],
                   field
                )
             ) {
@@ -136,15 +182,7 @@ export default function Booking() {
          headerName: 'Qty',
          ...formatNumbericColumn,
       },
-      {
-         field: 'totalCost',
-         flex: 0.8,
-         headerName: 'Total Cost',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.totalCost)}</span>;
-         },
-      },
+
       {
          field: 'dealerNet',
          flex: 0.8,
@@ -161,6 +199,15 @@ export default function Booking() {
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
+         },
+      },
+      {
+         field: 'totalCost',
+         flex: 0.8,
+         headerName: 'Total Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalCost)}</span>;
          },
       },
       {
@@ -196,6 +243,58 @@ export default function Booking() {
          },
       },
    ];
+
+   const handleUploadFile = async (files) => {
+      let formData = new FormData();
+      files.map((file) => {
+         formData.append('files', file);
+      });
+
+      let cookies = parseCookies();
+      let token = cookies['token'];
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importNewBooking`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer' + token,
+         },
+      })
+         .then(function (response) {
+            setLoading(false);
+            setCookie(null, 'fileUUID', response.data.fileUUID);
+            handleWhenImportSuccessfully(response);
+         })
+         .catch(function (response) {
+            // stop spiner
+            setLoading(false);
+            //show message
+            dispatch(commonStore.actions.setErrorMessage(response.response.data.message));
+         });
+   };
+
+   const handleWhenImportSuccessfully = (res) => {
+      //show message
+      dispatch(commonStore.actions.setSuccessMessage(res.data.message));
+      //refresh data table and paging
+      dispatch(bookingStore.sagaGetList());
+   };
+
+   const handleImport = () => {
+      if (uploadedFile.length > 0) {
+         // resert message
+         setLoading(true);
+         handleUploadFile(uploadedFile);
+      } else {
+         dispatch(commonStore.actions.setErrorMessage('No file choosed'));
+      }
+   };
+
+   const handleRemove = (fileName) => {
+      const updateUploaded = uploadedFile.filter((file) => file.name != fileName);
+      setUploadedFile(updateUploaded);
+   };
 
    return (
       <>
@@ -270,7 +369,6 @@ export default function Booking() {
                      getOptionLabel={(option) => `${option.value}`}
                   />
                </Grid>
-
                <Grid item xs={2}>
                   <AppAutocomplete
                      options={initDataFilter.classes}
@@ -318,13 +416,13 @@ export default function Booking() {
                </Grid>
                <Grid item xs={2}>
                   <AppAutocomplete
-                     options={initDataFilter.AOPMarginPercetage}
+                     options={initDataFilter.aopMarginPercentageGroup}
                      label="AOP Margin %"
                      primaryKeyOption="value"
                      onChange={(e, option) =>
                         handleChangeDataFilter(
                            _.isNil(option) ? '' : option?.value,
-                           'AOPMarginPercetage'
+                           'aopMarginPercentageGroup'
                         )
                      }
                      disableClearable={false}
@@ -335,12 +433,12 @@ export default function Booking() {
                <Grid item xs={4}>
                   <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
                      <AppAutocomplete
-                        options={initDataFilter.MarginPercetage}
+                        options={initDataFilter.marginPercentage}
                         label="Margin %"
                         onChange={(e, option) =>
                            handleChangeDataFilter(
                               _.isNil(option) ? '' : option?.value,
-                              'MarginPercetage'
+                              'marginPercentage'
                            )
                         }
                         disableClearable={false}
@@ -379,6 +477,46 @@ export default function Booking() {
                      Filter
                   </Button>
                </Grid>
+
+               <Grid item xs={1}>
+                  <Button
+                     variant="contained"
+                     onClick={handleImport}
+                     sx={{ width: '100%', height: 24 }}
+                  >
+                     Import
+                  </Button>
+               </Grid>
+
+               <Grid item xs={1}>
+                  <UploadFileDropZone
+                     uploadedFile={uploadedFile}
+                     setUploadedFile={appendFileIntoList}
+                     handleUploadFile={handleUploadFile}
+                  />
+               </Grid>
+               <Grid item xs={4}>
+                  {uploadedFile &&
+                     uploadedFile.map((file) => (
+                        <ListItem
+                           sx={{
+                              padding: 0,
+                              backgroundColor: '#e3e3e3',
+                              width: '75%',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              paddingLeft: '10px',
+                              borderRadius: '3px',
+                              marginBottom: '2px',
+                           }}
+                        >
+                           <span>{file.name}</span>
+                           <Button onClick={() => handleRemove(file.name)} sx={{ width: '20px' }}>
+                              <ClearIcon />
+                           </Button>
+                        </ListItem>
+                     ))}
+               </Grid>
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
@@ -397,6 +535,30 @@ export default function Booking() {
                      columns={columns}
                      getRowId={(params) => params.orderNo}
                   />
+                  {loading ? (
+                     <div
+                        style={{
+                           top: 0,
+                           left: 0,
+                           right: 0,
+                           bottom: 0,
+                           backgroundColor: 'rgba(0,0,0, 0.3)',
+                           position: 'absolute',
+                           display: 'flex',
+                           justifyContent: 'center',
+                           alignItems: 'center',
+                           zIndex: 1001,
+                        }}
+                     >
+                        <CircularProgress
+                           color="info"
+                           size={60}
+                           sx={{
+                              position: 'relative',
+                           }}
+                        />
+                     </div>
+                  ) : null}
                </Grid>
                <DataTablePagination
                   page={tableState.pageNo}
@@ -408,5 +570,63 @@ export default function Booking() {
             </Paper>
          </AppLayout>
       </>
+   );
+}
+
+function UploadFileDropZone(props) {
+   const onDrop = useCallback(
+      (acceptedFiles) => {
+         console.log('accessfile', acceptedFiles.length);
+         acceptedFiles.forEach((file) => {
+            const reader = new FileReader();
+
+            reader.onabort = () => console.log('file reading was aborted');
+            reader.onerror = () => console.log('file reading has failed');
+            reader.onload = () => {
+               if (props.uploadedFile.length + acceptedFiles.length >= 3) {
+                  dispatch(commonStore.actions.setErrorMessage('Too many files'));
+               } else {
+                  props.setUploadedFile(file);
+               }
+            };
+            reader.readAsArrayBuffer(file);
+         });
+      },
+      [props.uploadedFile, props.setUploadedFile]
+   );
+
+   const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
+      noClick: true,
+      onDrop,
+      maxSize: 10485760, // < 10MB
+      maxFiles: 2,
+      accept: {
+         'excel/xlsx': ['.xlsx'],
+      },
+   });
+   const dispatch = useDispatch();
+   const isFileInvalid = fileRejections.length > 0 ? true : false;
+   if (isFileInvalid) {
+      const errors = fileRejections[0].errors;
+      dispatch(
+         commonStore.actions.setErrorMessage(
+            `${errors[0].message} ${_.isNil(errors[1]) ? '' : `or ${errors[1].message}`}`
+         )
+      );
+      fileRejections.splice(0, 1);
+   }
+
+   return (
+      <div {...getRootProps()}>
+         <input {...getInputProps()} />
+         <Button
+            type="button"
+            onClick={open}
+            variant="contained"
+            sx={{ width: '100%', height: 24 }}
+         >
+            Select file
+         </Button>
+      </div>
    );
 }

@@ -10,6 +10,10 @@ class AuthApi extends HttpService {
    logOut = () => {
       return this.post<any>('/oauth/revokeAccessToken', {});
    };
+
+   checkToken = () => {
+      return this.post<any>('/users/checkToken');
+   };
 }
 
 const authApi = new AuthApi('');

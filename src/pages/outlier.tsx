@@ -21,7 +21,7 @@ import {
 import _ from 'lodash';
 import { produce } from 'immer';
 
-import { defaultValueFilterShipment } from '@/utils/defaultValues';
+import { defaultValueFilterOrder } from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 
 import {
@@ -37,6 +37,7 @@ import {
 import { Scatter } from 'react-chartjs-2';
 import ChartAnnotation from 'chartjs-plugin-annotation';
 import outlierApi from '@/api/outlier.api';
+import { formatNumberPercentage } from '@/utils/formatCell';
 ChartJS.register(
    CategoryScale,
    LinearScale,
@@ -47,13 +48,40 @@ ChartJS.register(
    Title,
    ChartAnnotation
 );
+import axios from 'axios';
+import { parseCookies } from 'nookies';
+
+export async function getServerSideProps(context) {
+   try {
+      let cookies = parseCookies(context);
+      let token = cookies['token'];
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/checkToken`, null, {
+         headers: {
+            Authorization: 'Bearer ' + token,
+         },
+      });
+
+      return {
+         props: {},
+      };
+   } catch (error) {
+      console.error('token error', error);
+
+      return {
+         redirect: {
+            destination: '/login',
+            permanent: false,
+         },
+      };
+   }
+}
 
 export default function Outlier() {
    const dispatch = useDispatch();
    const listOutlier = useSelector(outlierStore.selectOutlierList);
    const initDataFilter = useSelector(outlierStore.selectInitDataFilter);
 
-   const [dataFilter, setDataFilter] = useState(defaultValueFilterShipment);
+   const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
@@ -180,7 +208,11 @@ export default function Outlier() {
          headerName: 'Margin % After Surcharge',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.marginPercentageAfterSurCharge * 100)}%</span>;
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
+               </span>
+            );
          },
       },
    ];

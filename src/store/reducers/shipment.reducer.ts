@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createSelector, createAction } from '@reduxjs/toolkit';
 
 import type { RootReducerType } from './rootReducer';
-import { defaultValueFilterShipment } from '@/utils/defaultValues';
+import { defaultValueFilterOrder } from '@/utils/defaultValues';
 
 export const name = 'shipment';
 export const resetState = createAction(`${name}/RESET_STATE`);
@@ -9,7 +9,7 @@ export const resetState = createAction(`${name}/RESET_STATE`);
 export const initialState = {
    shipmentList: [] as any[],
    initDataFilter: {} as any,
-   defaultValueFilterShipment: defaultValueFilterShipment as any,
+   defaultValueFilterOrder: defaultValueFilterOrder as any,
 };
 
 const shipmentSlice = createSlice({
@@ -22,9 +22,9 @@ const shipmentSlice = createSlice({
       setInitDataFilter(state, { payload }: PayloadAction<any[]>) {
          state.initDataFilter = payload;
       },
-      setDefaultValueFilterShipment(state, { payload }: PayloadAction<Partial<any>>) {
-         state.defaultValueFilterShipment = {
-            ...state.defaultValueFilterShipment,
+      setDefaultValueFilterOrder(state, { payload }: PayloadAction<Partial<any>>) {
+         state.defaultValueFilterOrder = {
+            ...state.defaultValueFilterOrder,
             ...payload,
          };
       },
@@ -42,9 +42,9 @@ export const selectState = (state: RootReducerType) => state[name];
 export const selectShipmentList = createSelector(selectState, (state) => state.shipmentList);
 export const selectInitDataFilter = createSelector(selectState, (state) => state.initDataFilter);
 
-export const selectDefaultValueFilterShipment = createSelector(
+export const selectDefaultValueFilterOrder = createSelector(
    selectState,
-   (state) => state.defaultValueFilterShipment
+   (state) => state.defaultValueFilterOrder
 );
 
 export const { actions } = shipmentSlice;
