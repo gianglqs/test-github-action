@@ -42,8 +42,6 @@ export async function getServerSideProps(context) {
          }
       );
 
-      console.log('Token hợp lệ');
-
       return {
          props: {},
       };
@@ -416,7 +414,7 @@ export default function Booking() {
                </Grid>
                <Grid item xs={2}>
                   <AppAutocomplete
-                     options={initDataFilter.aopMarginPercentageGroup}
+                     options={initDataFilter.AOPMarginPercentageGroup}
                      label="AOP Margin %"
                      primaryKeyOption="value"
                      onChange={(e, option) =>
@@ -433,7 +431,7 @@ export default function Booking() {
                <Grid item xs={4}>
                   <Grid item xs={6} sx={{ paddingRight: 0.5 }}>
                      <AppAutocomplete
-                        options={initDataFilter.marginPercentage}
+                        options={initDataFilter.marginPercentageGroup}
                         label="Margin %"
                         onChange={(e, option) =>
                            handleChangeDataFilter(
