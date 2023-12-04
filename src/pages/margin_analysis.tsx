@@ -161,7 +161,7 @@ export default function MarginAnalysis() {
          })
          .catch(function (response) {
             setLoading(false);
-            dispatch(commonStore.actions.setSuccessMessage('Error when importing !'));
+            dispatch(commonStore.actions.setSuccessMessage(response.response.data.message));
          });
    };
 
@@ -187,7 +187,7 @@ export default function MarginAnalysis() {
          })
          .catch(function (response) {
             setLoading(false);
-            dispatch(commonStore.actions.setSuccessMessage('Error when importing !'));
+            dispatch(commonStore.actions.setSuccessMessage(response.response.data.message));
          });
    };
 
