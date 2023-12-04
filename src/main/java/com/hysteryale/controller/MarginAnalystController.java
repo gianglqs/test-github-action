@@ -3,9 +3,9 @@ package com.hysteryale.controller;
 import com.hysteryale.model.marginAnalyst.MarginAnalystData;
 import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 import com.hysteryale.model_h2.IMMarginAnalystData;
+import com.hysteryale.service.FileUploadService;
 import com.hysteryale.service.PartService;
 import com.hysteryale.service.marginAnalyst.IMMarginAnalystDataService;
-import com.hysteryale.service.marginAnalyst.MarginAnalystFileUploadService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
 import com.hysteryale.utils.FileUtils;
@@ -33,7 +33,7 @@ public class MarginAnalystController {
     @Resource
     IMMarginAnalystDataService IMMarginAnalystDataService;
     @Resource
-    MarginAnalystFileUploadService marginAnalystFileUploadService;
+    FileUploadService fileUploadService;
     @Resource
     MarginAnalystMacroService marginAnalystMacroService;
     @Resource
@@ -62,12 +62,12 @@ public class MarginAnalystController {
     @PostMapping(path = "/estimateMarginAnalystData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, Object> estimateMarginAnalystData(@RequestBody MultipartFile file, Authentication authentication) throws Exception {
 
-        String filePath = marginAnalystFileUploadService.saveMarginFileUploadToDisk(file);
+        String filePath = fileUploadService.saveFileUploadToDisk(file);
 
         // Verify the Excel file
         if (FileUtils.isExcelFile(filePath)) {
             String originalFileName = file.getOriginalFilename();
-            String fileUUID = marginAnalystFileUploadService.saveMarginAnalystFileUpload(file, authentication);
+            String fileUUID = fileUploadService.saveFileUpload(file, authentication);
 
             log.info(file.getContentType());
 
@@ -79,7 +79,7 @@ public class MarginAnalystController {
                     "fileUUID", fileUUID
             );
         } else {
-            marginAnalystFileUploadService.deleteFileInDisk(filePath);
+            fileUploadService.deleteFileInDisk(filePath);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
         }
     }
@@ -87,38 +87,38 @@ public class MarginAnalystController {
     @PostMapping(path = "/importMacroFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void importMacroFile(@RequestBody MultipartFile file, Authentication authentication) throws Exception {
 
-        String filePath = marginAnalystFileUploadService.saveMarginFileUploadToDisk(file);
+        String filePath = fileUploadService.saveFileUploadToDisk(file);
 
         // Verify the Excel file
         if (FileUtils.isExcelFile(filePath)) {
             String originalFileName = file.getOriginalFilename();
-            String fileUUID = marginAnalystFileUploadService.saveMarginAnalystFileUpload(file, authentication);
+            String fileUUID = fileUploadService.saveFileUpload(file, authentication);
 
             log.info(file.getContentType());
 
             marginAnalystMacroService.importMarginAnalystMacroFromFile(originalFileName, filePath);
 
         } else {
-            marginAnalystFileUploadService.deleteFileInDisk(filePath);
+            fileUploadService.deleteFileInDisk(filePath);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
         }
     }
 
     @PostMapping(path = "/importPowerBiFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void importPowerBiFile(@RequestBody MultipartFile file, Authentication authentication) throws Exception {
-        String filePath = marginAnalystFileUploadService.saveMarginFileUploadToDisk(file);
+        String filePath = fileUploadService.saveFileUploadToDisk(file);
 
         // Verify the Excel file
         if (FileUtils.isExcelFile(filePath)) {
             String originalFileName = file.getOriginalFilename();
-            String fileUUID = marginAnalystFileUploadService.saveMarginAnalystFileUpload(file, authentication);
+            String fileUUID = fileUploadService.saveFileUpload(file, authentication);
 
             log.info(file.getContentType());
 
             partService.importPartFromFile(originalFileName, filePath);
 
         } else {
-            marginAnalystFileUploadService.deleteFileInDisk(filePath);
+            fileUploadService.deleteFileInDisk(filePath);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
         }
     }
