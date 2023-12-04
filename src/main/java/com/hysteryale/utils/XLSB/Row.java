@@ -18,4 +18,11 @@ public class Row {
     public Cell getCell(int cellNum) {
         return cellList.get(cellNum);
     }
+    public Cell getCell(String column) {
+        for(Cell cell : cellList) {
+            if(cell.getCellColumn().equals(column))
+                return cell;
+        }
+        return new Cell(column, "");
+    }
 }
