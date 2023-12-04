@@ -73,12 +73,7 @@ public class FileUtils {
      * Verify whether the file's name is Excel file or not
      */
     public static boolean isExcelFile(String filePath) throws IOException {
-        //Please note that FE should only accept file with ext is xlsx and xls so BE should only check of it is really an excel file.
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(filePath));
-//        FileInputStream fileInputStream = new FileInputStream(filePath);
 
-        //OLE2 is XLS and OOXML is XLSX
-        return (FileMagic.valueOf(bis) == FileMagic.OLE2) || (FileMagic.valueOf(bis) == FileMagic.OOXML);
     }
 
     public static boolean isExcelFile( InputStream is) throws IOException {
@@ -86,20 +81,6 @@ public class FileUtils {
 
         //OLE2 is XLS and OOXML is XLSX
         return (FileMagic.valueOf(bis) == FileMagic.OLE2) || (FileMagic.valueOf(bis) == FileMagic.OOXML);
-    }
-
-    /**
-     * Hash the file's name for avoiding SQL Injection using MD5
-     */
-    public static String hashFileName(String fileName) {
-        Pattern pattern = Pattern.compile("(.*).(.*)");
-        Matcher matcher = pattern.matcher(fileName);
-
-        String originalFileName = "";
-        if(matcher.find()) {
-            originalFileName = matcher.group(1);
-        }
-        return DigestUtils.md5Hex(originalFileName);
     }
 
     public static void saveFile(MultipartFile multipartFile, String uploadDirectory) throws IOException {
