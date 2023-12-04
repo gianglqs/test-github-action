@@ -3,6 +3,7 @@ package com.hysteryale.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.poi.poifs.filesystem.FileMagic;
+import org.apache.poi.util.StringUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -73,7 +74,13 @@ public class FileUtils {
      * Verify whether the file's name is Excel file or not
      */
     public static boolean isExcelFile(String filePath) throws IOException {
-
+        if(StringUtil.isNotBlank(filePath)) {
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(filePath));
+            //OLE2 is XLS and OOXML is XLSX
+            return (FileMagic.valueOf(bis) == FileMagic.OLE2) || (FileMagic.valueOf(bis) == FileMagic.OOXML);
+        }else {
+            throw new FileNotFoundException(filePath + "does not exist");
+        }
     }
 
     public static boolean isExcelFile( InputStream is) throws IOException {

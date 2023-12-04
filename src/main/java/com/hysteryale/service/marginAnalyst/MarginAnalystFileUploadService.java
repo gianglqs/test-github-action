@@ -55,7 +55,7 @@ public class MarginAnalystFileUploadService {
             marginAnalystFileUpload.setUploadedTime(uploadedTime);
 
             // append suffix into fileName
-            marginAnalystFileUpload.setFileName(FileUtils.hashFileName(excelFile.getOriginalFilename()) + "_" + strUploadedTime + ".xlsx");
+            marginAnalystFileUpload.setFileName(FileUtils.encoding(excelFile.getOriginalFilename()) + "_" + strUploadedTime + ".xlsx");
 
             // save information to db
             marginAnalystFileUploadRepository.save(marginAnalystFileUpload);
@@ -75,7 +75,7 @@ public class MarginAnalystFileUploadService {
 
         Date uploadedTime = new Date();
         String strUploadedTime = (new SimpleDateFormat("ddMMyyyyHHmmss").format(uploadedTime));
-        String hashedFileName = FileUtils.hashFileName(multipartFile.getOriginalFilename()) + "_" + strUploadedTime + ".xlsx";
+        String hashedFileName = FileUtils.encoding(multipartFile.getOriginalFilename()) + "_" + strUploadedTime + ".xlsx";
 
         File file = new File(baseFolder + "/" + hashedFileName);
 
