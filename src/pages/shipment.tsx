@@ -253,7 +253,7 @@ export default function Shipment() {
             // show message in screen
             setLoading(false);
             //show message
-            dispatch(commonStore.actions.setErrorMessage('Import data error!'));
+            dispatch(commonStore.actions.setErrorMessage(response.response.data.message));
          });
    };
 
