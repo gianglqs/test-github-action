@@ -15,7 +15,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
 
     @Query("SELECT c FROM Shipment c WHERE " +
             "((:orderNo) IS Null OR c.orderNo = :orderNo )" +
-            " AND ((:regions) IS Null OR c.region.region IN (:regions) )" +
+            " AND ((:regions) IS Null OR c.region IS NULL OR COALESCE(c.region.region, NULL) IN (:regions) )" +
             " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
             " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
             " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
@@ -87,7 +87,7 @@ public interface ShipmentRepository extends JpaRepository<Shipment, String> {
                  @Param("fromDate") Calendar fromDate,
                  @Param("toDate") Calendar toDate);
 
-    @Query("SELECT DISTINCT s.dealerName from Shipment s ")
+    @Query("SELECT DISTINCT s.dealerName from Shipment s WHERE s.dealerName IS NOT NULL")
     List<String> findAllDealerName();
 
 

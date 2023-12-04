@@ -1,23 +1,22 @@
 package com.hysteryale.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hysteryale.model.*;
+import com.hysteryale.exception.MissingColumnException;
 import com.hysteryale.model.Currency;
+import com.hysteryale.model.*;
 import com.hysteryale.model.filters.FilterModel;
-import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.model.marginAnalyst.MarginAnalystMacro;
-import com.hysteryale.repository.*;
+import com.hysteryale.repository.PartRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
-import com.hysteryale.repository.bookingorder.CustomBookingOrderRepository;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
 import com.hysteryale.utils.ConvertDataFilterUtil;
 import com.hysteryale.utils.DateUtils;
 import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.PlantUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.parser.ParseException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -106,67 +105,99 @@ public class BookingOrderService extends BasedService {
     }
 
 
-    BookingOrder mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
+    BookingOrder mapExcelDataIntoOrderObject(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) throws MissingColumnException {
         BookingOrder bookingOrder = new BookingOrder();
 
         //set OrderNo
-        Cell orderNoCell = row.getCell(ORDER_COLUMNS_NAME.get("ORDERNO"));
-        bookingOrder.setOrderNo(orderNoCell.getStringCellValue());
-
-        //set ProductDimension
-        ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(row.getCell(ORDER_COLUMNS_NAME.get("SERIES"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-        if (productDimension != null) {
-            bookingOrder.setProductDimension(productDimension);
+        if (ORDER_COLUMNS_NAME.get("ORDERNO") != null) {
+            String orderNo = row.getCell(ORDER_COLUMNS_NAME.get("ORDERNO")).getStringCellValue();
+            bookingOrder.setOrderNo(orderNo);
         } else {
-            logWarning("Not found ProductDimension with OrderNo" + bookingOrder.getOrderNo());
+            throw new MissingColumnException("Missing column 'ORDERNO'!");
+        }
+
+        // Series
+        if (ORDER_COLUMNS_NAME.get("SERIES") != null) {
+            String series = row.getCell(ORDER_COLUMNS_NAME.get("SERIES")).getStringCellValue();
+            bookingOrder.setSeries(series);
+
+            //set ProductDimension
+            ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(series);
+            if (productDimension != null) {
+                bookingOrder.setProductDimension(productDimension);
+            } else {
+                logWarning("Not found ProductDimension with OrderNo" + bookingOrder.getOrderNo());
+            }
+        } else {
+            throw new MissingColumnException("Missing column 'SERIES'!");
         }
 
         // set billToCost
-        Cell billtoCell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
-        bookingOrder.setBillTo(billtoCell.getStringCellValue());
+        if (ORDER_COLUMNS_NAME.get("BILLTO") != null) {
+            Cell billtoCell = row.getCell(ORDER_COLUMNS_NAME.get("BILLTO"));
+            bookingOrder.setBillTo(billtoCell.getStringCellValue());
+        } else {
+            throw new MissingColumnException("Missing column 'BILLTO'!");
+        }
 
         //set model
-        Cell modelCell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
-        bookingOrder.setModel(modelCell.getStringCellValue());
+        if (ORDER_COLUMNS_NAME.get("MODEL") != null) {
+            Cell modelCell = row.getCell(ORDER_COLUMNS_NAME.get("MODEL"));
+            bookingOrder.setModel(modelCell.getStringCellValue());
+        } else {
+            throw new MissingColumnException("Missing column 'MODEL'!");
+        }
 
         //set region
-        Cell regionCell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
-        Region region = regionService.getRegionByShortName(regionCell.getStringCellValue());
-        if (region != null) {
-            bookingOrder.setRegion(region);
+        if (ORDER_COLUMNS_NAME.get("REGION") != null) {
+            Cell regionCell = row.getCell(ORDER_COLUMNS_NAME.get("REGION"));
+            Region region = regionService.getRegionByShortName(regionCell.getStringCellValue());
+            if (region != null) {
+                bookingOrder.setRegion(region);
+            } else {
+                logWarning("Not found Region with OrderNo" + bookingOrder.getOrderNo());
+            }
         } else {
-            logWarning("Not found Region with OrderNo" + bookingOrder.getOrderNo());
+            throw new MissingColumnException("Missing column 'REGION'!");
         }
 
         //set date
-        String strDate = String.valueOf(row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getNumericCellValue());
-        Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
-        Matcher matcher = pattern.matcher(strDate);
-        int year, month, day;
+        if (ORDER_COLUMNS_NAME.get("DATE") != null) {
+            String strDate = String.valueOf(row.getCell(ORDER_COLUMNS_NAME.get("DATE")).getNumericCellValue());
+            Pattern pattern = Pattern.compile("^\\d(\\d\\d)(\\d\\d)(\\d\\d)");
+            Matcher matcher = pattern.matcher(strDate);
+            int year, month, day;
 
-        if (matcher.find()) {
-            year = Integer.parseInt(matcher.group(1)) + 2000;
-            month = Integer.parseInt(matcher.group(2));
-            day = Integer.parseInt(matcher.group(3));
+            if (matcher.find()) {
+                year = Integer.parseInt(matcher.group(1)) + 2000;
+                month = Integer.parseInt(matcher.group(2));
+                day = Integer.parseInt(matcher.group(3));
 
-            GregorianCalendar orderDate = new GregorianCalendar();
-
-            // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
-            orderDate.set(year, month - 1, day);
-            bookingOrder.setDate(orderDate);
+                GregorianCalendar orderDate = new GregorianCalendar();
+                // {month - 1} is the index to get value in List of month {Jan, Feb, March, April, May, ...}
+                orderDate.set(year, month - 1, day);
+                orderDate.add(Calendar.DATE, 1);
+                bookingOrder.setDate(orderDate);
+            }
+        } else {
+            throw new MissingColumnException("Missing column 'DATE'!");
         }
 
         // dealerName
-        Cell dealerNameCell = row.getCell(ORDER_COLUMNS_NAME.get("DEALERNAME"));
-        bookingOrder.setDealerName(dealerNameCell.getStringCellValue());
+        if (ORDER_COLUMNS_NAME.get("DEALERNAME") != null) {
+            Cell dealerNameCell = row.getCell(ORDER_COLUMNS_NAME.get("DEALERNAME"));
+            bookingOrder.setDealerName(dealerNameCell.getStringCellValue());
+        } else {
+            throw new MissingColumnException("Missing column 'DEALERNAME'!");
+        }
 
         // country code
-        Cell ctryCodeCell = row.getCell(ORDER_COLUMNS_NAME.get("CTRYCODE"));
-        bookingOrder.setCtryCode(ctryCodeCell.getStringCellValue());
-
-        // Series
-        Cell seriesCell = row.getCell(ORDER_COLUMNS_NAME.get("SERIES"));
-        bookingOrder.setSeries(seriesCell.getStringCellValue());
+        if (ORDER_COLUMNS_NAME.get("CTRYCODE") != null) {
+            Cell ctryCodeCell = row.getCell(ORDER_COLUMNS_NAME.get("CTRYCODE"));
+            bookingOrder.setCtryCode(ctryCodeCell.getStringCellValue());
+        } else {
+            throw new MissingColumnException("Missing column 'CTRYCODE'!");
+        }
 
         return bookingOrder;
     }
@@ -193,7 +224,7 @@ public class BookingOrderService extends BasedService {
     /**
      * new
      */
-    public void importOrder() throws IOException, IllegalAccessException {
+    public void importOrder() throws IOException, IllegalAccessException, MissingColumnException {
 
         // Folder contains Excel file of Booking Order
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
@@ -226,21 +257,21 @@ public class BookingOrderService extends BasedService {
                 }
             }
 
-            InputStream is = new FileInputStream(pathFile);
 
             boolean isOldData = checkOldData(month, year);
             if (isOldData) {
 
-                importOldBookingFileByFile(is, month, year);
+                importOldBookingFileByFile(pathFile, month, year);
             } else {
                 InputStream getListCostDataByMonthAndYear = getInputStreamForCostData(month, year);
-                importNewBookingFileByFile(is, getListCostDataByMonthAndYear);
+                importNewBookingFileByFile(pathFile, getListCostDataByMonthAndYear);
             }
             updateStateImportFile(pathFile);
         }
     }
 
-    public void importNewBookingFileByFile(InputStream is, InputStream isListCostData) throws IOException {
+    public void importNewBookingFileByFile(String filePath, InputStream isListCostData) throws IOException, MissingColumnException {
+        InputStream is = new FileInputStream(filePath);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         List<BookingOrder> bookingOrderList = new LinkedList<>();
         HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
@@ -254,10 +285,9 @@ public class BookingOrderService extends BasedService {
         }
         //get list cost data from month and year
 
-
         for (Row row : orderSheet) {
             if (row.getRowNum() == numRowName) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
-            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 1) {
+            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > numRowName) {
                 BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
                 // import DN, DNAfterSurcharge
                 newBookingOrder = importDNAndDNAfterSurcharge(newBookingOrder);
@@ -278,11 +308,67 @@ public class BookingOrderService extends BasedService {
 
     }
 
+    public void importNewBookingFileByFile(String filePath) throws IOException, MissingColumnException {
 
-    public void importOldBookingFileByFile(InputStream is, String month, String year) throws IOException {
+        InputStream is = new FileInputStream(filePath);
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
+        List<BookingOrder> bookingOrderList = new LinkedList<>();
+        HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
+        List<String> USPlant = PlantUtil.getUSPlant();
+        Sheet orderSheet = workbook.getSheet("NOPLDTA.NOPORDP,NOPLDTA.>Sheet1");
+        int numRowName = 0;
+        if (orderSheet == null) {
+            orderSheet = workbook.getSheet("Input - Bookings");
+            numRowName = 1;
+        }
+
+        for (Row row : orderSheet) {
+            if (row.getRowNum() == numRowName) getOrderColumnsName(row, ORDER_COLUMNS_NAME);
+            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > numRowName) {
+                BookingOrder newBookingOrder = mapExcelDataIntoOrderObject(row, ORDER_COLUMNS_NAME);
+                // import DN, DNAfterSurcharge
+                newBookingOrder = importDNAndDNAfterSurcharge(newBookingOrder);
+
+                if (USPlant.contains(newBookingOrder.getProductDimension().getPlant())) {
+                    logInfo("US Plant");
+                    // import totalCost when import file totalCost
+
+                    Optional<BookingOrder> orderExisted = bookingOrderRepository.getBookingOrderByOrderNo(newBookingOrder.getOrderNo());
+                    if (orderExisted.isPresent()) {
+                        BookingOrder oldBooking = orderExisted.get();
+                        newBookingOrder.setCurrency(oldBooking.getCurrency());
+                        newBookingOrder.setAOPMarginPercentage(oldBooking.getAOPMarginPercentage());
+                        newBookingOrder.setMarginPercentageAfterSurCharge(oldBooking.getMarginPercentageAfterSurCharge());
+                        newBookingOrder.setMarginAfterSurCharge(oldBooking.getMarginAfterSurCharge());
+                        newBookingOrder.setTotalCost(oldBooking.getTotalCost());
+                    }
+                } else {
+                    newBookingOrder = importCostRMBOfEachParts(newBookingOrder);
+                }
+
+                newBookingOrder = calculateMargin(newBookingOrder);
+                newBookingOrder = importAOPMargin(newBookingOrder);
+                bookingOrderList.add(newBookingOrder);
+            }
+        }
+        logInfo("list booked" + bookingOrderList.size());
+        bookingOrderRepository.saveAll(bookingOrderList);
+
+    }
+
+    //get Booking Exist
+    private List<BookingOrder> getListBookingExist(List<BookingOrder> booking) {
+        List<String> listOrderNo = new ArrayList<>();
+        booking.forEach(b -> listOrderNo.add(b.getOrderNo()));
+        return bookingOrderRepository.getListBookingExist(listOrderNo);
+    }
+
+
+    public void importOldBookingFileByFile(String pathFile, String month, String year) throws IOException, MissingColumnException {
         //step 1: import fact data from booking-register file
         //step 2: import Margin data from booking-register file
         //step 3: calculate totalCost
+        InputStream is = new FileInputStream(pathFile);
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         List<BookingOrder> bookingOrderList = new LinkedList<>();
         HashMap<String, Integer> ORDER_COLUMNS_NAME = new HashMap<>();
@@ -342,9 +428,9 @@ public class BookingOrderService extends BasedService {
         List<String> listPartNumber = partService.getPartNumberByOrderNo(bookingOrder.getOrderNo());
         Currency currency = partService.getCurrencyByOrderNo(bookingOrder.getOrderNo());
 
-
-        Calendar date = bookingOrder.getDate();
-        date.set(date.get(Calendar.YEAR), date.get(Calendar.MONTH), 1);
+        Calendar orderDate = bookingOrder.getDate();
+        Calendar date = Calendar.getInstance();
+        date.set(orderDate.get(Calendar.YEAR), orderDate.get(Calendar.MONTH), 1);
 
         if (currency == null)
             return bookingOrder;
@@ -490,6 +576,26 @@ public class BookingOrderService extends BasedService {
             }
         }
         return result;
+    }
+
+    public void importCostData(String filePath) throws IOException {
+        InputStream is = new FileInputStream(filePath);
+        List<CostDataFile> costDataList = getListCostDataByMonthAndYear(is);
+        List<String> listOrderNo = new ArrayList<>();
+        costDataList.forEach(c -> listOrderNo.add(c.orderNo));
+        List<BookingOrder> listBookingExisted = bookingOrderRepository.getListBookingExist(listOrderNo);
+        for (BookingOrder bookingOrder : listBookingExisted) {
+            for (CostDataFile costData : costDataList) {
+                if (bookingOrder.getOrderNo().equals(costData.orderNo)) {
+                    bookingOrder.setTotalCost(costData.totalCost);
+                    Currency currency = currencyService.getCurrencies(costData.currency);
+                    bookingOrder.setCurrency(currency);
+                    bookingOrder = calculateMargin(bookingOrder);
+
+                }
+            }
+        }
+        bookingOrderRepository.saveAll(listBookingExisted);
     }
 
 

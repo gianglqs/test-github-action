@@ -1,32 +1,25 @@
 package com.hysteryale.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hysteryale.model.filters.FilterModel;
-import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.response.ResponseObject;
-import com.hysteryale.service.*;
-import com.hysteryale.utils.EnvironmentUtils;
+import com.hysteryale.service.BookingOrderService;
+import com.hysteryale.service.FileUploadService;
 import com.hysteryale.utils.FileUtils;
-import com.hysteryale.utils.PagingnatorUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -36,7 +29,7 @@ public class BookingOrderController {
     BookingOrderService bookingOrderService;
 
     @Resource
-    ImportService importService;
+    FileUploadService fileUploadService;
 
     private FilterModel filters;
 
@@ -51,8 +44,8 @@ public class BookingOrderController {
 
     @PostMapping(path = "/bookingOrders", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getDataBooking(@RequestBody FilterModel filters,
-                                                        @RequestParam(defaultValue = "1") int pageNo,
-                                                        @RequestParam(defaultValue = "100") int perPage) throws java.text.ParseException {
+                                              @RequestParam(defaultValue = "1") int pageNo,
+                                              @RequestParam(defaultValue = "100") int perPage) throws java.text.ParseException {
         filters.setPageNo(pageNo);
         filters.setPerPage(perPage);
         this.filters = filters;
@@ -61,23 +54,37 @@ public class BookingOrderController {
     }
 
     @PostMapping(path = "/importNewBooking", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseObject> importNewDataBooking(@RequestBody MultipartFile file) throws IOException, ParseException {
-        InputStream is = file.getInputStream();
+    public ResponseEntity<ResponseObject> importNewDataBooking(@RequestParam("files") List<MultipartFile> fileList, Authentication authentication) throws Exception {
+        String pathFileBooking = "";
+        String pathFileCostData = "";
+        boolean invalid = false;
+        for (MultipartFile file : fileList) {
 
-        if (FileUtils.isExcelFile(is)) {
-            // save file in folder tmp
-            String folderPath = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
-            FileUtils.saveFile(file, folderPath);
+            //save file on disk
+            if (FileUtils.isExcelFile(file.getInputStream())) {
+                // save file to disk
+                if (Objects.requireNonNull(file.getOriginalFilename()).toLowerCase().contains("booked") || file.getOriginalFilename().toLowerCase().contains("booking")) {
+                    pathFileBooking = fileUploadService.saveFileUploadToDisk(file);
+                } else if (file.getOriginalFilename().toLowerCase().contains("cost_data")) {
+                    pathFileCostData = fileUploadService.saveFileUploadToDisk(file);
+                }
+                //save to DB
+                fileUploadService.saveFileUpload(file, authentication);
+            }
 
-            // open file to import
-            String pathFile = FileUtils.getPath(folderPath, file.getOriginalFilename());
-            InputStream inputStream = new FileInputStream(pathFile);
-
-            importService.importBookingFileOneByOne(inputStream);
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import data successfully", bookingOrderService.getBookingByFilter(filters)));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Uploaded file is not an Excel file", null));
         }
+        // import
+        if (!pathFileBooking.isEmpty()) {
+            bookingOrderService.importNewBookingFileByFile(pathFileBooking);
+            invalid = true;
+        }
+        if (!pathFileCostData.isEmpty()) {
+            bookingOrderService.importCostData(pathFileCostData);
+            invalid = true;
+        }
+        if(!invalid)
+            throw new Exception("No valid file found");
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import successfully!", null));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.hysteryale.controller;
 
+import com.hysteryale.exception.MissingColumnException;
 import com.hysteryale.service.*;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
@@ -42,7 +43,7 @@ public class ImportController {
     ImportService importService;
 
     @PostMapping(path = "/importAllData")
-    void importAllData() throws IOException, IllegalAccessException {
+    void importAllData() throws IOException, IllegalAccessException, MissingColumnException {
         importApicDealer();
         importAPACSerial();
         importCurrencies();
@@ -88,7 +89,7 @@ public class ImportController {
     }
 
     @PostMapping(path = "/importOrder")
-    void importOrder() throws IOException, IllegalAccessException {
+    void importOrder() throws IOException, IllegalAccessException, MissingColumnException {
         bookingOrderService.importOrder();
     }
 
@@ -118,7 +119,7 @@ public class ImportController {
     }
 
     @PostMapping(path = "/importShipment")
-    void importShipment() throws IOException{
+    void importShipment() throws IOException, MissingColumnException {
         importService.importShipment();
     }
 
