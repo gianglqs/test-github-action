@@ -13,6 +13,7 @@ import {
    Radio,
    RadioGroup,
    Typography,
+   CircularProgress,
 } from '@mui/material';
 import { GridExpandMoreIcon } from '@mui/x-data-grid-pro';
 import { useCallback, useState } from 'react';
@@ -65,6 +66,7 @@ export default function MarginAnalysis() {
    const [openAccordion, setOpenAccordion] = useState(true);
    const [openAccordionTable, setOpenAccordionTable] = useState(true);
    const [uploadedFile, setUploadedFile] = useState({ name: '' });
+   const [loading, setLoading] = useState(false);
 
    const [orderNumberValue, setOrderNumberValue] = useState({ value: '' });
    const handleOrderNumber = (value) => {
@@ -117,6 +119,7 @@ export default function MarginAnalysis() {
 
       let cookies = parseCookies();
       let token = cookies['token'];
+      setLoading(true);
       axios({
          method: 'post',
          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}estimateMarginAnalystData`,
@@ -127,9 +130,11 @@ export default function MarginAnalysis() {
          },
       })
          .then(function (response) {
+            setLoading(false);
             setCookie(null, 'fileUUID', response.data.fileUUID);
          })
          .catch(function (response) {
+            setLoading(false);
             console.log(response);
          });
    };
@@ -140,6 +145,7 @@ export default function MarginAnalysis() {
 
       let cookies = parseCookies();
       let token = cookies['token'];
+      setLoading(true);
       axios({
          method: 'post',
          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importMacroFile`,
@@ -150,10 +156,12 @@ export default function MarginAnalysis() {
          },
       })
          .then(function (response) {
-            console.log(response);
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Import successfully'));
          })
          .catch(function (response) {
-            console.log(response);
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Error when importing !'));
          });
    };
 
@@ -163,6 +171,7 @@ export default function MarginAnalysis() {
 
       let cookies = parseCookies();
       let token = cookies['token'];
+      setLoading(true);
       axios({
          method: 'post',
          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importPowerBiFile`,
@@ -173,10 +182,12 @@ export default function MarginAnalysis() {
          },
       })
          .then(function (response) {
-            console.log(response);
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Import successfully'));
          })
          .catch(function (response) {
-            console.log(response);
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Error when importing !'));
          });
    };
 
@@ -281,6 +292,30 @@ export default function MarginAnalysis() {
             </Grid>
 
             <Grid item xs={12}>
+               {loading ? (
+                  <div
+                     style={{
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0, 0.3)',
+                        position: 'absolute',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1001,
+                     }}
+                  >
+                     <CircularProgress
+                        color="info"
+                        size={60}
+                        sx={{
+                           position: 'relative',
+                        }}
+                     />
+                  </div>
+               ) : null}
                <Accordion
                   expanded={openAccordionTable}
                   onChange={(e, expanded) => setOpenAccordionTable(expanded)}
