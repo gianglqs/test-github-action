@@ -435,6 +435,7 @@ public class BookingOrderService extends BasedService {
         if (currency == null)
             return bookingOrder;
         bookingOrder.setCurrency(currency);
+        logInfo(bookingOrder.getOrderNo() + "   " + currency.getCurrency());
         double totalCost = 0;
         if (!bookingOrder.getProductDimension().getPlant().equals("SN")) {
             List<MarginAnalystMacro> marginAnalystMacroList = marginAnalystMacroService.getMarginAnalystMacroByHYMPlantAndListPartNumber(

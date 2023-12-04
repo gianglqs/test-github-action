@@ -19,10 +19,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -57,7 +54,7 @@ public class FileUploadService {
             fileUpload.setUploadedTime(uploadedTime);
 
             // append suffix into fileName
-            fileUpload.setFileName(FileUtils.encoding(excelFile.getOriginalFilename()) + "_" + strUploadedTime + ".xlsx");
+            fileUpload.setFileName(FileUtils.encoding(Objects.requireNonNull(excelFile.getOriginalFilename())) + "_" + strUploadedTime + ".xlsx");
 
             // save information to db
             fileUploadRepository.save(fileUpload);
@@ -77,7 +74,7 @@ public class FileUploadService {
 
         Date uploadedTime = new Date();
         String strUploadedTime = (new SimpleDateFormat("ddMMyyyyHHmmss").format(uploadedTime));
-        String encodedFileName = FileUtils.encoding(multipartFile.getOriginalFilename()) + "_" + strUploadedTime + ".xlsx";
+        String encodedFileName = FileUtils.encoding(Objects.requireNonNull(multipartFile.getOriginalFilename())) + "_" + strUploadedTime + ".xlsx";
 
         File file = new File(baseFolder + "/" + encodedFileName);
         if (file.createNewFile()) {

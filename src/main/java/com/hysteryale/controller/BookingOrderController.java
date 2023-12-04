@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -62,7 +63,7 @@ public class BookingOrderController {
             //save file on disk
             if (FileUtils.isExcelFile(file.getInputStream())) {
                 // save file to disk
-                if (file.getOriginalFilename().toLowerCase().contains("booked") || file.getOriginalFilename().toLowerCase().contains("booking")) {
+                if (Objects.requireNonNull(file.getOriginalFilename()).toLowerCase().contains("booked") || file.getOriginalFilename().toLowerCase().contains("booking")) {
                     pathFileBooking = fileUploadService.saveFileUploadToDisk(file);
                 } else if (file.getOriginalFilename().toLowerCase().contains("cost_data")) {
                     pathFileCostData = fileUploadService.saveFileUploadToDisk(file);
