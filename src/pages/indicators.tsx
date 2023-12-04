@@ -42,6 +42,33 @@ ChartJS.register(
    Title,
    ChartAnnotation
 );
+import axios from 'axios';
+import { parseCookies } from 'nookies';
+
+export async function getServerSideProps(context) {
+   try {
+      let cookies = parseCookies(context);
+      let token = cookies['token'];
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/checkToken`, null, {
+         headers: {
+            Authorization: 'Bearer ' + token,
+         },
+      });
+
+      return {
+         props: {},
+      };
+   } catch (error) {
+      console.error('token error', error);
+
+      return {
+         redirect: {
+            destination: '/login',
+            permanent: false,
+         },
+      };
+   }
+}
 
 export default function Indicators() {
    const dispatch = useDispatch();

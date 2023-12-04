@@ -23,6 +23,30 @@ import { useDropzone } from 'react-dropzone';
 import { parseCookies, setCookie } from 'nookies';
 import axios from 'axios';
 
+export async function getServerSideProps(context) {
+   try {
+      let cookies = parseCookies(context);
+      let token = cookies['token'];
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/checkToken`, null, {
+         headers: {
+            Authorization: 'Bearer ' + token,
+         },
+      });
+
+      return {
+         props: {},
+      };
+   } catch (error) {
+      console.error('token error', error);
+
+      return {
+         redirect: {
+            destination: '/login',
+            permanent: false,
+         },
+      };
+   }
+}
 export default function MarginAnalysis() {
    const dispatch = useDispatch();
 
