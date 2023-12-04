@@ -1,8 +1,7 @@
 package com.hysteryale.service;
 
-import com.hysteryale.model.BookingOrder;
-import com.hysteryale.model.Region;
-import com.hysteryale.model.Shipment;
+import com.hysteryale.exception.MissingColumnException;
+import com.hysteryale.model.*;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.competitor.ForeCastValue;
 import com.hysteryale.repository.CompetitorPricingRepository;
@@ -10,10 +9,10 @@ import com.hysteryale.repository.ShipmentRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -403,7 +402,46 @@ public class ImportService extends BasedService {
 
     }
 
-    public void importShipment() throws IOException {
+    public void importShipmentFileOneByOne(InputStream is) throws IOException, MissingColumnException {
+        XSSFWorkbook workbook = new XSSFWorkbook(is);
+        HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
+        XSSFSheet competitorSheet = workbook.getSheet("Sheet1");
+        logInfo("import shipment");
+        List<Shipment> shipmentList = new ArrayList<>();
+        for (Row row : competitorSheet) {
+            if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
+            else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
+                Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
+                shipmentList.add(newShipment);
+            }
+        }
+
+        List<Shipment> shipmentListAfterCalculate = new ArrayList<>();
+
+        for (Shipment shipment : shipmentList) {
+            // check orderNo is existed in shipmentListAfterCalculate\
+            Shipment s = checkExistOrderNo(shipmentListAfterCalculate, shipment.getOrderNo());
+            if (s != null) {
+                updateShipment(s, shipment);
+            } else {
+                shipmentListAfterCalculate.add(shipment);
+            }
+        }
+
+        shipmentRepository.saveAll(shipmentListAfterCalculate);
+
+        logInfo("import shipment successfully");
+    }
+
+    private Shipment checkExistOrderNo(List<Shipment> list, String orderNo) {
+        for (Shipment s : list) {
+            if (s.getOrderNo().equals(orderNo))
+                return s;
+        }
+        return null;
+    }
+
+    public void importShipment() throws IOException, MissingColumnException {
         String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.shipment");
 
@@ -419,27 +457,13 @@ public class ImportService extends BasedService {
             logInfo("{ Start importing file: '" + fileName + "'");
 
             InputStream is = new FileInputStream(pathFile);
-            XSSFWorkbook workbook = new XSSFWorkbook(is);
-            HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
-            Sheet competitorSheet = workbook.getSheet("Sheet1");
 
-
-            for (Row row : competitorSheet) {
-                if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
-                else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
-                    Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
-                    Shipment getShipmentInDB = shipmentService.getShipmentByOrderNo(newShipment.getOrderNo());
-                    if (getShipmentInDB != null) {
-                        shipmentRepository.save(updateShipment(getShipmentInDB, newShipment));
-                    } else {
-                        shipmentRepository.save(newShipment);
-                    }
-                }
-            }
+            importShipmentFileOneByOne(is);
 
             updateStateImportFile(pathFile);
         }
     }
+
 
     /**
      * reset revenue, totalCost, Margin$, Margin%
@@ -455,94 +479,147 @@ public class ImportService extends BasedService {
     }
 
 
-    private Shipment mapExcelDataIntoShipmentObject(Row row, HashMap<String, Integer> shipmentColumnsName) {
+    private Shipment mapExcelDataIntoShipmentObject(Row row, HashMap<String, Integer> shipmentColumnsName) throws MissingColumnException {
         Shipment shipment = new Shipment();
 
-        try {
-            // Set orderNo
-            String orderNo = row.getCell(shipmentColumnsName.get("Order number")).getStringCellValue();
-            shipment.setOrderNo(orderNo);
 
-            // Set serialNUmber
+        // Set orderNo
+        String orderNo;
+        if (shipmentColumnsName.get("Order number") != null) {
+            orderNo = row.getCell(shipmentColumnsName.get("Order number")).getStringCellValue();
+            shipment.setOrderNo(orderNo);
+        } else {
+            throw new MissingColumnException("Missing column 'Order number'!");
+        }
+
+        // Set serialNUmber
+        if (shipmentColumnsName.get("Serial Number") != null) {
             String serialNumber = row.getCell(shipmentColumnsName.get("Serial Number")).getStringCellValue();
             shipment.setSerialNumber(serialNumber);
+        } else {
+            throw new MissingColumnException("Missing column 'Serial Number'!");
+        }
 
-            // Set model
+        // Set model
+        if (shipmentColumnsName.get("Model") != null) {
             String model = row.getCell(shipmentColumnsName.get("Model")).getStringCellValue();
             shipment.setModel(model);
+        } else {
+            throw new MissingColumnException("Missing column 'Model'!");
+        }
 
-            // netRevenue
-            double revenue = row.getCell(shipmentColumnsName.get("Revenue")).getNumericCellValue();
-            double discount = row.getCell(shipmentColumnsName.get("Discounts")).getNumericCellValue();
-            double netRevenue = revenue - discount;
-            shipment.setNetRevenue(netRevenue);
+        // netRevenue
+        double revenue, discount;
+        if (shipmentColumnsName.get("Revenue") != null) {
+            revenue = row.getCell(shipmentColumnsName.get("Revenue")).getNumericCellValue();
+        } else {
+            throw new MissingColumnException("Missing column 'Revenue'!");
+        }
 
-            // dealerName
+        if (shipmentColumnsName.get("Discounts") != null) {
+            discount = row.getCell(shipmentColumnsName.get("Discounts")).getNumericCellValue();
+        } else {
+            throw new MissingColumnException("Missing column 'Discounts'!");
+        }
+        double netRevenue = revenue - discount;
+        shipment.setNetRevenue(netRevenue);
+
+
+        // dealerName
+        if (shipmentColumnsName.get("End Customer Name") != null) {
             String dealerName = row.getCell(shipmentColumnsName.get("End Customer Name")).getStringCellValue();
             shipment.setDealerName(dealerName);
+        } else {
+            throw new MissingColumnException("Missing column 'End Customer Name'!");
+        }
 
-            // country
+        // country
+        if (shipmentColumnsName.get("Ship-to Country Code") != null) {
             String country = row.getCell(shipmentColumnsName.get("Ship-to Country Code")).getStringCellValue();
             shipment.setCtryCode(country);
+        } else {
+            throw new MissingColumnException("Missing column 'Ship-to Country Code'!");
+        }
 
-            // date
+        // date
+        if (shipmentColumnsName.get("Created On") != null) {
             Date date = row.getCell(shipmentColumnsName.get("Created On")).getDateCellValue();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             shipment.setDate(calendar);
+        } else {
+            throw new MissingColumnException("Missing column 'Created On'!");
+        }
 
-            //totalCost
-            Double costOfSales = row.getCell(shipmentColumnsName.get("Cost of Sales")).getNumericCellValue();
-            Double warranty = row.getCell(shipmentColumnsName.get("Warranty")).getNumericCellValue();
-            double totalCost = costOfSales - warranty;
-            shipment.setTotalCost(totalCost);
+        //totalCost
+        double costOfSales, warranty;
+        if (shipmentColumnsName.get("Cost of Sales") != null) {
+            costOfSales = row.getCell(shipmentColumnsName.get("Cost of Sales")).getNumericCellValue();
+        } else {
+            throw new MissingColumnException("Missing column 'Cost of Sales'!");
+        }
+        if (shipmentColumnsName.get("Warranty") != null) {
+            warranty = row.getCell(shipmentColumnsName.get("Warranty")).getNumericCellValue();
+        } else {
+            throw new MissingColumnException("Missing column 'Warranty'!");
+        }
+        double totalCost = costOfSales - warranty;
+        shipment.setTotalCost(totalCost);
 
-            //quantity
+        //quantity
+        if (shipmentColumnsName.get("Quantity") != null) {
             int quantity = (int) row.getCell(shipmentColumnsName.get("Quantity")).getNumericCellValue();
             shipment.setQuantity(quantity);
-
-            // get data from BookingOrder
-            Optional<BookingOrder> bookingOrderOptional = bookingOrderRepository.getBookingOrderByOrderNo(orderNo);
-            if (bookingOrderOptional.isPresent()) {
-                BookingOrder booking = bookingOrderOptional.get();
-                // set series
-                shipment.setSeries(booking.getSeries());
-
-                // set productDimension
-                shipment.setProductDimension(booking.getProductDimension());
-
-                // set Region
-                shipment.setRegion(booking.getRegion());
-
-                // DN
-                shipment.setDealerNet(booking.getDealerNet());
-
-                //DN AfterSurcharge
-                double dealerNetAfterSurcharge = booking.getDealerNetAfterSurCharge();
-                shipment.setDealerNetAfterSurCharge(dealerNetAfterSurcharge);
-
-                double marginAfterSurcharge = dealerNetAfterSurcharge - totalCost;
-                double marginPercentageAfterSurcharge = marginAfterSurcharge / dealerNetAfterSurcharge;
-
-                // set Margin Percentage After surcharge
-                shipment.setMarginPercentageAfterSurCharge(marginPercentageAfterSurcharge);
-
-                // Set Margin after surcharge
-                shipment.setMarginAfterSurCharge(marginAfterSurcharge);
-
-                // set Booking margin percentage
-                shipment.setBookingMarginPercentageAfterSurCharge(booking.getMarginPercentageAfterSurCharge());
-
-                // AOP Margin %
-                shipment.setAOPMarginPercentage(booking.getAOPMarginPercentage());
-
-            } else {
-                 logWarning("Not found BookingOrder with OrderNo:  "+orderNo);
-            }
-
-        } catch (Exception e) {
-            //  logError(e.toString());
+        } else {
+            throw new MissingColumnException("Missing column 'Quantity'!");
         }
+
+        // series
+        if (shipmentColumnsName.get("Series") != null) {
+            String series = row.getCell(shipmentColumnsName.get("Series")).getStringCellValue();
+            shipment.setSeries(series);
+
+            // productDimension
+            ProductDimension productDimension = productDimensionService.getProductDimensionByMetaseries(series);
+            shipment.setProductDimension(productDimension);
+        } else {
+            throw new MissingColumnException("Missing column 'Series'!");
+        }
+
+        // get data from BookingOrder
+        Optional<BookingOrder> bookingOrderOptional = bookingOrderRepository.getBookingOrderByOrderNo(orderNo);
+        if (bookingOrderOptional.isPresent()) {
+            BookingOrder booking = bookingOrderOptional.get();
+
+            // set Region
+            shipment.setRegion(booking.getRegion());
+
+            // DN
+            shipment.setDealerNet(booking.getDealerNet());
+
+            //DN AfterSurcharge
+            double dealerNetAfterSurcharge = booking.getDealerNetAfterSurCharge();
+            shipment.setDealerNetAfterSurCharge(dealerNetAfterSurcharge);
+
+            double marginAfterSurcharge = dealerNetAfterSurcharge - totalCost;
+            double marginPercentageAfterSurcharge = marginAfterSurcharge / dealerNetAfterSurcharge;
+
+            // set Margin Percentage After surcharge
+            shipment.setMarginPercentageAfterSurCharge(marginPercentageAfterSurcharge);
+
+            // Set Margin after surcharge
+            shipment.setMarginAfterSurCharge(marginAfterSurcharge);
+
+            // set Booking margin percentage
+            shipment.setBookingMarginPercentageAfterSurCharge(booking.getMarginPercentageAfterSurCharge());
+
+            // AOP Margin %
+            shipment.setAOPMarginPercentage(booking.getAOPMarginPercentage());
+
+        }
+//        else {
+//            logWarning("Not found BookingOrder with OrderNo:  " + orderNo);
+//        }
 
         return shipment;
     }

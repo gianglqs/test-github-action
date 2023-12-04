@@ -5,7 +5,11 @@ import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.repository.ShipmentRepository;
 import com.hysteryale.utils.ConvertDataFilterUtil;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -48,6 +52,8 @@ public class ShipmentService extends BasedService {
             return optionalShipment.get();
         return null;
     }
+
+
 
 //    private Time
 }
