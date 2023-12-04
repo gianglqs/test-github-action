@@ -110,6 +110,52 @@ export default function MarginAnalysis() {
          });
    };
 
+   const handleImportMacroFile = async (file) => {
+      let formData = new FormData();
+      formData.append('file', file);
+
+      let cookies = parseCookies();
+      let token = cookies['token'];
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importMacroFile`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer' + token,
+         },
+      })
+         .then(function (response) {
+            console.log(response);
+         })
+         .catch(function (response) {
+            console.log(response);
+         });
+   };
+
+   const handleImportPowerBi = async (file) => {
+      let formData = new FormData();
+      formData.append('file', file);
+
+      let cookies = parseCookies();
+      let token = cookies['token'];
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importPowerBiFile`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer' + token,
+         },
+      })
+         .then(function (response) {
+            console.log(response);
+         })
+         .catch(function (response) {
+            console.log(response);
+         });
+   };
+
    const columns = [
       {
          field: 'optionCode',
@@ -177,15 +223,33 @@ export default function MarginAnalysis() {
                   onClick={handleFilterMarginAnalysis}
                   sx={{ width: '100%', height: 24 }}
                >
-                  Calculate
+                  Get Analysis Data
                </Button>
+
+               <UploadFileDropZone
+                  uploadedFile={uploadedFile}
+                  setUploadedFile={setUploadedFile}
+                  handleUploadFile={handleUploadFile}
+                  buttonName="Estimate From File"
+                  sx={{ width: '100%', height: 24, marginTop: 1 }}
+               />
             </Grid>
 
             <Grid item xs={1}>
                <UploadFileDropZone
                   uploadedFile={uploadedFile}
                   setUploadedFile={setUploadedFile}
-                  handleUploadFile={handleUploadFile}
+                  handleUploadFile={handleImportMacroFile}
+                  buttonName="Import Macro File"
+                  sx={{ width: '100%', height: 24 }}
+               />
+
+               <UploadFileDropZone
+                  uploadedFile={uploadedFile}
+                  setUploadedFile={setUploadedFile}
+                  handleUploadFile={handleImportPowerBi}
+                  buttonName="Import PowerBi File"
+                  sx={{ width: '100%', height: 24, marginTop: 1 }}
                />
             </Grid>
             <Grid item xs={4}>
@@ -841,8 +905,6 @@ function UploadFileDropZone(props) {
          reader.onerror = () => console.log('file reading has failed');
          reader.onload = () => {
             // Do whatever you want with the file contents
-            const binaryStr = reader.result;
-            console.log(binaryStr);
             props.setUploadedFile(file);
          };
          reader.readAsArrayBuffer(file);
@@ -853,10 +915,10 @@ function UploadFileDropZone(props) {
    const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
       noClick: true,
       onDrop,
-      maxSize: 1048576,
+      maxSize: 16777216,
       maxFiles: 1,
       accept: {
-         'excel/xlsx': ['.xlsx'],
+         'excel/xlsx': ['.xlsx', '.xlsb'],
       },
    });
    const dispatch = useDispatch();
@@ -868,20 +930,14 @@ function UploadFileDropZone(props) {
             `${errors[0].message} ${_.isNil(errors[1]) ? '' : `or ${errors[1].message}`}`
          )
       );
-      console.log(fileRejections);
       fileRejections.splice(0, 1);
    }
 
    return (
       <div {...getRootProps()}>
          <input {...getInputProps()} />
-         <Button
-            type="button"
-            onClick={open}
-            variant="contained"
-            sx={{ width: '100%', height: 24 }}
-         >
-            Select file
+         <Button type="button" onClick={open} variant="contained" sx={props.sx}>
+            {props.buttonName}
          </Button>
       </div>
    );
