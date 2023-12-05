@@ -13,6 +13,7 @@ import {
    Radio,
    RadioGroup,
    Typography,
+   CircularProgress,
 } from '@mui/material';
 import { GridExpandMoreIcon } from '@mui/x-data-grid-pro';
 import { useCallback, useState } from 'react';
@@ -65,6 +66,7 @@ export default function MarginAnalysis() {
    const [openAccordion, setOpenAccordion] = useState(true);
    const [openAccordionTable, setOpenAccordionTable] = useState(true);
    const [uploadedFile, setUploadedFile] = useState({ name: '' });
+   const [loading, setLoading] = useState(false);
 
    const [orderNumberValue, setOrderNumberValue] = useState({ value: '' });
    const handleOrderNumber = (value) => {
@@ -117,6 +119,7 @@ export default function MarginAnalysis() {
 
       let cookies = parseCookies();
       let token = cookies['token'];
+      setLoading(true);
       axios({
          method: 'post',
          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}estimateMarginAnalystData`,
@@ -127,10 +130,64 @@ export default function MarginAnalysis() {
          },
       })
          .then(function (response) {
+            setLoading(false);
             setCookie(null, 'fileUUID', response.data.fileUUID);
          })
          .catch(function (response) {
+            setLoading(false);
             console.log(response);
+         });
+   };
+
+   const handleImportMacroFile = async (file) => {
+      let formData = new FormData();
+      formData.append('file', file);
+
+      let cookies = parseCookies();
+      let token = cookies['token'];
+      setLoading(true);
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importMacroFile`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer' + token,
+         },
+      })
+         .then(function (response) {
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Import successfully'));
+         })
+         .catch(function (response) {
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage(response.response.data.message));
+         });
+   };
+
+   const handleImportPowerBi = async (file) => {
+      let formData = new FormData();
+      formData.append('file', file);
+
+      let cookies = parseCookies();
+      let token = cookies['token'];
+      setLoading(true);
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importPowerBiFile`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer' + token,
+         },
+      })
+         .then(function (response) {
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Import successfully'));
+         })
+         .catch(function (response) {
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage(response.response.data.message));
          });
    };
 
@@ -201,15 +258,33 @@ export default function MarginAnalysis() {
                   onClick={handleFilterMarginAnalysis}
                   sx={{ width: '100%', height: 24 }}
                >
-                  Calculate
+                  Get Analysis Data
                </Button>
+
+               <UploadFileDropZone
+                  uploadedFile={uploadedFile}
+                  setUploadedFile={setUploadedFile}
+                  handleUploadFile={handleUploadFile}
+                  buttonName="Estimate From File"
+                  sx={{ width: '100%', height: 24, marginTop: 1 }}
+               />
             </Grid>
 
             <Grid item xs={1}>
                <UploadFileDropZone
                   uploadedFile={uploadedFile}
                   setUploadedFile={setUploadedFile}
-                  handleUploadFile={handleUploadFile}
+                  handleUploadFile={handleImportMacroFile}
+                  buttonName="Import Macro File"
+                  sx={{ width: '100%', height: 24 }}
+               />
+
+               <UploadFileDropZone
+                  uploadedFile={uploadedFile}
+                  setUploadedFile={setUploadedFile}
+                  handleUploadFile={handleImportPowerBi}
+                  buttonName="Import PowerBi File"
+                  sx={{ width: '100%', height: 24, marginTop: 1 }}
                />
             </Grid>
             <Grid item xs={4}>
@@ -217,6 +292,30 @@ export default function MarginAnalysis() {
             </Grid>
 
             <Grid item xs={12}>
+               {loading ? (
+                  <div
+                     style={{
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0, 0.3)',
+                        position: 'absolute',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1001,
+                     }}
+                  >
+                     <CircularProgress
+                        color="info"
+                        size={60}
+                        sx={{
+                           position: 'relative',
+                        }}
+                     />
+                  </div>
+               ) : null}
                <Accordion
                   expanded={openAccordionTable}
                   onChange={(e, expanded) => setOpenAccordionTable(expanded)}
@@ -865,8 +964,6 @@ function UploadFileDropZone(props) {
          reader.onerror = () => console.log('file reading has failed');
          reader.onload = () => {
             // Do whatever you want with the file contents
-            const binaryStr = reader.result;
-            console.log(binaryStr);
             props.setUploadedFile(file);
          };
          reader.readAsArrayBuffer(file);
@@ -877,10 +974,10 @@ function UploadFileDropZone(props) {
    const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
       noClick: true,
       onDrop,
-      maxSize: 1048576,
+      maxSize: 16777216,
       maxFiles: 1,
       accept: {
-         'excel/xlsx': ['.xlsx'],
+         'excel/xlsx': ['.xlsx', '.xlsb'],
       },
    });
    const dispatch = useDispatch();
@@ -892,20 +989,14 @@ function UploadFileDropZone(props) {
             `${errors[0].message} ${_.isNil(errors[1]) ? '' : `or ${errors[1].message}`}`
          )
       );
-      console.log(fileRejections);
       fileRejections.splice(0, 1);
    }
 
    return (
       <div {...getRootProps()}>
          <input {...getInputProps()} />
-         <Button
-            type="button"
-            onClick={open}
-            variant="contained"
-            sx={{ width: '100%', height: 24 }}
-         >
-            Select file
+         <Button type="button" onClick={open} variant="contained" sx={props.sx}>
+            {props.buttonName}
          </Button>
       </div>
    );
