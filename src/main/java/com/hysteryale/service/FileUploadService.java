@@ -1,9 +1,7 @@
 package com.hysteryale.service;
 
 import com.hysteryale.model.User;
-import com.hysteryale.model.marginAnalyst.MarginAnalystFileUpload;
 import com.hysteryale.model.upload.FileUpload;
-import com.hysteryale.repository.marginAnalyst.MarginAnalystFileUploadRepository;
 import com.hysteryale.repository.upload.FileUploadRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import com.hysteryale.utils.FileUtils;

@@ -16,8 +16,6 @@ public class ImportController {
     @Resource
     APICDealerService apicDealerService;
     @Resource
-    APACSerialService apacSerialService;
-    @Resource
     BookingOrderService bookingOrderService;
     @Resource
     AOPMarginService aopMarginService;
@@ -45,7 +43,6 @@ public class ImportController {
     @PostMapping(path = "/importAllData")
     void importAllData() throws IOException, IllegalAccessException, MissingColumnException {
         importApicDealer();
-        importAPACSerial();
         importCurrencies();
         importPart();
         importAOPMargin();
@@ -61,11 +58,6 @@ public class ImportController {
     @PostMapping(path = "/importApicDealer")
     void importApicDealer() throws IOException, IllegalAccessException {
         apicDealerService.importAPICDealer();
-    }
-
-    @PostMapping(path = "/importAPACSerial")
-    void importAPACSerial() throws IOException, IllegalAccessException {
-        apacSerialService.importAPACSerial();
     }
 
     @PostMapping(path = "/importCurrencies")
