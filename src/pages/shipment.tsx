@@ -277,7 +277,7 @@ export default function Shipment() {
          .catch(function (response) {
             // show message in screen
             setLoading(false);
-            //show message
+            //show messages
             dispatch(commonStore.actions.setErrorMessage(response.response.data.message));
          });
    };
