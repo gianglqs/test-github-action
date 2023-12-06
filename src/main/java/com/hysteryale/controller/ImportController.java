@@ -16,8 +16,6 @@ public class ImportController {
     @Resource
     APICDealerService apicDealerService;
     @Resource
-    APACSerialService apacSerialService;
-    @Resource
     BookingOrderService bookingOrderService;
     @Resource
     AOPMarginService aopMarginService;
@@ -45,7 +43,6 @@ public class ImportController {
     @PostMapping(path = "/importAllData")
     void importAllData() throws IOException, IllegalAccessException, MissingColumnException {
         importApicDealer();
-        importAPACSerial();
         importCurrencies();
         importPart();
         importAOPMargin();
@@ -63,18 +60,13 @@ public class ImportController {
         apicDealerService.importAPICDealer();
     }
 
-    @PostMapping(path = "/importAPACSerial")
-    void importAPACSerial() throws IOException, IllegalAccessException {
-        apacSerialService.importAPACSerial();
-    }
-
     @PostMapping(path = "/importCurrencies")
-    void importCurrencies() throws IOException, IllegalAccessException {
+    void importCurrencies() throws IOException {
         currencyService.importCurrencies();
     }
 
     @PostMapping(path = "/importPart")
-    void importPart() throws IOException, IllegalAccessException {
+    void importPart() throws IOException {
         partService.importPart();
     }
 
@@ -94,27 +86,27 @@ public class ImportController {
     }
 
     @PostMapping(path = "/importExchangeRate")
-    void importExchangeRate() throws IOException, IllegalAccessException {
+    void importExchangeRate() throws IOException {
         exchangeRateService.importExchangeRate();
     }
 
     @PostMapping(path = "/importCostUplift")
-    void importCostUplift() throws IOException, IllegalAccessException {
+    void importCostUplift() throws IOException {
         costUpliftService.importCostUplift();
     }
 
     @PostMapping(path = "/importMarginAnalystMacro")
-    void importMarginAnalystMacro() throws IOException, IllegalAccessException {
+    void importMarginAnalystMacro() {
         marginAnalystMacroService.importMarginAnalystMacro();
     }
 
     @PostMapping(path = "/importMarginAnalystData")
-    void importMarginAnalystData() throws IOException, IllegalAccessException {
+    void importMarginAnalystData() throws IOException {
         marginAnalystService.importMarginAnalystData();
     }
 
     @PostMapping(path = "/importCompetitorPricing")
-    void importCompetitorPricing() throws IOException, IllegalAccessException {
+    void importCompetitorPricing() throws IOException {
         importService.importCompetitorPricing();
     }
 

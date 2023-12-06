@@ -10,6 +10,7 @@ import com.hysteryale.repository_h2.IMMarginAnalystDataRepository;
 import com.hysteryale.repository_h2.IMMarginAnalystSummaryRepository;
 import com.hysteryale.service.BookingOrderService;
 import com.hysteryale.service.ExchangeRateService;
+import com.hysteryale.service.FileUploadService;
 import com.hysteryale.service.PartService;
 import com.hysteryale.utils.CurrencyFormatUtils;
 import com.hysteryale.utils.DateUtils;
@@ -41,7 +42,7 @@ public class IMMarginAnalystDataService {
     @Resource
     MarginAnalystMacroService marginAnalystMacroService;
     @Resource
-    MarginAnalystFileUploadService marginAnalystFileUploadService;
+    FileUploadService fileUploadService;
     @Resource
     MarginAnalysisAOPRateRepository marginAnalysisAOPRateRepository;
     @Resource
@@ -158,7 +159,7 @@ public class IMMarginAnalystDataService {
      */
     public void calculateNonUSMarginAnalystData(String originalFileName, String fileUUID) throws IOException {
         String baseFolder = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
-        String fileName = marginAnalystFileUploadService.getFileNameByUUID(fileUUID); // fileName has been hashed
+        String fileName = fileUploadService.getFileNameByUUID(fileUUID); // fileName has been hashed
 
         log.info(originalFileName);
         Pattern pattern = Pattern.compile("(.*)[_|\\s](.*)(.xlsx)");

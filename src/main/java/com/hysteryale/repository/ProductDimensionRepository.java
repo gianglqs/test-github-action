@@ -1,6 +1,5 @@
 package com.hysteryale.repository;
 
-import com.hysteryale.model.APACSerial;
 import com.hysteryale.model.ProductDimension;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
