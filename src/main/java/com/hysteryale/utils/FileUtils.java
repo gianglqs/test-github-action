@@ -119,4 +119,11 @@ public class FileUtils {
         byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
         return new String(decodedBytes);
     }
+
+    public static boolean checkFileNameValid(MultipartFile multipartFile, String regex){
+        String fileName = " ";
+        fileName = multipartFile.getOriginalFilename();
+        assert fileName != null;
+        return fileName.toLowerCase().contains(regex);
+    }
 }

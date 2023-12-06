@@ -64,9 +64,9 @@ public class BookingOrderController {
                 //save file on disk
                 if (FileUtils.isExcelFile(file.getInputStream())) {
                     // save file to disk
-                    if (Objects.requireNonNull(file.getOriginalFilename()).toLowerCase().contains("booked") || file.getOriginalFilename().toLowerCase().contains("booking")) {
+                    if (FileUtils.checkFileNameValid(file,"booked") || FileUtils.checkFileNameValid(file,"booking")) {
                         pathFileBooking = fileUploadService.saveFileUploadToDisk(file);
-                    } else if (file.getOriginalFilename().toLowerCase().contains("cost_data")) {
+                    } else if (FileUtils.checkFileNameValid(file,"cost_data")) {
                         pathFileCostData = fileUploadService.saveFileUploadToDisk(file);
                     }
                     //save to DB
