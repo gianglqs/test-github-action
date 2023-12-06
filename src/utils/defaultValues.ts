@@ -23,4 +23,12 @@ export const defaultValueFilterOrder = {
    marginPercentage: '',
    fromDate: '',
    toDate: '',
+   marginPercentageAfterAdj: '',
 } as any;
+
+export const defaultValueCaculatorForAjustmentCost = {
+   costAdjPercentage: '',
+   freightAdj: '',
+   fxAdj: '',
+   dealerNetAdj: '',
+};
