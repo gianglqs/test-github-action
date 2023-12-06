@@ -31,7 +31,7 @@ public class FilterController {
 
     @GetMapping("/outlier")
     public Map<String, Object> getOutlierFilters() {
-        return filterService.getOutLierFilter();
+        return filterService.getOutlierFilter();
     }
 
 }

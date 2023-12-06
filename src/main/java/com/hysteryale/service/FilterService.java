@@ -58,13 +58,12 @@ public class FilterService {
         filters.put("marginPercentageGroup", getMarginPercentageGroup());
         filters.put("AOPMarginPercentageGroup", getAOPMarginPercentageGroup());
         filters.put("dealers", getAllDealerNames());
-        filters.put("series", getSeries());
         filters.put("segments", getAllSegments());
 
         return filters;
     }
 
-    public Map<String, Object> getOutLierFilter() {
+    public Map<String, Object> getOutlierFilter() {
         Map<String, Object> filters = new HashMap<>();
         filters.put("regions", getAllRegions());
         filters.put("classes", getAllClasses());
@@ -77,8 +76,6 @@ public class FilterService {
 
         return filters;
     }
-
-
 
     private List<Map<String, String>> getChineseBrandFilter() {
         List<Map<String, String>> result = new ArrayList<>();
