@@ -54,37 +54,41 @@ public class BookingOrderController {
     }
 
     @PostMapping(path = "/importNewBooking", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseObject> importNewDataBooking(@RequestParam("files") List<MultipartFile> fileList, Authentication authentication) throws Exception {
+    public ResponseEntity<ResponseObject> importNewDataBooking(@RequestParam("files") List<MultipartFile> fileList, Authentication authentication) {
         String pathFileBooking = "";
         String pathFileCostData = "";
         boolean invalid = false;
-        for (MultipartFile file : fileList) {
+        try {
+            for (MultipartFile file : fileList) {
 
-            //save file on disk
-            if (FileUtils.isExcelFile(file.getInputStream())) {
-                // save file to disk
-                if (Objects.requireNonNull(file.getOriginalFilename()).toLowerCase().contains("booked") || file.getOriginalFilename().toLowerCase().contains("booking")) {
-                    pathFileBooking = fileUploadService.saveFileUploadToDisk(file);
-                } else if (file.getOriginalFilename().toLowerCase().contains("cost_data")) {
-                    pathFileCostData = fileUploadService.saveFileUploadToDisk(file);
+                //save file on disk
+                if (FileUtils.isExcelFile(file.getInputStream())) {
+                    // save file to disk
+                    if (Objects.requireNonNull(file.getOriginalFilename()).toLowerCase().contains("booked") || file.getOriginalFilename().toLowerCase().contains("booking")) {
+                        pathFileBooking = fileUploadService.saveFileUploadToDisk(file);
+                    } else if (file.getOriginalFilename().toLowerCase().contains("cost_data")) {
+                        pathFileCostData = fileUploadService.saveFileUploadToDisk(file);
+                    }
+                    //save to DB
+                    fileUploadService.saveFileUpload(file, authentication);
                 }
-                //save to DB
-                fileUploadService.saveFileUpload(file, authentication);
-            }
 
+            }
+            // import
+            if (!pathFileBooking.isEmpty()) {
+                bookingOrderService.importNewBookingFileByFile(pathFileBooking);
+                invalid = true;
+            }
+            if (!pathFileCostData.isEmpty()) {
+                bookingOrderService.importCostData(pathFileCostData);
+                invalid = true;
+            }
+            if (!invalid)
+                throw new Exception("No valid file found");
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import successfully!", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject(e.getMessage(), null));
         }
-        // import
-        if (!pathFileBooking.isEmpty()) {
-            bookingOrderService.importNewBookingFileByFile(pathFileBooking);
-            invalid = true;
-        }
-        if (!pathFileCostData.isEmpty()) {
-            bookingOrderService.importCostData(pathFileCostData);
-            invalid = true;
-        }
-        if(!invalid)
-            throw new Exception("No valid file found");
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import successfully!", null));
     }
 
 }
