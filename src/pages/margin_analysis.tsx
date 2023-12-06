@@ -89,6 +89,7 @@ export default function MarginAnalysis() {
             orderNumber: orderNumberValue.value,
          };
 
+         setLoading(true);
          const { data } = await marginAnalysisApi.getEstimateMarginAnalystData({
             ...transformData,
          });
@@ -108,6 +109,7 @@ export default function MarginAnalysis() {
 
          setOpenAccordion(true);
          setOpenAccordionTable(true);
+         setLoading(false);
       } catch (error) {
          dispatch(commonStore.actions.setErrorMessage(error.message));
       }
@@ -234,7 +236,7 @@ export default function MarginAnalysis() {
                />
             </Grid>
 
-            <Grid item xs={1}>
+            <Grid item>
                <RadioGroup
                   row
                   value={valueCurrency}
@@ -252,42 +254,46 @@ export default function MarginAnalysis() {
                   <FormControlLabel value="AUD" control={<Radio />} label="AUD" />
                </RadioGroup>
             </Grid>
-            <Grid item xs={1}>
-               <Button
-                  variant="contained"
-                  onClick={handleFilterMarginAnalysis}
-                  sx={{ width: '100%', height: 24 }}
-               >
-                  Get Analysis Data
-               </Button>
 
-               <UploadFileDropZone
-                  uploadedFile={uploadedFile}
-                  setUploadedFile={setUploadedFile}
-                  handleUploadFile={handleUploadFile}
-                  buttonName="Estimate From File"
-                  sx={{ width: '100%', height: 24, marginTop: 1 }}
-               />
+            <Grid item spacing={1.1} display="flex" alignItems="center">
+               <Grid item>
+                  <Button
+                     variant="contained"
+                     onClick={handleFilterMarginAnalysis}
+                     sx={{ width: '100%', height: 24 }}
+                  >
+                     Get Analysis Data
+                  </Button>
+
+                  <UploadFileDropZone
+                     uploadedFile={uploadedFile}
+                     setUploadedFile={setUploadedFile}
+                     handleUploadFile={handleUploadFile}
+                     buttonName="Estimate From File"
+                     sx={{ width: '100%', height: 24, marginTop: 1 }}
+                  />
+               </Grid>
+
+               <Grid item sx={{ marginLeft: 1 }}>
+                  <UploadFileDropZone
+                     uploadedFile={uploadedFile}
+                     setUploadedFile={setUploadedFile}
+                     handleUploadFile={handleImportMacroFile}
+                     buttonName="Import Macro File"
+                     sx={{ width: '100%', height: 24 }}
+                  />
+
+                  <UploadFileDropZone
+                     uploadedFile={uploadedFile}
+                     setUploadedFile={setUploadedFile}
+                     handleUploadFile={handleImportPowerBi}
+                     buttonName="Import PowerBi File"
+                     sx={{ width: '100%', height: 24, marginTop: 1 }}
+                  />
+               </Grid>
             </Grid>
 
-            <Grid item xs={1}>
-               <UploadFileDropZone
-                  uploadedFile={uploadedFile}
-                  setUploadedFile={setUploadedFile}
-                  handleUploadFile={handleImportMacroFile}
-                  buttonName="Import Macro File"
-                  sx={{ width: '100%', height: 24 }}
-               />
-
-               <UploadFileDropZone
-                  uploadedFile={uploadedFile}
-                  setUploadedFile={setUploadedFile}
-                  handleUploadFile={handleImportPowerBi}
-                  buttonName="Import PowerBi File"
-                  sx={{ width: '100%', height: 24, marginTop: 1 }}
-               />
-            </Grid>
-            <Grid item xs={4}>
+            <Grid item>
                <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
             </Grid>
 
@@ -353,7 +359,14 @@ export default function MarginAnalysis() {
                   <AccordionDetails>
                      <Grid container spacing={1}>
                         <Grid item xs={4}>
-                           <Paper elevation={2} sx={{ padding: 2, height: 220 }}>
+                           <Paper
+                              elevation={2}
+                              sx={{
+                                 padding: 2,
+                                 height: 'fit-content',
+                                 minWidth: 300,
+                              }}
+                           >
                               <div className="space-between-element">
                                  <Typography
                                     sx={{ fontWeight: 'bold' }}
@@ -503,7 +516,14 @@ export default function MarginAnalysis() {
                            </Paper>
                         </Grid>
                         <Grid item xs={4}>
-                           <Paper elevation={3} sx={{ padding: 2, height: 220 }}>
+                           <Paper
+                              elevation={3}
+                              sx={{
+                                 padding: 2,
+                                 height: 'fit-content',
+                                 minWidth: 300,
+                              }}
+                           >
                               <div className="space-between-element">
                                  <Typography
                                     sx={{ fontWeight: 'bold' }}
@@ -652,7 +672,10 @@ export default function MarginAnalysis() {
                            </Paper>
                         </Grid>
                         <Grid item xs={4}>
-                           <Paper elevation={3} sx={{ padding: 2, height: 90 }}>
+                           <Paper
+                              elevation={3}
+                              sx={{ padding: 2, height: 'fit-content', minWidth: 300 }}
+                           >
                               <div className="space-between-element">
                                  <Typography
                                     sx={{ fontWeight: 'bold' }}
@@ -704,7 +727,10 @@ export default function MarginAnalysis() {
                            </Paper>
                         </Grid>
                         <Grid item xs={4}>
-                           <Paper elevation={3} sx={{ padding: 2, height: 120 }}>
+                           <Paper
+                              elevation={3}
+                              sx={{ padding: 2, height: 'fit-content', minWidth: 300 }}
+                           >
                               <div className="space-between-element">
                                  <Typography
                                     sx={{ fontWeight: 'bold' }}
@@ -772,7 +798,10 @@ export default function MarginAnalysis() {
                            </Paper>
                         </Grid>
                         <Grid item xs={4}>
-                           <Paper elevation={3} sx={{ padding: 2, height: 120 }}>
+                           <Paper
+                              elevation={3}
+                              sx={{ padding: 2, height: 'fit-content', minWidth: 300 }}
+                           >
                               <div className="space-between-element">
                                  <Typography
                                     sx={{ fontWeight: 'bold' }}
@@ -841,7 +870,10 @@ export default function MarginAnalysis() {
                         </Grid>
                         <Grid item xs={4}></Grid>
                         <Grid item xs={4}>
-                           <Paper elevation={3} sx={{ padding: 2, height: 140 }}>
+                           <Paper
+                              elevation={3}
+                              sx={{ padding: 2, height: 'fit-content', minWidth: 300 }}
+                           >
                               <div className="space-between-element">
                                  <Typography
                                     sx={{ fontWeight: 'bold' }}
@@ -894,7 +926,10 @@ export default function MarginAnalysis() {
                            </Paper>
                         </Grid>
                         <Grid item xs={4}>
-                           <Paper elevation={3} sx={{ padding: 2, height: 140 }}>
+                           <Paper
+                              elevation={3}
+                              sx={{ padding: 2, height: 'fit-content', minWidth: 300 }}
+                           >
                               <div className="space-between-element">
                                  <Typography
                                     sx={{ fontWeight: 'bold' }}
@@ -930,7 +965,7 @@ export default function MarginAnalysis() {
                               </div>
                               <div className="space-between-element">
                                  <Typography variant="body1" component="span">
-                                    Total Cost Without Freight (USD)
+                                    Total Cost Excluding Freight (USD)
                                  </Typography>
                                  <Typography variant="body1" component="span">
                                     {marginAnalysisSummary?.MarginAnalystSummaryMonthly.totalCostWithoutFreight.toLocaleString()}
