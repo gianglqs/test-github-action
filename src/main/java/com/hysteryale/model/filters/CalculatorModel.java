@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CalculatorModel {
     private double costAdjPercentage;
-    private double dealerNetAdj;
+    private double dnAdjPercentage;
     private double freightAdj;
     private double fxAdj;
 

@@ -91,7 +91,7 @@ public class BookingOrder {
         this.model = model;
     }
 
-    public BookingOrder(String region, String plant, String clazz, String series, String model,  double totalCost, double dealerNetAfterSurCharge, double marginAfterSurCharge, double marginPercentageAfterSurCharge,long quantity){
+    public BookingOrder(String region, String plant, String clazz, String series, String model,  double totalCost, double dealerNetAfterSurCharge, double marginAfterSurCharge, long quantity){
 
         ProductDimension p = new ProductDimension(plant, clazz, model);
         Region r = new Region(region);
@@ -102,7 +102,6 @@ public class BookingOrder {
         this.totalCost = totalCost;
         this.dealerNetAfterSurCharge = dealerNetAfterSurCharge;
         this.marginAfterSurCharge = marginAfterSurCharge;
-        this.marginPercentageAfterSurCharge = marginPercentageAfterSurCharge;
         this.model = model;
     }
 

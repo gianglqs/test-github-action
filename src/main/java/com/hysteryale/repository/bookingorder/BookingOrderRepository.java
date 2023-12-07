@@ -171,9 +171,8 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
     List<BookingOrder> getListBookingExist(List<String> listOrderNo);
 
 
-    @Query("SELECT new BookingOrder(c.region.region, c.productDimension.plant, c.productDimension.clazz," +
-            " c.series, c.model, sum(c.totalCost), " +
-            " sum(c.dealerNetAfterSurCharge), sum(c.marginAfterSurCharge), avg(c.marginPercentageAfterSurCharge), count(c)) " +
+    @Query("SELECT new BookingOrder(c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model, " +
+            "sum(c.totalCost), sum(c.dealerNetAfterSurCharge), sum(c.marginAfterSurCharge), count(c)) " +
             " FROM BookingOrder c WHERE " +
             " ((:regions) IS Null OR c.region.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
@@ -188,15 +187,11 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
             "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
             "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
-            " AND ((:marginPercentageAfterSurChargeAfterAdj) IS NULL OR " +
-            "   (:comparatorAfterAdj = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurChargeAfterAdj))" +
-            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model" +
-            " ORDER BY c.region.region"
-    )
+            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model " +
+            " HAVING (:marginPercentageAfterSurChargeAfterAdj) IS NULL OR " +
+            "   (:comparatorAfterAdj = '<' AND sum(c.dealerNetAfterSurCharge) <> 0 AND ((sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0))) < :marginPercentageAfterSurChargeAfterAdj) OR" +
+            "   (:comparatorAfterAdj = '>' AND sum(c.dealerNetAfterSurCharge) <> 0 AND ((sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0))) > :marginPercentageAfterSurChargeAfterAdj)"
+            )
     List<BookingOrder> selectForAdjustmentByFilter(@Param("regions") Object regions,
                                                    @Param("dealerName") Object dealerName,
                                                    @Param("plants") Object plants,
@@ -208,6 +203,10 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
                                                    @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
                                                    @Param("comparatorAfterAdj") Object comparatorAfterAdj,
                                                    @Param("marginPercentageAfterSurChargeAfterAdj") Object marginPercentageAfterSurChargeAfterAdj,
+                                                   @Param("costAdjPercentage") double costAdjPercentage,
+                                                   @Param("freightAdj") double freightAdj,
+                                                   @Param("fxAdj") double fxAdj,
+                                                   @Param("dnAdjPercentage") double dnAdjPercentage,
                                                    Pageable pageable);
 
     @Query("SELECT COUNT(c) " +
@@ -225,13 +224,10 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
             "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
             "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
-            " AND ((:marginPercentageAfterSurChargeAfterAdj) IS NULL OR " +
-            "   (:comparatorAfterAdj = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurChargeAfterAdj) OR" +
-            "   (:comparatorAfterAdj = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurChargeAfterAdj))" +
-            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model"
+            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model"+
+            " HAVING (:marginPercentageAfterSurChargeAfterAdj) IS NULL OR " +
+            "   (:comparatorAfterAdj = '<' AND sum(c.dealerNetAfterSurCharge) <> 0 AND (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0)) < :marginPercentageAfterSurChargeAfterAdj) OR" +
+            "   (:comparatorAfterAdj = '>' AND sum(c.dealerNetAfterSurCharge) <> 0 AND (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0)) > :marginPercentageAfterSurChargeAfterAdj)"
     )
     List<Integer> getCountAllForAdjustmentByFilter(@Param("regions") Object regions,
                                                         @Param("dealerName") Object dealerName,
@@ -243,5 +239,10 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
                                                         @Param("comparator") Object comparator,
                                                         @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
                                                         @Param("comparatorAfterAdj") Object comparatorAfterAdj,
-                                                        @Param("marginPercentageAfterSurChargeAfterAdj") Object marginPercentageAfterSurChargeAfterAdj);
+                                                        @Param("marginPercentageAfterSurChargeAfterAdj") Object marginPercentageAfterSurChargeAfterAdj,
+                                                        @Param("costAdjPercentage") double costAdjPercentage,
+                                                        @Param("freightAdj") double freightAdj,
+                                                        @Param("fxAdj") double fxAdj,
+                                                        @Param("dnAdjPercentage") double dnAdjPercentage
+    );
 }
