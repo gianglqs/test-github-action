@@ -30,5 +30,5 @@ export const defaultValueCaculatorForAjustmentCost = {
    costAdjPercentage: '',
    freightAdj: '',
    fxAdj: '',
-   dealerNetAdj: '',
+   dnAdjPercentage: '',
 };
