@@ -20,7 +20,10 @@ import {
 import _ from 'lodash';
 import { produce } from 'immer';
 
-import { defaultValueFilterOrder } from '@/utils/defaultValues';
+import {
+   defaultValueFilterOrder,
+   defaultValueCaculatorForAjustmentCost,
+} from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import { parseCookies } from 'nookies';
@@ -56,13 +59,18 @@ export default function Adjustment() {
    const initDataFilter = useSelector(adjustmentStore.selectInitDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
-
-   console.log(dataFilter);
+   const [dataCalculator, setDataCalculator] = useState(defaultValueCaculatorForAjustmentCost);
+   const currentPage = useSelector(commonStore.selectTableState).pageNo;
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (_.includes(['orderNo', 'fromDate', 'toDate', 'marginPercentage'], field)) {
+            if (
+               _.includes(
+                  ['orderNo', 'fromDate', 'toDate', 'marginPercentage', 'marginPercentageAfterAdj'],
+                  field
+               )
+            ) {
                draft[field] = option;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -71,8 +79,22 @@ export default function Adjustment() {
       );
    };
 
+   const handleChangeDataCalculator = (option, field) => {
+      setDataCalculator((prev) =>
+         produce(prev, (draft) => {
+            draft[field] = option;
+         })
+      );
+   };
+
+   const handleCalculator = () => {
+      dispatch(adjustmentStore.actions.setDefaultValueCalculator(dataCalculator));
+      handleChangePage(currentPage);
+   };
+
    const handleFilterAdjustment = () => {
       dispatch(adjustmentStore.actions.setDefaultValueFilterAdjustment(dataFilter));
+
       handleChangePage(1);
    };
 
@@ -353,7 +375,7 @@ export default function Adjustment() {
                </Grid>
                <Grid item xs={2}>
                   <AppAutocomplete
-                     options={initDataFilter.marginPercentage}
+                     options={initDataFilter.marginPercentageGroup}
                      label="Margin %"
                      onChange={(e, option) =>
                         handleChangeDataFilter(
@@ -369,12 +391,12 @@ export default function Adjustment() {
                </Grid>
                <Grid item xs={2}>
                   <AppAutocomplete
-                     options={initDataFilter.marginPercentage}
-                     label="Margin %"
+                     options={initDataFilter.marginPercentageGroup}
+                     label="New Margin %"
                      onChange={(e, option) =>
                         handleChangeDataFilter(
                            _.isNil(option) ? '' : option?.value,
-                           'marginPercentage'
+                           'marginPercentageAfterAdj'
                         )
                      }
                      disableClearable={false}
@@ -397,47 +419,51 @@ export default function Adjustment() {
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
-                        // onChange={(e) => handleChangeDataFilter(e.target.value, 'orderNo')}
-                        name="orderNo"
+                        onChange={(e) =>
+                           handleChangeDataCalculator(e.target.value, 'costAdjPercentage')
+                        }
+                        name="costAdjPercentage"
                         label="Cost Adj %"
-                        placeholder="Search order by ID"
+                        placeholder="Cost Adj %"
                      />
                   </Grid>
                </Grid>
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
-                        onChange={(e) => handleChangeDataFilter(e.target.value, 'orderNo')}
-                        name="orderNo"
+                        onChange={(e) => handleChangeDataCalculator(e.target.value, 'freightAdj')}
+                        name="freightAdj"
                         label="Freight Adj ('000 USD)"
-                        placeholder="Search order by ID"
+                        placeholder="Freight Adj ('000 USD)"
                      />
                   </Grid>
                </Grid>{' '}
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
-                        onChange={(e) => handleChangeDataFilter(e.target.value, 'orderNo')}
-                        name="orderNo"
+                        onChange={(e) => handleChangeDataCalculator(e.target.value, 'fxAdj')}
+                        name="fxAdj"
                         label="FX Adj ('000 USD)"
-                        placeholder="Search order by ID"
+                        placeholder="FX Adj ('000 USD)"
                      />
                   </Grid>
                </Grid>{' '}
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
-                        onChange={(e) => handleChangeDataFilter(e.target.value, 'orderNo')}
-                        name="orderNo"
+                        onChange={(e) =>
+                           handleChangeDataCalculator(e.target.value, 'dnAdjPercentage')
+                        }
+                        name="dnAdjPercentage"
                         label="DN Adj %"
-                        placeholder="Search order by ID"
+                        placeholder="DN Adj %"
                      />
                   </Grid>
                </Grid>
                <Grid item xs={1}>
                   <Button
                      variant="contained"
-                     // onClick={handleImport}
+                     onClick={handleCalculator}
                      sx={{ width: '100%', height: 24 }}
                   >
                      Calculate
