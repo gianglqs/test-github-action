@@ -41,7 +41,7 @@ public class AdjustmentService extends BasedService {
 
         //convert booking to adjustment
         List<AdjustmentPayLoad> listAdj = convertToListAdjustment(bookingOrderList, calculatorModel);
-        listAdj = setIdForList(listAdj);
+         setIdForList(listAdj);
         result.put("listAdjustment", listAdj);
 
 

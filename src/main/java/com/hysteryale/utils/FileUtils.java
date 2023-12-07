@@ -121,7 +121,7 @@ public class FileUtils {
     }
 
     public static boolean checkFileNameValid(MultipartFile multipartFile, String regex){
-        String fileName = " ";
+        String fileName ;
         fileName = multipartFile.getOriginalFilename();
         assert fileName != null;
         return fileName.toLowerCase().contains(regex);
