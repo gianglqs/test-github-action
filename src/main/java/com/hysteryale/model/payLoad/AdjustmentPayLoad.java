@@ -27,7 +27,7 @@ public class AdjustmentPayLoad {
     private double newDN;
     private double newMargin;
     private double newMarginPercentage;
-    private double additionalVolume;
+    private int additionalVolume;
 
     public AdjustmentPayLoad(String region, String plant, String clazz, String metaSeries, String model, int noOfOrder, double manualAdjCost, double manualAdjFreight, double manualAdjFX, double totalManualAdjCost, double originalDN, double originalMargin, double originalMarginPercentage, double newDN, double newMargin, double newMarginPercentage) {
         this.region = region;
