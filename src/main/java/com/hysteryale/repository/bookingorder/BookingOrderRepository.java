@@ -1,6 +1,7 @@
 package com.hysteryale.repository.bookingorder;
 
 import com.hysteryale.model.BookingOrder;
+import com.hysteryale.model.TrendData;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -172,4 +173,57 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
     List<BookingOrder> getListBookingExist(List<String> listOrderNo);
 
     BookingOrder findByOrderNo(String orderNo);
+
+    @Query("SELECT new com.hysteryale.model.TrendData( EXTRACT(month FROM b.date) as month, " +
+            "AVG(b.marginPercentageAfterSurCharge) as marginPercentage, " +
+            "AVG(b.totalCost) as costOrDealerNet ) " +
+            "FROM BookingOrder b WHERE " +
+            " ((:regions) IS NULL OR b.region.region IN (:regions) )" +
+            " AND ((:plants) IS NULL OR b.productDimension.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(b.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR b.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR b.model IN (:models))" +
+            " AND ((:segments) IS NULL OR b.productDimension.segment IN (:segments))" +
+            " AND ((:dealerName) IS NULL OR b.dealerName IN (:dealerName)) " +
+            " AND EXTRACT(year FROM b.date) = :year" +
+            " AND b.marginPercentageAfterSurCharge != 'NaN'" +
+            " AND b.marginPercentageAfterSurCharge != '-Infinity'" +
+            " AND b.marginPercentageAfterSurCharge != 'Infinity'" +
+            " GROUP BY EXTRACT(month FROM b.date) ORDER BY month ASC"
+    )
+    List<TrendData> getMarginVsCostData(@Param("regions") Object regions,
+                                        @Param("plants") Object plants,
+                                        @Param("metaSeries") Object metaSeries,
+                                        @Param("classes") Object classes,
+                                        @Param("models") Object models,
+                                        @Param("segments") Object segments,
+                                        @Param("dealerName") Object dealerName,
+                                        @Param("year") int year);
+
+    @Query("SELECT new com.hysteryale.model.TrendData( EXTRACT(month FROM b.date) as month, " +
+            "AVG(b.marginPercentageAfterSurCharge) as marginPercentage, " +
+            "AVG(b.dealerNet) as costOrDealerNet ) " +
+            "FROM BookingOrder b WHERE " +
+            " ((:regions) IS NULL OR b.region.region IN (:regions) )" +
+            " AND ((:plants) IS NULL OR b.productDimension.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(b.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR b.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR b.model IN (:models))" +
+            " AND ((:segments) IS NULL OR b.productDimension.segment IN (:segments))" +
+            " AND ((:dealerName) IS NULL OR b.dealerName IN (:dealerName)) " +
+            " AND EXTRACT(year FROM b.date) = :year" +
+            " AND b.marginPercentageAfterSurCharge != 'NaN'" +
+            " AND b.marginPercentageAfterSurCharge != '-Infinity'" +
+            " AND b.marginPercentageAfterSurCharge != 'Infinity'" +
+            " GROUP BY EXTRACT(month FROM b.date) ORDER BY month ASC"
+    )
+    List<TrendData> getMarginVsDNData(@Param("regions") Object regions,
+                                        @Param("plants") Object plants,
+                                        @Param("metaSeries") Object metaSeries,
+                                        @Param("classes") Object classes,
+                                        @Param("models") Object models,
+                                        @Param("segments") Object segments,
+                                        @Param("dealerName") Object dealerName,
+                                        @Param("year") int year);
+
 }
