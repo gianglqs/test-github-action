@@ -6,6 +6,7 @@ import indicatorSaga from './indicatorSaga';
 import shipmentSaga from './shipmentSaga';
 import outlierSaga from './outlierSaga';
 import trendsSaga from './trendsSaga';
+import adjustmentSaga from './adjustmentSaga';
 
 function* rootSaga() {
    yield fork(dashboardSaga);
@@ -15,6 +16,7 @@ function* rootSaga() {
    yield fork(shipmentSaga);
    yield fork(outlierSaga);
    yield fork(trendsSaga);
+   yield fork(adjustmentSaga);
 }
 
 export default rootSaga;

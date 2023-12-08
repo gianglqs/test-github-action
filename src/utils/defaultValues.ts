@@ -23,6 +23,7 @@ export const defaultValueFilterOrder = {
    marginPercentage: '',
    fromDate: '',
    toDate: '',
+   marginPercentageAfterAdj: '',
 } as any;
 
 export const defaultValueFilterTrends = {
@@ -34,4 +35,10 @@ export const defaultValueFilterTrends = {
    models: [],
    segments: [],
    years: [],
+};
+export const defaultValueCaculatorForAjustmentCost = {
+   costAdjPercentage: '',
+   freightAdj: '',
+   fxAdj: '',
+   dnAdjPercentage: '',
 };

@@ -3,13 +3,11 @@ import { useCallback, useState } from 'react';
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
-import { shipmentStore, commonStore } from '@/store/reducers';
+import { adjustmentStore, commonStore } from '@/store/reducers';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Button, CircularProgress, Typography } from '@mui/material';
-import { useDropzone } from 'react-dropzone';
-import { parseCookies, setCookie } from 'nookies';
+import { Button } from '@mui/material';
 
 import {
    AppAutocomplete,
@@ -22,9 +20,13 @@ import {
 import _ from 'lodash';
 import { produce } from 'immer';
 
-import { defaultValueFilterOrder } from '@/utils/defaultValues';
+import {
+   defaultValueFilterOrder,
+   defaultValueCaculatorForAjustmentCost,
+} from '@/utils/defaultValues';
 import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
+import { parseCookies } from 'nookies';
 
 export async function getServerSideProps(context) {
    try {
@@ -51,26 +53,21 @@ export async function getServerSideProps(context) {
    }
 }
 
-export default function Shipment() {
+export default function Adjustment() {
    const dispatch = useDispatch();
-
-   const listShipment = useSelector(shipmentStore.selectShipmentList);
-
-   const initDataFilter = useSelector(shipmentStore.selectInitDataFilter);
+   const listAdjustment = useSelector(adjustmentStore.selectAdjustmentList);
+   const initDataFilter = useSelector(adjustmentStore.selectInitDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
-
-   const [uploadedFile, setUploadedFile] = useState({ name: '' });
-
-   // use importing to control spiner
-   const [loading, setLoading] = useState(false);
+   const [dataCalculator, setDataCalculator] = useState(defaultValueCaculatorForAjustmentCost);
+   const currentPage = useSelector(commonStore.selectTableState).pageNo;
 
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
             if (
                _.includes(
-                  ['orderNo', 'fromDate', 'toDate', 'marginPercentage', 'aopMarginPercentageGroup'],
+                  ['orderNo', 'fromDate', 'toDate', 'marginPercentage', 'marginPercentageAfterAdj'],
                   field
                )
             ) {
@@ -82,14 +79,28 @@ export default function Shipment() {
       );
    };
 
-   const handleFilterOrderShipment = () => {
-      dispatch(shipmentStore.actions.setDefaultValueFilterOrder(dataFilter));
+   const handleChangeDataCalculator = (option, field) => {
+      setDataCalculator((prev) =>
+         produce(prev, (draft) => {
+            draft[field] = option;
+         })
+      );
+   };
+
+   const handleCalculator = () => {
+      dispatch(adjustmentStore.actions.setDefaultValueCalculator(dataCalculator));
+      handleChangePage(currentPage);
+   };
+
+   const handleFilterAdjustment = () => {
+      dispatch(adjustmentStore.actions.setDefaultValueFilterAdjustment(dataFilter));
+
       handleChangePage(1);
    };
 
    const handleChangePage = (pageNo: number) => {
       dispatch(commonStore.actions.setTableState({ pageNo }));
-      dispatch(shipmentStore.sagaGetList());
+      dispatch(adjustmentStore.sagaGetList());
    };
 
    const handleChangePerPage = (perPage: number) => {
@@ -101,59 +112,36 @@ export default function Shipment() {
 
    const columns = [
       {
-         field: 'orderNo',
-         flex: 0.4,
-         headerName: 'Order #',
-      },
-      {
-         field: 'date',
-         flex: 0.5,
-         headerName: 'Create at',
-         renderCell(params) {
-            return <span>{formatDate(params.row.date)}</span>;
-         },
-      },
-      {
          field: 'region',
-         flex: 0.3,
+         flex: 0.5,
          headerName: 'Region',
          renderCell(params) {
-            return <span>{params.row.region?.region}</span>;
+            return <span>{params.row.region}</span>;
          },
-      },
-      {
-         field: 'ctryCode',
-         flex: 0.3,
-         headerName: 'Country',
       },
 
       {
          field: 'Plant',
-         flex: 0.5,
+         flex: 0.6,
          headerName: 'Plant',
          renderCell(params) {
-            return <span>{params.row.productDimension?.plant}</span>;
+            return <span>{params.row.plant}</span>;
          },
       },
       {
          field: 'truckClass',
-         flex: 0.7,
+         flex: 0.6,
          headerName: 'Class',
          renderCell(params) {
-            return <span>{params.row.productDimension?.clazz}</span>;
+            return <span>{params.row.clazz}</span>;
          },
-      },
-      {
-         field: 'dealerName',
-         flex: 1.2,
-         headerName: 'Dealer Name',
       },
       {
          field: 'series',
          flex: 0.4,
          headerName: 'Series',
          renderCell(params) {
-            return <span>{params.row.series}</span>;
+            return <span>{params.row.metaSeries}</span>;
          },
       },
       {
@@ -165,154 +153,122 @@ export default function Shipment() {
          },
       },
       {
-         field: 'quantity',
-         flex: 0.2,
+         field: 'noOfOrder',
+         flex: 0.3,
          headerName: 'Qty',
          ...formatNumbericColumn,
       },
 
       {
-         field: 'dealerNet',
+         field: 'manualAdjCost',
          flex: 0.8,
-         headerName: 'DN',
+         headerName: 'Adjusted Cost',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.dealerNet)}</span>;
+            return <span>{formatNumber(params?.row.manualAdjCost)}</span>;
          },
       },
       {
-         field: 'dealerNetAfterSurCharge',
+         field: 'manualAdjFreight',
          flex: 0.8,
-         headerName: 'DN After Surcharge',
+         headerName: 'Adjusted Freight',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
+            return <span>{formatNumber(params?.row.manualAdjFreight)}</span>;
          },
       },
       {
-         field: 'totalCost',
-         flex: 0.8,
-         headerName: 'Total Cost',
+         field: 'manualAdjFX',
+         flex: 0.7,
+         headerName: 'Adjusted FX',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.totalCost)}</span>;
-         },
-      },
-      {
-         field: 'netRevenue',
-         flex: 0.8,
-         headerName: 'Net Revenue',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.netRevenue)}</span>;
-         },
-      },
-      {
-         field: 'marginAfterSurCharge',
-         flex: 0.8,
-         headerName: 'Margin $ After Surcharge',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
+            return <span>{formatNumber(params?.row.manualAdjFX)}</span>;
          },
       },
 
       {
-         field: 'marginPercentageAfterSurCharge',
+         field: 'totalManualAdjCost',
          flex: 0.6,
-         headerName: 'Margin % After Surcharge',
+         headerName: 'Total Manual Adj Cost',
          ...formatNumbericColumn,
          renderCell(params) {
-            return (
-               <span>
-                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
-               </span>
-            );
+            return <span>{formatNumber(params?.row.totalManualAdjCost)}</span>;
+         },
+      },
+
+      {
+         field: 'originalDN',
+         flex: 0.7,
+         headerName: 'Original DN',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.originalDN)}</span>;
          },
       },
       {
-         field: 'bookingMarginPercentageAfterSurCharge',
-         flex: 0.6,
-         headerName: 'Booking Margin %',
+         field: 'originalMargin',
+         flex: 0.7,
+         headerName: 'Original Margin $',
          ...formatNumbericColumn,
          renderCell(params) {
-            return (
-               <span>
-                  {formatNumberPercentage(params?.row.bookingMarginPercentageAfterSurCharge * 100)}
-               </span>
-            );
+            return <span>{formatNumber(params?.row.originalMargin)}</span>;
          },
       },
       {
-         field: 'aopmarginPercentage',
-         flex: 0.6,
-         headerName: 'AOP Margin%',
+         field: 'originalMarginPercentage',
+         flex: 0.7,
+         headerName: 'Original Margin %',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumberPercentage(params?.row.aopmarginPercentage * 100)}</span>;
+            return (
+               <span>{formatNumberPercentage(params?.row.originalMarginPercentage * 100)}</span>
+            );
+         },
+      },
+
+      {
+         field: 'newDN',
+         flex: 0.6,
+         headerName: 'Adjusted Dealer Net',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.newDN)}</span>;
+         },
+      },
+      {
+         field: 'newMargin',
+         flex: 0.6,
+         headerName: 'New margin $ (USD) - After manual Adj',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.newMargin)}</span>;
+         },
+      },
+      {
+         field: 'newMarginPercentage',
+         flex: 0.6,
+         headerName: 'New margin % - After manual Adj',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumberPercentage(params?.row.newMarginPercentage * 100)}</span>;
+         },
+      },
+      {
+         field: 'additionalVolume',
+         flex: 0.6,
+         headerName: 'Additional Volume at BEP For Discount',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.additionalVolume)}</span>;
          },
       },
    ];
 
-   const handleUploadFile = async (file) => {
-      let formData = new FormData();
-      formData.append('file', file);
-
-      let cookies = parseCookies();
-      let token = cookies['token'];
-      axios({
-         method: 'post',
-         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importNewShipment`,
-         data: formData,
-         headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
-         },
-      })
-         .then(function (response) {
-            setLoading(false);
-            setCookie(null, 'fileUUID', response.data.fileUUID);
-            handleWhenImportSuccessfully(response);
-         })
-         .catch(function (response) {
-            // show message in screen
-            setLoading(false);
-            //show messages
-            dispatch(commonStore.actions.setErrorMessage(response.response.data.message));
-         });
-   };
-
-   const handleWhenImportSuccessfully = (res) => {
-      //show message
-      dispatch(commonStore.actions.setSuccessMessage(res.data.message));
-
-      dispatch(shipmentStore.sagaGetList());
-   };
-
-   const handleImport = () => {
-      if (uploadedFile.name) {
-         // resert message
-         setLoading(true);
-         handleUploadFile(uploadedFile);
-      } else {
-         dispatch(commonStore.actions.setErrorMessage('No file choosed'));
-      }
-   };
-
    return (
       <>
-         <AppLayout entity="shipment">
+         <AppLayout entity="adjustment">
             <Grid container spacing={1}>
-               <Grid item xs={4}>
-                  <Grid item xs={12}>
-                     <AppTextField
-                        onChange={(e) => handleChangeDataFilter(e.target.value, 'orderNo')}
-                        name="orderNo"
-                        label="Order #"
-                        placeholder="Search order by ID"
-                     />
-                  </Grid>
-               </Grid>
                <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
                   <AppAutocomplete
                      options={initDataFilter.regions}
@@ -372,7 +328,6 @@ export default function Shipment() {
                      getOptionLabel={(option) => `${option.value}`}
                   />
                </Grid>
-
                <Grid item xs={2}>
                   <AppAutocomplete
                      options={initDataFilter.classes}
@@ -434,72 +389,85 @@ export default function Shipment() {
                      getOptionLabel={(option) => `${option.value}`}
                   />
                </Grid>
-               <Grid item xs={4} sx={{ paddingRight: 0.5 }}>
-                  <Grid item xs={6}>
-                     <AppAutocomplete
-                        options={initDataFilter.AOPMarginPercentageGroup}
-                        label="AOP Margin %"
-                        primaryKeyOption="value"
-                        onChange={(e, option) =>
-                           handleChangeDataFilter(
-                              _.isNil(option) ? '' : option?.value,
-                              'aopMarginPercentageGroup'
-                           )
+               <Grid item xs={2}>
+                  <AppAutocomplete
+                     options={initDataFilter.marginPercentageGroup}
+                     label="New Margin %"
+                     onChange={(e, option) =>
+                        handleChangeDataFilter(
+                           _.isNil(option) ? '' : option?.value,
+                           'marginPercentageAfterAdj'
+                        )
+                     }
+                     disableClearable={false}
+                     primaryKeyOption="value"
+                     renderOption={(prop, option) => `${option.value}`}
+                     getOptionLabel={(option) => `${option.value}`}
+                  />
+               </Grid>
+               <Grid item xs={6}>
+                  <Grid item xs={4}>
+                     <Button
+                        variant="contained"
+                        onClick={handleFilterAdjustment}
+                        sx={{ width: '100%', height: 24 }}
+                     >
+                        Filter
+                     </Button>
+                  </Grid>
+               </Grid>
+               <Grid item xs={2}>
+                  <Grid item xs={12}>
+                     <AppTextField
+                        onChange={(e) =>
+                           handleChangeDataCalculator(e.target.value, 'costAdjPercentage')
                         }
-                        disableClearable={false}
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
+                        name="costAdjPercentage"
+                        label="Cost Adj %"
+                        placeholder="Cost Adj %"
                      />
                   </Grid>
                </Grid>
                <Grid item xs={2}>
-                  <AppDateField
-                     label="From Date"
-                     name="from_date"
-                     onChange={(e, value) =>
-                        handleChangeDataFilter(_.isNil(value) ? '' : value, 'fromDate')
-                     }
-                     value={dataFilter?.fromDate}
-                  />
-               </Grid>
+                  <Grid item xs={12}>
+                     <AppTextField
+                        onChange={(e) => handleChangeDataCalculator(e.target.value, 'freightAdj')}
+                        name="freightAdj"
+                        label="Freight Adj ('000 USD)"
+                        placeholder="Freight Adj ('000 USD)"
+                     />
+                  </Grid>
+               </Grid>{' '}
                <Grid item xs={2}>
-                  <AppDateField
-                     label="To Date"
-                     name="toDate"
-                     onChange={(e, value) =>
-                        handleChangeDataFilter(_.isNil(value) ? '' : value, 'toDate')
-                     }
-                     value={dataFilter?.toDate}
-                  />
-               </Grid>
+                  <Grid item xs={12}>
+                     <AppTextField
+                        onChange={(e) => handleChangeDataCalculator(e.target.value, 'fxAdj')}
+                        name="fxAdj"
+                        label="FX Adj ('000 USD)"
+                        placeholder="FX Adj ('000 USD)"
+                     />
+                  </Grid>
+               </Grid>{' '}
                <Grid item xs={2}>
-                  <Button
-                     variant="contained"
-                     onClick={handleFilterOrderShipment}
-                     sx={{ width: '100%', height: 24 }}
-                  >
-                     Filter
-                  </Button>
+                  <Grid item xs={12}>
+                     <AppTextField
+                        onChange={(e) =>
+                           handleChangeDataCalculator(e.target.value, 'dnAdjPercentage')
+                        }
+                        name="dnAdjPercentage"
+                        label="DN Adj %"
+                        placeholder="DN Adj %"
+                     />
+                  </Grid>
                </Grid>
                <Grid item xs={1}>
                   <Button
                      variant="contained"
-                     onClick={handleImport}
+                     onClick={handleCalculator}
                      sx={{ width: '100%', height: 24 }}
                   >
-                     Import
+                     Calculate
                   </Button>
-               </Grid>
-
-               <Grid item xs={1}>
-                  <UploadFileDropZone
-                     uploadedFile={uploadedFile}
-                     setUploadedFile={setUploadedFile}
-                     handleUploadFile={handleUploadFile}
-                  />
-               </Grid>
-               <Grid item xs={4}>
-                  <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
                </Grid>
             </Grid>
 
@@ -509,40 +477,16 @@ export default function Shipment() {
                      hideFooter
                      disableColumnMenu
                      //tableHeight={740}
+                     rowHeight={30}
                      slots={{
                         toolbar: GridToolbar,
                      }}
-                     rowHeight={30}
-                     rows={listShipment}
+                     rows={listAdjustment}
                      rowBuffer={35}
                      rowThreshold={25}
                      columns={columns}
-                     getRowId={(params) => params.orderNo}
+                     getRowId={(params) => params.id}
                   />
-                  {loading ? (
-                     <div
-                        style={{
-                           top: 0,
-                           left: 0,
-                           right: 0,
-                           bottom: 0,
-                           backgroundColor: 'rgba(0,0,0, 0.3)',
-                           position: 'absolute',
-                           display: 'flex',
-                           justifyContent: 'center',
-                           alignItems: 'center',
-                           zIndex: 1001,
-                        }}
-                     >
-                        <CircularProgress
-                           color="info"
-                           size={60}
-                           sx={{
-                              position: 'relative',
-                           }}
-                        />
-                     </div>
-                  ) : null}
                </Grid>
                <DataTablePagination
                   page={tableState.pageNo}
@@ -554,61 +498,5 @@ export default function Shipment() {
             </Paper>
          </AppLayout>
       </>
-   );
-}
-
-// open file and check list column is exit
-//function checkColumn();
-
-function UploadFileDropZone(props) {
-   const onDrop = useCallback((acceptedFiles) => {
-      acceptedFiles.forEach((file) => {
-         const reader = new FileReader();
-
-         reader.onabort = () => console.log('file reading was aborted');
-         reader.onerror = () => console.log('file reading has failed');
-         reader.onload = () => {
-            // Do whatever you want with the file contents
-            const binaryStr = reader.result;
-            console.log('binaryStr', binaryStr);
-            props.setUploadedFile(file);
-         };
-         reader.readAsArrayBuffer(file);
-      });
-   }, []);
-
-   const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
-      noClick: true,
-      onDrop,
-      maxSize: 10485760, // < 10MB
-      maxFiles: 1,
-      accept: {
-         'excel/xlsx': ['.xlsx'],
-      },
-   });
-   const dispatch = useDispatch();
-   const isFileInvalid = fileRejections.length > 0 ? true : false;
-   if (isFileInvalid) {
-      const errors = fileRejections[0].errors;
-      dispatch(
-         commonStore.actions.setErrorMessage(
-            `${errors[0].message} ${_.isNil(errors[1]) ? '' : `or ${errors[1].message}`}`
-         )
-      );
-      fileRejections.splice(0, 1);
-   }
-
-   return (
-      <div {...getRootProps()}>
-         <input {...getInputProps()} />
-         <Button
-            type="button"
-            onClick={open}
-            variant="contained"
-            sx={{ width: '100%', height: 24 }}
-         >
-            Select file
-         </Button>
-      </div>
    );
 }

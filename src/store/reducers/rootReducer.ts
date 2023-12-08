@@ -7,6 +7,7 @@ import indicator from './indicator.reducer';
 import shipment from './shipment.reducer';
 import outlier from './outlier.reducer';
 import trends from './trends.reducer';
+import adjustment from './adjustment.reducer';
 
 const rootReducers = combineReducers({
    [common.name]: common.reducer,
@@ -17,6 +18,7 @@ const rootReducers = combineReducers({
    [shipment.name]: shipment.reducer,
    [outlier.name]: outlier.reducer,
    [trends.name]: trends.reducer,
+   [adjustment.name]: adjustment.reducer,
 });
 
 export type RootReducerType = ReturnType<typeof rootReducers>;
