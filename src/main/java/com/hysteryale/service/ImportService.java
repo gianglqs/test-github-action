@@ -405,10 +405,10 @@ public class ImportService extends BasedService {
     public void importShipmentFileOneByOne(InputStream is) throws IOException, MissingColumnException {
         XSSFWorkbook workbook = new XSSFWorkbook(is);
         HashMap<String, Integer> SHIPMENT_COLUMNS_NAME = new HashMap<>();
-        XSSFSheet competitorSheet = workbook.getSheet("Sheet1");
+        XSSFSheet shipmentSheet = workbook.getSheet("Sheet1");
         logInfo("import shipment");
         List<Shipment> shipmentList = new ArrayList<>();
-        for (Row row : competitorSheet) {
+        for (Row row : shipmentSheet) {
             if (row.getRowNum() == 0) getOrderColumnsName(row, SHIPMENT_COLUMNS_NAME);
             else if (!row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue().isEmpty() && row.getRowNum() > 0) {
                 Shipment newShipment = mapExcelDataIntoShipmentObject(row, SHIPMENT_COLUMNS_NAME);
