@@ -5,3 +5,4 @@ export * as marginAnalysisStore from './analysis.reducer';
 export * as indicatorStore from './indicator.reducer';
 export * as shipmentStore from './shipment.reducer';
 export * as outlierStore from './outlier.reducer';
+export * as trendsStore from './trends.reducer';

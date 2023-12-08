@@ -1,26 +1,12 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 
-function LineChart({ chartName, chartData }) {
+function LineChart({ chartName, chartData, scales }) {
    return (
       <Line
          data={chartData}
          options={{
-            scales: {
-               y: {
-                  beginAtZero: true,
-                  title: {
-                     text: 'Quantity',
-                     display: true,
-                  },
-               },
-               x: {
-                  title: {
-                     text: 'Year',
-                     display: true,
-                  },
-               },
-            },
+            scales,
             maintainAspectRatio: false,
             plugins: {
                title: {

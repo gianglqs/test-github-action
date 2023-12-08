@@ -24,3 +24,14 @@ export const defaultValueFilterOrder = {
    fromDate: '',
    toDate: '',
 } as any;
+
+export const defaultValueFilterTrends = {
+   regions: [],
+   dealers: [],
+   plants: [],
+   metaSeries: [],
+   classes: [],
+   models: [],
+   segments: [],
+   years: [],
+};

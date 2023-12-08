@@ -77,6 +77,7 @@ export default function Indicators() {
 
    // select data Filter in store
    const initDataFilter = useSelector(indicatorStore.selectInitDataFilter);
+   console.log(initDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterIndicator);
 
@@ -396,6 +397,22 @@ export default function Indicators() {
       })),
    };
 
+   const chartScales = {
+      y: {
+         beginAtZero: true,
+         title: {
+            text: 'Quantity',
+            display: true,
+         },
+      },
+      x: {
+         title: {
+            text: 'Year',
+            display: true,
+         },
+      },
+   };
+
    // create scrollbar for table
 
    return (
@@ -656,6 +673,7 @@ export default function Indicators() {
                   <LineChart
                      chartData={modifyDataLineChartRegion}
                      chartName={'Forecast Volume by Year & Region'}
+                     scales={chartScales}
                   />
                </Grid>
 
@@ -671,6 +689,7 @@ export default function Indicators() {
                   <LineChart
                      chartData={modifyDataLineChartPlant}
                      chartName={'Forecast Volume by Year & Plant'}
+                     scales={chartScales}
                   />
                </Grid>
             </Grid>
