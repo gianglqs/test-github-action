@@ -52,7 +52,7 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
       margin_analysis: 'Margin Analysis',
       indicators: 'Indicators',
       adjustment: 'Adjustment of Cost Indicators',
-      trend: 'Trends',
+      trends: 'Trends',
       outlier: 'Outliers',
       report: 'Reports',
    };
