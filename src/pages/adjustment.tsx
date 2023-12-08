@@ -155,10 +155,18 @@ export default function Adjustment() {
       {
          field: 'noOfOrder',
          flex: 0.3,
-         headerName: 'Qty',
+         headerName: 'No of Orders',
          ...formatNumbericColumn,
       },
-
+      {
+         field: 'additionalVolume',
+         flex: 0.5,
+         headerName: 'Additional Volume at BEP For Discount',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{params?.row.additionalVolume}</span>;
+         },
+      },
       {
          field: 'manualAdjCost',
          flex: 0.8,
@@ -252,15 +260,6 @@ export default function Adjustment() {
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumberPercentage(params?.row.newMarginPercentage * 100)}</span>;
-         },
-      },
-      {
-         field: 'additionalVolume',
-         flex: 0.6,
-         headerName: 'Additional Volume at BEP For Discount',
-         ...formatNumbericColumn,
-         renderCell(params) {
-            return <span>{formatNumber(params?.row.additionalVolume)}</span>;
          },
       },
    ];
