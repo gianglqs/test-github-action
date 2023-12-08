@@ -27,7 +27,7 @@ public class AdjustmentService extends BasedService {
         Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(filterModel);
         logInfo(filterMap.toString());
         //TODO : set Margin after Adj for filter
-        logInfo("marginPercentageAfterAdjFilter"+filterMap.get("marginPercentageAfterAdjFilter"));
+        logInfo("marginPercentageAfterAdjFilter" + filterMap.get("marginPercentageAfterAdjFilter"));
 
         List<BookingOrder> bookingOrderList = bookingOrderRepository.selectForAdjustmentByFilter(
                 filterMap.get("regionFilter"), filterMap.get("dealerNameFilter"), filterMap.get("plantFilter"), filterMap.get("segmentFilter"),
@@ -36,12 +36,12 @@ public class AdjustmentService extends BasedService {
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
                 ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(0),
                 ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(1),
-                 calculatorModel.getCostAdjPercentage(), calculatorModel.getFreightAdj(), calculatorModel.getFxAdj(),  calculatorModel.getDnAdjPercentage(),
+                calculatorModel.getCostAdjPercentage(), calculatorModel.getFreightAdj(), calculatorModel.getFxAdj(), calculatorModel.getDnAdjPercentage(),
                 (Pageable) filterMap.get("pageable"));
 
         //convert booking to adjustment
         List<AdjustmentPayLoad> listAdj = convertToListAdjustment(bookingOrderList, calculatorModel);
-         setIdForList(listAdj);
+        setIdForList(listAdj);
         result.put("listAdjustment", listAdj);
 
 
@@ -52,7 +52,7 @@ public class AdjustmentService extends BasedService {
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
                 ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(0),
                 ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(1),
-                 calculatorModel.getCostAdjPercentage(), calculatorModel.getFreightAdj(), calculatorModel.getFxAdj(),  calculatorModel.getDnAdjPercentage());
+                calculatorModel.getCostAdjPercentage(), calculatorModel.getFreightAdj(), calculatorModel.getFxAdj(), calculatorModel.getDnAdjPercentage());
         result.put("totalItems", countAll.size());
 
         return result;
@@ -114,8 +114,9 @@ public class AdjustmentService extends BasedService {
         adjustmentPayLoad.setNewMarginPercentage(adjustmentPayLoad.getNewMargin() / adjustmentPayLoad.getNewDN());
 
         //Additional Volume at BEP For Discount =  ABS( margin) / (DN* % DN adj) - (Original total cost/no of order)
-        adjustmentPayLoad.setAdditionalVolume(Math.abs(adjustmentPayLoad.getNewMargin()) / adjustmentPayLoad.getNewDN() - (totalCost / booking.getQuantity()));
-
+       // adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (booking.getDealerNetAfterSurCharge() * calculatorModel.getDnAdjPercentage() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
+       // adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN()/ booking.getQuantity() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
+        adjustmentPayLoad.setAdditionalVolume((int) Math.round((Math.abs(adjustmentPayLoad.getNewMargin()) + adjustmentPayLoad.getTotalManualAdjCost())/( adjustmentPayLoad.getNewDN()/booking.getQuantity())));
 
         return adjustmentPayLoad;
     }
