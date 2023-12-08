@@ -24,6 +24,7 @@ public class FilterModel {
     private String marginPercentage;
     private String fromDate;
     private String toDate;
+    private Integer year;
     private int perPage;
     private int pageNo;
 
