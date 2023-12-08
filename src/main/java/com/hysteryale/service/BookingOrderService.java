@@ -599,13 +599,13 @@ public class BookingOrderService extends BasedService {
     }
 
 
-    private class CostDataFile {
+    private static class CostDataFile {
         String orderNo;
         double totalCost;
         String currency;
     }
 
-    private class MarginDataFile {
+    private static class MarginDataFile {
         String orderNo;
         double marginPercentage;
         String currency;
