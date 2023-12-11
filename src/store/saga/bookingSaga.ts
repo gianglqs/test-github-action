@@ -21,9 +21,11 @@ function* fetchBooking() {
       const initDataFilter = yield* call(bookingApi.getInitDataFilter);
 
       const dataBooking = JSON.parse(String(data)).listBookingOrder;
+      const dataTotalRow = JSON.parse(String(data)).total;
 
       yield put(bookingStore.actions.setInitDataFilter(JSON.parse(String(initDataFilter.data))));
       yield put(bookingStore.actions.setBookingList(dataBooking));
+      yield put(bookingStore.actions.setTotalRow(dataTotalRow));
 
       yield put(
          commonStore.actions.setTableState({

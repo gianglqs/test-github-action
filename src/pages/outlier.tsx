@@ -22,7 +22,7 @@ import _ from 'lodash';
 import { produce } from 'immer';
 
 import { defaultValueFilterOrder } from '@/utils/defaultValues';
-import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 
 import {
    Chart as ChartJS,
@@ -50,6 +50,7 @@ ChartJS.register(
 );
 import axios from 'axios';
 import { parseCookies } from 'nookies';
+import { rowColor } from '@/theme/colorRow';
 
 export async function getServerSideProps(context) {
    try {
@@ -80,7 +81,7 @@ export default function Outlier() {
    const dispatch = useDispatch();
    const listOutlier = useSelector(outlierStore.selectOutlierList);
    const initDataFilter = useSelector(outlierStore.selectInitDataFilter);
-
+   const listTotalRow = useSelector(outlierStore.selectTotalRow);
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
    const handleChangeDataFilter = (option, field) => {
@@ -158,6 +159,93 @@ export default function Outlier() {
          renderCell(params) {
             return <span>{params.row.productDimension.model}</span>;
          },
+      },
+      {
+         field: 'quantity',
+         flex: 0.3,
+         headerName: 'Qty',
+         ...formatNumbericColumn,
+      },
+      {
+         field: 'totalCost',
+         flex: 0.8,
+         headerName: 'Total Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalCost)}</span>;
+         },
+      },
+      {
+         field: 'dealerNet',
+         flex: 0.8,
+         headerName: 'DN',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.dealerNet)}</span>;
+         },
+      },
+      {
+         field: 'dealerNetAfterSurCharge',
+         flex: 0.8,
+         headerName: 'DN After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
+         },
+      },
+      {
+         field: 'marginAfterSurCharge',
+         flex: 0.7,
+         headerName: 'Margin $ After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
+         },
+      },
+
+      {
+         field: 'marginPercentageAfterSurCharge',
+         flex: 0.6,
+         headerName: 'Margin % After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
+               </span>
+            );
+         },
+      },
+   ];
+
+   const totalColumns = [
+      {
+         field: 'region',
+         flex: 0.5,
+         headerName: 'Region',
+         renderCell(params) {
+            return <span>Total</span>;
+         },
+      },
+      {
+         field: 'Plant',
+         flex: 0.6,
+         headerName: 'Plant',
+      },
+      {
+         field: 'truckClass',
+         flex: 0.6,
+         headerName: 'Class',
+      },
+      {
+         field: 'series',
+         flex: 0.4,
+         headerName: 'Series',
+      },
+      {
+         field: 'model',
+         flex: 0.6,
+         headerName: 'Models',
       },
       {
          field: 'quantity',
@@ -521,7 +609,7 @@ export default function Outlier() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(60vh - 196px)' }}>
+               <Grid container sx={{ height: 'calc(60vh - 211px)' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
@@ -537,6 +625,21 @@ export default function Outlier() {
                      getRowId={(params) => params.orderNo}
                   />
                </Grid>
+               <DataGridPro
+                  sx={rowColor}
+                  getCellClassName={(params: GridCellParams<any, any, number>) => {
+                     return 'total';
+                  }}
+                  hideFooter
+                  columnHeaderHeight={0}
+                  disableColumnMenu
+                  rowHeight={30}
+                  rows={listTotalRow}
+                  rowBuffer={35}
+                  rowThreshold={25}
+                  columns={totalColumns}
+                  getRowId={(params) => params.dealerNet}
+               />
                <DataTablePagination
                   page={tableState.pageNo}
                   perPage={tableState.perPage}

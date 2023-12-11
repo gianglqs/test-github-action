@@ -5,6 +5,8 @@ import { formatNumber, formatNumberPercentage } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { indicatorStore, commonStore } from '@/store/reducers';
 import { Button } from '@mui/material';
+
+import { rowColor } from '@/theme/colorRow';
 import { AppLayout, DataTablePagination, DataTable, AppAutocomplete } from '@/components';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
@@ -30,7 +32,7 @@ import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
 import { relative } from 'path';
-import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 
 ChartJS.register(
    CategoryScale,
@@ -80,6 +82,7 @@ export default function Indicators() {
    console.log(initDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterIndicator);
+   const listTotalRow = useSelector(indicatorStore.selectTotalRow);
 
    const getDataForTable = useSelector(indicatorStore.selectIndicatorList);
 
@@ -296,6 +299,128 @@ export default function Indicators() {
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumberPercentage(params.row.variancePercentage * 100)}</span>;
+         },
+      },
+   ];
+
+   const totalColumns = [
+      {
+         field: 'competitorName',
+         flex: 1.5,
+         headerName: 'Competitor Name',
+      },
+
+      {
+         field: 'region',
+         flex: 0.5,
+         headerName: 'Region',
+      },
+      {
+         field: 'plant',
+         flex: 0.8,
+         headerName: 'Plant',
+      },
+      {
+         field: 'clazz',
+         flex: 1,
+         headerName: 'Class',
+      },
+      {
+         field: 'series',
+         flex: 0.5,
+         headerName: 'Series',
+      },
+
+      {
+         field: 'actual',
+         flex: 0.5,
+         headerName: '2022 Actual',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{params.row.actual}</span>;
+         },
+      },
+      {
+         field: 'aopf',
+         flex: 0.5,
+         headerName: '2023 AOPF',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{params.row.aopf}</span>;
+         },
+      },
+      {
+         field: 'lrff',
+         flex: 0.5,
+         headerName: '2024 LRFF',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{params.row.lrff}</span>;
+         },
+      },
+      {
+         field: 'competitorLeadTime',
+         flex: 0.8,
+         headerName: 'Competitor Lead Time',
+         ...formatNumbericColumn,
+      },
+      {
+         field: 'dealerStreetPricing',
+         flex: 0.8,
+         headerName: 'Dealer Street Pricing(USD)',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params.row.dealerStreetPricing)}</span>;
+         },
+      },
+      {
+         field: 'dealerHandlingCost',
+         flex: 0.8,
+         headerName: 'Dealer Handling Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params.row.dealerHandlingCost)}</span>;
+         },
+      },
+      {
+         field: 'competitorPricing',
+         flex: 1,
+         headerName: 'Competition Pricing (USD)',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params.row.competitorPricing)}</span>;
+         },
+      },
+      {
+         field: 'dealerPricingPremiumPercentages',
+         flex: 1,
+         headerName: 'Dealer Pricing Premium/Margin (USD)',
+         ...formatNumbericColumn,
+      },
+
+      {
+         field: 'dealerPremiumPercentages',
+         flex: 1,
+         headerName: 'Dealer Premium / Margin %',
+         ...formatNumbericColumn,
+      },
+      {
+         field: 'averageDN',
+         flex: 0.8,
+         headerName: 'Average Dealer Net',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params.row.averageDN)}</span>;
+         },
+      },
+
+      {
+         field: 'variancePercentage',
+         flex: 1,
+         headerName: 'Varian % (Competitor - (Dealer Street + Premium))',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumberPercentage(params.row.variancePercentage)}</span>;
          },
       },
    ];
@@ -553,7 +678,7 @@ export default function Indicators() {
                </Grid>
             </Grid>
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(67vh - 235px)', minHeight: '200px' }}>
+               <Grid container sx={{ height: 'calc(67vh - 275px)', minHeight: '200px' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
@@ -569,6 +694,21 @@ export default function Indicators() {
                      getRowId={(params) => params.id}
                   />
                </Grid>
+               <DataGridPro
+                  sx={rowColor}
+                  getCellClassName={(params: GridCellParams<any, any, number>) => {
+                     return 'total';
+                  }}
+                  hideFooter
+                  columnHeaderHeight={0}
+                  disableColumnMenu
+                  rowHeight={30}
+                  rows={listTotalRow}
+                  rowBuffer={35}
+                  rowThreshold={25}
+                  columns={totalColumns}
+                  getRowId={(params) => params.id}
+               />
                <DataTablePagination
                   page={tableState.pageNo}
                   perPage={tableState.perPage}

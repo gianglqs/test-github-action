@@ -5,6 +5,8 @@ import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/format
 import { useDispatch, useSelector } from 'react-redux';
 import { adjustmentStore, commonStore } from '@/store/reducers';
 
+import { rowColor } from '@/theme/colorRow';
+
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { Button } from '@mui/material';
@@ -24,7 +26,7 @@ import {
    defaultValueFilterOrder,
    defaultValueCaculatorForAjustmentCost,
 } from '@/utils/defaultValues';
-import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import { parseCookies } from 'nookies';
 
@@ -57,6 +59,7 @@ export default function Adjustment() {
    const dispatch = useDispatch();
    const listAdjustment = useSelector(adjustmentStore.selectAdjustmentList);
    const initDataFilter = useSelector(adjustmentStore.selectInitDataFilter);
+   const listTotalRow = useSelector(adjustmentStore.selectTotalRow);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
    const [dataCalculator, setDataCalculator] = useState(defaultValueCaculatorForAjustmentCost);
@@ -126,6 +129,160 @@ export default function Adjustment() {
          headerName: 'Plant',
          renderCell(params) {
             return <span>{params.row.plant}</span>;
+         },
+      },
+      {
+         field: 'truckClass',
+         flex: 0.6,
+         headerName: 'Class',
+         renderCell(params) {
+            return <span>{params.row.clazz}</span>;
+         },
+      },
+      {
+         field: 'series',
+         flex: 0.4,
+         headerName: 'Series',
+         renderCell(params) {
+            return <span>{params.row.metaSeries}</span>;
+         },
+      },
+      {
+         field: 'model',
+         flex: 0.6,
+         headerName: 'Models',
+         renderCell(params) {
+            return <span>{params.row.model}</span>;
+         },
+      },
+      {
+         field: 'noOfOrder',
+         flex: 0.3,
+         headerName: 'No of Orders',
+         ...formatNumbericColumn,
+      },
+      {
+         field: 'additionalVolume',
+         flex: 0.5,
+         headerName: 'Additional Volume at BEP For Discount',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{params?.row.additionalVolume}</span>;
+         },
+      },
+      {
+         field: 'manualAdjCost',
+         flex: 0.8,
+         headerName: 'Adjusted Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.manualAdjCost)}</span>;
+         },
+      },
+      {
+         field: 'manualAdjFreight',
+         flex: 0.8,
+         headerName: 'Adjusted Freight',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.manualAdjFreight)}</span>;
+         },
+      },
+      {
+         field: 'manualAdjFX',
+         flex: 0.7,
+         headerName: 'Adjusted FX',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.manualAdjFX)}</span>;
+         },
+      },
+
+      {
+         field: 'totalManualAdjCost',
+         flex: 0.6,
+         headerName: 'Total Manual Adj Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalManualAdjCost)}</span>;
+         },
+      },
+
+      {
+         field: 'originalDN',
+         flex: 0.7,
+         headerName: 'Original DN',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.originalDN)}</span>;
+         },
+      },
+      {
+         field: 'originalMargin',
+         flex: 0.7,
+         headerName: 'Original Margin $',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.originalMargin)}</span>;
+         },
+      },
+      {
+         field: 'originalMarginPercentage',
+         flex: 0.7,
+         headerName: 'Original Margin %',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return (
+               <span>{formatNumberPercentage(params?.row.originalMarginPercentage * 100)}</span>
+            );
+         },
+      },
+
+      {
+         field: 'newDN',
+         flex: 0.6,
+         headerName: 'Adjusted Dealer Net',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.newDN)}</span>;
+         },
+      },
+      {
+         field: 'newMargin',
+         flex: 0.6,
+         headerName: 'New margin $ (USD) - After manual Adj',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.newMargin)}</span>;
+         },
+      },
+      {
+         field: 'newMarginPercentage',
+         flex: 0.6,
+         headerName: 'New margin % - After manual Adj',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumberPercentage(params?.row.newMarginPercentage * 100)}</span>;
+         },
+      },
+   ];
+
+   const totalColumns = [
+      {
+         field: 'region',
+         flex: 0.5,
+         headerName: 'Region',
+         renderCell(params) {
+            return <span>Total</span>;
+         },
+      },
+
+      {
+         field: 'Plant',
+         flex: 0.6,
+         headerName: 'Plant',
+         renderCell(params) {
+            return <span></span>;
          },
       },
       {
@@ -471,7 +628,7 @@ export default function Adjustment() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(100vh - 229px)' }}>
+               <Grid container sx={{ height: 'calc(100vh - 263px)' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
@@ -487,6 +644,21 @@ export default function Adjustment() {
                      getRowId={(params) => params.id}
                   />
                </Grid>
+               <DataGridPro
+                  sx={rowColor}
+                  getCellClassName={(params: GridCellParams<any, any, number>) => {
+                     return 'total';
+                  }}
+                  hideFooter
+                  columnHeaderHeight={0}
+                  disableColumnMenu
+                  rowHeight={30}
+                  rows={listTotalRow}
+                  rowBuffer={35}
+                  rowThreshold={25}
+                  columns={totalColumns}
+                  getRowId={(params) => params.id}
+               />
                <DataTablePagination
                   page={tableState.pageNo}
                   perPage={tableState.perPage}

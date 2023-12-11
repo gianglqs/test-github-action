@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { bookingStore, commonStore } from '@/store/reducers';
 import { useDropzone } from 'react-dropzone';
 
+import { rowColor } from '@/theme/colorRow';
+
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { Button, CircularProgress, ListItem, Typography } from '@mui/material';
@@ -22,7 +24,7 @@ import _ from 'lodash';
 import { produce } from 'immer';
 
 import { defaultValueFilterOrder } from '@/utils/defaultValues';
-import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import { parseCookies, setCookie } from 'nookies';
 
@@ -64,6 +66,7 @@ interface FileChoosed {
 export default function Booking() {
    const dispatch = useDispatch();
    const listBookingOrder = useSelector(bookingStore.selectBookingList);
+   const listTotalRow = useSelector(bookingStore.selectTotalRow);
    const initDataFilter = useSelector(bookingStore.selectInitDataFilter);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
@@ -121,7 +124,7 @@ export default function Booking() {
          flex: 0.5,
          headerName: 'Create at',
          renderCell(params) {
-            return <span>{formatDate(params.row.date)}</span>;
+            return <span>{formatDate(params?.row?.date)}</span>;
          },
       },
       {
@@ -129,7 +132,7 @@ export default function Booking() {
          flex: 0.5,
          headerName: 'Region',
          renderCell(params) {
-            return <span>{params.row.region.region}</span>;
+            return <span>{params.row.region?.region}</span>;
          },
       },
       {
@@ -217,7 +220,6 @@ export default function Booking() {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
          },
       },
-
       {
          field: 'marginPercentageAfterSurCharge',
          flex: 0.6,
@@ -231,14 +233,118 @@ export default function Booking() {
             );
          },
       },
+   ];
+
+   const totalColumns = [
       {
-         field: 'aopmarginPercentage',
+         field: 'orderNo',
+         flex: 0.4,
+         headerName: 'Order #',
+      },
+      {
+         field: 'date',
+         flex: 0.5,
+         headerName: 'Create at',
+         renderCell(params) {
+            return <span>{formatDate(params?.row?.date)}</span>;
+         },
+      },
+      {
+         field: 'region',
+         flex: 0.5,
+         headerName: 'Region',
+         renderCell(params) {
+            return <span>{params.row.region?.region}</span>;
+         },
+      },
+      {
+         field: 'ctryCode',
+         flex: 0.3,
+         headerName: 'Country',
+      },
+      {
+         field: 'dealerName',
+         flex: 1.2,
+         headerName: 'Dealer Name',
+      },
+      {
+         field: 'Plant',
          flex: 0.6,
-         headerName: 'AOP Margin%',
+         headerName: 'Plant',
+         renderCell(params) {
+            return <span>{params.row.productDimension?.plant}</span>;
+         },
+      },
+      {
+         field: 'truckClass',
+         flex: 0.6,
+         headerName: 'Class',
+         renderCell(params) {
+            return <span>{params.row.productDimension?.clazz}</span>;
+         },
+      },
+      {
+         field: 'series',
+         flex: 0.4,
+         headerName: 'Series',
+         renderCell(params) {
+            return <span>{params.row.series}</span>;
+         },
+      },
+      {
+         field: 'model',
+         flex: 0.6,
+         headerName: 'Models',
+         renderCell(params) {
+            return <span>{params.row.model}</span>;
+         },
+      },
+      {
+         field: 'quantity',
+         flex: 0.3,
+         headerName: 'Qty',
+         ...formatNumbericColumn,
+      },
+
+      {
+         field: 'dealerNet',
+         flex: 0.8,
+         headerName: 'DN',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumberPercentage(params?.row.aopmarginPercentage * 100)}</span>;
+            return <span>{formatNumber(params?.row.dealerNet)}</span>;
          },
+      },
+      {
+         field: 'dealerNetAfterSurCharge',
+         flex: 0.8,
+         headerName: 'DN After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
+         },
+      },
+      {
+         field: 'totalCost',
+         flex: 0.8,
+         headerName: 'Total Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalCost)}</span>;
+         },
+      },
+      {
+         field: 'marginAfterSurCharge',
+         flex: 0.7,
+         headerName: 'Margin $ After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
+         },
+      },
+      {
+         field: 'marginPercentageAfterSurCharges',
+         flex: 0.6,
       },
    ];
 
@@ -518,7 +624,7 @@ export default function Booking() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(100vh - 229px)' }}>
+               <Grid container sx={{ height: 'calc(100vh - 263px)' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
@@ -558,6 +664,22 @@ export default function Booking() {
                      </div>
                   ) : null}
                </Grid>
+               <DataGridPro
+                  sx={rowColor}
+                  getCellClassName={(params: GridCellParams<any, any, number>) => {
+                     return 'total';
+                  }}
+                  hideFooter
+                  columnHeaderHeight={0}
+                  disableColumnMenu
+                  rowHeight={30}
+                  rows={listTotalRow}
+                  rowBuffer={35}
+                  rowThreshold={25}
+                  columns={totalColumns}
+                  getRowId={(params) => params.orderNo}
+               />
+
                <DataTablePagination
                   page={tableState.pageNo}
                   perPage={tableState.perPage}

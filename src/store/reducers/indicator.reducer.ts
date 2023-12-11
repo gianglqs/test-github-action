@@ -8,6 +8,7 @@ export const resetState = createAction(`${name}/RESET_STATE`);
 
 export const initialState = {
    indicatorList: [] as any[],
+   totalRow: [] as any[],
    initDataFilter: {} as any,
    defaultValueFilterIndicator: defaultValueFilterIndicator as any,
    initDataForLineChartPlant: [] as any[],
@@ -21,6 +22,9 @@ const indicatorSlice = createSlice({
    reducers: {
       setIndicatorList(state, { payload }: PayloadAction<any[]>) {
          state.indicatorList = payload;
+      },
+      setTotalRow(state, { payload }: PayloadAction<any[]>) {
+         state.totalRow = payload;
       },
       setInitDataFilter(state, { payload }: PayloadAction<any[]>) {
          state.initDataFilter = payload;
@@ -66,6 +70,7 @@ export const selectDataForCompetitveLandscape = createSelector(
    selectState,
    (state) => state.initDataForCompetitiveLandscape
 );
+export const selectTotalRow = createSelector(selectState, (state) => state.totalRow);
 
 export const selectDefaultValueFilterIndicator = createSelector(
    selectState,

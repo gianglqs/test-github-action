@@ -8,6 +8,7 @@ export const resetState = createAction(`${name}/RESET_STATE`);
 
 export const initialState = {
    shipmentList: [] as any[],
+   totalRow: [] as any[],
    initDataFilter: {} as any,
    defaultValueFilterOrder: defaultValueFilterOrder as any,
 };
@@ -18,6 +19,9 @@ const shipmentSlice = createSlice({
    reducers: {
       setShipmentList(state, { payload }: PayloadAction<any[]>) {
          state.shipmentList = payload;
+      },
+      setTotalRow(state, { payload }: PayloadAction<any[]>) {
+         state.totalRow = payload;
       },
       setInitDataFilter(state, { payload }: PayloadAction<any[]>) {
          state.initDataFilter = payload;
@@ -40,6 +44,7 @@ export const sagaGetList = createAction(`${name}/GET_LIST`);
 // Selectors
 export const selectState = (state: RootReducerType) => state[name];
 export const selectShipmentList = createSelector(selectState, (state) => state.shipmentList);
+export const selectTotalRow = createSelector(selectState, (state) => state.totalRow);
 export const selectInitDataFilter = createSelector(selectState, (state) => state.initDataFilter);
 
 export const selectDefaultValueFilterOrder = createSelector(
