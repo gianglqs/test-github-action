@@ -7,3 +7,4 @@ export * as shipmentStore from './shipment.reducer';
 export * as outlierStore from './outlier.reducer';
 export * as trendsStore from './trends.reducer';
 export * as adjustmentStore from './adjustment.reducer';
+export * as competitorColorStore from './competitorColor.reducer';
