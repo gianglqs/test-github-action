@@ -1,8 +1,10 @@
 package com.hysteryale.controller;
 
+import com.hysteryale.model.competitor.CompetitorColor;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.service.IndicatorService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,5 +62,28 @@ public class IndicatorController {
         return result;
     }
 
+    @GetMapping("/competitorColors")
+    public Map<String, Object> getCompetitorColor(@RequestParam(required = false) String search,
+                                                  @RequestParam(defaultValue = "100") int perPage,
+                                                  @RequestParam(defaultValue = "1") int pageNo) {
+        Page<CompetitorColor> competitorColors = indicatorService.searchCompetitorColor(search, pageNo, perPage);
 
+        return Map.of(
+                "competitorColors", competitorColors.getContent(),
+                "page", pageNo,
+                "perPage", perPage,
+                "totalPages", competitorColors.getTotalPages(),
+                "totalItems", competitorColors.getTotalElements()
+        );
+    }
+
+    @GetMapping("/competitorColors/getDetails")
+    public Map<String, Object> getCompetitorColorDetails(@RequestParam("id") int id) {
+        return Map.of("competitorColorDetail", indicatorService.getCompetitorById(id));
+    }
+
+    @PutMapping("/competitorColors")
+    public void updateCompetitorColor(@RequestBody CompetitorColor competitorColor) {
+        indicatorService.updateCompetitorColor(competitorColor);
+    }
 }
