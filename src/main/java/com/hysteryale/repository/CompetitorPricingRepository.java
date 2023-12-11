@@ -87,6 +87,31 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                                                            @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
                                                            Pageable pageable);
 
+    @Query("SELECT new CompetitorPricing('Total', sum(c.actual), sum(c.AOPF), sum(c.LRFF), sum(c.dealerHandlingCost), sum(c.competitorPricing), " +
+            " sum(c.dealerStreetPricing),  (sum(c.averageDN) / count(c)), "+
+            " ((sum(c.competitorPricing) - (sum(c.dealerStreetPricing) + sum(c.dealerPricingPremium))) / sum(c.competitorPricing)) )"+
+            " FROM CompetitorPricing c WHERE " +
+            "((:regions) IS Null OR c.region IN (:regions))" +
+            " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.dealerPricingPremiumPercentage <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.dealerPricingPremiumPercentage >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.dealerPricingPremiumPercentage < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.dealerPricingPremiumPercentage > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.dealerPricingPremiumPercentage = :marginPercentageAfterSurCharge))" +
+            " AND ((:chineseBrand) IS NULL OR c.chineseBrand = (:chineseBrand))")
+    List<CompetitorPricing> getTotal(@Param("regions") Object regions,
+                                     @Param("plants") Object plants,
+                                     @Param("metaSeries") Object metaSeries,
+                                     @Param("classes") Object classes,
+                                     @Param("models") Object models,
+                                     @Param("chineseBrand") Object chineseBrand,
+                                     @Param("comparator") Object comparator,
+                                     @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge);
+
     @Query("SELECT COUNT(c) from CompetitorPricing c WHERE " +
             "((:regions) IS Null OR c.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
@@ -108,6 +133,7 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                     @Param("chineseBrand") Object chineseBrand,
                     @Param("comparator") Object comparator,
                     @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge);
+
 
     @Query("SELECT DISTINCT c.series FROM CompetitorPricing c")
     List<String> getDistinctSeries();

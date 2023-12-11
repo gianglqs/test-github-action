@@ -59,6 +59,36 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
                                           @Param("toDate") Calendar toDate,
                                           Pageable pageable);
 
+    @Query("SELECT new BookingOrder( sum(c.quantity), sum(c.totalCost), sum(c.dealerNet), " +
+            " sum(c.dealerNetAfterSurCharge), sum(c.marginAfterSurCharge), (sum(c.marginAfterSurCharge) / sum(c.dealerNetAfterSurCharge) )) " +
+            " FROM BookingOrder c WHERE " +
+            " ((:regions) IS Null OR c.region.region IN (:regions))" +
+            " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND (cast(:fromDate as date) IS NULL OR c.date >= (:fromDate))" +
+            " AND (cast(:toDate as date) IS NULL OR c.date <= (:toDate))"
+    )
+    List<BookingOrder> getSumAllOrderForOutline(@Param("regions") Object regions,
+                                          @Param("plants") Object plants,
+                                          @Param("metaSeries") Object metaSeries,
+                                          @Param("classes") Object classes,
+                                          @Param("models") Object models,
+                                          @Param("dealerName") Object dealerName,
+                                          @Param("comparator") Object comparator,
+                                          @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                                          @Param("fromDate") Calendar fromDate,
+                                          @Param("toDate") Calendar toDate);
+
     //   @Query("SELECT COUNT(distinct (c.region.regionShortName || c.productDimension.plant || c.productDimension.clazz || c.series || c.productDimension.model) )" +
     @Query("SELECT COUNT(c)" +
             " FROM BookingOrder c WHERE " +
@@ -191,7 +221,7 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             " HAVING (:marginPercentageAfterSurChargeAfterAdj) IS NULL OR " +
             "   (:comparatorAfterAdj = '<' AND sum(c.dealerNetAfterSurCharge) <> 0 AND ((sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0))) < :marginPercentageAfterSurChargeAfterAdj) OR" +
             "   (:comparatorAfterAdj = '>=' AND sum(c.dealerNetAfterSurCharge) <> 0 AND ((sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0))) > :marginPercentageAfterSurChargeAfterAdj)"
-            )
+    )
     List<BookingOrder> selectForAdjustmentByFilter(@Param("regions") Object regions,
                                                    @Param("dealerName") Object dealerName,
                                                    @Param("plants") Object plants,
@@ -224,25 +254,140 @@ public interface BookingOrderRepository extends JpaRepository<BookingOrder, Stri
             "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
             "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
             "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
-            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model"+
+            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model" +
             " HAVING (:marginPercentageAfterSurChargeAfterAdj) IS NULL OR " +
             "   (:comparatorAfterAdj = '<' AND sum(c.dealerNetAfterSurCharge) <> 0 AND (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0)) < :marginPercentageAfterSurChargeAfterAdj) OR" +
             "   (:comparatorAfterAdj = '>=' AND sum(c.dealerNetAfterSurCharge) <> 0 AND (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0)) >= :marginPercentageAfterSurChargeAfterAdj)"
     )
     List<Integer> getCountAllForAdjustmentByFilter(@Param("regions") Object regions,
-                                                        @Param("dealerName") Object dealerName,
-                                                        @Param("plants") Object plants,
-                                                        @Param("segments") Object segments,
-                                                        @Param("classes") Object classes,
-                                                        @Param("metaSeries") Object metaSeries,
-                                                        @Param("models") Object models,
-                                                        @Param("comparator") Object comparator,
-                                                        @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
-                                                        @Param("comparatorAfterAdj") Object comparatorAfterAdj,
-                                                        @Param("marginPercentageAfterSurChargeAfterAdj") Object marginPercentageAfterSurChargeAfterAdj,
-                                                        @Param("costAdjPercentage") double costAdjPercentage,
-                                                        @Param("freightAdj") double freightAdj,
-                                                        @Param("fxAdj") double fxAdj,
-                                                        @Param("dnAdjPercentage") double dnAdjPercentage
+                                                   @Param("dealerName") Object dealerName,
+                                                   @Param("plants") Object plants,
+                                                   @Param("segments") Object segments,
+                                                   @Param("classes") Object classes,
+                                                   @Param("metaSeries") Object metaSeries,
+                                                   @Param("models") Object models,
+                                                   @Param("comparator") Object comparator,
+                                                   @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                                                   @Param("comparatorAfterAdj") Object comparatorAfterAdj,
+                                                   @Param("marginPercentageAfterSurChargeAfterAdj") Object marginPercentageAfterSurChargeAfterAdj,
+                                                   @Param("costAdjPercentage") double costAdjPercentage,
+                                                   @Param("freightAdj") double freightAdj,
+                                                   @Param("fxAdj") double fxAdj,
+                                                   @Param("dnAdjPercentage") double dnAdjPercentage
     );
+
+    @Query("SELECT new BookingOrder('Total', sum(c.quantity), sum(c.dealerNet), sum(c.dealerNetAfterSurCharge), sum(c.totalCost), sum(c.marginAfterSurCharge), (sum(c.marginAfterSurCharge) / sum(c.dealerNetAfterSurCharge)) ) FROM BookingOrder c WHERE " +
+            "((:orderNo) IS Null OR c.orderNo = :orderNo )" +
+            " AND ((:regions) IS Null OR c.region.region IN (:regions) )" +
+            " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
+            " AND ((:segments) IS NULL OR c.productDimension.segment IN (:segments))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:AOPMarginPercentage) IS NULL OR " +
+            "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
+            "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND (cast(:fromDate as date ) IS NULL OR c.date >= :fromDate)" +
+            " AND (cast(:toDate as date) IS NULL OR c.date <= :toDate)"
+    )
+    List<BookingOrder> getTotal(@Param("orderNo") Object orderNo,
+                                @Param("regions") Object regions,
+                                @Param("plants") Object plants,
+                                @Param("metaSeries") Object metaSeries,
+                                @Param("classes") Object classes,
+                                @Param("models") Object models,
+                                @Param("segments") Object segments,
+                                @Param("dealerName") Object dealerName,
+                                @Param("AOPMarginPercentage") Object AOPMarginPercentage,
+                                @Param("comparator") Object comparator,
+                                @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                                @Param("fromDate") Calendar fromDate,
+                                @Param("toDate") Calendar toDate);
+
+    @Query("SELECT (sum(c.marginAfterSurCharge) / sum(c.dealerNetAfterSurCharge)) FROM BookingOrder c WHERE " +
+            "((:orderNo) IS Null OR c.orderNo = :orderNo )" +
+            " AND ((:regions) IS Null OR c.region.region IN (:regions) )" +
+            " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
+            " AND ((:segments) IS NULL OR c.productDimension.segment IN (:segments))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:AOPMarginPercentage) IS NULL OR " +
+            "   (:AOPMarginPercentage = 'Above AOP Margin %' AND c.AOPMarginPercentage < c.marginPercentageAfterSurCharge) OR" +
+            "   (:AOPMarginPercentage = 'Below AOP Margin %' AND c.AOPMarginPercentage >= c.marginPercentageAfterSurCharge))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND (cast(:fromDate as date ) IS NULL OR c.date >= :fromDate)" +
+            " AND (cast(:toDate as date) IS NULL OR c.date <= :toDate)"
+    )
+    double getTotalMarginPercentage(@Param("orderNo") Object orderNo,
+                                    @Param("regions") Object regions,
+                                    @Param("plants") Object plants,
+                                    @Param("metaSeries") Object metaSeries,
+                                    @Param("classes") Object classes,
+                                    @Param("models") Object models,
+                                    @Param("segments") Object segments,
+                                    @Param("dealerName") Object dealerName,
+                                    @Param("AOPMarginPercentage") Object AOPMarginPercentage,
+                                    @Param("comparator") Object comparator,
+                                    @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                                    @Param("fromDate") Calendar fromDate,
+                                    @Param("toDate") Calendar toDate);
+
+
+    @Query("SELECT new BookingOrder( sum(c.dealerNetAfterSurCharge), sum(c.totalCost), sum(c.marginAfterSurCharge), count(c)) " +
+            " FROM BookingOrder c WHERE " +
+            " ((:regions) IS Null OR c.region.region IN (:regions))" +
+            " AND ((:plants) IS NULL OR c.productDimension.plant IN (:plants))" +
+            " AND ((:segments) IS NULL OR c.productDimension.segment IN (:segments))" +
+            " AND ((:metaSeries) IS NULL OR SUBSTRING(c.series, 2,3) IN (:metaSeries))" +
+            " AND ((:classes) IS NULL OR c.productDimension.clazz IN (:classes))" +
+            " AND ((:models) IS NULL OR c.model IN (:models))" +
+            " AND ((:dealerName) IS NULL OR c.dealerName IN (:dealerName))" +
+            " AND ((:marginPercentageAfterSurCharge) IS NULL OR " +
+            "   (:comparator = '<=' AND c.marginPercentageAfterSurCharge <= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>=' AND c.marginPercentageAfterSurCharge >= :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '<' AND c.marginPercentageAfterSurCharge < :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '>' AND c.marginPercentageAfterSurCharge > :marginPercentageAfterSurCharge) OR" +
+            "   (:comparator = '=' AND c.marginPercentageAfterSurCharge = :marginPercentageAfterSurCharge))" +
+            " GROUP BY c.region.region, c.productDimension.plant, c.productDimension.clazz, c.series, c.model" +
+            " HAVING (:marginPercentageAfterSurChargeAfterAdj) IS NULL OR " +
+            "   (:comparatorAfterAdj = '<' AND sum(c.dealerNetAfterSurCharge) <> 0 AND (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0)) < :marginPercentageAfterSurChargeAfterAdj) OR" +
+            "   (:comparatorAfterAdj = '>=' AND sum(c.dealerNetAfterSurCharge) <> 0 AND (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0) - (sum(c.totalCost) * (1 + :costAdjPercentage/100.0) - :freightAdj - :fxAdj)) / (sum(c.dealerNetAfterSurCharge) * (1 + :dnAdjPercentage / 100.0)) >= :marginPercentageAfterSurChargeAfterAdj)"
+
+    )
+    List<BookingOrder> selectTotalForAdjustment(@Param("regions") Object regions,
+                                                @Param("dealerName") Object dealerName,
+                                                @Param("plants") Object plants,
+                                                @Param("segments") Object segments,
+                                                @Param("classes") Object classes,
+                                                @Param("metaSeries") Object metaSeries,
+                                                @Param("models") Object models,
+                                                @Param("comparator") Object comparator,
+                                                @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
+                                                @Param("comparatorAfterAdj") Object comparatorAfterAdj,
+                                                @Param("marginPercentageAfterSurChargeAfterAdj") Object marginPercentageAfterSurChargeAfterAdj,
+                                                @Param("costAdjPercentage") double costAdjPercentage,
+                                                @Param("freightAdj") double freightAdj,
+                                                @Param("fxAdj") double fxAdj,
+                                                @Param("dnAdjPercentage") double dnAdjPercentage);
+
+
+
+
+
 }

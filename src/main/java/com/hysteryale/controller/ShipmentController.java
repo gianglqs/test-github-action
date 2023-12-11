@@ -3,6 +3,7 @@ package com.hysteryale.controller;
 import com.hysteryale.exception.MissingColumnException;
 import com.hysteryale.model.filters.FilterModel;
 import com.hysteryale.response.ResponseObject;
+import com.hysteryale.service.FileUploadService;
 import com.hysteryale.service.ImportService;
 import com.hysteryale.service.ShipmentService;
 import com.hysteryale.utils.EnvironmentUtils;
@@ -31,7 +32,8 @@ public class ShipmentController {
 
     @Resource
     ImportService importService;
-
+    @Resource
+    FileUploadService fileUploadService;
     private FilterModel filters;
 
     @PostMapping("/getShipmentData")
@@ -51,14 +53,13 @@ public class ShipmentController {
     public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file) {
 
         try {
-            //TODO : save file into disk and DB
             InputStream is = file.getInputStream();
 
             if (FileUtils.isExcelFile(is)) {
                 // save file in folder tmp
                 String folderPath = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
                 FileUtils.saveFile(file, folderPath);
-
+                fileUploadService.saveFileUploadToDisk(file);
                 // open file to import
                 String pathFile = FileUtils.getPath(folderPath, file.getOriginalFilename());
                 InputStream inputStream = new FileInputStream(pathFile);

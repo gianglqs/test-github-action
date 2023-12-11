@@ -24,16 +24,16 @@ public class CustomBookingOrderRepository {
      * If list of which filter it not null, then append to JPQL query
      */
     public Query createQueryByFilters(String queryString, String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries,
-                                      List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage) throws ParseException {
+                                      List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, List<String> marginPercentage) throws ParseException {
         // Add more filters if the List containing value is not empty
         if (!regions.isEmpty())
             queryString += "AND b.region.region IN :regions ";
         if (!dealers.isEmpty())
             queryString += "AND b.dealerName IN :dealers ";
         if (!plants.isEmpty())
-            queryString += "AND b.productDimension.plant IN :plants "; //
+            queryString += "AND b.productDimension.plant IN :plants ";
         if (!metaSeries.isEmpty())
-            queryString += "AND b.productDimension.metaSeries IN :metaSeries ";
+            queryString += "AND SUBSTRING(c.series, 2,3) IN :metaSeries ";
         if (!classes.isEmpty())
             queryString += "AND b.productDimension.clazz IN :classes ";
         if (!models.isEmpty())
@@ -42,7 +42,6 @@ public class CustomBookingOrderRepository {
             queryString += "AND b.productDimension.segment IN :segments ";
         if (!strFromDate.isEmpty())
             queryString += "AND b.date >= :fromDate ";
-
         if (!strToDate.isEmpty())
             queryString += "AND b.date <= :toDate ";
 
@@ -54,22 +53,26 @@ public class CustomBookingOrderRepository {
                 queryString += "AND b.marginPercentageAfterSurCharge < b.AOPMarginPercentage ";
             }
         }
-        if (!MarginPercetage.isEmpty()) {
+        if (!marginPercentage.isEmpty()) {
             // queryString += "AND b.marginPercentageAfterSurCharge <> 'NaN' ";
-            switch (MarginPercetage) {
-                case "<10% Margin":
-                    queryString += "AND b.marginPercentageAfterSurCharge < 0.1 "; //
+            if(marginPercentage != null){
+            switch (marginPercentage.get(0)) {
+                case "<":
+                    queryString += "AND b.marginPercentageAfterSurCharge < :marginPercentageGroup "; //
                     break;
-                case "<20% Margin":
-                    queryString += "AND b.marginPercentageAfterSurCharge < 0.2 ";
+                case ">":
+                    queryString += "AND b.marginPercentageAfterSurCharge > :marginPercentageGroup ";
                     break;
-                case "<30% Margin":
-                    queryString += "AND b.marginPercentageAfterSurCharge < 0.3 ";
+                case "=":
+                    queryString += "AND b.marginPercentageAfterSurCharge = :marginPercentageGroup ";
                     break;
-                case ">=30% Margin":
-                    queryString += "AND b.marginPercentageAfterSurCharge >= 0.3 ";
+                case ">=":
+                    queryString += "AND b.marginPercentageAfterSurCharge >= :marginPercentageGroup ";
                     break;
-            }
+                case "<=":
+                    queryString += "AND b.marginPercentageAfterSurCharge <= :marginPercentageGroup ";
+                    break;
+            }}
         }
 
         Query query = entityManager.createQuery(queryString);
@@ -97,8 +100,11 @@ public class CustomBookingOrderRepository {
             calendar = Calendar.getInstance();
             calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(strFromDate));
             query.setParameter("fromDate", calendar);
-
         }
+        if((!marginPercentage.isEmpty())){
+            query.setParameter("marginPercentageGroup", marginPercentage.get(1));
+        }
+
         if (!strToDate.isEmpty()) {
             calendar = Calendar.getInstance();
             calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(strToDate));
@@ -110,42 +116,49 @@ public class CustomBookingOrderRepository {
         return query;
     }
 
+//    private Query setParameter(List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage){
+//
+//    }
+
+    private String addGroupByClaude(String subQuery){
+        subQuery += " GROUP BY b.region.region, b.productDimension.plant, b.productDimension.clazz, b.series, b.model";
+        return subQuery;
+    }
+
+    private List<BookingOrder> getTotalBookingOrder(List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage, int perPage, int offSet) throws ParseException {
+        String queryString = "SELECT DISTINCT b FROM BookingOrder b  WHERE ) ";
+return null;
+    }
     /**
      * Get BookingOrder by filters (orderNo and List<String> ... ) and pagination (pageNo, perPage)
      */
-    public List<BookingOrder>
-    getBookingOrdersByFiltersByPage(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage, int perPage, int offSet) throws ParseException {
+//    public List<BookingOrder>
+//    getBookingOrdersByFiltersByPage(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage, int perPage, int offSet) throws ParseException {
+//
+//        // Query for getting BookingOrder
+//        // String queryString = "SELECT b FROM BookingOrder b WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%')";
+//        String queryString = "SELECT DISTINCT b FROM BookingOrder b  WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%') ";
+//
+//        // Append filters
+//        Query query = createQueryByFilters(queryString, orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
+//
+//        // Setting pagination
+//        query.setFirstResult(offSet);
+//        query.setMaxResults(perPage);
+//
+//        // Get result list and parse into BookingOrder then add into a list
+//        List bookingOrderList = query.getResultList();
+//        List<BookingOrder> bookingOrders = new ArrayList<>();
+//
+//        for (Object object : bookingOrderList) {
+//            BookingOrder bookingOrder = (BookingOrder) object;
+//            bookingOrders.add(bookingOrder);
+//        }
+//        return bookingOrders;
+//    }
 
-        // Query for getting BookingOrder
-        // String queryString = "SELECT b FROM BookingOrder b WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%')";
-        String queryString = "SELECT DISTINCT b FROM BookingOrder b  WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%') ";
 
-        // Append filters
-        Query query = createQueryByFilters(queryString, orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
 
-        // Setting pagination
-        query.setFirstResult(offSet);
-        query.setMaxResults(perPage);
-
-        // Get result list and parse into BookingOrder then add into a list
-        List bookingOrderList = query.getResultList();
-        List<BookingOrder> bookingOrders = new ArrayList<>();
-
-        for (Object object : bookingOrderList) {
-            BookingOrder bookingOrder = (BookingOrder) object;
-            bookingOrders.add(bookingOrder);
-        }
-        return bookingOrders;
-    }
-
-    /**
-     * Get the number of BookingOrders returned based on filters
-     */
-    public long getNumberOfBookingOrderByFilters(String orderNo, List<String> regions, List<String> dealers, List<String> plants, List<String> metaSeries, List<String> classes, List<String> models, List<String> segments, String strFromDate, String strToDate, String AOPMarginPercetage, String MarginPercetage) throws ParseException {
-        String queryString = "SELECT COUNT(b) FROM BookingOrder b  WHERE b.orderNo LIKE CONCAT('%', :orderNo, '%')";
-        Query query = createQueryByFilters(queryString, orderNo, regions, dealers, plants, metaSeries, classes, models, segments, strFromDate, strToDate, AOPMarginPercetage, MarginPercetage);
-        return (long) query.getSingleResult();
-    }
 
 
 }
