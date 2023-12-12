@@ -34,5 +34,8 @@ public class FilterController {
         return filterService.getOutlierFilter();
     }
 
+    @GetMapping("/trends")
+    public Map<String, Object> getTrendsFilters(){ return filterService.getTrendsFilter();}
+
 }
 

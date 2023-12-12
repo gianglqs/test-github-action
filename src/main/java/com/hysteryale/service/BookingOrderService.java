@@ -232,7 +232,7 @@ public class BookingOrderService extends BasedService {
 
         // Get files in Folder Path
         List<String> fileList = getAllFilesInFolder(folderPath);
-        List<String> listMonth = DateUtils.monthList();
+        String[] listMonth = DateUtils.getAllMonthsAsString();
 
         String month = "", year = "";
 
@@ -464,11 +464,11 @@ public class BookingOrderService extends BasedService {
 
     private InputStream getInputStreamForCostData(String month, String year) throws IOException {
 
-        String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
+       String baseFolder = EnvironmentUtils.getEnvironmentValue("import-files.base-folder");
 
-        List<String> listMonth = DateUtils.monthList();
+       List<String> listMonth = Arrays.asList(DateUtils.getAllMonthsAsString());
 
-        String folderPath;
+       String folderPath;
 
         String targetFolder = EnvironmentUtils.getEnvironmentValue("import-files.total-cost");
         folderPath = baseFolder + targetFolder;
@@ -476,6 +476,7 @@ public class BookingOrderService extends BasedService {
         List<String> fileList = getAllFilesInFolder(folderPath);
         for (String fileName : fileList) {
             // if data is new extract file name Cost_Data_10_09_2023_11_01_37 -> Date -> month,year
+
             if (fileName.contains(year) && listMonth.get(extractDate(fileName).getMonth()).toLowerCase().contains(month.toLowerCase())) {
                 InputStream is = new FileInputStream(folderPath + "/" + fileName);
                 return is;

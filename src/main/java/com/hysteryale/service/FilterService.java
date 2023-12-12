@@ -77,6 +77,32 @@ public class FilterService {
         return filters;
     }
 
+    public Map<String, Object> getTrendsFilter() {
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("regions", getAllRegions());
+        filters.put("plants", getAllPlants());
+        filters.put("metaSeries", getAllMetaSeries());
+        filters.put("classes", getAllClasses());
+        filters.put("models", getAllModels());
+        filters.put("segments", getAllSegments());
+        filters.put("years", getRecentYears());
+
+        return filters;
+    }
+
+    private List<Map<String, Integer>> getRecentYears() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+
+        return List.of(
+                Map.of("value", year - 1),
+                Map.of("value", year),
+                Map.of("value", year + 1)
+                );
+    }
+
+
+
     private List<Map<String, String>> getChineseBrandFilter() {
         List<Map<String, String>> result = new ArrayList<>();
 

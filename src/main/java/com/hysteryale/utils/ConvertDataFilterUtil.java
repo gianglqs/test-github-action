@@ -30,6 +30,9 @@ public class ConvertDataFilterUtil {
         Calendar toDateFilter = checkDateData(filterModel.getToDate());
         Pageable pageable = PageRequest.of(filterModel.getPageNo() == 0 ? filterModel.getPageNo() : filterModel.getPageNo() - 1, filterModel.getPerPage() == 0 ? 100 : filterModel.getPerPage());
 
+        Calendar calendar = Calendar.getInstance();
+        Integer year = filterModel.getYear() == null ? calendar.get(Calendar.YEAR) : filterModel.getYear();
+
         result.put("orderNoFilter", orderNoFilter);
         result.put("regionFilter", regionFilter);
         result.put("plantFilter", plantFilter);
@@ -45,6 +48,7 @@ public class ConvertDataFilterUtil {
         result.put("fromDateFilter", fromDateFilter);
         result.put("toDateFilter", toDateFilter);
         result.put("pageable", pageable);
+        result.put("year", year);
 
         return result;
     }
