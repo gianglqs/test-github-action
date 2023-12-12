@@ -167,6 +167,7 @@ public class AdjustmentService extends BasedService {
         // Margin %
         adjustmentPayLoad.setNewMarginPercentage(adjustmentPayLoad.getNewMargin() / adjustmentPayLoad.getNewDN());
 
+        // TODO : recheck formula
         //Additional Volume at BEP For Discount =  ABS( margin) / (DN* % DN adj) - (Original total cost/no of order)
          adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
         // adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN()/ booking.getQuantity() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
