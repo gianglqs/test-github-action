@@ -64,7 +64,7 @@ public class FilterService {
         return filters;
     }
 
-    public Map<String, Object> getOutLierFilter() {
+    public Map<String, Object> getOutlierFilter() {
         Map<String, Object> filters = new HashMap<>();
         filters.put("regions", getAllRegions());
         filters.put("classes", getAllClasses());
