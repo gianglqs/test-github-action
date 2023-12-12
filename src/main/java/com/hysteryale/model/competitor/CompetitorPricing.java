@@ -46,6 +46,9 @@ public class CompetitorPricing {
     private double dealerNet;
     private double marketShare;
 
+    @ManyToOne()
+    private CompetitorColor color;
+
 
     public CompetitorPricing(String region, long actual, long AOPF, long LRFF) {
         this.region = region;

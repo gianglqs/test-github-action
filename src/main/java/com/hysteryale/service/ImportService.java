@@ -2,6 +2,7 @@ package com.hysteryale.service;
 
 import com.hysteryale.exception.MissingColumnException;
 import com.hysteryale.model.*;
+import com.hysteryale.model.competitor.CompetitorColor;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.competitor.ForeCastValue;
 import com.hysteryale.repository.CompetitorPricingRepository;
@@ -51,6 +52,8 @@ public class ImportService extends BasedService {
 
     @Resource
     AOPMarginService aopMarginService;
+    @Resource
+    IndicatorService indicatorService;
 
     @Resource
     ShipmentService shipmentService;
@@ -125,7 +128,7 @@ public class ImportService extends BasedService {
         }
 
         double competitorPricing = row.getCell(ORDER_COLUMNS_NAME.get("Price (USD)")).getNumericCellValue();
-        double marketShare = row.getCell(ORDER_COLUMNS_NAME.get("Market Share")).getNumericCellValue();
+        double marketShare = row.getCell(ORDER_COLUMNS_NAME.get("Normalized Market Share")).getNumericCellValue();
 
         // 2 fields below are hard-coded, will be modified later
         double percentageDealerPremium = 0.1;
@@ -133,6 +136,9 @@ public class ImportService extends BasedService {
 
         String category = row.getCell(ORDER_COLUMNS_NAME.get("Category")).getStringCellValue();
         String country = row.getCell(ORDER_COLUMNS_NAME.get("Country"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+
+        CompetitorColor competitorColor = indicatorService.getCompetitorColor(competitorName);
+
 
         // assigning values for CompetitorPricing
         CompetitorPricing cp = new CompetitorPricing();
@@ -149,6 +155,7 @@ public class ImportService extends BasedService {
         cp.setDealerPremiumPercentage(percentageDealerPremium);
         cp.setSeries("");
         cp.setMarketShare(marketShare);
+        cp.setColor(competitorColor);
 
         // separate seriesString (for instances: A3C4/A7S4)
         String seriesString;
@@ -174,7 +181,7 @@ public class ImportService extends BasedService {
                 cp1.setSeries(series);
                 cp1.setMarketShare(marketShare);
                 cp1.setModel(productDimensionService.getModelFromMetaSeries(series.substring(1)));
-
+                cp1.setColor(competitorColor);
 
                 competitorPricingList.add(cp1);
             }

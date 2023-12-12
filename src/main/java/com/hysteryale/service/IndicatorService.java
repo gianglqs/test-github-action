@@ -1,22 +1,34 @@
 package com.hysteryale.service;
 
+import com.hysteryale.model.competitor.CompetitorColor;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.filters.FilterModel;
+import com.hysteryale.repository.CompetitorColorRepository;
 import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.utils.ConvertDataFilterUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
+@Slf4j
 public class IndicatorService extends BasedService {
     @Resource
     CompetitorPricingRepository competitorPricingRepository;
+    @Resource
+    CompetitorColorRepository competitorColorRepository;
 
 
     public Map<String, Object> getCompetitorPriceForTableByFilter(FilterModel filterModel) throws ParseException {
@@ -74,5 +86,46 @@ public class IndicatorService extends BasedService {
     public List<CompetitorPricing> getCompetitiveLandscape(String country, String clazz, String category, String series) {
         return competitorPricingRepository.getListOfCompetitorInGroup(country, clazz, category, series);
 
+    }
+
+    /**
+     * Get CompetitorColor by competitorName
+     * @return competitor color if existed, else randomly generate new one.
+     */
+    public CompetitorColor getCompetitorColor(String competitorName) {
+        Optional<CompetitorColor> optional = competitorColorRepository.getCompetitorColor(competitorName.strip());
+        if(optional.isEmpty()) {
+            Random random = new Random();
+            int nextColorCode = random.nextInt(256 * 256 * 256);
+            String colorCode = String.format("#%06x", nextColorCode);
+            return competitorColorRepository.save(new CompetitorColor(competitorName, colorCode));
+        }
+        else
+            return optional.get();
+    }
+
+    public CompetitorColor getCompetitorById(int id) {
+        Optional<CompetitorColor> optional = competitorColorRepository.findById(id);
+        if(optional.isPresent())
+            return optional.get();
+        else
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Competitor Color not found");
+    }
+
+    public Page<CompetitorColor> searchCompetitorColor(String search, int pageNo, int perPage) {
+        Pageable pageable = PageRequest.of(pageNo - 1, perPage, Sort.by("competitorName").ascending());
+        return competitorColorRepository.searchCompetitorColor(search, pageable);
+    }
+
+    @Transactional
+    public void updateCompetitorColor(CompetitorColor modifyColor) {
+        Optional<CompetitorColor> optional = competitorColorRepository.findById(modifyColor.getId());
+        if(optional.isPresent()) {
+            CompetitorColor dbCompetitorColor = optional.get();
+
+            dbCompetitorColor.setCompetitorName(modifyColor.getCompetitorName());
+            dbCompetitorColor.setColorCode(modifyColor.getColorCode());
+        }
+        else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Competitor Color not found");
     }
 }
