@@ -8,6 +8,7 @@ export const resetState = createAction(`${name}/RESET_STATE`);
 
 export const initialState = {
    outlierList: [] as any[],
+   totalRow: [] as any[],
    initDataFilter: {} as any,
    defaultValueFilterOutlier: defaultValueFilterOrder as any,
 };
@@ -18,6 +19,9 @@ const outlierSlice = createSlice({
    reducers: {
       setOutlierList(state, { payload }: PayloadAction<any[]>) {
          state.outlierList = payload;
+      },
+      setTotalRow(state, { payload }: PayloadAction<any[]>) {
+         state.totalRow = payload;
       },
       setInitDataFilter(state, { payload }: PayloadAction<any[]>) {
          state.initDataFilter = payload;
@@ -41,7 +45,7 @@ export const sagaGetList = createAction(`${name}/GET_LIST`);
 export const selectState = (state: RootReducerType) => state[name];
 export const selectOutlierList = createSelector(selectState, (state) => state.outlierList);
 export const selectInitDataFilter = createSelector(selectState, (state) => state.initDataFilter);
-
+export const selectTotalRow = createSelector(selectState, (state) => state.totalRow);
 export const selectDefaultValueFilterOutlier = createSelector(
    selectState,
    (state) => state.defaultValueFilterOutlier

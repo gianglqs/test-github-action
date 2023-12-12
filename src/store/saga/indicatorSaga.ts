@@ -44,6 +44,9 @@ function* fetchIndicator() {
       const dataListIndicatorObject = JSON.parse(String(dataListIndicator.data)).listCompetitor;
       yield put(indicatorStore.actions.setIndicatorList(dataListIndicatorObject));
 
+      const dataTotalRow = JSON.parse(String(dataListIndicator.data)).total;
+      yield put(indicatorStore.actions.setTotalRow(dataTotalRow));
+
       yield put(
          commonStore.actions.setTableState({
             totalItems: JSON.parse(String(dataListIndicator.data)).totalItems,

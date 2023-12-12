@@ -28,11 +28,11 @@ function* fetchAdjustment() {
       const initDataFilter = yield* call(adjustmentApi.getInitDataFilter);
 
       const dataAdjustment = JSON.parse(String(data)).listAdjustment;
-      console.log('AdjustmentList ', dataAdjustment);
+      const dataTotalRow = JSON.parse(String(data)).total;
 
       yield put(adjustmentStore.actions.setInitDataFilter(JSON.parse(String(initDataFilter.data))));
       yield put(adjustmentStore.actions.setAdjustmentList(dataAdjustment));
-
+      yield put(adjustmentStore.actions.setTotalRow(dataTotalRow));
       yield put(
          commonStore.actions.setTableState({
             totalItems: JSON.parse(String(data)).totalItems,

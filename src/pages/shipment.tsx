@@ -23,8 +23,9 @@ import _ from 'lodash';
 import { produce } from 'immer';
 
 import { defaultValueFilterOrder } from '@/utils/defaultValues';
-import { DataGridPro, GridToolbar } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
+import { rowColor } from '@/theme/colorRow';
 
 export async function getServerSideProps(context) {
    try {
@@ -57,6 +58,7 @@ export default function Shipment() {
    const listShipment = useSelector(shipmentStore.selectShipmentList);
 
    const initDataFilter = useSelector(shipmentStore.selectInitDataFilter);
+   const listTotalRow = useSelector(shipmentStore.selectTotalRow);
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
@@ -251,6 +253,157 @@ export default function Shipment() {
          renderCell(params) {
             return <span>{formatNumberPercentage(params?.row.aopmarginPercentage * 100)}</span>;
          },
+      },
+   ];
+
+   const totalColumns = [
+      {
+         field: 'orderNo',
+         flex: 0.4,
+         headerName: 'Order #',
+      },
+      {
+         field: 'date',
+         flex: 0.5,
+         headerName: 'Create at',
+         renderCell(params) {
+            return <span>{formatDate(params.row.date)}</span>;
+         },
+      },
+      {
+         field: 'region',
+         flex: 0.3,
+         headerName: 'Region',
+         renderCell(params) {
+            return <span>{params.row.region?.region}</span>;
+         },
+      },
+      {
+         field: 'ctryCode',
+         flex: 0.3,
+         headerName: 'Country',
+      },
+
+      {
+         field: 'Plant',
+         flex: 0.5,
+         headerName: 'Plant',
+         renderCell(params) {
+            return <span>{params.row.productDimension?.plant}</span>;
+         },
+      },
+      {
+         field: 'truckClass',
+         flex: 0.7,
+         headerName: 'Class',
+         renderCell(params) {
+            return <span>{params.row.productDimension?.clazz}</span>;
+         },
+      },
+      {
+         field: 'dealerName',
+         flex: 1.2,
+         headerName: 'Dealer Name',
+      },
+      {
+         field: 'series',
+         flex: 0.4,
+         headerName: 'Series',
+         renderCell(params) {
+            return <span>{params.row.series}</span>;
+         },
+      },
+      {
+         field: 'model',
+         flex: 0.6,
+         headerName: 'Models',
+         renderCell(params) {
+            return <span>{params.row.model}</span>;
+         },
+      },
+      {
+         field: 'quantity',
+         flex: 0.2,
+         headerName: 'Qty',
+         ...formatNumbericColumn,
+      },
+
+      {
+         field: 'dealerNet',
+         flex: 0.8,
+         headerName: 'DN',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.dealerNet)}</span>;
+         },
+      },
+      {
+         field: 'dealerNetAfterSurCharge',
+         flex: 0.8,
+         headerName: 'DN After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
+         },
+      },
+      {
+         field: 'totalCost',
+         flex: 0.8,
+         headerName: 'Total Cost',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.totalCost)}</span>;
+         },
+      },
+      {
+         field: 'netRevenue',
+         flex: 0.8,
+         headerName: 'Net Revenue',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.netRevenue)}</span>;
+         },
+      },
+      {
+         field: 'marginAfterSurCharge',
+         flex: 0.8,
+         headerName: 'Margin $ After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
+         },
+      },
+
+      {
+         field: 'marginPercentageAfterSurCharge',
+         flex: 0.6,
+         headerName: 'Margin % After Surcharge',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.marginPercentageAfterSurCharge * 100)}
+               </span>
+            );
+         },
+      },
+      {
+         field: 'bookingMarginPercentageAfterSurCharge',
+         flex: 0.6,
+         headerName: 'Booking Margin %',
+         ...formatNumbericColumn,
+         renderCell(params) {
+            return (
+               <span>
+                  {formatNumberPercentage(params?.row.bookingMarginPercentageAfterSurCharge * 100)}
+               </span>
+            );
+         },
+      },
+      {
+         field: 'aopmarginPercentager',
+         flex: 0.6,
+         headerName: 'AOP Margin%',
       },
    ];
 
@@ -504,7 +657,7 @@ export default function Shipment() {
             </Grid>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(100vh - 229px)' }}>
+               <Grid container sx={{ height: 'calc(100vh - 263px)' }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
@@ -544,6 +697,21 @@ export default function Shipment() {
                      </div>
                   ) : null}
                </Grid>
+               <DataGridPro
+                  sx={rowColor}
+                  getCellClassName={(params: GridCellParams<any, any, number>) => {
+                     return 'total';
+                  }}
+                  hideFooter
+                  columnHeaderHeight={0}
+                  disableColumnMenu
+                  rowHeight={30}
+                  rows={listTotalRow}
+                  rowBuffer={35}
+                  rowThreshold={25}
+                  columns={totalColumns}
+                  getRowId={(params) => params.orderNo}
+               />
                <DataTablePagination
                   page={tableState.pageNo}
                   perPage={tableState.perPage}

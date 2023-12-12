@@ -11,6 +11,7 @@ export const resetState = createAction(`${name}/RESET_STATE`);
 
 export const initialState = {
    adjustmentList: [] as any[],
+   totalRow: [] as any[],
    initDataFilter: {} as any,
    defaultValueFilterAdjustment: defaultValueFilterOrder as any,
    defaultValueCalculator: defaultValueCaculatorForAjustmentCost as any,
@@ -25,6 +26,9 @@ const adjustmentSlice = createSlice({
       },
       setInitDataFilter(state, { payload }: PayloadAction<any[]>) {
          state.initDataFilter = payload;
+      },
+      setTotalRow(state, { payload }: PayloadAction<any[]>) {
+         state.totalRow = payload;
       },
       setDefaultValueFilterAdjustment(state, { payload }: PayloadAction<Partial<any>>) {
          state.defaultValueFilterAdjustment = {
@@ -51,7 +55,7 @@ export const sagaGetList = createAction(`${name}/GET_LIST`);
 export const selectState = (state: RootReducerType) => state[name];
 export const selectAdjustmentList = createSelector(selectState, (state) => state.adjustmentList);
 export const selectInitDataFilter = createSelector(selectState, (state) => state.initDataFilter);
-
+export const selectTotalRow = createSelector(selectState, (state) => state.totalRow);
 export const selectDefaultValueFilterAdjustment = createSelector(
    selectState,
    (state) => state.defaultValueFilterAdjustment

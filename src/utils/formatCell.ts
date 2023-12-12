@@ -22,5 +22,5 @@ export const formatNumberPercentage = (num: any) => {
 };
 
 export const formatDate = (calendar: String) => {
-   return calendar.substring(0, 10);
+   if (typeof calendar === 'string') return calendar.substring(0, 10);
 };

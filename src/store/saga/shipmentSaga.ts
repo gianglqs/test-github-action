@@ -20,9 +20,11 @@ function* fetchShipment() {
       });
 
       const dataShipment = JSON.parse(String(data)).listShipment;
+      const dataTotalRow = JSON.parse(String(data)).total;
 
       yield put(shipmentStore.actions.setInitDataFilter(JSON.parse(String(initDataFilter.data))));
       yield put(shipmentStore.actions.setShipmentList(dataShipment));
+      yield put(shipmentStore.actions.setTotalRow(dataTotalRow));
 
       yield put(
          commonStore.actions.setTableState({
