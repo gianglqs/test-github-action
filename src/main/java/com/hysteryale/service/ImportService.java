@@ -553,6 +553,7 @@ public class ImportService extends BasedService {
             Date date = row.getCell(shipmentColumnsName.get("Created On")).getDateCellValue();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
             shipment.setDate(calendar);
         } else {
             throw new MissingColumnException("Missing column 'Created On'!");

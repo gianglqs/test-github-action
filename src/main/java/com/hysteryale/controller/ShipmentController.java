@@ -2,7 +2,6 @@ package com.hysteryale.controller;
 
 import com.hysteryale.exception.MissingColumnException;
 import com.hysteryale.model.filters.FilterModel;
-import com.hysteryale.model.filters.OrderFilter;
 import com.hysteryale.response.ResponseObject;
 import com.hysteryale.service.ImportService;
 import com.hysteryale.service.ShipmentService;
@@ -16,15 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -52,22 +48,28 @@ public class ShipmentController {
     }
 
     @PostMapping(path = "/importNewShipment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file) throws IOException, ParseException, MissingColumnException {
-        InputStream is = file.getInputStream();
+    public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file) {
 
-        if (FileUtils.isExcelFile(is)) {
-            // save file in folder tmp
-            String folderPath = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
-            FileUtils.saveFile(file, folderPath);
+        try {
+            //TODO : save file into disk and DB
+            InputStream is = file.getInputStream();
 
-            // open file to import
-            String pathFile = FileUtils.getPath(folderPath, file.getOriginalFilename());
-            InputStream inputStream = new FileInputStream(pathFile);
+            if (FileUtils.isExcelFile(is)) {
+                // save file in folder tmp
+                String folderPath = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
+                FileUtils.saveFile(file, folderPath);
 
-            importService.importShipmentFileOneByOne(inputStream);
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import data successfully", shipmentService.getShipmentByFilter(filters)));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Uploaded file is not an Excel file", null));
+                // open file to import
+                String pathFile = FileUtils.getPath(folderPath, file.getOriginalFilename());
+                InputStream inputStream = new FileInputStream(pathFile);
+
+                importService.importShipmentFileOneByOne(inputStream);
+                return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("Import data successfully", null));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("Uploaded file is not an Excel file", null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject(e.getMessage(), null));
         }
     }
 }

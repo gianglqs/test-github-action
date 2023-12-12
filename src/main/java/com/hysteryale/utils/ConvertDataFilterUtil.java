@@ -25,6 +25,7 @@ public class ConvertDataFilterUtil {
         Boolean ChineseBrandFilter = checkBooleanData(filterModel.getChineseBrand());
         String aopMarginPercentageFilter = checkStringData(filterModel.getAopMarginPercentageGroup());
         List<Object> marginPercentageFilter = checkComparator(filterModel.getMarginPercentage());
+        List<Object> marginPercentageAfterAdjFilter = checkComparator(filterModel.getMarginPercentageAfterAdj());
         Calendar fromDateFilter = checkDateData(filterModel.getFromDate());
         Calendar toDateFilter = checkDateData(filterModel.getToDate());
         Pageable pageable = PageRequest.of(filterModel.getPageNo() == 0 ? filterModel.getPageNo() : filterModel.getPageNo() - 1, filterModel.getPerPage() == 0 ? 100 : filterModel.getPerPage());
@@ -43,6 +44,7 @@ public class ConvertDataFilterUtil {
         result.put("ChineseBrandFilter", ChineseBrandFilter);
         result.put("aopMarginPercentageFilter", aopMarginPercentageFilter);
         result.put("marginPercentageFilter", marginPercentageFilter);
+        result.put("marginPercentageAfterAdjFilter", marginPercentageAfterAdjFilter);
         result.put("fromDateFilter", fromDateFilter);
         result.put("toDateFilter", toDateFilter);
         result.put("pageable", pageable);

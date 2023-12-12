@@ -58,7 +58,6 @@ public class FilterService {
         filters.put("marginPercentageGroup", getMarginPercentageGroup());
         filters.put("AOPMarginPercentageGroup", getAOPMarginPercentageGroup());
         filters.put("dealers", getAllDealerNames());
-        filters.put("series", getSeries());
         filters.put("segments", getAllSegments());
 
         return filters;
