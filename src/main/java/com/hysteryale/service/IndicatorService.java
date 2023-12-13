@@ -50,6 +50,14 @@ public class IndicatorService extends BasedService {
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1));
         result.put("totalItems", totalCompetitor);
+
+        // get Total
+        List<CompetitorPricing> getTotal = competitorPricingRepository.getTotal( filterMap.get("regionFilter"), filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"),
+                filterMap.get("classFilter"), filterMap.get("modelFilter"), filterMap.get("ChineseBrandFilter"),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1));
+        result.put("total", getTotal);
+
         return result;
     }
 

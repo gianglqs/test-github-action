@@ -43,7 +43,17 @@ public class AdjustmentService extends BasedService {
         List<AdjustmentPayLoad> listAdj = convertToListAdjustment(bookingOrderList, calculatorModel);
         setIdForList(listAdj);
         result.put("listAdjustment", listAdj);
-
+        // get total
+        List<BookingOrder> getAll = bookingOrderRepository.selectTotalForAdjustment(filterMap.get("regionFilter"), filterMap.get("dealerNameFilter"), filterMap.get("plantFilter"), filterMap.get("segmentFilter"),
+                filterMap.get("classFilter"), filterMap.get("metaSeriesFilter"), filterMap.get("modelFilter"),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
+                ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(0),
+                ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(1),
+                calculatorModel.getCostAdjPercentage(), calculatorModel.getFreightAdj(), calculatorModel.getFxAdj(), calculatorModel.getDnAdjPercentage());
+        List<AdjustmentPayLoad> totalAdj = convertToListAdjustment(getAll, calculatorModel);
+        List<AdjustmentPayLoad> calculateAll = calculateTotal(totalAdj, calculatorModel);
+        result.put("total", calculateAll);
 
         List<Integer> countAll = bookingOrderRepository.getCountAllForAdjustmentByFilter(
                 filterMap.get("regionFilter"), filterMap.get("dealerNameFilter"), filterMap.get("plantFilter"), filterMap.get("segmentFilter"),
@@ -53,7 +63,21 @@ public class AdjustmentService extends BasedService {
                 ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(0),
                 ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(1),
                 calculatorModel.getCostAdjPercentage(), calculatorModel.getFreightAdj(), calculatorModel.getFxAdj(), calculatorModel.getDnAdjPercentage());
+
         result.put("totalItems", countAll.size());
+
+//        List<BookingOrder> getTotalAdjustment = bookingOrderRepository.selectTotalForAdjustment(
+//                filterMap.get("regionFilter"), filterMap.get("dealerNameFilter"), filterMap.get("plantFilter"), filterMap.get("segmentFilter"),
+//                filterMap.get("classFilter"), filterMap.get("metaSeriesFilter"), filterMap.get("modelFilter"),
+//                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
+//                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
+//                ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(0),
+//                ((List) filterMap.get("marginPercentageAfterAdjFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageAfterAdjFilter")).get(1),
+//                calculatorModel.getCostAdjPercentage(), calculatorModel.getFreightAdj(), calculatorModel.getFxAdj(), calculatorModel.getDnAdjPercentage());
+
+        //       System.out.println(getTotalAdjustment.size());
+        // result.put("totalItems", countAll.size());
+
 
         return result;
     }
@@ -73,13 +97,43 @@ public class AdjustmentService extends BasedService {
         return result;
     }
 
+    private List<AdjustmentPayLoad> calculateTotal(List<AdjustmentPayLoad> list, CalculatorModel calculatorModel) {
+        List<AdjustmentPayLoad> result = new ArrayList<>();
+        AdjustmentPayLoad adjustmentPayLoad = new AdjustmentPayLoad();
+        adjustmentPayLoad.setManualAdjFX(calculatorModel.getFxAdj());
+        adjustmentPayLoad.setManualAdjFreight(calculatorModel.getFreightAdj());
+        for (AdjustmentPayLoad adj : list) {
+            adjustmentPayLoad.setManualAdjCost(adjustmentPayLoad.getManualAdjCost() + adj.getManualAdjCost());
+            adjustmentPayLoad.setTotalManualAdjCost(adjustmentPayLoad.getTotalManualAdjCost() + adj.getTotalManualAdjCost());
+
+            adjustmentPayLoad.setOriginalDN(adjustmentPayLoad.getOriginalDN() + adj.getOriginalDN());
+            adjustmentPayLoad.setOriginalMargin(adjustmentPayLoad.getOriginalMargin() + adj.getOriginalMargin());
+
+            adjustmentPayLoad.setNewDN(adjustmentPayLoad.getNewDN() + adj.getNewDN());
+            adjustmentPayLoad.setNewMargin(adjustmentPayLoad.getNewMargin() + adj.getNewMargin());
+            adjustmentPayLoad.setNoOfOrder(adjustmentPayLoad.getNoOfOrder() + adj.getNoOfOrder());
+            adjustmentPayLoad.setAdditionalVolume(adjustmentPayLoad.getAdditionalVolume() + adj.getAdditionalVolume());
+        }
+        adjustmentPayLoad.setOriginalMarginPercentage(adjustmentPayLoad.getOriginalMargin() / adjustmentPayLoad.getOriginalDN());
+        adjustmentPayLoad.setNewMarginPercentage(adjustmentPayLoad.getNewMargin() / adjustmentPayLoad.getNewDN());
+        result.add(adjustmentPayLoad);
+        return result;
+    }
+
     private AdjustmentPayLoad convertToAdjustment(BookingOrder booking, CalculatorModel calculatorModel) {
         AdjustmentPayLoad adjustmentPayLoad = new AdjustmentPayLoad();
-        adjustmentPayLoad.setRegion(booking.getRegion().getRegion());
-        adjustmentPayLoad.setPlant(booking.getProductDimension().getPlant());
-        adjustmentPayLoad.setClazz(booking.getProductDimension().getClazz());
+        if (booking.getRegion() != null) {
+            adjustmentPayLoad.setRegion(booking.getRegion().getRegion());
+        }
+        if (booking.getProductDimension() != null) {
+            adjustmentPayLoad.setPlant(booking.getProductDimension().getPlant());
+            adjustmentPayLoad.setClazz(booking.getProductDimension().getClazz());
+        }
+
         adjustmentPayLoad.setModel(booking.getModel());
-        adjustmentPayLoad.setMetaSeries(booking.getSeries().substring(1));
+        if (booking.getSeries() != null)
+            adjustmentPayLoad.setMetaSeries(booking.getSeries().substring(1));
+
         adjustmentPayLoad.setNoOfOrder(booking.getQuantity());
 
         adjustmentPayLoad.setOriginalDN(booking.getDealerNetAfterSurCharge());
@@ -113,10 +167,11 @@ public class AdjustmentService extends BasedService {
         // Margin %
         adjustmentPayLoad.setNewMarginPercentage(adjustmentPayLoad.getNewMargin() / adjustmentPayLoad.getNewDN());
 
+        // TODO : recheck formula
         //Additional Volume at BEP For Discount =  ABS( margin) / (DN* % DN adj) - (Original total cost/no of order)
-       // adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (booking.getDealerNetAfterSurCharge() * calculatorModel.getDnAdjPercentage() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
-       // adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN()/ booking.getQuantity() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
-        adjustmentPayLoad.setAdditionalVolume((int) Math.round((Math.abs(adjustmentPayLoad.getNewMargin()) + adjustmentPayLoad.getTotalManualAdjCost())/( adjustmentPayLoad.getNewDN()/booking.getQuantity())));
+         adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
+        // adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN()/ booking.getQuantity() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
+        //adjustmentPayLoad.setAdditionalVolume((int) Math.round((Math.abs(adjustmentPayLoad.getNewMargin()) + adjustmentPayLoad.getTotalManualAdjCost()) / (adjustmentPayLoad.getNewDN() / booking.getQuantity())));
 
         return adjustmentPayLoad;
     }

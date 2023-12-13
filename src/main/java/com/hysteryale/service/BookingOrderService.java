@@ -687,13 +687,23 @@ public class BookingOrderService extends BasedService {
                 (Pageable) filterMap.get("pageable"));
         result.put("listBookingOrder", bookingOrderList);
         //get total Recode
-        int totalCompetitor = bookingOrderRepository.getCount(filterMap.get("orderNoFilter"), filterMap.get("regionFilter"), filterMap.get("plantFilter"),
+        int countAll = bookingOrderRepository.getCount(filterMap.get("orderNoFilter"), filterMap.get("regionFilter"), filterMap.get("plantFilter"),
                 filterMap.get("metaSeriesFilter"), filterMap.get("classFilter"), filterMap.get("modelFilter"),
                 filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
                 (Calendar) filterMap.get("fromDateFilter"), (Calendar) filterMap.get("toDateFilter"));
-        result.put("totalItems", totalCompetitor);
+        result.put("totalItems", countAll);
+
+        // get total
+        List<BookingOrder> getTotal = bookingOrderRepository.getTotal(filterMap.get("orderNoFilter"), filterMap.get("regionFilter"),
+                filterMap.get("plantFilter"), filterMap.get("metaSeriesFilter"), filterMap.get("classFilter"), filterMap.get("modelFilter"),
+                filterMap.get("segmentFilter"), filterMap.get("dealerNameFilter"), filterMap.get("aopMarginPercentageFilter"),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(0),
+                ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null : ((List) filterMap.get("marginPercentageFilter")).get(1),
+                (Calendar) filterMap.get("fromDateFilter"), (Calendar) filterMap.get("toDateFilter"));
+        result.put("total", getTotal);
+
         return result;
     }
 }

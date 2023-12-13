@@ -56,7 +56,7 @@ public class BookingOrder {
     private String truckClass;
 
     //properties that we need to calculate based on raw data
-    private long  quantity = 1;
+    private long quantity = 1;
 
     @Column(name = "total_cost")
     private double totalCost;
@@ -76,7 +76,7 @@ public class BookingOrder {
     @Column(name = "aopmargin_percentage")
     private double AOPMarginPercentage;
 
-    public BookingOrder(String region, String plant, String clazz, String series, String model, long quantity, double totalCost,double dealerNet, double dealerNetAfterSurCharge, double marginAfterSurCharge){
+    public BookingOrder(String region, String plant, String clazz, String series, String model, long quantity, double totalCost, double dealerNet, double dealerNetAfterSurCharge, double marginAfterSurCharge) {
 
         ProductDimension p = new ProductDimension(plant, clazz, model);
         Region r = new Region(region);
@@ -91,7 +91,7 @@ public class BookingOrder {
         this.model = model;
     }
 
-    public BookingOrder(String region, String plant, String clazz, String series, String model,  double totalCost, double dealerNetAfterSurCharge, double marginAfterSurCharge, long quantity){
+    public BookingOrder(String region, String plant, String clazz, String series, String model, double totalCost, double dealerNetAfterSurCharge, double marginAfterSurCharge, long quantity) {
 
         ProductDimension p = new ProductDimension(plant, clazz, model);
         Region r = new Region(region);
@@ -104,5 +104,33 @@ public class BookingOrder {
         this.marginAfterSurCharge = marginAfterSurCharge;
         this.model = model;
     }
+
+    public BookingOrder(String id, long quantity, double dealerNet, double dealerNetAfterSurCharge, double totalCost, double marginAfterSurCharge, double marginPercentageAfterSurCharge) {
+        this.orderNo = id;
+        this.dealerNet = dealerNet;
+        this.quantity = quantity;
+        this.dealerNetAfterSurCharge = dealerNetAfterSurCharge;
+        this.totalCost = totalCost;
+        this.marginAfterSurCharge = marginAfterSurCharge;
+        this.marginPercentageAfterSurCharge = marginPercentageAfterSurCharge;
+
+    }
+
+    public BookingOrder(double dealerNetAfterSurCharge, double totalCost, double marginAfterSurCharge, long quantity) {
+        this.dealerNetAfterSurCharge = dealerNetAfterSurCharge;
+        this.totalCost = totalCost;
+        this.marginAfterSurCharge = marginAfterSurCharge;
+        this.quantity = quantity;
+    }
+
+    public BookingOrder(long quantity, double totalCost, double dealerNet, double dealerNetAfterSurCharge, double marginAfterSurCharge, double marginPercentageAfterSurCharge){
+        this.quantity = quantity;
+        this.totalCost = totalCost;
+        this.dealerNet = dealerNet;
+        this.dealerNetAfterSurCharge = dealerNetAfterSurCharge;
+        this.marginAfterSurCharge = marginAfterSurCharge;
+        this.marginPercentageAfterSurCharge = marginPercentageAfterSurCharge;
+    }
+
 
 }

@@ -62,4 +62,18 @@ public class CompetitorPricing {
         this.AOPF = AOPF;
         this.LRFF = LRFF;
     }
+
+    public CompetitorPricing(String rowName, long actual, long aopf, long lrff, double dealerHandlingCost, double competitorPricing, double dealerStreetPricing,
+                              double averageDN, double variancePercentage ){
+
+        this.competitorName = rowName;
+        this.actual =actual;
+        this.AOPF = aopf;
+        this.LRFF = lrff;
+        this.dealerHandlingCost = dealerHandlingCost;
+        this.competitorPricing = competitorPricing;
+        this.dealerStreetPricing = dealerStreetPricing;
+        this.averageDN = averageDN;
+        this.variancePercentage = variancePercentage;
+    }
 }

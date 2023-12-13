@@ -48,7 +48,7 @@ public class Shipment {
 
     private String model;
 
-    private int quantity;
+    private long quantity;
 
     private double netRevenue;
 
@@ -72,5 +72,16 @@ public class Shipment {
 
     @Column(name = "aopmargin_percentage")
     private double AOPMarginPercentage;
+
+    public Shipment(String id, long quantity, double dealerNet, double dealerNetAfterSurCharge, double totalCost, double netRevenue, double marginAfterSurCharge, double marginPercentageAfterSurCharge) {
+        this.orderNo = id;
+        this.dealerNet = dealerNet;
+        this.quantity = quantity;
+        this.dealerNetAfterSurCharge = dealerNetAfterSurCharge;
+        this.totalCost = totalCost;
+        this.marginAfterSurCharge = marginAfterSurCharge;
+        this.marginPercentageAfterSurCharge = marginPercentageAfterSurCharge;
+        this.netRevenue = netRevenue;
+    }
 
 }

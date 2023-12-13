@@ -21,25 +21,25 @@ public class BasedService extends RollbarInitializer {
      */
     protected void logInfo(String message, Exception... exception) {
         log.info(message, exception);
-        rollbar.info(message);
+        //rollbar.info(message);
         logWithSentry(message, exception);
     }
 
     protected void logDebug(String message, Exception... exception) {
         log.debug(message, exception);
-        rollbar.debug(message);
+       // rollbar.debug(message);
         logWithSentry(message, exception);
     }
 
     protected void logError(String message, Exception... exception) {
         log.error(message, exception);
-        rollbar.error(message);
+       // rollbar.error(message);
         logWithSentry(message, exception);
     }
 
     protected void logWarning(String message, Exception... exception) {
         log.warn(message, exception);
-        rollbar.warning(message);
+//rollbar.warning(message);
         logWithSentry(message, exception);
     }
 
