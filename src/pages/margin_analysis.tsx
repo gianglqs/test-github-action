@@ -127,7 +127,7 @@ export default function MarginAnalysis() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {
@@ -152,7 +152,7 @@ export default function MarginAnalysis() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {
@@ -177,7 +177,7 @@ export default function MarginAnalysis() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {

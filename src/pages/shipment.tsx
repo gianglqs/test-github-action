@@ -421,7 +421,7 @@ export default function Shipment() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {
@@ -640,6 +640,13 @@ export default function Shipment() {
             {userRole === 'ADMIN' && (
                <Grid container spacing={1} sx={{ marginTop: '3px' }}>
                   <Grid item xs={1}>
+                     <UploadFileDropZone
+                        uploadedFile={uploadedFile}
+                        setUploadedFile={setUploadedFile}
+                        handleUploadFile={handleUploadFile}
+                     />
+                  </Grid>
+                  <Grid item xs={1}>
                      <Button
                         variant="contained"
                         onClick={handleImport}
@@ -647,13 +654,6 @@ export default function Shipment() {
                      >
                         Import
                      </Button>
-                  </Grid>
-                  <Grid item xs={1}>
-                     <UploadFileDropZone
-                        uploadedFile={uploadedFile}
-                        setUploadedFile={setUploadedFile}
-                        handleUploadFile={handleUploadFile}
-                     />
                   </Grid>
                   <Grid item xs={4}>
                      <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
