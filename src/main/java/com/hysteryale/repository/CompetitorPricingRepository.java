@@ -10,10 +10,10 @@ import java.util.List;
 
 public interface CompetitorPricingRepository extends JpaRepository<CompetitorPricing, Integer> {
 
-    @Query("SELECT c.country, c.clazz, c.category, c.series FROM CompetitorPricing c GROUP BY c.country, c.clazz, c.category, c.series")
+    @Query("SELECT c.country.countryName, c.clazz, c.category, c.series FROM CompetitorPricing c GROUP BY c.country.countryName, c.clazz, c.category, c.series")
     List<String[]> getCompetitorGroup();
 
-    @Query("SELECT c FROM CompetitorPricing c WHERE c.country = ?1 AND c.clazz = ?2 AND c.category = ?3 AND c.series = ?4")
+    @Query("SELECT c FROM CompetitorPricing c WHERE c.country.countryName = ?1 AND c.clazz = ?2 AND c.category = ?3 AND c.series = ?4")
     List<CompetitorPricing> getListOfCompetitorInGroup(String country, String clazz, String category, String series);
 
     @Query("SELECT new com.hysteryale.model.competitor.CompetitorPricing(c.region, SUM(c.actual), SUM(c.AOPF), SUM(c.LRFF))" +
@@ -141,7 +141,14 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
     @Query("SELECT DISTINCT c.category FROM CompetitorPricing c")
     List<String> getDistinctCategory();
 
-    @Query("SELECT DISTINCT c.country FROM CompetitorPricing c")
-    List<String> getDistinctCountry();
+    @Query("SELECT c FROM CompetitorPricing c " +
+            "WHERE ((:regions) IS NULL OR c.region IN (:regions)) " +
+            "AND ((:countries) IS NULL OR c.country.countryName IN (:countries)) " +
+            "AND ((:classes) IS NULL OR c.clazz IN (:classes)) " +
+            "AND ((:category) IS NULL OR c.category IN (:category)) " +
+            "AND ((:series) IS NULL OR c.series IN (:series))")
+    List<CompetitorPricing> getDataForBubbleChart(@Param("regions") Object regions, @Param("countries") Object countries,
+                                                  @Param("classes") Object classes, @Param("category") Object categories,
+                                                  @Param("series") Object series);
 
 }

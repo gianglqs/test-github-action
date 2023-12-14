@@ -1,9 +1,6 @@
 package com.hysteryale.service;
 
-import com.hysteryale.repository.CompetitorPricingRepository;
-import com.hysteryale.repository.ProductDimensionRepository;
-import com.hysteryale.repository.RegionRepository;
-import com.hysteryale.repository.ShipmentRepository;
+import com.hysteryale.repository.*;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +24,8 @@ public class FilterService {
     
     @Resource
     BookingOrderRepository bookingOrderRepository;
+    @Resource
+    CountryRepository countryRepository;
 
     public Map<String, Object> getCompetitorPricingFilter() {
 
@@ -291,7 +290,7 @@ public class FilterService {
      */
     private List<Map<String, String>> getCountries() {
         List<Map<String, String>> listCountries = new ArrayList<>();
-        List<String> countries = competitorPricingRepository.getDistinctCountry();
+        List<String> countries = countryRepository.getAllCountryNames();
         countries.sort(String::compareTo);
         for(String country : countries) {
             listCountries.add(Map.of("value", country));

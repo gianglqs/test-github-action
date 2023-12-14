@@ -10,9 +10,10 @@ import com.hysteryale.repository.ShipmentRepository;
 import com.hysteryale.repository.bookingorder.BookingOrderRepository;
 import com.hysteryale.utils.EnvironmentUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,8 @@ public class ImportService extends BasedService {
 
     @Resource
     ShipmentService shipmentService;
+    @Resource
+    CountryService countryService;
 
     public void getOrderColumnsName(Row row, HashMap<String, Integer> ORDER_COLUMNS_NAME) {
         for (int i = 0; i < 50; i++) {
@@ -112,7 +115,6 @@ public class ImportService extends BasedService {
         List<CompetitorPricing> competitorPricingList = new ArrayList<>();
 
         Cell cellRegion = row.getCell(ORDER_COLUMNS_NAME.get("Region"));
-        String region = cellRegion.getStringCellValue();
 
         Cell cellCompetitorName = row.getCell(ORDER_COLUMNS_NAME.get("Brand"));
         String competitorName = cellCompetitorName.getStringCellValue();
@@ -135,7 +137,10 @@ public class ImportService extends BasedService {
         double dealerNet = 10000;
 
         String category = row.getCell(ORDER_COLUMNS_NAME.get("Category")).getStringCellValue();
-        String country = row.getCell(ORDER_COLUMNS_NAME.get("Country"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+
+        String strCountry = row.getCell(ORDER_COLUMNS_NAME.get("Country"), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+        String strRegion = cellRegion.getStringCellValue();
+        Country country = getCountry(strCountry, strRegion);
 
         CompetitorColor competitorColor = indicatorService.getCompetitorColor(competitorName);
 
@@ -144,8 +149,10 @@ public class ImportService extends BasedService {
         CompetitorPricing cp = new CompetitorPricing();
         cp.setCompetitorName(competitorName);
         cp.setCategory(category);
+
         cp.setCountry(country);
-        cp.setRegion(region);
+        cp.setRegion(strRegion);
+
         cp.setClazz(clazz);
         cp.setCompetitorLeadTime(leadTime);
         cp.setDealerNet(dealerNet);
@@ -169,11 +176,11 @@ public class ImportService extends BasedService {
                 cp1.setCompetitorName(competitorName);
                 cp1.setCategory(category);
                 cp1.setCountry(country);
-                cp1.setRegion(region);
+                cp1.setRegion(strRegion);
                 cp1.setClazz(clazz);
                 cp1.setCompetitorLeadTime(leadTime);
-                cp1.setDealerNet(partService.getAverageDealerNet(region, clazz, series));
-                log.info("AVG Dealer Net: " + partService.getAverageDealerNet(region, clazz, series));
+                cp1.setDealerNet(partService.getAverageDealerNet(strRegion, clazz, series));
+                log.info("AVG Dealer Net: " + partService.getAverageDealerNet(strRegion, clazz, series));
                 cp1.setChineseBrand(isChineseBrand);
 
                 cp1.setCompetitorPricing(competitorPricing);
@@ -188,6 +195,19 @@ public class ImportService extends BasedService {
         } else
             competitorPricingList.add(cp);
         return competitorPricingList;
+    }
+
+    /**
+     * Get Country and create new Country if not existed
+     */
+    public Country getCountry(String countryName, String strRegion) {
+        Optional<Country> optional = countryService.getCountryByName(countryName);
+        if(optional.isPresent())
+            return optional.get();
+        else {
+            Region region = regionService.getRegionByName(strRegion);
+            return countryService.addCountry(new Country(countryName, region));
+        }
     }
 
     public void importCompetitorPricing() throws IOException {

@@ -3,6 +3,7 @@ package com.hysteryale.controller;
 import com.hysteryale.model.competitor.CompetitorColor;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.filters.FilterModel;
+import com.hysteryale.model.filters.SwotFilters;
 import com.hysteryale.service.IndicatorService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
@@ -33,13 +34,10 @@ public class IndicatorController {
     }
 
     @PostMapping(value = "/chart/getDataForCompetitorBubbleChart", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getCompetitorPricing(@RequestBody CompetitorPricing competitorPricing) {
+    public Map<String, Object> getCompetitorPricing(@RequestBody SwotFilters filters) {
+
         List<CompetitorPricing> competitorPricingList =
-                indicatorService.getCompetitiveLandscape(
-                        competitorPricing.getCountry(),
-                        competitorPricing.getClazz(),
-                        competitorPricing.getCategory(),
-                        competitorPricing.getSeries());
+                indicatorService.getCompetitiveLandscape(filters);
         return Map.of(
                 "competitiveLandscape", competitorPricingList
         );
