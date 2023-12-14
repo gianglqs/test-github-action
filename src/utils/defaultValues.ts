@@ -8,6 +8,8 @@ export const defaultValueFilterIndicator = {
    segments: [],
    aopMarginPercentageGroup: '',
    chineseBrand: '',
+   series: [],
+   countries: [],
 } as any;
 
 export const defaultValueFilterOrder = {

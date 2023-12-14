@@ -93,37 +93,42 @@ export default function Indicators() {
    const [competitiveLandscapeData, setCompetitiveLandscapeData] = useState({
       datasets: [],
    });
+   const [swotDataFilter, setSwotDataFilter] = useState({
+      regions: null,
+      countries: [],
+      classes: null,
+      categories: null,
+      series: [],
+   });
 
-   // I think you can write a common function here
-   const [countryValue, setCountryValue] = useState();
-   const [competitorClassValue, setCompetitorClass] = useState();
-   const [categoryValue, setCategory] = useState();
-   const [seriesValue, setSeries] = useState();
-
-   const handleChooseCountry = (value) => {
-      setCountryValue(value.innerText);
-   };
-   const handleChooseClass = (value) => {
-      setCompetitorClass(value.innerText);
-   };
-   const handleChooseCategory = (value) => {
-      setCategory(value.innerText);
-   };
-   const handleChooseSeries = (value) => {
-      setSeries(value.innerText);
-   };
+   const [regionError, setRegionError] = useState(false);
+   const [classesError, setClassesError] = useState(false);
+   const [categoriesError, setCategoriesError] = useState(false);
 
    const handleFilterCompetitiveLandscape = async () => {
       try {
+         if (swotDataFilter.regions == null) {
+            setRegionError(true);
+            return;
+         }
+         if (swotDataFilter.classes == null) {
+            setClassesError(true);
+            return;
+         }
+         if (swotDataFilter.categories == null) {
+            setCategoriesError(true);
+            return;
+         }
+
          const {
             data: { competitiveLandscape },
          } = await indicatorApi.getCompetitiveLandscape({
-            country: countryValue,
-            clazz: competitorClassValue,
-            category: categoryValue,
-            series: seriesValue,
+            regions: swotDataFilter.regions,
+            countries: swotDataFilter.countries,
+            classes: swotDataFilter.classes,
+            categories: swotDataFilter.categories,
+            series: swotDataFilter.series,
          });
-         const randomNum = () => Math.floor(Math.random() * (235 - 52 + 1) + 52);
          let totalPrice = 0;
          let totalLeadTime = 0;
          const datasets = competitiveLandscape.map((item) => {
@@ -139,7 +144,7 @@ export default function Indicators() {
                      r: (item.marketShare * 100).toLocaleString(),
                   },
                ],
-               backgroundColor: `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`,
+               backgroundColor: `${item.color.colorCode}`,
             };
          });
 
@@ -149,6 +154,21 @@ export default function Indicators() {
       } catch (error) {
          dispatch(commonStore.actions.setErrorMessage(error.message));
       }
+   };
+
+   const handleChangeSwotFilter = (option, field) => {
+      setSwotDataFilter((prev) =>
+         produce(prev, (draft) => {
+            if (_.includes(['regions', 'classes', 'categories'], field)) {
+               draft[field] = option.value;
+            } else {
+               draft[field] = option.map(({ value }) => value);
+            }
+         })
+      );
+      if (swotDataFilter.regions != null) setRegionError(false);
+      if (swotDataFilter.classes != null) setClassesError(false);
+      if (swotDataFilter.categories != null) setCategoriesError(false);
    };
 
    const handleChangeDataFilter = (option, field) => {
@@ -460,7 +480,7 @@ export default function Indicators() {
                   yMax: (context) => (context.chart.scales.y.max + context.chart.scales.y.min) / 2,
                   yMin: (context) => (context.chart.scales.y.max + context.chart.scales.y.min) / 2,
                   borderColor: 'rgb(0, 0, 0)',
-                  borderWidth: 2,
+                  borderWidth: 1,
                   label: {
                      display: true,
                      content: [
@@ -484,7 +504,7 @@ export default function Indicators() {
                   xMax: (context) => (context.chart.scales.x.max + context.chart.scales.x.min) / 2,
                   xMin: (context) => (context.chart.scales.x.max + context.chart.scales.x.min) / 2,
                   borderColor: 'rgb(0, 0, 0)',
-                  borderWidth: 2,
+                  borderWidth: 1,
                },
             },
          },
@@ -726,64 +746,80 @@ export default function Indicators() {
                sx={{ margin: '20px 0' }}
             >
                <Grid container spacing={1}>
-                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
+                  <Grid item xs={1.2} sx={{ zIndex: 10, height: 60, marginLeft: '2vh' }}>
+                     <AppAutocomplete
+                        options={initDataFilter.regions}
+                        label="Region"
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'regions')}
+                        limitTags={2}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                        helperText="Missing value"
+                        error={regionError}
+                        required
+                     />
                      <AppAutocomplete
                         options={initDataFilter.countries}
                         label="Country"
-                        onChange={(e, option) => handleChooseCountry(e.target)}
-                        limitTags={2}
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'countries')}
+                        limitTags={1}
                         disableListWrap
                         primaryKeyOption="value"
                         disableCloseOnSelect
                         renderOption={(prop, option) => `${option.value}`}
                         getOptionLabel={(option) => `${option.value}`}
+                        multiple
+                        sx={{ marginTop: 1 }}
                      />
                   </Grid>
-                  <Grid item xs={1} sx={{ zIndex: 10, height: 25 }}>
+                  <Grid item xs={1.2}>
                      <AppAutocomplete
                         options={initDataFilter.classes}
                         label="Competitor Class"
-                        onChange={(e, option) => handleChooseClass(e.target)}
-                        limitTags={2}
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'classes')}
                         disableListWrap
                         primaryKeyOption="value"
-                        disableCloseOnSelect
                         renderOption={(prop, option) => `${option.value}`}
                         getOptionLabel={(option) => `${option.value}`}
+                        error={classesError}
+                        helperText="Missing value"
+                        required
                      />
-                  </Grid>
-                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
-                     <AppAutocomplete
-                        options={initDataFilter.categories}
-                        label="Category"
-                        onChange={(e, option) => handleChooseCategory(e.target)}
-                        limitTags={2}
-                        disableListWrap
-                        primaryKeyOption="value"
-                        disableCloseOnSelect
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                     />
-                  </Grid>
-                  <Grid item xs={0.8} sx={{ zIndex: 10, height: 25 }}>
+
                      <AppAutocomplete
                         options={initDataFilter.series}
                         label="Series"
-                        onChange={(e, option) => handleChooseSeries(e.target)}
-                        limitTags={2}
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'series')}
+                        limitTags={1}
                         disableListWrap
                         primaryKeyOption="value"
                         disableCloseOnSelect
                         renderOption={(prop, option) => `${option.value}`}
                         getOptionLabel={(option) => `${option.value}`}
+                        sx={{ marginTop: 1 }}
+                        multiple
                      />
                   </Grid>
+                  <Grid item xs={1.5} sx={{ zIndex: 10, height: 60 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.categories}
+                        label="Category"
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'categories')}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                        error={categoriesError}
+                        helperText="Missing value"
+                        required
+                     />
 
-                  <Grid item xs={0.8}>
                      <Button
                         variant="contained"
                         onClick={handleFilterCompetitiveLandscape}
-                        sx={{ width: '25%', height: 24 }}
+                        sx={{ width: '100%', height: 24, marginTop: 1 }}
                      >
                         Filter
                      </Button>
