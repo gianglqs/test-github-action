@@ -1,5 +1,6 @@
 package com.hysteryale.model.competitor;
 
+import com.hysteryale.model.Country;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,9 @@ public class CompetitorPricing {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    @ManyToOne
+    private Country country;
     private String region;
-    private String country;
     private String plant;
     private String competitorName;
     private String clazz;
