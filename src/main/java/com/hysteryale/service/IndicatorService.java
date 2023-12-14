@@ -3,6 +3,7 @@ package com.hysteryale.service;
 import com.hysteryale.model.competitor.CompetitorColor;
 import com.hysteryale.model.competitor.CompetitorPricing;
 import com.hysteryale.model.filters.FilterModel;
+import com.hysteryale.model.filters.SwotFilters;
 import com.hysteryale.repository.CompetitorColorRepository;
 import com.hysteryale.repository.CompetitorPricingRepository;
 import com.hysteryale.utils.ConvertDataFilterUtil;
@@ -19,8 +20,6 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -83,9 +82,19 @@ public class IndicatorService extends BasedService {
                 ((List) filterMap.get("marginPercentageFilter")).isEmpty() ? null: ((List) filterMap.get("marginPercentageFilter")).get(1));
     }
 
-    public List<CompetitorPricing> getCompetitiveLandscape(String country, String clazz, String category, String series) {
-        return competitorPricingRepository.getListOfCompetitorInGroup(country, clazz, category, series);
+    public List<CompetitorPricing> getCompetitiveLandscape(SwotFilters filters) {
 
+        String regions = filters.getRegions();
+        List<String> countryNames = filters.getCountries();
+        String competitorClass = filters.getClasses();
+        String category = filters.getCategories();
+        List<String> series = filters.getSeries();
+
+        if(countryNames.isEmpty())
+            countryNames = null;
+        if(series.isEmpty())
+            series = null;
+        return competitorPricingRepository.getDataForBubbleChart(Collections.singletonList(regions), countryNames, Collections.singletonList(competitorClass), Collections.singletonList(category), series);
     }
 
     /**
