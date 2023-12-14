@@ -65,12 +65,10 @@ public class BookingOrderController {
                 if (FileUtils.isExcelFile(file.getInputStream())) {
                     // save file to disk
                     if (FileUtils.checkFileNameValid(file,"booked") || FileUtils.checkFileNameValid(file,"booking")) {
-                        pathFileBooking = fileUploadService.saveFileUploadToDisk(file);
+                        pathFileBooking = fileUploadService.saveFileUploaded(file, authentication);
                     } else if (FileUtils.checkFileNameValid(file,"cost_data")) {
-                        pathFileCostData = fileUploadService.saveFileUploadToDisk(file);
+                        pathFileCostData = fileUploadService.saveFileUploaded(file,authentication);
                     }
-                    //save to DB
-                    fileUploadService.saveFileUpload(file, authentication);
                 }
 
             }

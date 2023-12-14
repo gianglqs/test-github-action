@@ -11,6 +11,7 @@ import com.hysteryale.utils.FileUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,18 +51,16 @@ public class ShipmentController {
     }
 
     @PostMapping(path = "/importNewShipment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file) {
+    public ResponseEntity<ResponseObject> importNewDataShipment(@RequestBody MultipartFile file, Authentication authentication) {
 
         try {
             InputStream is = file.getInputStream();
 
             if (FileUtils.isExcelFile(is)) {
-                // save file in folder tmp
-                String folderPath = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
-                FileUtils.saveFile(file, folderPath);
-                fileUploadService.saveFileUploadToDisk(file);
+                // save file in folder tmp/UploadFiles
+               String pathFile =  fileUploadService.saveFileUploaded(file, authentication);
                 // open file to import
-                String pathFile = FileUtils.getPath(folderPath, file.getOriginalFilename());
+
                 InputStream inputStream = new FileInputStream(pathFile);
 
                 importService.importShipmentFileOneByOne(inputStream);
