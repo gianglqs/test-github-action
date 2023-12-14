@@ -407,11 +407,13 @@ export default function Shipment() {
       },
    ];
 
+   let cookies = parseCookies();
+   let userRole = cookies['role'];
+
    const handleUploadFile = async (file) => {
       let formData = new FormData();
       formData.append('file', file);
 
-      let cookies = parseCookies();
       let token = cookies['token'];
       axios({
          method: 'post',
@@ -634,27 +636,30 @@ export default function Shipment() {
                      Filter
                   </Button>
                </Grid>
-               <Grid item xs={1}>
-                  <Button
-                     variant="contained"
-                     onClick={handleImport}
-                     sx={{ width: '100%', height: 24 }}
-                  >
-                     Import
-                  </Button>
-               </Grid>
-
-               <Grid item xs={1}>
-                  <UploadFileDropZone
-                     uploadedFile={uploadedFile}
-                     setUploadedFile={setUploadedFile}
-                     handleUploadFile={handleUploadFile}
-                  />
-               </Grid>
-               <Grid item xs={4}>
-                  <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
-               </Grid>
             </Grid>
+            {userRole === 'ADMIN' && (
+               <Grid container spacing={1} sx={{ marginTop: '3px' }}>
+                  <Grid item xs={1}>
+                     <Button
+                        variant="contained"
+                        onClick={handleImport}
+                        sx={{ width: '100%', height: 24 }}
+                     >
+                        Import
+                     </Button>
+                  </Grid>
+                  <Grid item xs={1}>
+                     <UploadFileDropZone
+                        uploadedFile={uploadedFile}
+                        setUploadedFile={setUploadedFile}
+                        handleUploadFile={handleUploadFile}
+                     />
+                  </Grid>
+                  <Grid item xs={4}>
+                     <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
+                  </Grid>
+               </Grid>
+            )}
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
                <Grid container sx={{ height: 'calc(100vh - 263px)' }}>
