@@ -227,7 +227,7 @@
     </changeSet>
     <changeSet author="hoangnhan (generated)" id="1700036306356-14">
         <createTable tableName="shipment">
-            <column name="id" type="INTEGER">
+            <column name="order_no" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="shipment_pkey"/>
             </column>
             <column name="aopmargin_percentage" type="FLOAT8"/>
@@ -241,7 +241,6 @@
             <column name="netrevenue" type="FLOAT8">
                 <constraints nullable="false"/>
             </column>
-            <column name="order_no" type="VARCHAR(255)"/>
             <column name="quantity" type="INTEGER">
                 <constraints nullable="false"/>
             </column>

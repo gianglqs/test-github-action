@@ -35,9 +35,9 @@ public class EnvironmentUtils implements EnvironmentAware {
         System.setProperty("DATABASE_URL", dotenv().get("DATABASE_URL"));
         System.setProperty("DATABASE_USERNAME", dotenv().get("DATABASE_USERNAME"));
         System.setProperty("DATABASE_PASSWORD", dotenv().get("DATABASE_PASSWORD"));
-        System.setProperty("ROLBAR_KEY", dotenv().get("ROLBAR_KEY"));
-        System.setProperty("ROLBAR_ENVIROMENT", dotenv().get("ROLBAR_ENVIROMENT"));
-        System.setProperty("ROLBAR_CODE_VERSION", dotenv().get("ROLBAR_CODE_VERSION"));
+//        System.setProperty("ROLBAR_KEY", dotenv().get("ROLBAR_KEY"));
+//        System.setProperty("ROLBAR_ENVIROMENT", dotenv().get("ROLBAR_ENVIROMENT"));
+//        System.setProperty("ROLBAR_CODE_VERSION", dotenv().get("ROLBAR_CODE_VERSION"));
         System.setProperty("BASE_FOLDER", dotenv().get("BASE_FOLDER"));
         System.setProperty("IMPORTED_FILES", dotenv().get("IMPORTED_FILES"));
     }
