@@ -61,6 +61,7 @@ public class IMMarginAnalystSummary {
     private String fileUUID;
     private String orderNumber;
     private String plant;
+    private int type;
 
     public IMMarginAnalystSummary(String modelCode, String currency, double totalManufacturingCost, double costUplift, double addWarranty, double surcharge, double duty, double freight, boolean liIonIncluded, double totalCost, double totalListPrice, double blendedDiscountPercentage, double dealerNet, double margin, double marginAopRate, double manufacturingCostUSD, double warrantyCost, double surchargeCost, double dutyCost, double totalCostWithoutFreight, double totalCostWithFreight, String fileUUID, String plant) {
         this.modelCode = modelCode;
