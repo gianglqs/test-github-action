@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
@@ -10,7 +10,7 @@ import { rowColor } from '@/theme/colorRow';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Button, CircularProgress, ListItem, Typography } from '@mui/material';
+import { Button, CircularProgress, ListItem } from '@mui/material';
 
 import {
    AppAutocomplete,
@@ -29,11 +29,16 @@ import axios from 'axios';
 import { parseCookies, setCookie } from 'nookies';
 
 import ClearIcon from '@mui/icons-material/Clear';
+import React from 'react';
+import { Else, If, Then, When } from 'react-if';
+import { UserInfoContext } from '@/provider/UserInfoContext';
 
 export async function getServerSideProps(context) {
    try {
       let cookies = parseCookies(context);
       let token = cookies['token'];
+      let userRoleCookies = cookies['role'];
+
       const response = await axios.post(
          `${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/checkToken`,
          null,
@@ -348,13 +353,25 @@ export default function Booking() {
       },
    ];
 
+   let cookies = parseCookies();
+
+   let heightTable = 263;
+   const { userRole } = useContext(UserInfoContext);
+   const [userRoleState, setUserRoleState] = useState('');
+   console.log(userRole);
+   if (userRole === 'ADMIN') {
+      heightTable = 298;
+   }
+   useEffect(() => {
+      setUserRoleState(userRole);
+   });
+
    const handleUploadFile = async (files) => {
       let formData = new FormData();
       files.map((file) => {
          formData.append('files', file);
       });
 
-      let cookies = parseCookies();
       let token = cookies['token'];
       axios({
          method: 'post',
@@ -362,7 +379,7 @@ export default function Booking() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {
@@ -581,50 +598,65 @@ export default function Booking() {
                      Filter
                   </Button>
                </Grid>
-
-               <Grid item xs={1}>
-                  <Button
-                     variant="contained"
-                     onClick={handleImport}
-                     sx={{ width: '100%', height: 24 }}
-                  >
-                     Import
-                  </Button>
-               </Grid>
-
-               <Grid item xs={1}>
-                  <UploadFileDropZone
-                     uploadedFile={uploadedFile}
-                     setUploadedFile={appendFileIntoList}
-                     handleUploadFile={handleUploadFile}
-                  />
-               </Grid>
-               <Grid item xs={4}>
-                  {uploadedFile &&
-                     uploadedFile.map((file) => (
-                        <ListItem
-                           sx={{
-                              padding: 0,
-                              backgroundColor: '#e3e3e3',
-                              width: '75%',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              paddingLeft: '10px',
-                              borderRadius: '3px',
-                              marginBottom: '2px',
-                           }}
-                        >
-                           <span>{file.name}</span>
-                           <Button onClick={() => handleRemove(file.name)} sx={{ width: '20px' }}>
-                              <ClearIcon />
-                           </Button>
-                        </ListItem>
-                     ))}
-               </Grid>
             </Grid>
+            <When condition={userRoleState === 'ADMIN'}>
+               <Grid container spacing={1} sx={{ marginTop: '3px' }}>
+                  <Grid item xs={1}>
+                     <UploadFileDropZone
+                        uploadedFile={uploadedFile}
+                        setUploadedFile={appendFileIntoList}
+                        handleUploadFile={handleUploadFile}
+                     />
+                  </Grid>
+                  <Grid item xs={1}>
+                     <Button
+                        variant="contained"
+                        onClick={handleImport}
+                        sx={{ width: '100%', height: 24 }}
+                     >
+                        Import
+                     </Button>
+                  </Grid>
+
+                  <Grid item xs={4} sx={{ display: 'flex' }}>
+                     {uploadedFile &&
+                        uploadedFile.map((file) => (
+                           <ListItem
+                              sx={{
+                                 padding: 0,
+                                 backgroundColor: '#e3e3e3',
+                                 width: '75%',
+                                 display: 'flex',
+                                 justifyContent: 'space-between',
+                                 paddingLeft: '10px',
+                                 borderRadius: '3px',
+                                 marginLeft: '4px',
+                                 height: '26px',
+                              }}
+                           >
+                              <span
+                                 style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                 }}
+                              >
+                                 {file.name}
+                              </span>
+                              <Button
+                                 onClick={() => handleRemove(file.name)}
+                                 sx={{ width: '20px' }}
+                              >
+                                 <ClearIcon />
+                              </Button>
+                           </ListItem>
+                        ))}
+                  </Grid>
+               </Grid>
+            </When>
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(100vh - 263px)' }}>
+               <Grid container sx={{ height: `calc(100vh - ${heightTable}px)` }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
@@ -696,7 +728,6 @@ export default function Booking() {
 function UploadFileDropZone(props) {
    const onDrop = useCallback(
       (acceptedFiles) => {
-         console.log('accessfile', acceptedFiles.length);
          acceptedFiles.forEach((file) => {
             const reader = new FileReader();
 

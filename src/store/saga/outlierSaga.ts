@@ -36,8 +36,6 @@ function* fetchOutlier() {
 }
 
 function* dashboardSaga() {
-   console.log('a');
-
    yield takeEvery(outlierStore.sagaGetList, fetchOutlier);
 }
 

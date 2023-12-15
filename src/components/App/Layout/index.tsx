@@ -78,7 +78,7 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
 
    const handleLogOut = () => {
       try {
-         authApi.logOut();
+         //authApi.logOut();
          destroyCookie(null, 'token');
          router.push('/login');
       } catch (err) {
