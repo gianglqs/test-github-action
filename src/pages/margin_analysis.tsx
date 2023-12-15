@@ -67,13 +67,17 @@ export default function MarginAnalysis() {
    const [openAccordionTable, setOpenAccordionTable] = useState(true);
    const [uploadedFile, setUploadedFile] = useState({ name: '' });
    const [loading, setLoading] = useState(false);
-
+   const [plant, setPlant] = useState();
+   const [typeValue, setTypeValue] = useState();
+   const handleTypeValue = (value) => {
+      setTypeValue(value);
+   };
    const [orderNumberValue, setOrderNumberValue] = useState({ value: '' });
    const handleOrderNumber = (value) => {
       setOrderNumberValue({ value: value });
    };
 
-   const handleFilterMarginAnalysis = async () => {
+   const handleCalculateMargin = async () => {
       try {
          const cookies = parseCookies();
 
@@ -84,13 +88,15 @@ export default function MarginAnalysis() {
 
          const transformData = {
             modelCode: valueSearch.value,
+            type: typeValue,
             currency: valueCurrency,
             fileUUID: cookies['fileUUID'],
             orderNumber: orderNumberValue.value,
+            plant: plant,
          };
 
          setLoading(true);
-         const { data } = await marginAnalysisApi.getEstimateMarginAnalystData({
+         const { data } = await marginAnalysisApi.estimateMarginAnalystData({
             ...transformData,
          });
 
@@ -112,10 +118,11 @@ export default function MarginAnalysis() {
          setLoading(false);
       } catch (error) {
          dispatch(commonStore.actions.setErrorMessage(error.message));
+         setLoading(false);
       }
    };
 
-   const handleUploadFile = async (file) => {
+   const handleOpenMarginFile = async (file) => {
       let formData = new FormData();
       formData.append('file', file);
 
@@ -124,7 +131,7 @@ export default function MarginAnalysis() {
       setLoading(true);
       axios({
          method: 'post',
-         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}estimateMarginAnalystData`,
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}marginData/checkFilePlant`,
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
@@ -133,11 +140,12 @@ export default function MarginAnalysis() {
       })
          .then(function (response) {
             setLoading(false);
+            setPlant(response.data.plant);
             setCookie(null, 'fileUUID', response.data.fileUUID);
          })
          .catch(function (response) {
             setLoading(false);
-            console.log(response);
+            dispatch(commonStore.actions.setErrorMessage(response.response.data.message));
          });
    };
 
@@ -163,7 +171,7 @@ export default function MarginAnalysis() {
          })
          .catch(function (response) {
             setLoading(false);
-            dispatch(commonStore.actions.setSuccessMessage(response.response.data.message));
+            dispatch(commonStore.actions.setErrorMessage());
          });
    };
 
@@ -195,6 +203,11 @@ export default function MarginAnalysis() {
 
    const columns = [
       {
+         field: 'type',
+         flex: 0.8,
+         headerName: '#',
+      },
+      {
          field: 'optionCode',
          flex: 0.8,
          headerName: 'Part #',
@@ -211,15 +224,23 @@ export default function MarginAnalysis() {
       },
       {
          field: 'dealerNet',
-         flex: 0.4,
+         flex: 0.8,
          headerName: 'DN',
+      },
+      {
+         field: 'isSPED',
+         flex: 0.8,
+         headerName: 'SPED',
+         renderCell(params) {
+            return <span>{params.row.isSPED == true ? 'Yes' : 'No'}</span>;
+         },
       },
    ];
 
    return (
       <AppLayout entity="margin_analysis">
          <Grid container spacing={1.1} display="flex" alignItems="center">
-            <Grid item xs={1}>
+            <Grid item sx={{ width: '10%', minWidth: 140 }}>
                <AppTextField
                   label="Model Code #"
                   onChange={(e) => handleSearch(e.target.value)}
@@ -228,15 +249,20 @@ export default function MarginAnalysis() {
                   helperText="Model Code # is required"
                   required
                />
+               <Button
+                  variant="contained"
+                  onClick={handleCalculateMargin}
+                  sx={{ width: '100%', height: 28, marginTop: 1 }}
+               >
+                  Calculate Data
+               </Button>
             </Grid>
-            <Grid item xs={1}>
+            <Grid item sx={{ width: '10%', minWidth: 140 }}>
                <AppTextField
                   label="Order Number #"
                   onChange={(e) => handleOrderNumber(e.target.value)}
+                  required
                />
-            </Grid>
-
-            <Grid item>
                <RadioGroup
                   row
                   value={valueCurrency}
@@ -247,34 +273,35 @@ export default function MarginAnalysis() {
                      display: 'flex',
                      justifyContent: 'space-between',
                      marginLeft: 1,
-                     paddingTop: 0,
                   }}
                >
                   <FormControlLabel value="USD" control={<Radio />} label="USD" />
                   <FormControlLabel value="AUD" control={<Radio />} label="AUD" />
                </RadioGroup>
             </Grid>
+            <Grid item sx={{ width: '10%', minWidth: 160 }}>
+               <AppTextField label="#" onChange={(e) => handleTypeValue(e.target.value)} required />
+               <UploadFileDropZone
+                  uploadedFile={uploadedFile}
+                  setUploadedFile={setUploadedFile}
+                  handleUploadFile={handleOpenMarginFile}
+                  buttonName="Open File"
+                  sx={{ width: '100%', height: 24, marginTop: 1 }}
+               />
+            </Grid>
+
+            <Grid item sx={{}}>
+               <Typography fontSize={16} sx={{ paddingBottom: 1 }}>
+                  File uploaded: {uploadedFile.name}
+               </Typography>
+               <Typography fontSize={16} sx={{ paddingBottom: 1 }}>
+                  Plant: {plant}
+               </Typography>
+            </Grid>
+            <Grid item sx={{ width: '10%' }} />
 
             <Grid item spacing={1.1} display="flex" alignItems="center">
                <Grid item>
-                  <Button
-                     variant="contained"
-                     onClick={handleFilterMarginAnalysis}
-                     sx={{ width: '100%', height: 24 }}
-                  >
-                     Get Analysis Data
-                  </Button>
-
-                  <UploadFileDropZone
-                     uploadedFile={uploadedFile}
-                     setUploadedFile={setUploadedFile}
-                     handleUploadFile={handleUploadFile}
-                     buttonName="Estimate From File"
-                     sx={{ width: '100%', height: 24, marginTop: 1 }}
-                  />
-               </Grid>
-
-               <Grid item sx={{ marginLeft: 1 }}>
                   <UploadFileDropZone
                      uploadedFile={uploadedFile}
                      setUploadedFile={setUploadedFile}
@@ -291,10 +318,6 @@ export default function MarginAnalysis() {
                      sx={{ width: '100%', height: 24, marginTop: 1 }}
                   />
                </Grid>
-            </Grid>
-
-            <Grid item>
-               <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
             </Grid>
 
             <Grid item xs={12}>
