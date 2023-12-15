@@ -165,5 +165,7 @@ public class UserController {
     @PostMapping(path = "/oauth/checkToken")
     public void checkToken() {}
 
-
+    @PostMapping(path = "/oauth/checkTokenOfAdmin")
+    @Secured("ROLE_ADMIN")
+    public void checkTokenOfAdmin() {}
 }
