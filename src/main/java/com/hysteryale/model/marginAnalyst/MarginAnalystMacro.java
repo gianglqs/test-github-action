@@ -30,14 +30,9 @@ public class MarginAnalystMacro {
     private String partNumber;
     private String plant;
 
-    @Column(name = "price_list_region")
-    private String priceListRegion;
-
     @Column(name = "series_code")
     private String seriesCode;
 
-    @Column(name = "std_opt")
-    private String stdOpt;
     @ManyToOne(fetch = FetchType.EAGER)
     private Currency currency;
 

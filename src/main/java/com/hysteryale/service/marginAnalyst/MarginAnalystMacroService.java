@@ -69,7 +69,6 @@ public class MarginAnalystMacroService {
         else {
             marginAnalystMacro.setPlant(row.getCell(MACRO_COLUMNS.get("Plant")).getValue());
             marginAnalystMacro.setSeriesCode(row.getCell(MACRO_COLUMNS.get("Series Code")).getValue());
-            marginAnalystMacro.setPriceListRegion(row.getCell(MACRO_COLUMNS.get("Price List Region")).getValue());
             marginAnalystMacro.setClazz(row.getCell(MACRO_COLUMNS.get("Class")).getValue());
             marginAnalystMacro.setModelCode(row.getCell(MACRO_COLUMNS.get("Model Code")).getValue());
             marginAnalystMacro.setPartNumber(row.getCell(MACRO_COLUMNS.get("Option Code")).getValue());
@@ -77,13 +76,6 @@ public class MarginAnalystMacroService {
             marginAnalystMacro.setMonthYear(monthYear);
 
             costRMB = CurrencyFormatUtils.formatDoubleValue(row.getCell(MACRO_COLUMNS.get("Add on Cost RMB")).getNumericCellValue(), CurrencyFormatUtils.decimalFormatFourDigits);
-        }
-
-
-        try {
-            marginAnalystMacro.setStdOpt(row.getCell(MACRO_COLUMNS.get("STD/OPT")).getValue());
-        } catch (Exception e) {
-            marginAnalystMacro.setStdOpt("");
         }
 
         // Set currency

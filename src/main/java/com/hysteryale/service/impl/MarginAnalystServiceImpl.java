@@ -93,10 +93,8 @@ public class MarginAnalystServiceImpl implements MarginAnalystService {
             // Non-calculated data fields
             marginAnalystData.setPlant(marginAnalystMacro.getPlant());
             marginAnalystData.setModelCode(marginAnalystMacro.getModelCode());
-            marginAnalystData.setPriceListRegion(marginAnalystMacro.getPriceListRegion());
             marginAnalystData.setClass_(marginAnalystMacro.getClazz());
             marginAnalystData.setOptionCode(marginAnalystMacro.getPartNumber());
-            marginAnalystData.setStd_opt(marginAnalystMacro.getStdOpt());
             marginAnalystData.setDescription(marginAnalystMacro.getDescription());
             marginAnalystData.setCurrency(marginAnalystMacro.getCurrency());
             marginAnalystData.setMonthYear(marginAnalystMacro.getMonthYear());

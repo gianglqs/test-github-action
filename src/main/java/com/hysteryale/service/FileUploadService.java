@@ -148,7 +148,8 @@ public class FileUploadService {
      */
     public String getFileNameByUUID(String uuid) {
         String fileName = fileUploadRepository.getFileNameByUUID(uuid);
-        if (fileName.isEmpty())
+        log.info(fileName);
+        if (fileName == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find file name with uuid: " + uuid);
         return fileName;
     }

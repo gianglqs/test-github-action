@@ -23,15 +23,11 @@ public class IMMarginAnalystData {
     @Column(name = "model_code")
     private String modelCode;
 
-    @Column(name = "price_list_region")
-    private String priceListRegion;
     private String clazz;
 
     @Column(name = "option_code")
     private String optionCode;
 
-    @Column(name = "std_otp")
-    private String std_opt;
     private String description;
 
     @Column(name = "list_price")
@@ -53,6 +49,8 @@ public class IMMarginAnalystData {
     private String fileUUID;
     private String orderNumber;
     private boolean isSPED;
+
+    private int type;
 
     public IMMarginAnalystData(String plant, String modelCode, String optionCode, String description, double listPrice, Calendar monthYear, String currency, double dealerNet) {
         this.plant = plant;
