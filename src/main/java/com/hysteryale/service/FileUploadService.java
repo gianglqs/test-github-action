@@ -85,6 +85,53 @@ public class FileUploadService {
         }
     }
 
+    public String saveFileUploaded(MultipartFile multipartFile, Authentication authentication) throws Exception {
+        String baseFolder = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
+
+        Date uploadedTime = new Date();
+        String strUploadedTime = (new SimpleDateFormat("ddMMyyyyHHmmss").format(uploadedTime));
+        String encodedFileName = FileUtils.encoding(Objects.requireNonNull(multipartFile.getOriginalFilename())) + "_" + strUploadedTime + ".xlsx";
+
+        File file = new File(baseFolder + "/" + encodedFileName);
+        if (file.createNewFile()) {
+            log.info("File " + encodedFileName + " created");
+            multipartFile.transferTo(file);
+            saveFileUpLoadIntoDB(authentication, encodedFileName);
+            return baseFolder + "/" + encodedFileName;
+        } else {
+            log.info("Can not create new file: " + encodedFileName);
+            throw new Exception("Can not create new file: " + encodedFileName);
+        }
+    }
+
+    private String saveFileUpLoadIntoDB(Authentication authentication, String encodeFileName ){
+        String uploadedByEmail = authentication.getName();
+        Optional<User> optionalUploadedBy = userService.getActiveUserByEmail(uploadedByEmail);
+
+        if (optionalUploadedBy.isPresent()) {
+            User uploadedBy = optionalUploadedBy.get();
+            FileUpload fileUpload = new FileUpload();
+            Date uploadedTime = new Date();
+
+            // generate random UUID
+            fileUpload.setUuid(UUID.randomUUID().toString());
+            fileUpload.setUploadedBy(uploadedBy);
+            fileUpload.setUploadedTime(uploadedTime);
+
+            // append suffix into fileName
+            fileUpload.setFileName(encodeFileName);
+
+            // save information to db
+            fileUploadRepository.save(fileUpload);
+
+            return fileUpload.getUuid();
+        } else
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find user with email: " + uploadedByEmail);
+    }
+
+
+
+
 
 
     /**
