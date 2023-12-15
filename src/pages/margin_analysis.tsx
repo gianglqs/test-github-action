@@ -16,7 +16,7 @@ import {
    CircularProgress,
 } from '@mui/material';
 import { GridExpandMoreIcon } from '@mui/x-data-grid-pro';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import marginAnalysisApi from '@/api/marginAnalysis.api';
 import { useDispatch } from 'react-redux';
 import { commonStore } from '@/store/reducers';
@@ -51,7 +51,12 @@ export async function getServerSideProps(context) {
 export default function MarginAnalysis() {
    const dispatch = useDispatch();
    let cookies = parseCookies();
-   let userRole = cookies['role'];
+   let userRoleCookies = cookies['role'];
+   const [userRole, setUserRole] = useState('');
+
+   useEffect(() => {
+      setUserRole(userRoleCookies);
+   });
 
    const [valueCurrency, setValueCurrency] = useState('USD');
    const handleChange = (event) => {

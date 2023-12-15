@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
@@ -7,9 +7,10 @@ import { shipmentStore, commonStore } from '@/store/reducers';
 
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { Button, CircularProgress, Typography } from '@mui/material';
+import { Button, CircularProgress, ListItem, Typography } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { parseCookies, setCookie } from 'nookies';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import {
    AppAutocomplete,
@@ -26,6 +27,7 @@ import { defaultValueFilterOrder } from '@/utils/defaultValues';
 import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import { rowColor } from '@/theme/colorRow';
+import { UserInfoContext } from '@/provider/UserInfoContext';
 
 export async function getServerSideProps(context) {
    try {
@@ -51,6 +53,9 @@ export async function getServerSideProps(context) {
       };
    }
 }
+interface FileChoosed {
+   name: string;
+}
 
 export default function Shipment() {
    const dispatch = useDispatch();
@@ -62,8 +67,8 @@ export default function Shipment() {
 
    const [dataFilter, setDataFilter] = useState(defaultValueFilterOrder);
 
-   const [uploadedFile, setUploadedFile] = useState({ name: '' });
-
+   //  const [uploadedFile, setUploadedFile] = useState({ name: '' });
+   const [uploadedFile, setUploadedFile] = useState<FileChoosed[]>([]);
    // use importing to control spiner
    const [loading, setLoading] = useState(false);
 
@@ -408,7 +413,16 @@ export default function Shipment() {
    ];
 
    let cookies = parseCookies();
-   let userRole = cookies['role'];
+   let heightTable = 263;
+   const { userRole } = useContext(UserInfoContext);
+   const [userRoleState, setUserRoleState] = useState('');
+   console.log(userRole);
+   if (userRole === 'ADMIN') {
+      heightTable = 298;
+   }
+   useEffect(() => {
+      setUserRoleState(userRole);
+   });
 
    const handleUploadFile = async (file) => {
       let formData = new FormData();
@@ -445,13 +459,21 @@ export default function Shipment() {
    };
 
    const handleImport = () => {
-      if (uploadedFile.name) {
+      if (uploadedFile.length > 0) {
          // resert message
          setLoading(true);
-         handleUploadFile(uploadedFile);
+         handleUploadFile(uploadedFile[0]);
       } else {
          dispatch(commonStore.actions.setErrorMessage('No file choosed'));
       }
+   };
+
+   const handleRemove = (fileName) => {
+      const updateUploaded = uploadedFile.filter((file) => file.name != fileName);
+      setUploadedFile(updateUploaded);
+   };
+   const appendFileIntoList = (file) => {
+      setUploadedFile((prevFiles) => [...prevFiles, file]);
    };
 
    return (
@@ -637,12 +659,12 @@ export default function Shipment() {
                   </Button>
                </Grid>
             </Grid>
-            {userRole === 'ADMIN' && (
+            {userRoleState === 'ADMIN' && (
                <Grid container spacing={1} sx={{ marginTop: '3px' }}>
                   <Grid item xs={1}>
                      <UploadFileDropZone
                         uploadedFile={uploadedFile}
-                        setUploadedFile={setUploadedFile}
+                        setUploadedFile={appendFileIntoList}
                         handleUploadFile={handleUploadFile}
                      />
                   </Grid>
@@ -655,14 +677,45 @@ export default function Shipment() {
                         Import
                      </Button>
                   </Grid>
-                  <Grid item xs={4}>
-                     <Typography fontSize={16}>File uploaded: {uploadedFile.name}</Typography>
+                  <Grid item xs={4} sx={{ display: 'flex' }}>
+                     {uploadedFile &&
+                        uploadedFile.map((file) => (
+                           <ListItem
+                              sx={{
+                                 padding: 0,
+                                 backgroundColor: '#e3e3e3',
+                                 width: '75%',
+                                 display: 'flex',
+                                 justifyContent: 'space-between',
+                                 paddingLeft: '10px',
+                                 borderRadius: '3px',
+                                 marginLeft: '4px',
+                                 height: '26px',
+                              }}
+                           >
+                              <span
+                                 style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                 }}
+                              >
+                                 {file.name}
+                              </span>
+                              <Button
+                                 onClick={() => handleRemove(file.name)}
+                                 sx={{ width: '20px' }}
+                              >
+                                 <ClearIcon />
+                              </Button>
+                           </ListItem>
+                        ))}
                   </Grid>
                </Grid>
             )}
 
             <Paper elevation={1} sx={{ marginTop: 2 }}>
-               <Grid container sx={{ height: 'calc(100vh - 263px)' }}>
+               <Grid container sx={{ height: `calc(100vh - ${heightTable}px)` }}>
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
@@ -734,21 +787,25 @@ export default function Shipment() {
 //function checkColumn();
 
 function UploadFileDropZone(props) {
-   const onDrop = useCallback((acceptedFiles) => {
-      acceptedFiles.forEach((file) => {
-         const reader = new FileReader();
+   const onDrop = useCallback(
+      (acceptedFiles) => {
+         acceptedFiles.forEach((file) => {
+            const reader = new FileReader();
 
-         reader.onabort = () => console.log('file reading was aborted');
-         reader.onerror = () => console.log('file reading has failed');
-         reader.onload = () => {
-            // Do whatever you want with the file contents
-            const binaryStr = reader.result;
-            console.log('binaryStr', binaryStr);
-            props.setUploadedFile(file);
-         };
-         reader.readAsArrayBuffer(file);
-      });
-   }, []);
+            reader.onabort = () => console.log('file reading was aborted');
+            reader.onerror = () => console.log('file reading has failed');
+            reader.onload = () => {
+               if (props.uploadedFile.length + acceptedFiles.length >= 2) {
+                  dispatch(commonStore.actions.setErrorMessage('Too many files'));
+               } else {
+                  props.setUploadedFile(file);
+               }
+            };
+            reader.readAsArrayBuffer(file);
+         });
+      },
+      [props.uploadedFile, props.setUploadedFile]
+   );
 
    const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
       noClick: true,
