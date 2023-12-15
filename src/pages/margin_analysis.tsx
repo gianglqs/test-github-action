@@ -16,7 +16,7 @@ import {
    CircularProgress,
 } from '@mui/material';
 import { GridExpandMoreIcon } from '@mui/x-data-grid-pro';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import marginAnalysisApi from '@/api/marginAnalysis.api';
 import { useDispatch } from 'react-redux';
 import { commonStore } from '@/store/reducers';
@@ -50,6 +50,13 @@ export async function getServerSideProps(context) {
 }
 export default function MarginAnalysis() {
    const dispatch = useDispatch();
+   let cookies = parseCookies();
+   let userRoleCookies = cookies['role'];
+   const [userRole, setUserRole] = useState('');
+
+   useEffect(() => {
+      setUserRole(userRoleCookies);
+   });
 
    const [valueCurrency, setValueCurrency] = useState('USD');
    const handleChange = (event) => {
@@ -75,8 +82,6 @@ export default function MarginAnalysis() {
 
    const handleFilterMarginAnalysis = async () => {
       try {
-         const cookies = parseCookies();
-
          if (valueSearch.value === '') {
             setValueSearch({ value: '', error: true });
             return;
@@ -119,7 +124,6 @@ export default function MarginAnalysis() {
       let formData = new FormData();
       formData.append('file', file);
 
-      let cookies = parseCookies();
       let token = cookies['token'];
       setLoading(true);
       axios({
@@ -128,7 +132,7 @@ export default function MarginAnalysis() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {
@@ -145,7 +149,6 @@ export default function MarginAnalysis() {
       let formData = new FormData();
       formData.append('file', file);
 
-      let cookies = parseCookies();
       let token = cookies['token'];
       setLoading(true);
       axios({
@@ -154,7 +157,7 @@ export default function MarginAnalysis() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {
@@ -171,7 +174,6 @@ export default function MarginAnalysis() {
       let formData = new FormData();
       formData.append('file', file);
 
-      let cookies = parseCookies();
       let token = cookies['token'];
       setLoading(true);
       axios({
@@ -180,7 +182,7 @@ export default function MarginAnalysis() {
          data: formData,
          headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: 'Bearer' + token,
+            Authorization: 'Bearer ' + token,
          },
       })
          .then(function (response) {
@@ -273,24 +275,27 @@ export default function MarginAnalysis() {
                      sx={{ width: '100%', height: 24, marginTop: 1 }}
                   />
                </Grid>
+               {userRole === 'ADMIN' && (
+                  <>
+                     <Grid item sx={{ marginLeft: 1 }}>
+                        <UploadFileDropZone
+                           uploadedFile={uploadedFile}
+                           setUploadedFile={setUploadedFile}
+                           handleUploadFile={handleImportMacroFile}
+                           buttonName="Import Macro File"
+                           sx={{ width: '100%', height: 24 }}
+                        />
 
-               <Grid item sx={{ marginLeft: 1 }}>
-                  <UploadFileDropZone
-                     uploadedFile={uploadedFile}
-                     setUploadedFile={setUploadedFile}
-                     handleUploadFile={handleImportMacroFile}
-                     buttonName="Import Macro File"
-                     sx={{ width: '100%', height: 24 }}
-                  />
-
-                  <UploadFileDropZone
-                     uploadedFile={uploadedFile}
-                     setUploadedFile={setUploadedFile}
-                     handleUploadFile={handleImportPowerBi}
-                     buttonName="Import PowerBi File"
-                     sx={{ width: '100%', height: 24, marginTop: 1 }}
-                  />
-               </Grid>
+                        <UploadFileDropZone
+                           uploadedFile={uploadedFile}
+                           setUploadedFile={setUploadedFile}
+                           handleUploadFile={handleImportPowerBi}
+                           buttonName="Import PowerBi File"
+                           sx={{ width: '100%', height: 24, marginTop: 1 }}
+                        />
+                     </Grid>
+                  </>
+               )}
             </Grid>
 
             <Grid item>
