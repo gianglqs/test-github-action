@@ -66,7 +66,7 @@ public class IMMarginAnalystDataService {
 
 
         //HYM can be Ruyi, Staxx or Maximal
-        List<String> plantList = plant.equals("HYM")
+        List<String> plantList = !plant.equals("SN")
                 ? new ArrayList<>(List.of("HYM", "Ruyi", "Staxx", "Maximal"))
                 : new ArrayList<>(List.of("SN"));
         Double manufacturingCost = marginAnalystMacroService.getManufacturingCost(modelCode, partNumber, strCurrency, plantList, monthYear);
@@ -81,7 +81,6 @@ public class IMMarginAnalystDataService {
      * Mapping the data from uploaded files / template files as SN_AUD ... into a model
      */
     private IMMarginAnalystData mapIMMarginAnalystData(Row row, String plant, String strCurrency, Calendar monthYear) {
-
         // Initialize variables
         double aopRate = 1;
         double costUplift = 0.0;
@@ -236,7 +235,12 @@ public class IMMarginAnalystDataService {
             boolean liIonIncluded = false; // NO
 
             double aopRate = 0;     // considered as the ExchangeRate
-            Optional<MarginAnalysisAOPRate> optionalMarginAnalysisAOPRate = getMarginAnalysisAOPRate(strCurrency, monthYear, plant, durationUnit);
+            String queryPlant;
+            if(plant.equals("Maximal") || plant.equals("Ruyi") || plant.equals("Staxx") || plant.equals("HYM"))
+                queryPlant = "HYM";
+            else
+                queryPlant = "SN";
+            Optional<MarginAnalysisAOPRate> optionalMarginAnalysisAOPRate = getMarginAnalysisAOPRate(strCurrency, monthYear, queryPlant, durationUnit);
             if(optionalMarginAnalysisAOPRate.isPresent()) {
                 MarginAnalysisAOPRate marginAnalysisAOPRate = optionalMarginAnalysisAOPRate.get();
                 aopRate = marginAnalysisAOPRate.getAopRate();
@@ -267,7 +271,7 @@ public class IMMarginAnalystDataService {
 
             // manufacturingCost in HYM plant is in RMB Currency -> then exchange to USD or AUD
             // manufacturingCost in SN plant is in USD Currency -> no need to exchange
-            if(plant.equals("HYM"))
+            if(queryPlant.equals("HYM"))
                 manufacturingCostUSD = totalManufacturingCost * aopRate;
 
             double warrantyCost = manufacturingCostUSD * warranty;
