@@ -181,7 +181,7 @@ export default function Shipment() {
       {
          field: 'dealerNet',
          flex: 0.8,
-         headerName: 'DN',
+         headerName: "DN ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNet)}</span>;
@@ -190,7 +190,7 @@ export default function Shipment() {
       {
          field: 'dealerNetAfterSurCharge',
          flex: 0.8,
-         headerName: 'DN After Surcharge',
+         headerName: "DN After Surcharge ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
@@ -199,7 +199,7 @@ export default function Shipment() {
       {
          field: 'totalCost',
          flex: 0.8,
-         headerName: 'Total Cost',
+         headerName: "Total Cost ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.totalCost)}</span>;
@@ -208,7 +208,7 @@ export default function Shipment() {
       {
          field: 'netRevenue',
          flex: 0.8,
-         headerName: 'Net Revenue',
+         headerName: "Net Revenue ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.netRevenue)}</span>;
@@ -217,7 +217,7 @@ export default function Shipment() {
       {
          field: 'marginAfterSurCharge',
          flex: 0.8,
-         headerName: 'Margin $ After Surcharge',
+         headerName: "Margin $ After Surcharge ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;

@@ -37,7 +37,7 @@ import {
 import { Scatter } from 'react-chartjs-2';
 import ChartAnnotation from 'chartjs-plugin-annotation';
 import outlierApi from '@/api/outlier.api';
-import { formatNumberPercentage } from '@/utils/formatCell';
+import { formatNumber, formatNumberPercentage } from '@/utils/formatCell';
 ChartJS.register(
    CategoryScale,
    LinearScale,
@@ -111,12 +111,6 @@ export default function Outlier() {
       handleChangePage(1);
    };
 
-   const formatNumber = (num: number) => {
-      return num.toLocaleString(undefined, {
-         minimumFractionDigits: 2,
-         maximumFractionDigits: 2,
-      });
-   };
    const tableState = useSelector(commonStore.selectTableState);
 
    const columns = [
@@ -169,7 +163,7 @@ export default function Outlier() {
       {
          field: 'totalCost',
          flex: 0.8,
-         headerName: 'Total Cost',
+         headerName: "Total Cost ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.totalCost)}</span>;
@@ -178,7 +172,7 @@ export default function Outlier() {
       {
          field: 'dealerNet',
          flex: 0.8,
-         headerName: 'DN',
+         headerName: "DN ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNet)}</span>;
@@ -187,7 +181,7 @@ export default function Outlier() {
       {
          field: 'dealerNetAfterSurCharge',
          flex: 0.8,
-         headerName: 'DN After Surcharge',
+         headerName: "DN After Surcharge ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
@@ -196,7 +190,7 @@ export default function Outlier() {
       {
          field: 'marginAfterSurCharge',
          flex: 0.7,
-         headerName: 'Margin $ After Surcharge',
+         headerName: "Margin $ After Surcharge ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;

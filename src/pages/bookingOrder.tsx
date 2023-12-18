@@ -192,7 +192,7 @@ export default function Booking() {
       {
          field: 'dealerNet',
          flex: 0.8,
-         headerName: 'DN',
+         headerName: "DN ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNet)}</span>;
@@ -201,7 +201,7 @@ export default function Booking() {
       {
          field: 'dealerNetAfterSurCharge',
          flex: 0.8,
-         headerName: 'DN After Surcharge',
+         headerName: "DN After Surcharge ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;
@@ -210,7 +210,7 @@ export default function Booking() {
       {
          field: 'totalCost',
          flex: 0.8,
-         headerName: 'Total Cost',
+         headerName: "Total Cost ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.totalCost)}</span>;
@@ -219,7 +219,7 @@ export default function Booking() {
       {
          field: 'marginAfterSurCharge',
          flex: 0.7,
-         headerName: 'Margin $ After Surcharge',
+         headerName: "Margin $ After Surcharge ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.marginAfterSurCharge)}</span>;
@@ -314,7 +314,7 @@ export default function Booking() {
       {
          field: 'dealerNet',
          flex: 0.8,
-         headerName: 'DN',
+         headerName: "DN ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNet)}</span>;
@@ -323,7 +323,7 @@ export default function Booking() {
       {
          field: 'dealerNetAfterSurCharge',
          flex: 0.8,
-         headerName: 'DN After Surcharge',
+         headerName: "DN After Surcharge ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.dealerNetAfterSurCharge)}</span>;

@@ -173,7 +173,7 @@ export default function Adjustment() {
       {
          field: 'manualAdjCost',
          flex: 0.8,
-         headerName: 'Adjusted Cost',
+         headerName: "Adjusted Cost ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.manualAdjCost)}</span>;
@@ -182,7 +182,7 @@ export default function Adjustment() {
       {
          field: 'manualAdjFreight',
          flex: 0.8,
-         headerName: 'Adjusted Freight',
+         headerName: "Adjusted Freight ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.manualAdjFreight)}</span>;
@@ -191,7 +191,7 @@ export default function Adjustment() {
       {
          field: 'manualAdjFX',
          flex: 0.7,
-         headerName: 'Adjusted FX',
+         headerName: "Adjusted FX ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.manualAdjFX)}</span>;
@@ -201,7 +201,7 @@ export default function Adjustment() {
       {
          field: 'totalManualAdjCost',
          flex: 0.6,
-         headerName: 'Total Manual Adj Cost',
+         headerName: "Total Manual Adj Cost ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.totalManualAdjCost)}</span>;
@@ -211,7 +211,7 @@ export default function Adjustment() {
       {
          field: 'originalDN',
          flex: 0.7,
-         headerName: 'Original DN',
+         headerName: "Original DN ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.originalDN)}</span>;
@@ -220,7 +220,7 @@ export default function Adjustment() {
       {
          field: 'originalMargin',
          flex: 0.7,
-         headerName: 'Original Margin $',
+         headerName: "Original Margin $ ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.originalMargin)}</span>;
@@ -241,7 +241,7 @@ export default function Adjustment() {
       {
          field: 'newDN',
          flex: 0.6,
-         headerName: 'Adjusted Dealer Net',
+         headerName: "Adjusted Dealer Net ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.newDN)}</span>;
@@ -250,7 +250,7 @@ export default function Adjustment() {
       {
          field: 'newMargin',
          flex: 0.6,
-         headerName: 'New margin $ (USD) - After manual Adj',
+         headerName: "New margin $ ('000 USD) After manual Adj",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.newMargin)}</span>;
@@ -259,7 +259,7 @@ export default function Adjustment() {
       {
          field: 'newMarginPercentage',
          flex: 0.6,
-         headerName: 'New margin % - After manual Adj',
+         headerName: 'New margin % After manual Adj',
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumberPercentage(params?.row.newMarginPercentage * 100)}</span>;
@@ -404,7 +404,7 @@ export default function Adjustment() {
       {
          field: 'newMargin',
          flex: 0.6,
-         headerName: 'New margin $ (USD) - After manual Adj',
+         headerName: 'New margin $ (USD) After manual Adj',
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params?.row.newMargin)}</span>;
@@ -413,7 +413,7 @@ export default function Adjustment() {
       {
          field: 'newMarginPercentage',
          flex: 0.6,
-         headerName: 'New margin % - After manual Adj',
+         headerName: 'New margin % After manual Adj',
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumberPercentage(params?.row.newMarginPercentage * 100)}</span>;
