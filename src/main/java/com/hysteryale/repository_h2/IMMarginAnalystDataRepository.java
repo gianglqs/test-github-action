@@ -27,6 +27,4 @@ public interface IMMarginAnalystDataRepository extends JpaRepository<IMMarginAna
     @Query("SELECT DISTINCT m.modelCode FROM IMMarginAnalystData m WHERE m.fileUUID = ?1")
     List<String> getModelCodesByFileUUID(String fileUUID);
 
-//    @Query("SELECT m FROM IMMarginAnalystData m WHERE m.modelCode = ?1 AND m.orderNumber = ?2 AND m.currency = ?3 AND m.type = ?4")
-
 }
