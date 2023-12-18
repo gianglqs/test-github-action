@@ -1,5 +1,6 @@
 export const formatNumber = (num: any) => {
    if (typeof num === 'number' && num != Infinity && num != -Infinity && !isNaN(num)) {
+      num /= 1000;
       return num.toLocaleString(undefined, {
          minimumFractionDigits: 2,
          maximumFractionDigits: 2,

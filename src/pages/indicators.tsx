@@ -262,13 +262,16 @@ export default function Indicators() {
       {
          field: 'dealerStreetPricing',
          flex: 0.8,
-         headerName: 'Dealer Street Pricing(USD)',
+         headerName: "Dealer Street Pricing ('000 USD)",
          ...formatNumbericColumn,
+         renderCell(params) {
+            return <span>{formatNumber(params.row.dealerStreetPricing)}</span>;
+         },
       },
       {
          field: 'dealerHandlingCost',
          flex: 0.8,
-         headerName: 'Dealer Handling Cost',
+         headerName: "Dealer Handling Cost ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.dealerHandlingCost)}</span>;
@@ -277,7 +280,7 @@ export default function Indicators() {
       {
          field: 'competitorPricing',
          flex: 1,
-         headerName: 'Competition Pricing (USD)',
+         headerName: "Competition Pricing ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.competitorPricing)}</span>;
@@ -286,7 +289,7 @@ export default function Indicators() {
       {
          field: 'dealerPricingPremiumPercentage',
          flex: 1,
-         headerName: 'Dealer Pricing Premium/Margin (USD)',
+         headerName: "Dealer Pricing Premium/Margin ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.dealerPricingPremiumPercentage)}</span>;
@@ -305,7 +308,7 @@ export default function Indicators() {
       {
          field: 'averageDN',
          flex: 0.8,
-         headerName: 'Average Dealer Net',
+         headerName: "Average Dealer Net ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{formatNumber(params.row.averageDN)}</span>;
