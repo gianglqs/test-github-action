@@ -14,8 +14,7 @@ import { AppBar, Grid, Popover, Typography } from '@mui/material';
 import { usePopupState, bindPopover, bindTrigger } from 'material-ui-popup-state/hooks';
 import { AppLayoutProps } from './type';
 import AppFooter from '../Footer';
-import authApi from '@/api/auth.api';
-import { destroyCookie } from 'nookies';
+import { destroyCookie, parseCookies } from 'nookies';
 
 const AppLayout: React.FC<AppLayoutProps> = (props) => {
    const { children, entity, heightBody } = props;
@@ -35,6 +34,9 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
 
    const getListAction = useMemo(() => createAction(`${entityApp}/GET_LIST`), [entityApp]);
    const resetStateAction = useMemo(() => createAction(`${entityApp}/RESET_STATE`), [entityApp]);
+
+   let cookies = parseCookies();
+   let userRoleCookies = cookies['role'];
 
    useEffect(() => {
       dispatch(getListAction());
@@ -78,9 +80,16 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
 
    const handleLogOut = () => {
       try {
-         //authApi.logOut();
          destroyCookie(null, 'token');
          router.push('/login');
+      } catch (err) {
+         console.log(err);
+      }
+   };
+
+   const handleAdminPage = () => {
+      try {
+         router.push('/dashboard');
       } catch (err) {
          console.log(err);
       }
@@ -125,6 +134,18 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
             }}
             disableRestoreFocus
          >
+            {userRoleCookies === 'ADMIN' && (
+               <>
+                  <Typography
+                     style={{ margin: 10, cursor: 'pointer' }}
+                     onClick={handleAdminPage}
+                     data-testid="user-item-testid"
+                     id="logout__testid"
+                  >
+                     Admin Page
+                  </Typography>
+               </>
+            )}
             <Typography
                style={{ margin: 10, cursor: 'pointer' }}
                onClick={handleLogOut}
