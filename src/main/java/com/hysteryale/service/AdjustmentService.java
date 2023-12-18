@@ -25,6 +25,11 @@ public class AdjustmentService extends BasedService {
     public Map<String, Object> getAdjustmentByFilter(FilterModel filterModel, CalculatorModel calculatorModel) throws ParseException {
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> filterMap = ConvertDataFilterUtil.loadDataFilterIntoMap(filterModel);
+
+        // '000 USD -> USD to calculate
+        calculatorModel.setFreightAdj(calculatorModel.getFreightAdj() * 1000);
+        calculatorModel.setFxAdj(calculatorModel.getFxAdj() * 1000);
+
         logInfo(filterMap.toString());
         //TODO : set Margin after Adj for filter
         logInfo("marginPercentageAfterAdjFilter" + filterMap.get("marginPercentageAfterAdjFilter"));
@@ -169,8 +174,8 @@ public class AdjustmentService extends BasedService {
 
         // TODO : recheck formula
         //Additional Volume at BEP For Discount =  ABS( margin) / (DN* % DN adj) - (Original total cost/no of order)
-         adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
-        // adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN()/ booking.getQuantity() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
+        //  adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(adjustmentPayLoad.getNewMargin() / (adjustmentPayLoad.getNewDN() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
+        adjustmentPayLoad.setAdditionalVolume((int) Math.round(Math.abs(booking.getMarginAfterSurCharge() / (adjustmentPayLoad.getNewDN() / booking.getQuantity() - (adjustmentPayLoad.getTotalManualAdjCost() / booking.getQuantity())))));
         //adjustmentPayLoad.setAdditionalVolume((int) Math.round((Math.abs(adjustmentPayLoad.getNewMargin()) + adjustmentPayLoad.getTotalManualAdjCost()) / (adjustmentPayLoad.getNewDN() / booking.getQuantity())));
 
         return adjustmentPayLoad;

@@ -88,7 +88,7 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                                                            Pageable pageable);
 
     @Query("SELECT new CompetitorPricing('Total', sum(c.actual), sum(c.AOPF), sum(c.LRFF), sum(c.dealerHandlingCost), sum(c.competitorPricing), " +
-            " sum(c.dealerStreetPricing),  (sum(c.averageDN) / count(c)), "+
+            " sum(c.dealerStreetPricing),  sum(c.averageDN) , "+
             " ((sum(c.competitorPricing) - (sum(c.dealerStreetPricing) + sum(c.dealerPricingPremium))) / sum(c.competitorPricing)) )"+
             " FROM CompetitorPricing c WHERE " +
             "((:regions) IS Null OR c.region IN (:regions))" +
