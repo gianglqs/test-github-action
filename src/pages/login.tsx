@@ -56,6 +56,8 @@ export default function LoginPage() {
          password: formData?.password,
       };
 
+      const redirect_to = 'dashboard';
+
       const options = {
          method: 'POST',
          headers: {
@@ -69,17 +71,19 @@ export default function LoginPage() {
       axios
          .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/token`, transformData, options)
          .then((response) => {
-            const { redirect_to, access_token } = response.data;
-            setCookie(null, 'token', access_token, { maxAge: 2147483647 });
-            setCookie(null, 'redirect_to', redirect_to, { maxAge: 2147483647 });
+            console.log(response);
+            const access_token = response.data.access_token;
+            const name = response.data.user.userName;
+            const role = response.data.user.role;
+            setCookie(null, 'token', access_token, { maxAge: 604800 }); // 7 days
+            setCookie(null, 'role', role, { maxAge: 604800 });
+            setCookie(null, 'name', name, { maxAge: 604800 });
+
+            // setCookie(null, 'redirect_to', redirect_to, { maxAge: 2147483647 });
             router.push(redirect_to);
          })
          .catch((error) => {
-            dispatch(
-               commonStore.actions.setErrorMessage(
-                  'The username or password you entered is incorrect'
-               )
-            );
+            dispatch(commonStore.actions.setErrorMessage(error.response.data.message));
          });
    });
 

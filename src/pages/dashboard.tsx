@@ -41,7 +41,8 @@ import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state
 import useStyles from '@/components/App/Layout/styles';
 import authApi from '@/api/auth.api';
 import { destroyCookie } from 'nookies';
-
+import axios from 'axios';
+import { parseCookies, setCookie } from 'nookies';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const logo = require('../public/logo.svg');
 
@@ -49,6 +50,32 @@ const drawerWidth: number = 240;
 
 interface AppBarProps extends MuiAppBarProps {
    open?: boolean;
+}
+
+export async function getServerSideProps(context) {
+   try {
+      let cookies = parseCookies(context);
+      let token = cookies['token'];
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/checkTokenOfAdmin`, null, {
+         headers: {
+            Authorization: 'Bearer ' + token,
+         },
+      });
+
+      return {
+         props: {},
+      };
+   } catch (error) {
+      var des = '/login';
+      if (error.response.status == 403) des = '/bookingOrder';
+
+      return {
+         redirect: {
+            destination: des,
+            permanent: false,
+         },
+      };
+   }
 }
 
 const AppBar = styled(MuiAppBar, {
@@ -229,7 +256,7 @@ export default function Dashboard() {
          },
       },
       {
-         field: 'userName',
+         field: 'name',
          flex: 0.8,
          headerName: 'Name',
       },

@@ -65,7 +65,7 @@ class HttpService<GetList = any> {
 
       // Set token if had
       if (token) {
-         this.instance.defaults.headers.common.Authorization = `Bearer${token}`;
+         this.instance.defaults.headers.common.Authorization = `Bearer ${token}`;
       } else {
          delete this.instance.defaults.headers.Authorization;
       }
