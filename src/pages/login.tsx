@@ -6,7 +6,7 @@ import NextHead from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
-import { setCookie } from 'nookies';
+import { parseCookies, setCookie } from 'nookies';
 import axios from 'axios';
 import * as yup from 'yup';
 
@@ -33,6 +33,36 @@ const StyledFormContainer = styled(Paper)(({ theme }) => ({
    maxWidth: 400,
    padding: theme.spacing(3),
 }));
+
+export async function getServerSideProps(context) {
+   try {
+      let cookies = parseCookies(context);
+      let token = cookies['token'];
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/checkTokenOfAdmin`, null, {
+         headers: {
+            Authorization: 'Bearer ' + token,
+         },
+      });
+
+      return {
+         redirect: {
+            destination: '/dashboard',
+            permanent: false,
+         },
+      };
+   } catch (error) {
+      if (error.response.status == 403)
+         return {
+            redirect: {
+               destination: '/bookingOrder',
+               permanent: false,
+            },
+         };
+      return {
+         props: {},
+      };
+   }
+}
 
 export default function LoginPage() {
    const router = useRouter();
