@@ -136,7 +136,7 @@ export default function Indicators() {
             totalLeadTime += item.competitorLeadTime;
 
             return {
-               label: item.competitorName,
+               label: `${item.competitorName} (${item.country.countryName}, ${item.series})`,
                data: [
                   {
                      x: item.competitorPricing,
@@ -473,6 +473,29 @@ export default function Indicators() {
             display: true,
             text: 'Competitor Swot Analysis',
             position: 'top' as const,
+         },
+         tooltip: {
+            interaction: {
+               intersect: true,
+               mode: 'nearest',
+            },
+            bodyFont: {
+               size: 14,
+            },
+            callbacks: {
+               label: (context) => {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                     label += ': ';
+                  }
+                  console.log(context);
+                  label += `($ ${context.parsed.x.toLocaleString()}, ${context.parsed.y.toLocaleString()} weeks, ${
+                     context.raw.r
+                  }%)`;
+
+                  return label;
+               },
+            },
          },
          annotation: {
             annotations: {
