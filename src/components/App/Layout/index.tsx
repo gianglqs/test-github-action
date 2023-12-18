@@ -108,7 +108,7 @@ const AppLayout: React.FC<AppLayoutProps> = (props) => {
             style={{
                height: heightBody,
                width: '100%',
-               maxHeight: 1200,
+               maxHeight: 2000,
             }}
          >
             <div className={classes.appLayout__container}>{children}</div>
