@@ -467,7 +467,7 @@ export default function Indicators() {
       maintainAspectRatio: false,
       plugins: {
          legend: {
-            position: 'top' as const,
+            position: 'left' as const,
          },
          title: {
             display: true,
@@ -745,101 +745,9 @@ export default function Indicators() {
                alignItems="center"
                sx={{ margin: '20px 0' }}
             >
-               <Grid container spacing={1}>
-                  <Grid item xs={1.2} sx={{ zIndex: 10, height: 60, marginLeft: '2vh' }}>
-                     <AppAutocomplete
-                        options={initDataFilter.regions}
-                        label="Region"
-                        onChange={(e, option) => handleChangeSwotFilter(option, 'regions')}
-                        limitTags={2}
-                        disableListWrap
-                        primaryKeyOption="value"
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                        helperText="Missing value"
-                        error={regionError}
-                        required
-                     />
-                     <AppAutocomplete
-                        options={initDataFilter.countries}
-                        label="Country"
-                        onChange={(e, option) => handleChangeSwotFilter(option, 'countries')}
-                        limitTags={1}
-                        disableListWrap
-                        primaryKeyOption="value"
-                        disableCloseOnSelect
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                        multiple
-                        sx={{ marginTop: 1 }}
-                     />
-                  </Grid>
-                  <Grid item xs={1.2}>
-                     <AppAutocomplete
-                        options={initDataFilter.classes}
-                        label="Competitor Class"
-                        onChange={(e, option) => handleChangeSwotFilter(option, 'classes')}
-                        disableListWrap
-                        primaryKeyOption="value"
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                        error={classesError}
-                        helperText="Missing value"
-                        required
-                     />
-
-                     <AppAutocomplete
-                        options={initDataFilter.series}
-                        label="Series"
-                        onChange={(e, option) => handleChangeSwotFilter(option, 'series')}
-                        limitTags={1}
-                        disableListWrap
-                        primaryKeyOption="value"
-                        disableCloseOnSelect
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                        sx={{ marginTop: 1 }}
-                        multiple
-                     />
-                  </Grid>
-                  <Grid item xs={1.5} sx={{ zIndex: 10, height: 60 }}>
-                     <AppAutocomplete
-                        options={initDataFilter.categories}
-                        label="Category"
-                        onChange={(e, option) => handleChangeSwotFilter(option, 'categories')}
-                        disableListWrap
-                        primaryKeyOption="value"
-                        renderOption={(prop, option) => `${option.value}`}
-                        getOptionLabel={(option) => `${option.value}`}
-                        error={categoriesError}
-                        helperText="Missing value"
-                        required
-                     />
-
-                     <Button
-                        variant="contained"
-                        onClick={handleFilterCompetitiveLandscape}
-                        sx={{ width: '100%', height: 24, marginTop: 1 }}
-                     >
-                        Filter
-                     </Button>
-                  </Grid>
-               </Grid>
                <Grid
                   item
-                  xs={4}
-                  sx={{
-                     height: '33vh',
-                     margin: 'auto',
-                     position: 'relative',
-                  }}
-               >
-                  <Bubble options={options} data={competitiveLandscapeData} />
-               </Grid>
-
-               <Grid
-                  item
-                  xs={4}
+                  xs={5}
                   sx={{
                      height: '33vh',
                      margin: 'auto',
@@ -855,7 +763,7 @@ export default function Indicators() {
 
                <Grid
                   item
-                  xs={4}
+                  xs={5}
                   sx={{
                      height: '33vh',
                      margin: 'auto',
@@ -867,6 +775,108 @@ export default function Indicators() {
                      chartName={'Forecast Volume by Year & Plant'}
                      scales={chartScales}
                   />
+               </Grid>
+            </Grid>
+            <Grid
+               container
+               spacing={1}
+               justifyContent="center"
+               alignItems="center"
+               sx={{ margin: '20px 0' }}
+            >
+               <Grid container spacing={1} justifyContent="center" alignItems="center">
+                  <Grid item xs={1.2} sx={{ zIndex: 15 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.regions}
+                        label="Region"
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'regions')}
+                        limitTags={2}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                        helperText="Missing value"
+                        error={regionError}
+                        required
+                     />
+                  </Grid>
+                  <Grid item xs={1.2} sx={{ zIndex: 15 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.countries}
+                        label="Country"
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'countries')}
+                        limitTags={1}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        disableCloseOnSelect
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                        multiple
+                     />
+                  </Grid>
+                  <Grid item xs={1.2}>
+                     <AppAutocomplete
+                        options={initDataFilter.classes}
+                        label="Competitor Class"
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'classes')}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                        error={classesError}
+                        helperText="Missing value"
+                        required
+                     />
+                  </Grid>
+                  <Grid item xs={1.5} sx={{ zIndex: 10 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.categories}
+                        label="Category"
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'categories')}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                        error={categoriesError}
+                        helperText="Missing value"
+                        required
+                     />
+                  </Grid>
+                  <Grid item xs={1.2} sx={{ zIndex: 15 }}>
+                     <AppAutocomplete
+                        options={initDataFilter.series}
+                        label="Series"
+                        onChange={(e, option) => handleChangeSwotFilter(option, 'series')}
+                        limitTags={1}
+                        disableListWrap
+                        primaryKeyOption="value"
+                        disableCloseOnSelect
+                        renderOption={(prop, option) => `${option.value}`}
+                        getOptionLabel={(option) => `${option.value}`}
+                        multiple
+                     />
+                  </Grid>
+
+                  <Grid item xs={1.5} sx={{ zIndex: 10 }}>
+                     <Button
+                        variant="contained"
+                        onClick={handleFilterCompetitiveLandscape}
+                        sx={{ width: '100%', height: 24 }}
+                     >
+                        Filter
+                     </Button>
+                  </Grid>
+               </Grid>
+               <Grid
+                  item
+                  xs={10}
+                  sx={{
+                     height: '55vh',
+                     margin: 'auto',
+                     position: 'relative',
+                  }}
+               >
+                  <Bubble options={options} data={competitiveLandscapeData} />
                </Grid>
             </Grid>
          </AppLayout>
