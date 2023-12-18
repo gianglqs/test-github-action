@@ -87,9 +87,9 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
                                                            @Param("marginPercentageAfterSurCharge") Object marginPercentageAfterSurCharge,
                                                            Pageable pageable);
 
-    @Query("SELECT new CompetitorPricing('Total', sum(c.actual), sum(c.AOPF), sum(c.LRFF), sum(c.dealerHandlingCost), sum(c.competitorPricing), " +
-            " sum(c.dealerStreetPricing),  sum(c.averageDN) , "+
-            " ((sum(c.competitorPricing) - (sum(c.dealerStreetPricing) + sum(c.dealerPricingPremium))) / sum(c.competitorPricing)) )"+
+    @Query("SELECT new CompetitorPricing('Total', COALESCE(sum(c.actual),0), COALESCE(sum(c.AOPF),0), COALESCE(sum(c.LRFF),0), COALESCE(sum(c.dealerHandlingCost),0), COALESCE(sum(c.competitorPricing),0), " +
+            " COALESCE(sum(c.dealerStreetPricing),0),  COALESCE(sum(c.averageDN),0) , "+
+            " COALESCE((sum(c.competitorPricing) - (sum(c.dealerStreetPricing) + sum(c.dealerPricingPremium))) / sum(c.competitorPricing),0) )"+
             " FROM CompetitorPricing c WHERE " +
             "((:regions) IS Null OR c.region IN (:regions))" +
             " AND ((:plants) IS NULL OR c.plant IN (:plants))" +
