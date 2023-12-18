@@ -358,7 +358,7 @@ public class IMMarginAnalystDataService {
 
             if(!plant.equals("HYM") && !plant.equals("SN") && !plant.equals("Ruyi") && !plant.equals("Maximal") && !plant.equals("Staxx")) {
                 log.info("Getting US Plant data ...");
-                return imMarginAnalystDataRepository.getUSPlantIMMarginAnalystData(modelCode, orderNumber, strCurrency, type);
+                return imMarginAnalystDataRepository.getUSPlantIMMarginAnalystData(modelCode, orderNumber, strCurrency, type, fileUUID);
             }
             else {
                 return imMarginAnalystDataRepository.getIMMarginAnalystData(modelCode, strCurrency, fileUUID, type);
@@ -385,8 +385,8 @@ public class IMMarginAnalystDataService {
                 if(imMarginAnalystSummaryList.isEmpty()) {
                     log.info("Calculate new summary ...");
 
-                    calculateUSPlantMarginSummary(modelCode, strCurrency, "annually", orderNumber, type);
-                    calculateUSPlantMarginSummary(modelCode, strCurrency, "monthly", orderNumber, type);
+                    calculateUSPlantMarginSummary(modelCode, strCurrency, "annually", orderNumber, type, fileUUID);
+                    calculateUSPlantMarginSummary(modelCode, strCurrency, "monthly", orderNumber, type, fileUUID);
 
                     imMarginAnalystSummaryList = getUSPlantMarginSummary(modelCode, strCurrency, orderNumber, type);
                 }
@@ -495,7 +495,7 @@ public class IMMarginAnalystDataService {
         imMarginAnalystDataRepository.saveAll(imMarginAnalystDataList);
         imMarginAnalystDataList.clear();
     }
-    public void calculateUSPlantMarginSummary(String modelCode, String strCurrency, String durationUnit, String orderNumber, Integer type) {
+    public void calculateUSPlantMarginSummary(String modelCode, String strCurrency, String durationUnit, String orderNumber, Integer type, String fileUUID) {
         double defMFGCost = 0;
         Calendar monthYear = Calendar.getInstance();
         Optional<BookingOrder> optionalBookingOrder = bookingOrderService.getBookingOrderByOrderNumber(orderNumber);
@@ -523,7 +523,7 @@ public class IMMarginAnalystDataService {
         double totalManufacturingCost = defMFGCost;
 
         // calculate sum of the listPrice, costRMB and dealerNet
-        List<IMMarginAnalystData> imMarginAnalystDataList = imMarginAnalystDataRepository.getUSPlantIMMarginAnalystData(modelCode, orderNumber, strCurrency, type);
+        List<IMMarginAnalystData> imMarginAnalystDataList = imMarginAnalystDataRepository.getUSPlantIMMarginAnalystData(modelCode, orderNumber, strCurrency, type, fileUUID);
         log.info(modelCode + " - " + imMarginAnalystDataList.size());
         for(IMMarginAnalystData data : imMarginAnalystDataList) {
             totalListPrice += data.getListPrice();
@@ -572,6 +572,7 @@ public class IMMarginAnalystDataService {
 
         imMarginAnalystSummary.setOrderNumber(orderNumber);
         imMarginAnalystSummary.setType(type);
+        imMarginAnalystSummary.setFileUUID(fileUUID);
 
         if(durationUnit.equals("monthly")) {
             imMarginAnalystSummary.setDurationUnit(durationUnit);
