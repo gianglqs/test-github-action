@@ -11,15 +11,13 @@ import com.hysteryale.service.marginAnalyst.IMMarginAnalystDataService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
 import com.hysteryale.utils.FileUtils;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -42,6 +40,8 @@ public class MarginAnalystController {
     MarginAnalystMacroService marginAnalystMacroService;
     @Resource
     PartService partService;
+    @Resource
+    IMMarginAnalystDataRepository imMarginAnalystDataRepository;
 
     @GetMapping(path = "/marginAnalystData/getDealers")
     public Map<String, List<Map<String, String>>> getDealersInMarginAnalystData() {
@@ -72,30 +72,39 @@ public class MarginAnalystController {
         String plant = marginData.getPlant();
         Integer type = marginData.getType();
 
-        if(plant.equals("HYM") || plant.equals("SN") || plant.equals("Ruyi") || plant.equals("Maximal") || plant.equals("Staxx")) {
-            log.info("Start calculating non-US plant");
-
-            IMMarginAnalystDataService.calculateNonUSMarginAnalystData(fileUUID, plant, currency);
-            IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "monthly", type);
-            IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "annually", type);
-        } else {
-            log.info("Start calculating US plant");
-            IMMarginAnalystDataService.calculateUSPlantMarginData(currency, orderNumber, fileUUID);
-        }
-
         List<IMMarginAnalystData> imMarginAnalystDataList =
                 IMMarginAnalystDataService.getIMMarginAnalystData(
                         marginData.getModelCode(), marginData.getCurrency(),
                         marginData.getFileUUID(), marginData.getOrderNumber(),
                         marginData.getType()
                 );
+        if(imMarginAnalystDataList.isEmpty())
+        {
+            if(plant.equals("HYM") || plant.equals("SN") || plant.equals("Ruyi") || plant.equals("Maximal") || plant.equals("Staxx")) {
+                log.info("Start calculating non-US plant");
 
+                IMMarginAnalystDataService.calculateNonUSMarginAnalystData(fileUUID, plant, currency);
+                IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "monthly", type);
+                IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "annually", type);
+            } else {
+                log.info("Start calculating US plant");
+                IMMarginAnalystDataService.calculateUSPlantMarginData(currency, orderNumber, fileUUID);
+            }
+        }
+
+        imMarginAnalystDataList =
+                IMMarginAnalystDataService.getIMMarginAnalystData(
+                        marginData.getModelCode(), marginData.getCurrency(),
+                        marginData.getFileUUID(), marginData.getOrderNumber(),
+                        marginData.getType()
+                );
         Map<String, Object> imMarginAnalystSummaryMap =
                 IMMarginAnalystDataService.getIMMarginAnalystSummary(
                         marginData.getModelCode(), marginData.getCurrency(),
                         marginData.getFileUUID(), marginData.getOrderNumber(),
                         marginData.getType()
                 );
+
         return Map.of(
                 "MarginAnalystData", imMarginAnalystDataList,
                 "MarginAnalystSummary", imMarginAnalystSummaryMap
@@ -193,6 +202,11 @@ public class MarginAnalystController {
                 "MarginAnalystData", imMarginAnalystDataList,
                 "MarginAnalystSummary", imMarginAnalystSummaryMap
         );
+    }
+
+    @GetMapping(path = "/getMargin")
+    List<IMMarginAnalystData> getMargin(@RequestParam String fileUUID) {
+        return imMarginAnalystDataRepository.getMargin(fileUUID);
     }
 }
 
