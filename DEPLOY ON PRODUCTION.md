@@ -14,55 +14,75 @@ Before starting the installation process, make sure you have the following prere
 ### Step 1: Update System Packages
 
 #### Update the package index
+
 `sudo apt update`
 
 #### Upgrade installed packages
+
 `sudo apt upgrade`
 
-### Step 2: Install Node.js and npm
-#### Install Node.js and npm using the package manager (Version 18 or higher)
-`sudo apt install nodejs npm`
+### Step 2: Install Node.js(18.17.1) and npm(Install from nvm)
+
+#### Install nvm
+
+`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`
+
+`source ~/.bashrc`
+
+#### Install Node.js and npm
+
+`nvm install 18.17`
 
 #### Verify the installation
+
 ```
 node -v
 npm -v
 ```
 
-### Step 3:  Install Yarn
+### Step 3: Install Yarn
 
 #### Add the Yarn repository key to your system
+
 `curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -`
 
 #### Add the Yarn repository to your system
+
 `echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list`
 
 #### Update the package index
+
 `sudo apt update`
 
 #### Install Yarn
+
 `sudo apt install yarn`
 
 #### Verify the installation
+
 `yarn --version`
 
 ## Step 4: Clone the Spring Boot Application
 
 ### Install Git
+
 `sudo apt install git`
 
 ### Update Github Deployment Key
 
 #### Clone your frontend application repository
+
 `git clone https://github.com/Phoenix-Software-Development/hyster-yale-frontend.git`
 
 #### Navigate to the application directory
-`cd /opt/hyster-yale-frontend`
 
-## Step 5:  Install Application Dependencies using Yarn
+`cd /opt/hysteryale/hyster-yale-frontend`
+
+## Step 5: Install Application Dependencies using Yarn
 
 ### Build the React.js application
-`yarn install | gnomon`  
+
+`yarn install | gnomon`
 
 ## Step 6: Configure the backend configuration
 
