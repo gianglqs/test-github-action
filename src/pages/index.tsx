@@ -19,7 +19,7 @@ export async function getServerSideProps(context) {
          },
       };
    } catch (error) {
-      if (error.response.status == 403)
+      if (error.response?.status == 403)
          return {
             redirect: {
                destination: '/bookingOrder',
