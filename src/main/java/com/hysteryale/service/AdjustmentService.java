@@ -161,7 +161,7 @@ public class AdjustmentService extends BasedService {
         adjustmentPayLoad.setManualAdjFX(calculatorModel.getFxAdj());
 
         //Total Manual Adj Cost = (1) + (2) + (3) (4)
-        adjustmentPayLoad.setTotalManualAdjCost(adjustmentPayLoad.getManualAdjCost() - adjustmentPayLoad.getManualAdjFreight() - adjustmentPayLoad.getManualAdjFX());
+        adjustmentPayLoad.setTotalManualAdjCost(adjustmentPayLoad.getManualAdjCost() + adjustmentPayLoad.getManualAdjFreight() + adjustmentPayLoad.getManualAdjFX());
 
         //New DN (‘000 USD) - After manual Adj = Original DN * DN Adj % (rename to Adjusted Dealer Net) (5)
         adjustmentPayLoad.setNewDN(booking.getDealerNetAfterSurCharge() * (1 + calculatorModel.getDnAdjPercentage() / 100));
