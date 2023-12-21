@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { formatNumber, formatNumberPercentage } from '@/utils/formatCell';
 import { useDispatch, useSelector } from 'react-redux';
 import { indicatorStore, commonStore } from '@/store/reducers';
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 
 import { rowColor } from '@/theme/colorRow';
 import { AppLayout, DataTablePagination, DataTable, AppAutocomplete } from '@/components';
@@ -25,13 +25,11 @@ import {
 } from 'chart.js';
 import { Bubble } from 'react-chartjs-2';
 import ChartAnnotation from 'chartjs-plugin-annotation';
-import { faker } from '@faker-js/faker';
 
 import { defaultValueFilterIndicator } from '@/utils/defaultValues';
 import { produce } from 'immer';
 import _ from 'lodash';
 import indicatorApi from '@/api/indicators.api';
-import { relative } from 'path';
 import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 
 ChartJS.register(
@@ -46,6 +44,7 @@ ChartJS.register(
 );
 import axios from 'axios';
 import { parseCookies } from 'nookies';
+import { useDropzone } from 'react-dropzone';
 
 export async function getServerSideProps(context) {
    try {
@@ -74,6 +73,15 @@ export async function getServerSideProps(context) {
 
 export default function Indicators() {
    const dispatch = useDispatch();
+
+   let cookies = parseCookies();
+   let userRoleCookies = cookies['role'];
+   const [userRole, setUserRole] = useState('');
+
+   useEffect(() => {
+      setUserRole(userRoleCookies);
+   });
+   const [loading, setLoading] = useState(false);
 
    const tableState = useSelector(commonStore.selectTableState);
 
@@ -196,6 +204,58 @@ export default function Indicators() {
    const handleFilterIndicator = () => {
       dispatch(indicatorStore.actions.setDefaultValueFilterIndicator(dataFilter));
       handleChangePage(1);
+   };
+
+   const handleImportFile = async (file) => {
+      let formData = new FormData();
+      formData.append('file', file);
+
+      let token = cookies['token'];
+      setLoading(true);
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}importIndicatorsFile`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer ' + token,
+         },
+      })
+         .then(async () => {
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Import successfully'));
+            handleFilterIndicator();
+            await handleFilterCompetitiveLandscape();
+         })
+         .catch(() => {
+            setLoading(false);
+            dispatch(commonStore.actions.setErrorMessage('Error on importing new data'));
+         });
+   };
+
+   const handleUploadForecastFile = async (file) => {
+      let formData = new FormData();
+      formData.append('file', file);
+
+      let token = cookies['token'];
+      setLoading(true);
+      axios({
+         method: 'post',
+         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}uploadForecastFile`,
+         data: formData,
+         headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer ' + token,
+         },
+      })
+         .then(() => {
+            setLoading(false);
+            dispatch(commonStore.actions.setSuccessMessage('Upload successfully'));
+         })
+         .catch(() => {
+            setLoading(false);
+            dispatch(commonStore.actions.setErrorMessage('Error on uploading new file'));
+         });
    };
 
    const columns = [
@@ -588,6 +648,28 @@ export default function Indicators() {
 
    return (
       <>
+         {loading ? (
+            <div
+               style={{
+                  height: '100%',
+                  width: '100%',
+                  backgroundColor: 'rgba(0,0,0, 0.3)',
+                  position: 'absolute',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  zIndex: 1000,
+               }}
+            >
+               <CircularProgress
+                  color="info"
+                  size={60}
+                  sx={{
+                     position: 'relative',
+                  }}
+               />
+            </div>
+         ) : null}
          <AppLayout entity="indicator">
             <Grid container spacing={1}>
                <Grid item xs={2} sx={{ zIndex: 10, height: 25 }}>
@@ -722,6 +804,24 @@ export default function Indicators() {
                      Filter
                   </Button>
                </Grid>
+               {userRole === 'ADMIN' && (
+                  <>
+                     <Grid item xs={2}>
+                        <UploadFileDropZone
+                           handleUploadFile={handleImportFile}
+                           buttonName="Import Competitor File"
+                           sx={{ width: '100%', height: 24 }}
+                        />
+                     </Grid>
+                     <Grid item xs={2}>
+                        <UploadFileDropZone
+                           handleUploadFile={handleUploadForecastFile}
+                           buttonName="Import Forecast File"
+                           sx={{ width: '100%', height: 24 }}
+                        />
+                     </Grid>
+                  </>
+               )}
             </Grid>
             <Paper elevation={1} sx={{ marginTop: 2 }}>
                <Grid container sx={{ height: 'calc(67vh - 275px)', minHeight: '200px' }}>
@@ -907,5 +1007,51 @@ export default function Indicators() {
             </Grid>
          </AppLayout>
       </>
+   );
+}
+
+function UploadFileDropZone(props) {
+   const onDrop = useCallback((acceptedFiles) => {
+      acceptedFiles.forEach((file) => {
+         const reader = new FileReader();
+
+         reader.onabort = () => console.log('file reading was aborted');
+         reader.onerror = () => console.log('file reading has failed');
+         reader.onload = () => {
+            // Do whatever you want with the file contents
+         };
+         reader.readAsArrayBuffer(file);
+         props.handleUploadFile(file);
+      });
+   }, []);
+
+   const { getRootProps, getInputProps, open, fileRejections } = useDropzone({
+      noClick: true,
+      onDrop,
+      maxSize: 16777216,
+      maxFiles: 1,
+      accept: {
+         'excel/xlsx': ['.xlsx', '.xlsb'],
+      },
+   });
+   const dispatch = useDispatch();
+   const isFileInvalid = fileRejections.length > 0 ? true : false;
+   if (isFileInvalid) {
+      const errors = fileRejections[0].errors;
+      dispatch(
+         commonStore.actions.setErrorMessage(
+            `${errors[0].message} ${_.isNil(errors[1]) ? '' : `or ${errors[1].message}`}`
+         )
+      );
+      fileRejections.splice(0, 1);
+   }
+
+   return (
+      <div {...getRootProps()}>
+         <input {...getInputProps()} />
+         <Button type="button" onClick={open} variant="contained" sx={props.sx}>
+            {props.buttonName}
+         </Button>
+      </div>
    );
 }
