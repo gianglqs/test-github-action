@@ -227,9 +227,9 @@ export default function Indicators() {
             handleFilterIndicator();
             await handleFilterCompetitiveLandscape();
          })
-         .catch(() => {
+         .catch((error) => {
             setLoading(false);
-            dispatch(commonStore.actions.setErrorMessage('Error on importing new data'));
+            dispatch(commonStore.actions.setErrorMessage(error.response.data.message));
          });
    };
 
