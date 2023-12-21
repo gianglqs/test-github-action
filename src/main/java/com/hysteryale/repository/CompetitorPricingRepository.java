@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CompetitorPricingRepository extends JpaRepository<CompetitorPricing, Integer> {
 
@@ -150,5 +151,10 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
     List<CompetitorPricing> getDataForBubbleChart(@Param("regions") Object regions, @Param("countries") Object countries,
                                                   @Param("classes") Object classes, @Param("category") Object categories,
                                                   @Param("series") Object series);
+
+    @Query("SELECT c FROM CompetitorPricing c WHERE c.country.countryName = ?1 AND c.clazz = ?2 AND c.category = ?3 AND " +
+            "c.series = ?4 AND c.competitorName = ?5 AND c.model = ?6")
+    Optional<CompetitorPricing> getCompetitorPricing(String country, String clazz, String category,
+                                                     String series, String competitorName, String model);
 
 }
