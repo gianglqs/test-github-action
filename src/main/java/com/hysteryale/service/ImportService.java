@@ -16,7 +16,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
@@ -279,6 +281,8 @@ public class ImportService extends BasedService {
         String baseFolder = EnvironmentUtils.getEnvironmentValue("upload_files.base-folder");
         String folderPath = baseFolder + EnvironmentUtils.getEnvironmentValue("import-files.forecast-pricing");
         List<String> fileList = getAllFilesInFolder(folderPath, -1);
+        if(fileList.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Missing Forecast Dynamic Pricing Excel file");
 
         List<ForeCastValue> foreCastValues = new ArrayList<>();
 
