@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CompetitorPricingRepository extends JpaRepository<CompetitorPricing, Integer> {
 
@@ -141,14 +142,19 @@ public interface CompetitorPricingRepository extends JpaRepository<CompetitorPri
     @Query("SELECT DISTINCT c.category FROM CompetitorPricing c")
     List<String> getDistinctCategory();
 
-    @Query("SELECT c FROM CompetitorPricing c " +
+    @Query("SELECT new CompetitorPricing (c.competitorName, AVG(c.competitorLeadTime), AVG(c.competitorPricing), AVG(c.marketShare), c.color) FROM CompetitorPricing c " +
             "WHERE ((:regions) IS NULL OR c.region IN (:regions)) " +
             "AND ((:countries) IS NULL OR c.country.countryName IN (:countries)) " +
             "AND ((:classes) IS NULL OR c.clazz IN (:classes)) " +
             "AND ((:category) IS NULL OR c.category IN (:category)) " +
-            "AND ((:series) IS NULL OR c.series IN (:series)) ORDER BY c.country.countryName, c.series, c.competitorName")
+            "AND ((:series) IS NULL OR c.series IN (:series)) GROUP BY c.competitorName, c.color ORDER BY c.competitorName")
     List<CompetitorPricing> getDataForBubbleChart(@Param("regions") Object regions, @Param("countries") Object countries,
                                                   @Param("classes") Object classes, @Param("category") Object categories,
                                                   @Param("series") Object series);
+
+    @Query("SELECT c FROM CompetitorPricing c WHERE c.country.countryName = ?1 AND c.clazz = ?2 AND c.category = ?3 AND " +
+            "c.series = ?4 AND c.competitorName = ?5 AND c.model = ?6")
+    Optional<CompetitorPricing> getCompetitorPricing(String country, String clazz, String category,
+                                                     String series, String competitorName, String model);
 
 }
