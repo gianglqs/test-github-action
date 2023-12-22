@@ -164,7 +164,7 @@ export default function Adjustment() {
       {
          field: 'additionalVolume',
          flex: 0.5,
-         headerName: 'Additional Volume at BEP For Discount',
+         headerName: 'Additional Units',
          ...formatNumbericColumn,
          renderCell(params) {
             return <span>{params?.row.additionalVolume}</span>;
