@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { formatNumbericColumn } from '@/utils/columnProperties';
 import { formatNumber, formatNumberPercentage, formatDate } from '@/utils/formatCell';
@@ -29,6 +29,8 @@ import {
 import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import { parseCookies } from 'nookies';
+import CellColor, { CellBEPColor, CellPercentageColor } from '@/components/DataTable/CellColor';
+import blendColor from '@/utils/blendColor';
 
 export async function getServerSideProps(context) {
    try {
@@ -65,6 +67,12 @@ export default function Adjustment() {
    const [dataCalculator, setDataCalculator] = useState(defaultValueCaculatorForAjustmentCost);
    const currentPage = useSelector(commonStore.selectTableState).pageNo;
 
+   const [costAdjColor, setCostAdjColor] = useState(null);
+   const [freightAdjColor, setFreightAdjColor] = useState(null);
+   const [fxAdjColor, setFxAdjColor] = useState(null);
+   const [dnAdjColor, setDnAdjColor] = useState(null);
+   const [totalColor, setTotalColor] = useState(null);
+
    const handleChangeDataFilter = (option, field) => {
       setDataFilter((prev) =>
          produce(prev, (draft) => {
@@ -92,6 +100,7 @@ export default function Adjustment() {
 
    const handleCalculator = () => {
       dispatch(adjustmentStore.actions.setDefaultValueCalculator(dataCalculator));
+      changeColorColumnWhenAdjChange();
       handleChangePage(currentPage);
    };
 
@@ -167,7 +176,9 @@ export default function Adjustment() {
          headerName: 'Additional Volume at BEP For Discount',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{params?.row.additionalVolume}</span>;
+            return (
+               <CellBEPColor color={totalColor} value={params?.row.additionalVolume}></CellBEPColor>
+            );
          },
       },
       {
@@ -175,8 +186,9 @@ export default function Adjustment() {
          flex: 0.8,
          headerName: "Adjusted Cost ('000 USD)",
          ...formatNumbericColumn,
+         backgroundColor: costAdjColor,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.manualAdjCost)}</span>;
+            return <CellColor color={costAdjColor} value={params?.row.manualAdjCost}></CellColor>;
          },
       },
       {
@@ -184,8 +196,12 @@ export default function Adjustment() {
          flex: 0.8,
          headerName: "Adjusted Freight ('000 USD)",
          ...formatNumbericColumn,
+         padding: 0,
+         backgroundColor: freightAdjColor,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.manualAdjFreight)}</span>;
+            return (
+               <CellColor color={freightAdjColor} value={params?.row.manualAdjFreight}></CellColor>
+            );
          },
       },
       {
@@ -193,8 +209,9 @@ export default function Adjustment() {
          flex: 0.7,
          headerName: "Adjusted FX ('000 USD)",
          ...formatNumbericColumn,
+         backgroundColor: fxAdjColor,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.manualAdjFX)}</span>;
+            return <CellColor color={fxAdjColor} value={params?.row.manualAdjFX}></CellColor>;
          },
       },
 
@@ -204,7 +221,9 @@ export default function Adjustment() {
          headerName: "Total Manual Adj Cost ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.totalManualAdjCost)}</span>;
+            return (
+               <CellColor color={totalColor} value={params?.row.totalManualAdjCost}></CellColor>
+            );
          },
       },
 
@@ -244,7 +263,7 @@ export default function Adjustment() {
          headerName: "Adjusted Dealer Net ('000 USD)",
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.newDN)}</span>;
+            return <CellColor color={dnAdjColor} value={params?.row.newDN}></CellColor>;
          },
       },
       {
@@ -253,7 +272,7 @@ export default function Adjustment() {
          headerName: "New margin $ ('000 USD) After manual Adj",
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumber(params?.row.newMargin)}</span>;
+            return <CellColor color={totalColor} value={params?.row.newMargin}></CellColor>;
          },
       },
       {
@@ -262,7 +281,12 @@ export default function Adjustment() {
          headerName: 'New margin % After manual Adj',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <span>{formatNumberPercentage(params?.row.newMarginPercentage * 100)}</span>;
+            return (
+               <CellPercentageColor
+                  color={totalColor}
+                  value={params?.row.newMarginPercentage * 100}
+               ></CellPercentageColor>
+            );
          },
       },
    ];
@@ -421,6 +445,84 @@ export default function Adjustment() {
       },
    ];
 
+   // changes highlighted when I adjust a variant
+
+   const [listColor, setListColor] = useState([]);
+
+   function changeColorColumnWhenAdjChange() {
+      if (
+         dataCalculator.costAdjPercentage === '' ||
+         Number(dataCalculator.costAdjPercentage) === 0
+      ) {
+         setCostAdjColor('');
+         setListColor((prevList) => prevList.filter((c) => c !== costAdjColor && c !== ''));
+      } else {
+         setCostAdjColor('#FFB972');
+
+         //  setTotalColor('#FFB972');
+         if (!listColor.includes(costAdjColor)) {
+            setListColor((prevList) => [...prevList, costAdjColor]);
+         }
+         setTimeout(() => {
+            setCostAdjColor('#FFCC99');
+            //  setTotalColor('#FFCC99');
+         }, 2000);
+      }
+
+      if (dataCalculator.freightAdj === '' || Number(dataCalculator.freightAdj) === 0) {
+         setFreightAdjColor('');
+         setListColor((prevList) => prevList.filter((c) => c !== freightAdjColor && c !== ''));
+      } else {
+         setFreightAdjColor('#F5A785');
+         // setTotalColor('#F5A785');
+         if (!listColor.includes(freightAdjColor)) {
+            setListColor((prevList) => [...prevList, freightAdjColor]);
+         }
+         setTimeout(() => {
+            setFreightAdjColor('#f7c0a9');
+            //  setTotalColor('#f7c0a9');
+         }, 2000);
+      }
+
+      if (dataCalculator.fxAdj === '' || Number(dataCalculator.fxAdj) === 0) {
+         setFxAdjColor('');
+         setListColor((prevList) => prevList.filter((c) => c !== fxAdjColor && c !== ''));
+      } else {
+         setFxAdjColor('#CDBDB0');
+         //  setTotalColor('#CDBDB0');
+         if (!listColor.includes(fxAdjColor)) {
+            setListColor((prevList) => [...prevList, fxAdjColor]);
+         }
+         setTimeout(() => {
+            setFxAdjColor('#e9d4c4');
+            //  setTotalColor('#e9d4c4');
+         }, 2000);
+      }
+
+      if (dataCalculator.dnAdjPercentage === '' || Number(dataCalculator.dnAdjPercentage) === 0) {
+         setDnAdjColor('');
+         setListColor((prevList) => prevList.filter((c) => c !== dnAdjColor && c !== ''));
+      } else {
+         setDnAdjColor('#DFB95E');
+         setTotalColor('#DFB95E');
+         setTimeout(() => {
+            setDnAdjColor('#f9d06d');
+            setTotalColor('#f9d06d');
+         }, 2000);
+         if (!listColor.includes(dnAdjColor)) {
+            setListColor((prevList) => [...prevList, dnAdjColor]);
+         }
+      }
+      setTimeout(() => {
+         setTotalColor(blendColor(listColor));
+      }, 2000);
+   }
+   console.log(listColor);
+
+   useEffect(() => {
+      setCostAdjColor(null);
+   }, []);
+
    return (
       <>
          <AppLayout entity="adjustment">
@@ -575,6 +677,7 @@ export default function Adjustment() {
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
+                        sx={{ backgroundColor: '#FFCC99' }}
                         onChange={(e) =>
                            handleChangeDataCalculator(e.target.value, 'costAdjPercentage')
                         }
@@ -587,6 +690,7 @@ export default function Adjustment() {
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
+                        sx={{ backgroundColor: '#f7c0a9' }}
                         onChange={(e) => handleChangeDataCalculator(e.target.value, 'freightAdj')}
                         name="freightAdj"
                         label="Freight Adj ('000 USD)"
@@ -597,6 +701,7 @@ export default function Adjustment() {
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
+                        sx={{ backgroundColor: '#e9d4c4' }}
                         onChange={(e) => handleChangeDataCalculator(e.target.value, 'fxAdj')}
                         name="fxAdj"
                         label="FX Adj ('000 USD)"
@@ -607,6 +712,7 @@ export default function Adjustment() {
                <Grid item xs={2}>
                   <Grid item xs={12}>
                      <AppTextField
+                        sx={{ backgroundColor: '#f9d06d' }}
                         onChange={(e) =>
                            handleChangeDataCalculator(e.target.value, 'dnAdjPercentage')
                         }
