@@ -104,27 +104,17 @@ export default function Indicators() {
    const [swotDataFilter, setSwotDataFilter] = useState({
       regions: null,
       countries: [],
-      classes: null,
-      categories: null,
+      classes: [],
+      categories: [],
       series: [],
    });
 
    const [regionError, setRegionError] = useState(false);
-   const [classesError, setClassesError] = useState(false);
-   const [categoriesError, setCategoriesError] = useState(false);
 
    const handleFilterCompetitiveLandscape = async () => {
       try {
          if (swotDataFilter.regions == null) {
             setRegionError(true);
-            return;
-         }
-         if (swotDataFilter.classes == null) {
-            setClassesError(true);
-            return;
-         }
-         if (swotDataFilter.categories == null) {
-            setCategoriesError(true);
             return;
          }
 
@@ -144,7 +134,7 @@ export default function Indicators() {
             totalLeadTime += item.competitorLeadTime;
 
             return {
-               label: `${item.competitorName} (${item.country.countryName}, ${item.series})`,
+               label: `${item.competitorName}`,
                data: [
                   {
                      x: item.competitorPricing,
@@ -167,7 +157,7 @@ export default function Indicators() {
    const handleChangeSwotFilter = (option, field) => {
       setSwotDataFilter((prev) =>
          produce(prev, (draft) => {
-            if (_.includes(['regions', 'classes', 'categories'], field)) {
+            if (_.includes(['regions'], field)) {
                draft[field] = option.value;
             } else {
                draft[field] = option.map(({ value }) => value);
@@ -175,8 +165,6 @@ export default function Indicators() {
          })
       );
       if (swotDataFilter.regions != null) setRegionError(false);
-      if (swotDataFilter.classes != null) setClassesError(false);
-      if (swotDataFilter.categories != null) setCategoriesError(false);
    };
 
    const handleChangeDataFilter = (option, field) => {
@@ -530,7 +518,10 @@ export default function Indicators() {
       maintainAspectRatio: false,
       plugins: {
          legend: {
-            position: 'left' as const,
+            display: false,
+         },
+         htmlLegend: {
+            containerID: 'legend-container',
          },
          title: {
             display: true,
@@ -551,7 +542,6 @@ export default function Indicators() {
                   if (label) {
                      label += ': ';
                   }
-                  console.log(context);
                   label += `($ ${context.parsed.x.toLocaleString()}, ${context.parsed.y.toLocaleString()} weeks, ${
                      context.raw.r
                   }%)`;
@@ -644,7 +634,83 @@ export default function Indicators() {
       },
    };
 
-   // create scrollbar for table
+   const getOrCreateLegendList = (chart, id) => {
+      const legendContainer = document.getElementById(id);
+      let listContainer = legendContainer.querySelector('ul');
+
+      if (!listContainer) {
+         listContainer = document.createElement('ul');
+         listContainer.style.display = 'flex';
+         listContainer.style.flexDirection = 'row';
+         listContainer.style.margin = '0';
+         listContainer.style.padding = '0';
+
+         legendContainer.appendChild(listContainer);
+      }
+
+      return listContainer;
+   };
+
+   const htmlLegendPlugin = {
+      id: 'htmlLegend',
+      afterUpdate(chart, args, options) {
+         const ul = getOrCreateLegendList(chart, options.containerID);
+
+         // Remove old legend items
+         while (ul.firstChild) {
+            ul.firstChild.remove();
+         }
+
+         // Reuse the built-in legendItems generator
+         const items = chart.options.plugins.legend.labels.generateLabels(chart);
+
+         ul.style.display = 'flex';
+         ul.style.flexFlow = 'wrap column';
+         ul.style.maxHeight = '450px';
+
+         items.forEach((item) => {
+            const li = document.createElement('li');
+            li.style.alignItems = 'center';
+            li.style.cursor = 'pointer';
+            li.style.display = 'flex';
+            li.style.flexDirection = 'row';
+            li.style.marginLeft = '10px';
+
+            li.onclick = () => {
+               chart.setDatasetVisibility(
+                  item.datasetIndex,
+                  !chart.isDatasetVisible(item.datasetIndex)
+               );
+               chart.update();
+            };
+
+            // Color box
+            const boxSpan = document.createElement('span');
+            boxSpan.style.background = item.fillStyle;
+            boxSpan.style.borderColor = item.strokeStyle;
+            boxSpan.style.borderWidth = item.lineWidth + 'px';
+            boxSpan.style.display = 'inline-block';
+            boxSpan.style.height = '15px';
+            boxSpan.style.marginRight = '5px';
+            boxSpan.style.width = '20px';
+
+            // Text
+            const textContainer = document.createElement('p');
+            textContainer.style.color = item.fontColor;
+            textContainer.style.margin = '0';
+            textContainer.style.padding = '0';
+            textContainer.style.width = 'fit-content';
+            textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+
+            const text = document.createTextNode(item.text);
+            textContainer.appendChild(text);
+
+            li.appendChild(boxSpan);
+            li.appendChild(textContainer);
+            ul.appendChild(li);
+         });
+      },
+   };
 
    return (
       <>
@@ -916,7 +982,7 @@ export default function Indicators() {
                         options={initDataFilter.regions}
                         label="Region"
                         onChange={(e, option) => handleChangeSwotFilter(option, 'regions')}
-                        limitTags={2}
+                        limitTags={1}
                         disableListWrap
                         primaryKeyOption="value"
                         renderOption={(prop, option) => `${option.value}`}
@@ -940,7 +1006,7 @@ export default function Indicators() {
                         multiple
                      />
                   </Grid>
-                  <Grid item xs={1.2}>
+                  <Grid item xs={1.3}>
                      <AppAutocomplete
                         options={initDataFilter.classes}
                         label="Competitor Class"
@@ -949,12 +1015,13 @@ export default function Indicators() {
                         primaryKeyOption="value"
                         renderOption={(prop, option) => `${option.value}`}
                         getOptionLabel={(option) => `${option.value}`}
-                        error={classesError}
                         helperText="Missing value"
-                        required
+                        limitTags={1}
+                        disableCloseOnSelect
+                        multiple
                      />
                   </Grid>
-                  <Grid item xs={1.5} sx={{ zIndex: 10 }}>
+                  <Grid item xs={1.8} sx={{ zIndex: 10 }}>
                      <AppAutocomplete
                         options={initDataFilter.categories}
                         label="Category"
@@ -963,9 +1030,10 @@ export default function Indicators() {
                         primaryKeyOption="value"
                         renderOption={(prop, option) => `${option.value}`}
                         getOptionLabel={(option) => `${option.value}`}
-                        error={categoriesError}
                         helperText="Missing value"
-                        required
+                        limitTags={1}
+                        disableCloseOnSelect
+                        multiple
                      />
                   </Grid>
                   <Grid item xs={1.2} sx={{ zIndex: 15 }}>
@@ -994,15 +1062,32 @@ export default function Indicators() {
                   </Grid>
                </Grid>
                <Grid
-                  item
+                  container
                   xs={10}
                   sx={{
                      height: '55vh',
-                     margin: 'auto',
+                     width: 'fit-content',
                      position: 'relative',
                   }}
                >
-                  <Bubble options={options} data={competitiveLandscapeData} />
+                  <Grid item xs={9}>
+                     <Bubble
+                        options={options}
+                        data={competitiveLandscapeData}
+                        plugins={[htmlLegendPlugin]}
+                     />
+                  </Grid>
+                  <Grid item xs={3}>
+                     <div
+                        id="legend-container"
+                        style={{
+                           overflow: 'scroll',
+                           overflowY: 'hidden',
+                           width: 'fit-content',
+                           marginTop: 50,
+                        }}
+                     ></div>
+                  </Grid>
                </Grid>
             </Grid>
          </AppLayout>
