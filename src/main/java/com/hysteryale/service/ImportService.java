@@ -119,7 +119,7 @@ public class ImportService extends BasedService {
         Cell cellRegion = row.getCell(ORDER_COLUMNS_NAME.get("Region"));
 
         Cell cellCompetitorName = row.getCell(ORDER_COLUMNS_NAME.get("Brand"));
-        String competitorName = cellCompetitorName.getStringCellValue();
+        String competitorName = cellCompetitorName.getStringCellValue().strip();
 
         boolean isChineseBrand = competitorName.contains("Heli") || competitorName.contains("HeLi") || competitorName.contains("Hangcha") || competitorName.contains("Hang Cha");
         Cell cellClass = row.getCell(ORDER_COLUMNS_NAME.get("Class"));

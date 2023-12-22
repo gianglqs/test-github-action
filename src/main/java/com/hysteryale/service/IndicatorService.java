@@ -104,15 +104,19 @@ public class IndicatorService extends BasedService {
 
         String regions = filters.getRegions();
         List<String> countryNames = filters.getCountries();
-        String competitorClass = filters.getClasses();
-        String category = filters.getCategories();
+        List<String> competitorClass = filters.getClasses();
+        List<String> category = filters.getCategories();
         List<String> series = filters.getSeries();
 
         if(countryNames.isEmpty())
             countryNames = null;
+        if(competitorClass.isEmpty())
+            competitorClass = null;
+        if(category.isEmpty())
+            category = null;
         if(series.isEmpty())
             series = null;
-        return competitorPricingRepository.getDataForBubbleChart(Collections.singletonList(regions), countryNames, Collections.singletonList(competitorClass), Collections.singletonList(category), series);
+        return competitorPricingRepository.getDataForBubbleChart(Collections.singletonList(regions), countryNames, competitorClass, category, series);
     }
 
     /**
