@@ -176,9 +176,7 @@ export default function Adjustment() {
          headerName: 'Additional Volume at BEP For Discount',
          ...formatNumbericColumn,
          renderCell(params) {
-            return (
-               <CellBEPColor color={totalColor} value={params?.row.additionalVolume}></CellBEPColor>
-            );
+            return <CellColor color={totalColor} value={params?.row.additionalVolume}></CellColor>;
          },
       },
       {
@@ -449,79 +447,103 @@ export default function Adjustment() {
 
    const [listColor, setListColor] = useState([]);
 
+   let costAdjOld;
+   let freightAdjOld;
+   let fxAdjOld;
+   let dnAdjOld;
+
    function changeColorColumnWhenAdjChange() {
+      let n = 0;
+      //costAdj
       if (
          dataCalculator.costAdjPercentage === '' ||
          Number(dataCalculator.costAdjPercentage) === 0
       ) {
          setCostAdjColor('');
-         setListColor((prevList) => prevList.filter((c) => c !== costAdjColor && c !== ''));
-      } else {
+      } else if (dataCalculator.costAdjPercentage !== costAdjOld) {
+         //when adjust costAdjPercentage
          setCostAdjColor('#FFB972');
-
-         //  setTotalColor('#FFB972');
-         if (!listColor.includes(costAdjColor)) {
-            setListColor((prevList) => [...prevList, costAdjColor]);
-         }
-         setTimeout(() => {
-            setCostAdjColor('#FFCC99');
-            //  setTotalColor('#FFCC99');
-         }, 2000);
+         setTotalColor('#FFB972');
+         n++;
       }
 
+      //freightAdj
       if (dataCalculator.freightAdj === '' || Number(dataCalculator.freightAdj) === 0) {
          setFreightAdjColor('');
-         setListColor((prevList) => prevList.filter((c) => c !== freightAdjColor && c !== ''));
-      } else {
+      } else if (dataCalculator.freightAdj !== freightAdjOld) {
+         //when adjust costAdjPercentage
          setFreightAdjColor('#F5A785');
-         // setTotalColor('#F5A785');
-         if (!listColor.includes(freightAdjColor)) {
-            setListColor((prevList) => [...prevList, freightAdjColor]);
-         }
-         setTimeout(() => {
-            setFreightAdjColor('#f7c0a9');
-            //  setTotalColor('#f7c0a9');
-         }, 2000);
+         setTotalColor('#F5A785');
+         n++;
       }
 
+      //FXAdj
       if (dataCalculator.fxAdj === '' || Number(dataCalculator.fxAdj) === 0) {
          setFxAdjColor('');
-         setListColor((prevList) => prevList.filter((c) => c !== fxAdjColor && c !== ''));
-      } else {
+      } else if (dataCalculator.fxAdj !== fxAdjOld) {
+         //when adjust costAdjPercentage
          setFxAdjColor('#CDBDB0');
-         //  setTotalColor('#CDBDB0');
-         if (!listColor.includes(fxAdjColor)) {
-            setListColor((prevList) => [...prevList, fxAdjColor]);
-         }
-         setTimeout(() => {
-            setFxAdjColor('#e9d4c4');
-            //  setTotalColor('#e9d4c4');
-         }, 2000);
+         setTotalColor('#CDBDB0');
+         n++;
       }
 
+      //dnAdjPercentage
       if (dataCalculator.dnAdjPercentage === '' || Number(dataCalculator.dnAdjPercentage) === 0) {
          setDnAdjColor('');
-         setListColor((prevList) => prevList.filter((c) => c !== dnAdjColor && c !== ''));
-      } else {
+      } else if (dataCalculator.dnAdjPercentage !== dnAdjOld) {
+         //when adjust costAdjPercentage
          setDnAdjColor('#DFB95E');
          setTotalColor('#DFB95E');
-         setTimeout(() => {
-            setDnAdjColor('#f9d06d');
-            setTotalColor('#f9d06d');
-         }, 2000);
-         if (!listColor.includes(dnAdjColor)) {
-            setListColor((prevList) => [...prevList, dnAdjColor]);
-         }
+         n++;
       }
-      setTimeout(() => {
-         setTotalColor(blendColor(listColor));
-      }, 2000);
+      if (n > 1) setTotalColor('#D09903');
    }
-   console.log(listColor);
+
+   const isZeroOrEmpty = (number: string) => {
+      return number === '' || Number(number) === 0;
+   };
 
    useEffect(() => {
-      setCostAdjColor(null);
-   }, []);
+      let n = 0;
+      //costAdj
+      if (
+         dataCalculator.costAdjPercentage !== costAdjOld &&
+         !isZeroOrEmpty(dataCalculator.costAdjPercentage)
+      ) {
+         n++;
+         setCostAdjColor('#FFCC99');
+         setTotalColor('#FFCC99');
+         costAdjOld = dataCalculator.costAdjPercentage;
+      }
+      if (
+         dataCalculator.freightAdj !== freightAdjOld &&
+         !isZeroOrEmpty(dataCalculator.freightAdj)
+      ) {
+         n++;
+         setFreightAdjColor('#f7c0a9');
+         setTotalColor('#f7c0a9');
+         dnAdjOld = dataCalculator.freightAdj;
+      }
+      if (dataCalculator.fxAdj !== fxAdjOld && !isZeroOrEmpty(dataCalculator.fxAdj)) {
+         n++;
+         setFxAdjColor('#e9d4c4');
+         setTotalColor('#e9d4c4');
+         fxAdjOld = dataCalculator.fxAdj;
+      }
+      if (
+         dataCalculator.dnAdjPercentage !== dnAdjOld &&
+         !isZeroOrEmpty(dataCalculator.dnAdjPercentage)
+      ) {
+         n++;
+         setDnAdjColor('#f9d06d');
+         setTotalColor('#f9d06d');
+         dnAdjOld = dataCalculator.dnAdjPercentage;
+      }
+      //
+      if (n > 1) setTotalColor('#FFC72C');
+      else if (n === 0) setTotalColor('');
+      console.log(costAdjOld);
+   }, [costAdjColor, freightAdjColor, fxAdjColor, dnAdjColor]);
 
    return (
       <>
