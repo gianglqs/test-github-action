@@ -12,4 +12,5 @@ export const formatNumbericColumn = {
    align: 'right',
    headerAlign: 'center',
    justifyContent: 'flex-end',
+   padding: 0,
 } as Record<any, any>;
