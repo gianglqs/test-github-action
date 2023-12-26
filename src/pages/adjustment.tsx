@@ -29,8 +29,13 @@ import {
 import { DataGridPro, GridCellParams, GridToolbar } from '@mui/x-data-grid-pro';
 import axios from 'axios';
 import { parseCookies } from 'nookies';
-import CellColor, { CellBEPColor, CellPercentageColor } from '@/components/DataTable/CellColor';
+import CellColor, {
+   CellPercentageColor,
+   CellText,
+   NoneAdjustValueCell,
+} from '@/components/DataTable/CellColor';
 import blendColor from '@/utils/blendColor';
+import { makeStyles } from '@mui/styles';
 
 export async function getServerSideProps(context) {
    try {
@@ -56,6 +61,14 @@ export async function getServerSideProps(context) {
       };
    }
 }
+const resetPaddingCell = makeStyles({
+   '& .MuiDataGrid-cell': {
+      padding: 0,
+   },
+   '& .css-1ey3qrw-MuiDataGrid-root': {
+      padding: 0,
+   },
+});
 
 export default function Adjustment() {
    const dispatch = useDispatch();
@@ -128,7 +141,7 @@ export default function Adjustment() {
          flex: 0.5,
          headerName: 'Region',
          renderCell(params) {
-            return <span>{params.row.region}</span>;
+            return <CellText value={params.row.region} />;
          },
       },
 
@@ -137,7 +150,7 @@ export default function Adjustment() {
          flex: 0.6,
          headerName: 'Plant',
          renderCell(params) {
-            return <span>{params.row.plant}</span>;
+            return <CellText value={params.row.plant} />;
          },
       },
       {
@@ -145,7 +158,7 @@ export default function Adjustment() {
          flex: 0.6,
          headerName: 'Class',
          renderCell(params) {
-            return <span>{params.row.clazz}</span>;
+            return <CellText value={params.row.clazz} />;
          },
       },
       {
@@ -153,7 +166,7 @@ export default function Adjustment() {
          flex: 0.4,
          headerName: 'Series',
          renderCell(params) {
-            return <span>{params.row.metaSeries}</span>;
+            return <CellText value={params.row.metaSeries} />;
          },
       },
       {
@@ -161,7 +174,7 @@ export default function Adjustment() {
          flex: 0.6,
          headerName: 'Models',
          renderCell(params) {
-            return <span>{params.row.model}</span>;
+            return <CellText value={params.row.model} />;
          },
       },
       {
@@ -169,6 +182,11 @@ export default function Adjustment() {
          flex: 0.3,
          headerName: 'No of Orders',
          ...formatNumbericColumn,
+         renderCell(params) {
+            return (
+               <NoneAdjustValueCell color={''} value={params?.row.noOfOrder}></NoneAdjustValueCell>
+            );
+         },
       },
       {
          field: 'additionalVolume',
@@ -176,7 +194,12 @@ export default function Adjustment() {
          headerName: 'Additional Volume at BEP For Discount',
          ...formatNumbericColumn,
          renderCell(params) {
-            return <CellColor color={totalColor} value={params?.row.additionalVolume}></CellColor>;
+            return (
+               <NoneAdjustValueCell
+                  color={totalColor}
+                  value={params?.row.additionalVolume}
+               ></NoneAdjustValueCell>
+            );
          },
       },
       {
@@ -230,8 +253,9 @@ export default function Adjustment() {
          flex: 0.7,
          headerName: "Original DN ('000 USD)",
          ...formatNumbericColumn,
+
          renderCell(params) {
-            return <span>{formatNumber(params?.row.originalDN)}</span>;
+            return <CellColor color={''} value={params?.row.originalDN}></CellColor>;
          },
       },
       {
@@ -239,8 +263,9 @@ export default function Adjustment() {
          flex: 0.7,
          headerName: "Original Margin $ ('000 USD)",
          ...formatNumbericColumn,
+
          renderCell(params) {
-            return <span>{formatNumber(params?.row.originalMargin)}</span>;
+            return <CellColor color={''} value={params?.row.originalMargin}></CellColor>;
          },
       },
       {
@@ -248,9 +273,10 @@ export default function Adjustment() {
          flex: 0.7,
          headerName: 'Original Margin %',
          ...formatNumbericColumn,
+
          renderCell(params) {
             return (
-               <span>{formatNumberPercentage(params?.row.originalMarginPercentage * 100)}</span>
+               <CellColor color={''} value={params?.row.originalMarginPercentage * 100}></CellColor>
             );
          },
       },
@@ -545,6 +571,8 @@ export default function Adjustment() {
       console.log(costAdjOld);
    }, [costAdjColor, freightAdjColor, fxAdjColor, dnAdjColor]);
 
+   const cellStyle = resetPaddingCell();
+
    return (
       <>
          <AppLayout entity="adjustment">
@@ -758,6 +786,15 @@ export default function Adjustment() {
             <Paper elevation={1} sx={{ marginTop: 2 }}>
                <Grid container sx={{ height: 'calc(100vh - 263px)' }}>
                   <DataGridPro
+                     //className={`${cellStyle['& .MuiDataGrid-cell']} ${cellStyle['& .css-1ey3qrw-MuiDataGrid-root']}`}
+                     sx={{
+                        '& .MuiDataGrid-cell': {
+                           padding: 0,
+                        },
+                        '& .css-1ey3qrw-MuiDataGrid-root': {
+                           padding: 0,
+                        },
+                     }}
                      hideFooter
                      disableColumnMenu
                      //tableHeight={740}

@@ -5,12 +5,15 @@ export default function CellColor({ color, value }) {
       <p
          style={{
             backgroundColor: color,
-            // width: '100%',
-            height: '90%',
+            width: '100%',
+            height: '100%',
             textAlign: 'right',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'flex-end',
             padding: '0 10px',
+            borderRight: 'solid 1px white',
+            zIndex: 0,
          }}
       >
          {formatNumber(value)}
@@ -18,16 +21,35 @@ export default function CellColor({ color, value }) {
    );
 }
 
-export function CellBEPColor({ color, value }) {
+export function CellText({ value }) {
+   return (
+      <p
+         style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 10px',
+            borderRight: 'solid 1px white',
+         }}
+      >
+         {value}
+      </p>
+   );
+}
+
+export function NoneAdjustValueCell({ color, value }) {
    return (
       <p
          style={{
             backgroundColor: color,
             width: '100%',
-            height: '90%',
+            height: '100%',
             textAlign: 'right',
+            justifyContent: 'flex-end',
             display: 'flex',
             alignItems: 'center',
+            borderRight: 'solid 1px white',
             padding: '0 10px',
          }}
       >
@@ -41,11 +63,13 @@ export function CellPercentageColor({ color, value }) {
       <p
          style={{
             backgroundColor: color,
-            // width: '100%',
-            height: '90%',
+            width: '100%',
+            height: '100%',
+            justifyContent: 'flex-end',
             textAlign: 'right',
             display: 'flex',
             alignItems: 'center',
+            borderRight: 'solid 1px white',
             padding: '0 10px',
          }}
       >
