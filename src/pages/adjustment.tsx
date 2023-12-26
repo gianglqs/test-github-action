@@ -34,7 +34,6 @@ import CellColor, {
    CellText,
    NoneAdjustValueCell,
 } from '@/components/DataTable/CellColor';
-import blendColor from '@/utils/blendColor';
 import { makeStyles } from '@mui/styles';
 
 export async function getServerSideProps(context) {
