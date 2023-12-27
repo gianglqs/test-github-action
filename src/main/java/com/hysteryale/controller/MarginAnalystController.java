@@ -1,28 +1,26 @@
 package com.hysteryale.controller;
 
-import com.hysteryale.model.marginAnalyst.MarginAnalystData;
-import com.hysteryale.model.marginAnalyst.MarginAnalystSummary;
 import com.hysteryale.model_h2.IMMarginAnalystData;
-import com.hysteryale.repository_h2.IMMarginAnalystDataRepository;
-import com.hysteryale.service.BookingOrderService;
+import com.hysteryale.model_h2.IMMarginAnalystSummary;
 import com.hysteryale.service.FileUploadService;
 import com.hysteryale.service.PartService;
 import com.hysteryale.service.marginAnalyst.IMMarginAnalystDataService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystMacroService;
 import com.hysteryale.service.marginAnalyst.MarginAnalystService;
 import com.hysteryale.utils.FileUtils;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -40,24 +38,11 @@ public class MarginAnalystController {
     MarginAnalystMacroService marginAnalystMacroService;
     @Resource
     PartService partService;
-    @Resource
-    IMMarginAnalystDataRepository imMarginAnalystDataRepository;
+
 
     @GetMapping(path = "/marginAnalystData/getDealers")
     public Map<String, List<Map<String, String>>> getDealersInMarginAnalystData() {
         return marginAnalystService.getDealersFromMarginAnalystData();
-    }
-
-    @PostMapping(path = "/marginAnalystData", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<MarginAnalystData>> getMarginAnalystData(@RequestBody MarginAnalystData marginAnalystData) {
-        if(marginAnalystData.getDealer().isEmpty())
-            return marginAnalystService.getMarginAnalystData(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear());
-        return marginAnalystService.getMarginDataForAnalysisByDealer(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear(), marginAnalystData.getDealer());
-    }
-
-    @PostMapping(path = "/marginAnalystSummary", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, MarginAnalystSummary> getMarginAnalystSummary(@RequestBody MarginAnalystData marginAnalystData) {
-        return marginAnalystService.getMarginAnalystSummary(marginAnalystData.getModelCode(), marginAnalystData.getCurrency().getCurrency(), marginAnalystData.getMonthYear());
     }
 
     /**
@@ -71,43 +56,40 @@ public class MarginAnalystController {
         String fileUUID = marginData.getFileUUID();
         String plant = marginData.getPlant();
         Integer type = marginData.getType();
+        String modelCode = marginData.getModelCode();
+        String series = marginData.getSeries();
 
-        List<IMMarginAnalystData> imMarginAnalystDataList =
-                IMMarginAnalystDataService.getIMMarginAnalystData(
-                        marginData.getModelCode(), marginData.getCurrency(),
-                        marginData.getFileUUID(), marginData.getOrderNumber(),
-                        marginData.getType()
-                );
-        if(imMarginAnalystDataList.isEmpty())
-        {
-            if(plant.equals("HYM") || plant.equals("SN") || plant.equals("Ruyi") || plant.equals("Maximal") || plant.equals("Staxx")) {
-                log.info("Start calculating non-US plant");
+        if(type == 0)
+            type = null;
+        if(modelCode.isEmpty())
+            modelCode = null;
+        if(series.isEmpty())
+            series = null;
 
+        List<IMMarginAnalystData> imMarginAnalystDataList = IMMarginAnalystDataService.getIMMarginAnalystData(modelCode, currency, fileUUID, orderNumber, type, series, plant);
+        IMMarginAnalystSummary monthlySummary;
+        IMMarginAnalystSummary annuallySummary;
+
+        if(plant.equals("HYM") || plant.equals("SN") || plant.equals("Ruyi") || plant.equals("Maximal") || plant.equals("Staxx")) {
+            if(imMarginAnalystDataList.isEmpty())
                 IMMarginAnalystDataService.calculateNonUSMarginAnalystData(fileUUID, plant, currency);
-                IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "monthly", type);
-                IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "annually", type);
-            } else {
-                log.info("Start calculating US plant");
+            monthlySummary = IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "monthly", type, series, modelCode);
+            annuallySummary = IMMarginAnalystDataService.calculateNonUSMarginAnalystSummary(fileUUID, plant, currency, "annually", type, series, modelCode);
+        } else {
+            if(imMarginAnalystDataList.isEmpty())
                 IMMarginAnalystDataService.calculateUSPlantMarginData(currency, orderNumber, fileUUID);
-            }
+            monthlySummary = IMMarginAnalystDataService.calculateUSPlantMarginSummary(modelCode, series, currency, "monthly", orderNumber, type, fileUUID);
+            annuallySummary = IMMarginAnalystDataService.calculateUSPlantMarginSummary(modelCode, series, currency, "annually", orderNumber, type, fileUUID);
         }
 
-        imMarginAnalystDataList =
-                IMMarginAnalystDataService.getIMMarginAnalystData(
-                        marginData.getModelCode(), marginData.getCurrency(),
-                        marginData.getFileUUID(), marginData.getOrderNumber(),
-                        marginData.getType()
-                );
-        Map<String, Object> imMarginAnalystSummaryMap =
-                IMMarginAnalystDataService.getIMMarginAnalystSummary(
-                        marginData.getModelCode(), marginData.getCurrency(),
-                        marginData.getFileUUID(), marginData.getOrderNumber(),
-                        marginData.getType()
-                );
+        imMarginAnalystDataList = IMMarginAnalystDataService.getIMMarginAnalystData(modelCode, currency, fileUUID, orderNumber, type, series, plant);
 
         return Map.of(
                 "MarginAnalystData", imMarginAnalystDataList,
-                "MarginAnalystSummary", imMarginAnalystSummaryMap
+                "MarginAnalystSummary", Map.of(
+                        "MarginAnalystSummaryMonthly", monthlySummary,
+                        "MarginAnalystSummaryAnnually", annuallySummary
+                )
         );
     }
 
@@ -122,14 +104,10 @@ public class MarginAnalystController {
         if (FileUtils.isExcelFile(filePath)) {
             String fileUUID = fileUploadService.saveFileUpload(file, authentication);
 
-            String plant = IMMarginAnalystDataService.checkPlantOfFile(fileUUID);
-            String plantType = "US Plant";
-            if(plant.equals("Maximal") || plant.equals("SN") || plant.equals("HYM") || plant.equals("Ruyi") || plant.equals("Staxx"))
-                plantType = "Non-US Plant";
+            IMMarginAnalystData marginAnalystData = IMMarginAnalystDataService.checkPlantOfFile(fileUUID);
 
             return Map.of(
-                    "plant", plant,
-                    "plantType", plantType,
+                    "marginAnalystData", marginAnalystData,
                     "fileUUID", fileUUID
             );
         } else {
@@ -149,8 +127,7 @@ public class MarginAnalystController {
             String originalFileName = file.getOriginalFilename();
             String fileUUID = fileUploadService.saveFileUpload(file, authentication);
 
-            log.info(file.getContentType());
-
+            log.info("Saved " + fileUUID + " - type: " + file.getContentType());
             marginAnalystMacroService.importMarginAnalystMacroFromFile(originalFileName, filePath);
 
         } else {
@@ -169,44 +146,13 @@ public class MarginAnalystController {
             String originalFileName = file.getOriginalFilename();
             String fileUUID = fileUploadService.saveFileUpload(file, authentication);
 
-            log.info(file.getContentType());
-
+            log.info("Saved " + fileUUID + " - type: " + file.getContentType());
             partService.importPartFromFile(originalFileName, filePath);
 
         } else {
             fileUploadService.deleteFileInDisk(filePath);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uploaded file is not an Excel file");
         }
-    }
-
-    @PostMapping(path = "/getEstimateMarginAnalystData")
-    Map<String, Object> getIMMarginAnalystData(@RequestBody IMMarginAnalystData imMarginAnalystData) throws IOException {
-        log.info(imMarginAnalystData.getModelCode() + " " + imMarginAnalystData.getCurrency() + " " +
-                imMarginAnalystData.getFileUUID()+ " " + imMarginAnalystData.getOrderNumber()+ " " +
-                imMarginAnalystData.getType());
-        List<IMMarginAnalystData> imMarginAnalystDataList =
-                IMMarginAnalystDataService.getIMMarginAnalystData(
-                        imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(),
-                        imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber(),
-                        imMarginAnalystData.getType()
-                );
-
-        Map<String, Object> imMarginAnalystSummaryMap =
-                IMMarginAnalystDataService.getIMMarginAnalystSummary(
-                        imMarginAnalystData.getModelCode(), imMarginAnalystData.getCurrency(),
-                        imMarginAnalystData.getFileUUID(), imMarginAnalystData.getOrderNumber(),
-                        imMarginAnalystData.getType()
-                );
-
-        return Map.of(
-                "MarginAnalystData", imMarginAnalystDataList,
-                "MarginAnalystSummary", imMarginAnalystSummaryMap
-        );
-    }
-
-    @GetMapping(path = "/getMargin")
-    List<IMMarginAnalystData> getMargin(@RequestParam String fileUUID) {
-        return imMarginAnalystDataRepository.getMargin(fileUUID);
     }
 }
 
