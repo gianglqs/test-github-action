@@ -4,8 +4,7 @@ on:
    pull_request:
    push:
       branches:
-         - 'qa*'
-         - 'releases/*'
+         - 'main'
 
 jobs:
    qodana:
