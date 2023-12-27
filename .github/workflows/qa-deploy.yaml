@@ -72,8 +72,8 @@ jobs:
              docker stop $CONTAINER_NAME || true
           fi
           # remove image and containers old
-          docker rm $CONTAINER_NAME
-          docker rmi ghcr.io/phoenix-software-development/hyster-yale-backend:latest
+          docker rm $CONTAINER_NAME || true
+          docker rmi ghcr.io/phoenix-software-development/hyster-yale-backend:latest || true
           # pull and run
           docker pull ghcr.io/phoenix-software-development/hyster-yale-backend:latest
           docker run -p 3005:3005 -d --name=hysteryale-be --network=host --restart unless-stopped ghcr.io/phoenix-software-development/hyster-yale-backend:latest
