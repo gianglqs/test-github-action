@@ -18,6 +18,6 @@ COPY --from=build /app/target/ target/
 EXPOSE 8080
 
 # create folder to save file when import file excel
-RUN mkdir /tmp/UploadFiles
+RUN mkdir -p /tmp/UploadFiles/forecast_pricing
 # run
 ENTRYPOINT ["java","-jar","target/hysteryale.war"]
