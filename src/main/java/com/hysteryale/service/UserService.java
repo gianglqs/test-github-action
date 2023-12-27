@@ -136,6 +136,7 @@ public class UserService extends BasedService{
         user.setPassword(passwordEncoder().encode(newPassword.toString()));
     }
 
+
     /**
      * Get Users based on searchString (search by userName and email)
      * @param searchString for searching userName or email
