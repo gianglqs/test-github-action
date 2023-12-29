@@ -108,7 +108,7 @@ export default function LoginPage() {
             setCookie(null, 'name', name, { maxAge: 604800 });
 
             // setCookie(null, 'redirect_to', redirect_to, { maxAge: 2147483647 });
-            router.push(redirect_to);
+            router.push('/web-pricing-tools/admin/dashboard');
          })
          .catch((error) => {
             dispatch(commonStore.actions.setErrorMessage('Error on signing in'));
