@@ -719,7 +719,13 @@ export default function Shipment() {
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
-                     //tableHeight={740}
+                     sx={{
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                           whiteSpace: 'break-spaces',
+                           lineHeight: 1.2,
+                        },
+                     }}
+                     columnHeaderHeight={60}
                      slots={{
                         toolbar: GridToolbar,
                      }}

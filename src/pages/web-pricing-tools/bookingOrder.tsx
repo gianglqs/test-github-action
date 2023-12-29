@@ -660,7 +660,13 @@ export default function Booking() {
                   <DataGridPro
                      hideFooter
                      disableColumnMenu
-                     //tableHeight={740}
+                     sx={{
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                           whiteSpace: 'break-spaces',
+                           lineHeight: 1.2,
+                        },
+                     }}
+                     columnHeaderHeight={60}
                      rowHeight={30}
                      slots={{
                         toolbar: GridToolbar,
