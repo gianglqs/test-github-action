@@ -892,9 +892,16 @@ export default function Indicators() {
             <Paper elevation={1} sx={{ marginTop: 2 }}>
                <Grid container sx={{ height: 'calc(67vh - 275px)', minHeight: '200px' }}>
                   <DataGridPro
+                     sx={{
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                           textOverflow: 'clip',
+                           whiteSpace: 'break-spaces',
+                           lineHeight: 1.2,
+                        },
+                     }}
+                     columnHeaderHeight={70}
                      hideFooter
                      disableColumnMenu
-                     // tableHeight={390}
                      slots={{
                         toolbar: GridToolbar,
                      }}
