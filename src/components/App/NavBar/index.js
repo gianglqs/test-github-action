@@ -37,7 +37,7 @@ const NavBar = () => {
                      router.pathname ===
                      `/web-pricing-tools/${name != 'bookingOrder' ? `admin/${name}` : `${name}`}`
                         ? '#e7a800'
-                        : '#000000'
+                        : '#a5a5a5'
                   }
                   sx={{
                      fontSize: 15,
