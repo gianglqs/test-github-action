@@ -11,15 +11,9 @@ import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CreateIcon from '@mui/icons-material/AddCircle';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
 import { AccountCircle, ReplayOutlined as ReloadIcon } from '@mui/icons-material';
 import { Button, Popover } from '@mui/material';
 
@@ -40,8 +34,8 @@ import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state
 import { destroyCookie } from 'nookies';
 import axios from 'axios';
 import { parseCookies } from 'nookies';
-import authApi from '@/api/auth.api';
 import { DialogChangePassword } from '@/components/Dialog/Module/Dashboard/ChangePasswordDialog';
+import { NavBar } from '@/components/App/NavBar';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const logo = require('@/public/logo.svg');
@@ -422,30 +416,7 @@ export default function Dashboard() {
                </Toolbar>
                <Divider />
                <List component="nav">
-                  <Link href={`/web-pricing-tools/bookingOrder`}>
-                     <ListItemButton>
-                        <ListItemIcon>
-                           <DashboardIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Dashboard" />
-                     </ListItemButton>
-                  </Link>
-                  <Link href={`/web-pricing-tools/admin/competitors`}>
-                     <ListItemButton>
-                        <ListItemIcon>
-                           <DashboardIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Competitors" />
-                     </ListItemButton>
-                  </Link>
-                  <Link href={`/web-pricing-tools/admin/dashboard`}>
-                     <ListItemButton>
-                        <ListItemIcon>
-                           <PeopleIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Users" />
-                     </ListItemButton>
-                  </Link>
+                  <NavBar />
                </List>
             </Drawer>
             <Box
