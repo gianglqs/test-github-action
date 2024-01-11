@@ -16,7 +16,7 @@ export const refreshTokenForFunctionGetServerSideProps = async (
          }
       );
 
-      const accessToken = response.data.accessToken;
+      const accessToken = response.data.data.accessToken;
 
       setCookie(null, 'token', accessToken, {
          maxAge: 604800,

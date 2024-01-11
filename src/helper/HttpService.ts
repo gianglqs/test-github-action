@@ -40,7 +40,7 @@ class HttpService<GetList = any> {
                            refreshToken: refresh_token,
                         }
                      );
-                     const accessToken = response.data.accessToken;
+                     const accessToken = response.data.data.accessToken;
                      setCookie(null, 'token', accessToken, {
                         maxAge: 604800,
                         path: '/',
