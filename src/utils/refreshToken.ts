@@ -9,19 +9,10 @@ export const refreshTokenForFunctionGetServerSideProps = async (
       const cookies = parseCookies(context);
       const refresh_token = cookies['refresh_token'];
 
-      const response = await axios.post(
-         `${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/refreshToken`,
-         {
-            refreshToken: refresh_token,
-         }
-      );
-
-      const accessToken = response.data.data.accessToken;
-
-      setCookie(null, 'token', accessToken, {
-         maxAge: 604800,
-         path: '/',
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}oauth/refreshToken`, {
+         refreshToken: refresh_token,
       });
+
       return {
          props: {},
       };
@@ -52,10 +43,6 @@ export const refreshTokenForFunctionGetServerSidePropsLogin = async (
 
       const accessToken = response.data.accessToken;
 
-      setCookie(null, 'token', accessToken, {
-         maxAge: 604800,
-         path: '/',
-      });
       const newRequest = {
          ...error.config,
          headers: {
